@@ -119,6 +119,7 @@ button.row:disabled{opacity:.45;cursor:not-allowed}
 .sec{display:flex;align-items:center;gap:10px;font:700 .68rem var(--f-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--copper);margin:10px 0 0}
 .sec::before,.sec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--edge-2),transparent)}
 #toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,8px);background:#1a130f;border:1px solid var(--edge-2);color:var(--gold);font:600 .82rem var(--f-ui);padding:7px 14px;border-radius:2px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:60;max-width:calc(100vw - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#toast.on{opacity:1;transform:translate(-50%,0)}.asg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}.asg .opt{padding:8px 4px;text-align:center;font-size:.8rem}
+.rtl{margin:8px 0;padding-left:20px;color:var(--text);line-height:1.5}
 .mkr .mkb{display:flex;gap:6px;flex:none}.mkr .mkb .btn{padding:7px 10px}.mkt{font:600 .78rem var(--f-ui);color:var(--muted)}.mkt.up{color:var(--bad)}.mkt.dn{color:var(--good)}.mkb2{display:grid;grid-template-columns:1fr 1fr;gap:6px}.svta{width:100%;box-sizing:border-box;background:#0a0706;color:var(--text);border:1px solid var(--edge-2);padding:10px;font:.78rem/1.4 ui-monospace,monospace;resize:vertical;word-break:break-all;border-radius:2px}
 .note{margin:0;padding:10px 12px;background:#100b09;border:1px solid #33251c;border-left:3px solid var(--copper)}
 .note.good{border-left-color:var(--good)}.note.bad{border-left-color:var(--bad)}.note.magic{border-left-color:var(--arcane)}.note.item{border-left-color:var(--gold)}
@@ -1858,6 +1859,7 @@ function drawSheet(){
     if(h.title>=2&&!rules())b+=`<p class="note">Tước vị và đất đai do ${esc(holderName())} nắm giữ. Bạn đứng thứ ${lineOrder().findIndex(x=>x.id==='me')+1} trong hàng thừa kế.</p>`;
     b+=`<div class="hgrid"><div><span>Tước hiệu</span><b>${h.title>=2?titleName(h.title,S.sex):'Thường dân'}</b></div><div><span>Uy danh</span><b>${h.prestige.toLocaleString('vi-VN')}</b></div><div><span>Thế hệ</span><b>Đời thứ ${S.gen}</b></div><div><span>Lập tộc</span><b>Năm ${h.founded}</b></div></div>`;
     b+='<p class="sec">Cây gia phả</p>'+treeHTML()+memHTML();
+    if(kids().length)b+=gRow('data-open="retire"','crown','Truyền đời cho con',rtWhy()||'Lui về ở ẩn và chơi tiếp ngay bằng một người con đã trưởng thành','',false);
     b+='<p class="note">Tước vị, uy danh, tài sản và túi đồ bảo vật truyền cho người con bạn chọn làm người thừa kế.</p>';
   }
   if(view==='dom'||view.startsWith('dom:')){
@@ -1929,6 +1931,7 @@ function drawSheet(){
     if(S.flags.her)b+=`<p class="note magic">Bí mật: bạn là ${HER[S.flags.her]}. Đừng để Tòa Dị Giáo biết.</p>`;
     if(S.flags.were)b+='<p class="note magic">Bạn mang lời nguyền người sói.</p>';
     b+='<p class="note">Phím tắt: 1–6 mở các bảng, phím cách để sang năm.</p>';
+    {const w=rtWhy();if(kids().length)b+='<p class="sec">Truyền đời</p>'+gRow('data-open="retire"','crown','Lui về ở ẩn, chơi tiếp bằng đời con',w||`${rtKids().length} người con đã trưởng thành có thể kế tục`,'',false)}
     b+='<p class="sec">Lưu trữ</p>'+gRow('data-open="saves"','bookmark','Lưu trữ cuộc đời','Ô lưu, xuất file, mã lưu để chơi tiếp trên máy khác','',false);
     b+=rowBtn('data-confirm','Bắt đầu một đời mới','Đời hiện tại được tự động sao lưu trước khi xóa','');
   }
@@ -1943,7 +1946,7 @@ function treeHTML(){
   gens.forEach((g,i)=>{
     const cur=i===gens.length-1&&S.alive;
     const t=g.title>=2?titleName(g.title,g.sex)+' ':g.saint?'Thánh Nữ ':g.knight?(g.sex==='m'?'Ngài ':'Phu nhân '):'';
-    h+=`<div class="tnode ${cur?'cur':''}"><div class="tgen">Đời thứ ${g.gen}${cur?' · đang sống':''}</div><b>${esc(t+g.first)}</b><small>${RACES[g.race].n} · ${g.by} – ${cur?'nay':g.dy}${!cur&&g.cause?' · mất vì '+esc(g.cause):''}${g.slayer?' · Kẻ Diệt Rồng':''}${g.legend?' · Anh Hùng':''}${g.dark?' · Thảm Họa Hắc Ám':''}</small>${g.spouses.length?`<small>Phối ngẫu: ${esc(g.spouses.join(', '))}</small>`:''}<div class="tkids">${g.kids.length?g.kids.map(k=>`<span class="kid ${g.heir===k.id?'heir':''} ${k.alive?'':'dead'}">${esc(k.first)}${g.heir===k.id?' · thừa kế':''}</span>`).join(''):'<span class="kid none">Chưa có con</span>'}</div></div>`;
+    h+=`<div class="tnode ${cur?'cur':''}"><div class="tgen">Đời thứ ${g.gen}${cur?' · đang sống':''}</div><b>${esc(t+g.first)}</b><small>${RACES[g.race].n} · ${g.by} – ${cur?'nay':g.dy}${g.ret&&!cur?(g.ry?` · lui về năm ${g.ry}`:' · đã lui về ở ẩn'):''}${!cur&&g.cause?' · mất vì '+esc(g.cause):''}${g.slayer?' · Kẻ Diệt Rồng':''}${g.legend?' · Anh Hùng':''}${g.dark?' · Thảm Họa Hắc Ám':''}</small>${g.spouses.length?`<small>Phối ngẫu: ${esc(g.spouses.join(', '))}</small>`:''}<div class="tkids">${g.kids.length?g.kids.map(k=>`<span class="kid ${g.heir===k.id?'heir':''} ${k.alive?'':'dead'}">${esc(k.first)}${g.heir===k.id?' · thừa kế':''}</span>`).join(''):'<span class="kid none">Chưa có con</span>'}</div></div>`;
   });
   return h+'</div>';
 }
@@ -5330,6 +5333,45 @@ function autoRotate(why){const pickS=ASLOTS.map(k=>[k,slotGet(k)]).sort((a,b)=>(
   if(c.f&&S.age%c.f===0)autoRotate(`${S.age} tuổi, năm ${S.year}`);
   else if(c.ev&&S.ann.length)autoRotate(S.ann[0].title)}}
 {const i0=inherit;inherit=function(id){const g=S&&S.gen;i0(id);if(S&&S.gen!==g&&acfg().ev)autoPut('gen',`đời thứ ${S.gen}`)}}
+/* ---------- 12. Truyền đời cho con khi còn sống ---------- */
+const rtKids=()=>kids().filter(k=>adultK(k));
+function rtWhy(){if(!S.alive)return'Bạn đã qua đời';if(S.pend.length||S.ann.length)return'Hãy xử lý sự kiện đang chờ trước';if(S.fight||(S.flags.hero&&S.world.cat&&S.flags.hero.cat===S.world.cat.y))return'Đang gánh sứ mệnh Anh Hùng, chưa thể lui về';if(S.flags.dark||S.flags.hcat)return'Thảm Họa không thể lui về ở ẩn';if(!kids().length)return'Bạn chưa có con';if(!rtKids().length)return'Chưa có người con nào trưởng thành';return''}
+{const g0=genRecord;genRecord=function(){const r=g0();if(S.flags.retiring){r.ret=1;r.cause=''}return r}}
+function rtView(v){
+  if(v==='retire'){let b='<p class="note">Bạn có thể lui về ở ẩn và chơi tiếp ngay bằng một người con đã trưởng thành. Gia sản, bảo vật và tước vị được truyền như khi qua đời, nhưng bạn vẫn sống trong nhà với vai trò cha mẹ của nhân vật mới cho đến cuối đời.</p>';
+    const why=rtWhy();if(why)return['Truyền đời cho con',b+`<p class="note bad">${why}.</p>`,'menu'];
+    const th=titleHeirOf(S);b+='<p class="sec">Chọn người kế tục</p>';
+    for(const k of rtKids())b+=gRow(`data-open="retire:${k.id}"`,k.sex==='m'?'male':'female',esc(k.first),`${k.rel} · ${k.age} tuổi${k.race!==S.race?' · '+RACES[k.race].n:''} · tình cảm ${k.bond}${th&&th.id===k.id?' · kế thừa tước':''}${k.vow?' · đã khấn dòng':''}`,'',false);
+    const young=kids().filter(k=>!adultK(k));if(young.length)b+=`<p class="note">Chưa đủ tuổi kế tục: ${young.map(k=>esc(k.first)+' ('+k.age+')').join(', ')}.</p>`;
+    return['Truyền đời cho con',b,'menu']}
+  const id=v.slice(7),k=S.fam.find(x=>x.id===id&&x.alive);if(!k)return['Truyền đời cho con','<p class="note">Không tìm thấy người con này.</p>','retire'];
+  const th=titleHeirOf(S),n=Math.max(1,heirPool().length);
+  let b=`<p class="note">${esc(S.first)} sẽ lui về ở ẩn. Bạn sẽ chơi tiếp bằng <b>${esc(k.first)}</b>, ${k.age} tuổi.</p><ul class="rtl"><li>Tiền (${fmt(S.money)}) và bảo vật chia cho ${n} người con.</li>${S.house.title>=2&&rules()?`<li>Tước vị ${th&&th.id!==k.id?`về tay ${esc(th.first)} theo ${S.kd&&S.kd.heir?'chiếu chỉ kế vị':'luật trưởng nam'}`:`truyền cho ${esc(k.first)}`}.</li>`:''}<li>${esc(S.first)} trở thành ${S.sex==='m'?'cha':'mẹ'} của nhân vật mới, vẫn trò chuyện và nhờ cậy được.</li><li>Không thể quay lại đời này, trừ khi tải bản lưu.</li></ul>`;
+  b+=rowBtn(`data-x="rt:go:${k.id}"`,`Truyền đời cho ${esc(k.first)}`,'','');
+  return['Lui về ở ẩn?',b,'retire'];
+}
+function rtGo(id){
+  if(rtWhy())return;const k=S.fam.find(x=>x.id===id&&x.alive);if(!k||!adultK(k))return;
+  try{if(acfg().ev)autoPut('gen',`trước khi ${S.first} lui về`)}catch(e){}
+  const old=S,me={first:old.first,sur:old.surname,sex:old.sex,age:old.age,race:old.race,gen:old.gen,y:old.year};
+  S.flags.retiring=1;S.cause='';
+  log(`${S.first} lui về ở ẩn, trao lại gia nghiệp cho ${k.rel.toLowerCase()} ${k.first}.`,'good');
+  const D=old.dragon&&old.dragon.alive&&old.dragon.hy!=null?old.dragon:null;if(D)old.dragon=null;
+  closeSheet();inherit(id);
+  if(S===old){delete S.flags.retiring;if(D)old.dragon=D;return}
+  const p={id:uid(),rel:me.sex==='m'?'Cha':'Mẹ',sex:me.sex,age:me.age,race:me.race,first:me.first,sur:me.sur,name:me.first+' '+me.sur,alive:true,bond:clamp(k.bond+R(0,10)),d:0,retired:me.gen};
+  S.fam.unshift(p);
+  if(D){S.dragon={...D,bond:Math.round(D.bond*.75),trust:Math.round(D.trust*.8),flags:{...D.flags,saved:0}};S.dq=(S.dq||[]).filter(x=>x.id!=='dr_return');drSync();log(`${D.name} vẫn ở lại lâu đài. Nó quen hơi ${me.first}, nhưng dần dần cũng chịu nghe lời bạn.`,'magic')}
+  /* biên niên đời trước ghi là lui về, không phải qua đời */
+  const rec=S.tree[S.tree.length-1];if(rec){rec.ret=1;rec.cause=''}
+  log(`${me.sex==='m'?'Cha':'Mẹ'} ${me.first} vẫn sống trong nhà, ngày ngày ngồi bên lò sưởi kể chuyện năm xưa.`);
+  save();render();
+}
+/* cha mẹ đã lui về qua đời: cập nhật cây gia phả */
+{const f0=famYear;famYear=function(){f0();for(const p of S.fam){if(p.retired&&!p.alive&&!p.rdone){p.rdone=1;const r=(S.tree||[]).find(g=>g.gen===p.retired);if(r){r.ry=r.dy;r.dy=S.year;r.cause=p.age>=60?'tuổi già':'bệnh'}}}}}
+{const d0=drawExt3;drawExt3=function(v){if(v==='retire'||v.startsWith('retire:'))return rtView(v);return d0(v)}}
+{const x0=extAct3;extAct3=function(x){if(x.startsWith('rt:go:'))return rtGo(x.slice(6));return x0(x)}}
+
 /* lưu ngay khi rời trang hoặc chuyển ứng dụng */
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&S)save()});
 window.addEventListener('pagehide',()=>{if(S)save()});
