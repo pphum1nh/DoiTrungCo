@@ -118,6 +118,7 @@ button.row:disabled{opacity:.45;cursor:not-allowed}
 .bond i{display:block;height:100%;background:var(--good)}
 .sec{display:flex;align-items:center;gap:10px;font:700 .68rem var(--f-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--copper);margin:10px 0 0}
 .sec::before,.sec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--edge-2),transparent)}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,8px);background:#1a130f;border:1px solid var(--edge-2);color:var(--gold);font:600 .82rem var(--f-ui);padding:7px 14px;border-radius:2px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:60;max-width:calc(100vw - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#toast.on{opacity:1;transform:translate(-50%,0)}.asg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}.asg .opt{padding:8px 4px;text-align:center;font-size:.8rem}
 .mkr .mkb{display:flex;gap:6px;flex:none}.mkr .mkb .btn{padding:7px 10px}.mkt{font:600 .78rem var(--f-ui);color:var(--muted)}.mkt.up{color:var(--bad)}.mkt.dn{color:var(--good)}.mkb2{display:grid;grid-template-columns:1fr 1fr;gap:6px}.svta{width:100%;box-sizing:border-box;background:#0a0706;color:var(--text);border:1px solid var(--edge-2);padding:10px;font:.78rem/1.4 ui-monospace,monospace;resize:vertical;word-break:break-all;border-radius:2px}
 .note{margin:0;padding:10px 12px;background:#100b09;border:1px solid #33251c;border-left:3px solid var(--copper)}
 .note.good{border-left-color:var(--good)}.note.bad{border-left-color:var(--bad)}.note.magic{border-left-color:var(--arcane)}.note.item{border-left-color:var(--gold)}
@@ -5312,6 +5313,46 @@ function svView(v){
   return null;
 }
 {const r0=restart;restart=function(){if(S)slotPut('auto',S);return r0()}}
+/* ---------- 11. Tự động lưu ---------- */
+const AKEY=KEY+'-autocfg',AFREQ=[[1,'Mỗi năm'],[5,'Mỗi 5 năm'],[10,'Mỗi 10 năm'],[0,'Tắt']],ASLOTS=['a1','a2','a3'];
+function acfg(){try{const v=JSON.parse(localStorage.getItem(AKEY));if(v&&v.f!=null)return v}catch(e){}return{f:5,ev:1}}
+function acfgSet(o){try{localStorage.setItem(AKEY,JSON.stringify({...acfg(),...o}))}catch(e){}}
+const slotLabel=n=>n==='auto'?'Bản sao trước khi xóa đời':n==='death'?'Bản lưu lúc qua đời':n==='gen'?'Bản lưu lúc sang đời mới':/^a\d$/.test(n)?`Tự lưu ${n.slice(1)}`:`Ô ${n}`;
+function toast(t){let el=document.getElementById('toast');if(!el){el=document.createElement('div');el.id='toast';document.body.appendChild(el)}el.textContent=t;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),1800)}
+function autoPut(n,why){
+  if(!S)return false;let ok=slotPut(n,S);
+  if(!ok){for(const k of[...ASLOTS].sort((a,b)=>((slotGet(a)||{}).t||0)-((slotGet(b)||{}).t||0))){if(k===n)continue;try{localStorage.removeItem(SKEY(k))}catch(e){}if(slotPut(n,S)){ok=true;break}}}
+  toast(ok?`Đã tự lưu · ${why}`:'Không tự lưu được: bộ nhớ trình duyệt đã đầy');return ok;
+}
+function autoRotate(why){const pickS=ASLOTS.map(k=>[k,slotGet(k)]).sort((a,b)=>(a[1]?a[1].t:0)-(b[1]?b[1].t:0))[0][0];return autoPut(pickS,why)}
+{const a0=ageUp;ageUp=function(){const y=S&&S.year;a0();if(!S||S.year===y)return;const c=acfg();
+  if(!S.alive){if(c.ev)autoPut('death',`${S.first} qua đời`);return}
+  if(c.f&&S.age%c.f===0)autoRotate(`${S.age} tuổi, năm ${S.year}`);
+  else if(c.ev&&S.ann.length)autoRotate(S.ann[0].title)}}
+{const i0=inherit;inherit=function(id){const g=S&&S.gen;i0(id);if(S&&S.gen!==g&&acfg().ev)autoPut('gen',`đời thứ ${S.gen}`)}}
+/* lưu ngay khi rời trang hoặc chuyển ứng dụng */
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&S)save()});
+window.addEventListener('pagehide',()=>{if(S)save()});
+/* xin trình duyệt giữ dữ liệu lâu dài, tránh bị tự xóa */
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persisted().then(p=>{if(!p)navigator.storage.persist()})}catch(e){}
+function autoHTML(){
+  const c=acfg();let b='<p class="sec">Tự động lưu</p><p class="note">Ngoài bản lưu hiện tại, game tự giữ 3 bản xoay vòng theo chu kỳ bạn chọn, cùng bản lưu lúc qua đời và lúc sang đời mới. Lỡ tay chọn sai, bạn có thể quay lại.</p>';
+  b+=`<div class="seg asg">${AFREQ.map(([f,l])=>`<button class="opt ${c.f===f?'on':''}" data-x="sv:freq:${f}" aria-pressed="${c.f===f}">${l}</button>`).join('')}</div>`;
+  b+=gRow('data-x="sv:evtog"','notification','Lưu khi có sự kiện lớn',c.ev?'Đang bật · đăng quang, phong tước, qua đời, sang đời mới':'Đang tắt','',false);
+  const L=[...ASLOTS,'death','gen'].map(n=>[n,slotGet(n)]).filter(x=>x[1]).sort((a,b)=>b[1].t-a[1].t);
+  b+=L.length?L.map(([n,x])=>gRow(`data-open="saves:load:${n}"`,'clock',slotLabel(n),slotDesc(x),'',false)).join(''):'<p class="note">Chưa có bản tự lưu nào. Bản đầu tiên sẽ xuất hiện sau vài năm chơi.</p>';
+  return b;
+}
+{const v0=svView;svView=function(v){const r=v0(v);if(!r)return r;
+  if(v==='saves'){r[1]=r[1].replace('<p class="sec">Ô lưu trong máy</p>',autoHTML()+'<p class="sec">Ô lưu thủ công</p>')}
+  if(v.startsWith('saves:load:')){const n=v.slice(11);r[1]=r[1].replace(`>${n==='auto'?'Bản sao tự động':`Ô ${n}`}<`,`>${slotLabel(n)}<`)}
+  return r}}
+{const s0=svAct;svAct=function(a,n){
+  if(a==='freq'){acfgSet({f:+n});note={t:+n?`Tự lưu ${AFREQ.find(x=>x[0]===+n)[1].toLowerCase()}.`:'Đã tắt tự lưu theo chu kỳ. Game vẫn lưu bản hiện tại sau mỗi năm.',tone:'good'};view='saves';return drawSheet()}
+  if(a==='evtog'){acfgSet({ev:acfg().ev?0:1});view='saves';return drawSheet()}
+  if(a==='load'&&!SLOTS.includes(n)){const x=slotGet(n);if(!x)return;return svLoadObj(x.S,slotLabel(n).toLowerCase())}
+  return s0(a,n)}}
+
 
 /* ---------- 9. Sự kiện ---------- */
 const npT=()=>(S.rel||[]).find(x=>x.id===S.npT&&x.alive);
