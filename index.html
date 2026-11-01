@@ -805,7 +805,7 @@ const ACT_GROUPS=[
 ];
 const EIMG={plague:'plague',dragon:'dragon',inq:'inquisition',saint:'saint',assassin:'assassin',callhero:'prophets',herotrain:'prophets',merit:'knighted',rebels:'knighted',royalwed:'coronation',coup:'coronation',darkyear:'demon',darkwake:'demon',stone:'coronation'};
 const CATIMG={demon:'demon',undead:'undead',dragon:'dragon',plague:'plague',heresy:'inquisition'};
-const eimg=e=>['catyear','herobattle','herofight'].includes(e.id)?(S.world.cat&&CATIMG[S.world.cat.id]):EIMG[e.id];
+const eimg=e=>['catyear','herofight'].includes(e.id)?(S.world.cat&&CATIMG[S.world.cat.id]):EIMG[e.id];
 const imgBanner=k=>k?`<div class="evimg"><img src="ev/${k}.webp" alt=""></div>`:'';
 const BAGMAX=16;
 
@@ -3896,6 +3896,21 @@ function extIncome2(){
 
 Object.assign(EIMG,{revolt:'revolt',awaken:'awaken',stone:'sword_stone',cult:'redmoon',herreveal:'redmoon',kn_redsecret:'redmoon',hryear:'redmoon',convert:'chieftain',orcchief:'orcduel',royalwed:'royalwed',r_wed:'royalwed',h_wed:'royalwed',coup:'throne',d_plot:'throne',k_tw1:'throne',k_tw2:'throne',r_rival:'throne',ac_letter:'owlletter',ac_sort:'manatest',magetest:'manatest',ac_major:'freshmen',ac_grad:'freshmen',egg:'dragonegg',hn_job:'swamphunt',hg1:'swamphunt',hg3:'swamphunt',hg4:'swamphunt',hg_flee:'swamphunt',hn_trial:'swamphunt',hd1:'cryptfight',hd2:'cryptfight',hd3:'cryptfight',hd4:'cryptfight',hdb:'cryptfight',hdend:'cryptfight',dg_armory:'cryptfight',dg_knight:'cryptfight',dg_chest:'cryptfight',dg_guard:'cryptfight',dg_altar:'cryptfight'});
 for(const id of ['egg','magetest'])if(EVB[id]){EVB[id].big=true;EVB[id].art=EVB[id].art||(id==='egg'?'egg':'crystal-ball')}
+
+Object.assign(EIMG,{levy:'callarms',witch:'witchtrial',s_trial:'witchtrial',fair:'fair',wolf:'wolfnight',herotrain:'herotrain',herobattle:'destiny',darkwake:'abyss',herocomes:'herocomes',hrhero:'herocomes',rebels:'rebels',merit:'merit',crusade:'crusade',cru_call:'crusade',heryear:'eclipse',ghost:'ghost',alchtest:'alchemy',starfall:'meteor',dg_altar:'ruins',dg_knight:'ruins',acs1:'ruins'});
+CATIMG.heresy='eclipse';
+{const A={levy:'w-halberd',witch:'flame',fair:'shop',wolf:'wolf',ghost:'ghost',crusade:'cross'};for(const k in A)if(EVB[k]){EVB[k].big=true;EVB[k].art=EVB[k].art||A[k]}}
+if(EVB.meteor)EVB.meteor.w=()=>0;
+for(const e of [
+ {id:'starfall',big:true,art:'meteor',w:W(2),c:s=>s.age>=8,title:'Thiên thạch giáng xuống',text:'Bầu trời đỏ rực như máu. Một khối lửa khổng lồ xé ngang trời rồi rơi xuống khu rừng phía sau làng, rung chuyển cả mặt đất.',
+  ch:[{t:'Chạy tới hố thiên thạch',f:s=>{if(ch(.15)){mod({health:-15});return['Hơi nóng từ hố thiên thạch thiêu cháy lông mày và tay áo bạn.','bad']}if(ch(.45)){const k=pick(['gem','gem','sc_crystal','rg_arcane']);gainItem(k);mod({magic:3});return[`Giữa hố đất cháy xém, bạn nhặt được ${ITEMS[k].n.toLowerCase()} còn nóng hổi.`,'item']}mod({magic:4});return['Bạn chạm vào tảng đá trời. Một luồng ma lực lạ chạy dọc sống lưng.','magic']}},
+      {t:'Quỳ xuống cầu nguyện',f:()=>{mod({piety:6});return'Cha xứ bảo đó là lời cảnh báo của Thiên Chúa. Cả làng cầu nguyện suốt đêm.'}},
+      {t:'Bán tin cho pháp sư Tháp Ma Pháp',f:s=>{const g=R(15,40);s.money+=g;return[`Một pháp sư trả bạn ${g} xu để được dẫn đến nơi thiên thạch rơi trước tiên.`,'good']}}]},
+ {id:'alchtest',big:true,art:'cauldron',w:W(8),c:s=>s.job&&s.job.id==='alch',title:'Khảo nghiệm giả kim',text:'Hội đồng giả kim sư triệu bạn đến phòng thí nghiệm dưới tháp. Họ muốn xem bạn pha chế một mẻ thuốc ngay trước mắt họ.',
+  ch:[{t:'Pha theo công thức an toàn',f:s=>{s.job.perf=Math.min(100,(s.job.perf||40)+10);s.money+=R(5,12);return['Lọ thuốc trong vắt như nước suối. Hội đồng gật đầu hài lòng.','good']}},
+      {t:'Thử công thức mới của riêng bạn',f:s=>{const r=Math.random()+s.st.smarts/300;if(r>.9){gainItem('elixir');s.job.perf=100;s.job.ry=Math.max(s.job.ry,JOBS.alch.need[Math.min(s.job.rank,1)]||0);mod({honor:6});return['Thứ thuốc màu tím phát sáng rực rỡ. Bạn vừa tạo ra thuốc trường sinh! Hội đồng ghi tên bạn vào sổ vàng.','item']}if(r<.4){mod({health:-15});s.job.perf=Math.max(0,(s.job.perf||40)-10);return['Bình thủy tinh nổ tung, khói tím phủ kín phòng. Bạn bị bỏng tay.','bad']}mod({smarts:3});return'Thuốc không như ý, nhưng hội đồng đánh giá cao sự sáng tạo của bạn.'}},
+      {t:'Lén dùng công thức của thầy',f:s=>{if(ch(.6)){s.job.perf=Math.min(100,(s.job.perf||40)+15);mod({honor:-3});return'Không ai nhận ra. Bạn qua khảo nghiệm, lương tâm hơi cắn rứt.'}mod({honor:-12});s.job.perf=0;return['Thầy bạn nhận ra công thức của mình ngay lập tức.','bad']}}]}
+]){EV.push(e);EVB[e.id]=e}
 /* ---------- migration & events ---------- */
 function migrate(s){
   if(!s)return null;
@@ -3976,7 +3991,7 @@ $('#hgIcon').innerHTML=ic('hourglass',22);
 
 S=migrate(load());if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
 if(S){if(!S.rel)S.rel=[];ensureDom();const h=S.house;if(!h.div)h.div='plain';if(!h.c3)h.c3=pick(TINCT.filter(c=>c!==h.c1));if(h.charge==='moon')h.charge='night';}
-setTimeout(()=>{for(const k of ['plague','dragon','coronation','knighted','inquisition','saint','assassin','demon','undead','prophets','revolt','awaken','sword_stone','redmoon','chieftain','orcduel','royalwed','throne','owlletter','manatest','freshmen','dragonegg','swamphunt','cryptfight']){const i=new Image();i.src=`ev/${k}.webp`}},1500);
+setTimeout(()=>{for(const k of ['plague','dragon','coronation','knighted','inquisition','saint','assassin','demon','undead','prophets','revolt','awaken','sword_stone','redmoon','chieftain','orcduel','royalwed','throne','owlletter','manatest','freshmen','dragonegg','swamphunt','cryptfight','callarms','witchtrial','fair','wolfnight','herotrain','destiny','abyss','herocomes','rebels','merit','crusade','eclipse','ghost','alchemy','ruins','meteor']){const i=new Image();i.src=`ev/${k}.webp`}},1500);
 if(!S)showIntro();else{save();render();if(!S.alive)showDeath();else if(S.ann.length||S.pend.length)showNext()}
 </script>
 
