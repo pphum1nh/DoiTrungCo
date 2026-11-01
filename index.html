@@ -1731,7 +1731,7 @@ function drawSheet(){
     b+=gRow('data-open="rel:friend"','friends','Bạn bè',rels('friend').length?rels('friend').map(r=>r.first).slice(0,4).join(', '):'Chưa có bạn',`${rels('friend').length} người`,false);
     b+=gRow('data-open="rel:love"',sp?'rings':'heart-arrow',sp?'Hôn nhân':'Người yêu',sp?`${sp.rel} ${sp.first}`:lv?`Đang hẹn hò với ${lv.first}`:'Độc thân',sp?'Đã kết hôn':lv?'Đang yêu':'',false);
     b+=gRow('data-open="rel:enemy"','enemy','Kẻ thù',rels('enemy').length?rels('enemy').map(r=>r.first).slice(0,4).join(', '):'Chưa có kẻ thù',`${rels('enemy').length} người`,false);
-    b+='<p class="sec">Sum vầy</p>'+gRow('data-x="allrel"','user-group','Dành thời gian cho tất cả người thân',S.done.allrel?'Đã sum vầy năm nay':'Gia đình, bạn bè, người yêu · tình cảm và niềm vui tăng','',!!S.done.allrel||!S.alive);
+    b+='<p class="sec">Sum vầy</p>'+gRow('data-x="allrel"','user-group','Dành thời gian cho tất cả người thân',S.age<5?'Từ 5 tuổi':S.done.allrel?'Đã sum vầy năm nay':'Gia đình, bạn bè, người yêu · tình cảm và niềm vui tăng','',S.age<5||!!S.done.allrel||!S.alive);
   }
   if(view==='rel:fam'){
     back='rel';title='Gia đình';const sp=spouse();
@@ -3911,6 +3911,244 @@ for(const e of [
       {t:'Thử công thức mới của riêng bạn',f:s=>{const r=Math.random()+s.st.smarts/300;if(r>.9){gainItem('elixir');s.job.perf=100;s.job.ry=Math.max(s.job.ry,JOBS.alch.need[Math.min(s.job.rank,1)]||0);mod({honor:6});return['Thứ thuốc màu tím phát sáng rực rỡ. Bạn vừa tạo ra thuốc trường sinh! Hội đồng ghi tên bạn vào sổ vàng.','item']}if(r<.4){mod({health:-15});s.job.perf=Math.max(0,(s.job.perf||40)-10);return['Bình thủy tinh nổ tung, khói tím phủ kín phòng. Bạn bị bỏng tay.','bad']}mod({smarts:3});return'Thuốc không như ý, nhưng hội đồng đánh giá cao sự sáng tạo của bạn.'}},
       {t:'Lén dùng công thức của thầy',f:s=>{if(ch(.6)){s.job.perf=Math.min(100,(s.job.perf||40)+15);mod({honor:-3});return'Không ai nhận ra. Bạn qua khảo nghiệm, lương tâm hơi cắn rứt.'}mod({honor:-12});s.job.perf=0;return['Thầy bạn nhận ra công thức của mình ngay lập tức.','bad']}}]}
 ]){EV.push(e);EVB[e.id]=e}
+/* ===== v18: sự kiện bật lên theo nghề ===== */
+Object.assign(ITEMS,{
+  mw_blade:{n:'Kiếm Kiệt Tác',r:2,ic:'w-greatsword',cb:13,fx:{honor:1},v:180,d:'Thanh kiếm hoàn hảo nhất bạn từng rèn. Lưỡi thép có vân như sóng nước.'},
+  mw_armor:{n:'Giáp Tấm Kiệt Tác',r:3,ic:'w-plate',cb:20,fx:{health:1,honor:1},v:320,d:'Bộ giáp rèn suốt ba mùa đông. Ánh lên như gương bạc.'},
+  heal_book:{n:'Sổ tay thầy thuốc',r:1,ic:'book',fx:{smarts:1,health:1},v:70,d:'Ghi chép những ca bệnh khó nhất bạn từng chữa.'}
+});
+const STK={sword:s=>s.hid.sword,magic:s=>s.st.magic,smarts:s=>s.st.smarts,piety:s=>s.st.piety,health:s=>s.st.health,looks:s=>s.st.looks,honor:s=>s.st.honor};
+function jobPromoteNow(){const J=JOBS[S.job.id];if(S.job.rank>=J.t.length-1||J.need[S.job.rank]>=99)return'';S.job.rank++;S.job.ry=0;mod({happy:6});if(S.job.rank===J.t.length-1&&J.top)J.top(S);if(S.job.id==='knight'&&S.job.rank===2){S.flags.knight=1;mod({honor:15})}if(S.job.id==='knight'&&S.job.rank===3)grantTitle(2);if((S.job.id==='church'||S.job.id==='wizard')&&S.job.rank>=1)S.flags.literate=1;return` Bạn được thăng lên ${jt()} sớm hơn dự kiến!`}
+/* lựa chọn: [nhãn, xác suất, chữ thành công, fx, [tiền], chữ thất bại, fx thất bại, {sk,item,itemP,promo,cost,die,loss,req}] */
+function jres(c){
+  let[,p0,okT,okF,okM,badT,badF,o={}]=c;let p=p0+(o.sk?STK[o.sk](S)/300:0)+(S.job?S.job.rank*.03:0);
+  if(o.cost)S.money-=o.cost;
+  if(ch(p)){mod(okF||{});let t=okT,tone='good';if(okM){const m=Math.round(R(okM[0],okM[1])*(1+(S.job?S.job.rank*.4:0)));S.money+=m;if(m)t+=` (+${m} xu)`}
+    if(S.job)S.job.perf=Math.min(100,(S.job.perf||40)+10);
+    if(o.item&&ch(o.itemP||1)){const k=Array.isArray(o.item)?pick(o.item):o.item;if(gainItem(k)){t+=` Bạn có được ${ITEMS[k].n.toLowerCase()}.`;tone='item'}}
+    if(o.promo&&S.job&&ch(o.promo))t+=jobPromoteNow();
+    if(o.ok)o.ok(S);return[t,tone]}
+  mod(badF||{});if(o.loss){const l=Math.min(Math.max(S.money,0),R(o.loss[0],o.loss[1]));S.money-=l;if(l)badT+=` (−${l} xu)`}
+  if(S.job)S.job.perf=Math.max(0,(S.job.perf||40)-8);
+  if(o.bad)o.bad(S);
+  if(o.die&&ch(o.die)){die(S.job&&JOBS[S.job.id].riskDie||'tai nạn khi làm việc');return[badT,'bad']}
+  return[badT,p0>=1?'':'bad'];
+}
+const SAFE=t=>[t,1,'',{},null,'',{}];
+function JE(job,id,title,text,ch,o={}){return{id:'j_'+id,big:true,art:o.art||JIC[job]||'anvil',w:W(o.w||5),cd:o.cd||7,c:s=>s.job&&s.job.id===job&&s.age>=12&&(o.rk==null||s.job.rank>=o.rk)&&(!o.c||o.c(s)),title,text,ch:ch.map(c=>typeof c==='string'?{t:c,f:()=>'Bạn quyết định không dính vào chuyện này.'}:{t:c[0],cost:c[7]&&c[7].cost,req:c[7]&&c[7].req,f:()=>jres(c)})}}
+const JOB_EV=[
+ /* Thợ rèn */
+ JE('smith','smith1','Mẻ thép từ trời','Một thương nhân bán cho bạn mảnh sắt thiên thạch đen bóng. Lò rèn của bạn có thể biến nó thành báu vật, hoặc đống đồng nát.',[
+  ['Rèn một thanh kiếm',.35,'Lưỡi kiếm hiện vân như sóng nước, chém đứt cả sợi tóc rơi. Đây là kiệt tác của đời bạn!',{honor:6,smarts:2},null,'Mảnh thiên thạch nứt toác trong lò. Bạn chỉ còn một đống đồng nát và đôi tay bỏng rát.',{health:-8,happy:-6},{sk:'smarts',item:'mw_blade',cost:20,req:s=>s.money>=20,promo:.3}],
+  ['Rèn một bộ giáp',.25,'Ba mùa đông bên lò, bộ giáp tấm cuối cùng cũng hoàn thành. Nó sáng như gương bạc.',{honor:8},null,'Các tấm giáp cong vênh không khớp nhau. Công sức ba mùa thành sắt vụn.',{happy:-8},{sk:'smarts',item:'mw_armor',cost:40,req:s=>s.money>=40}],
+  ['Bán lại mảnh thiên thạch',1,'Một pháp sư trả giá cao cho mảnh sắt trời.',{},[30,60],'',{}]]),
+ JE('smith','smith2','Đơn hàng của lãnh chúa','Quản gia lãnh chúa đặt năm mươi ngọn giáo cho đội lính tuần, hạn trong một tháng.',[
+  ['Làm ngày làm đêm cho kịp',.65,'Năm mươi ngọn giáo giao đúng hạn. Lãnh chúa thưởng thêm.',{health:-3,honor:3},[20,45],'Bạn kiệt sức, giao trễ ba ngày. Lãnh chúa trừ nửa tiền công.',{health:-10},{sk:'health',promo:.2}],
+  ['Thuê thêm thợ phụ (15 xu)',.85,'Có thợ phụ, việc trôi chảy. Bạn giao hàng trước hạn.',{honor:2},[25,40],'Thợ phụ làm ẩu, mười ngọn giáo gãy ngay khi thử.',{honor:-4},{cost:15,req:s=>s.money>=15}],
+  ['Làm ẩu cho nhanh',.5,'Không ai phát hiện giáo làm vội.',{honor:-2},[25,35],'Một ngọn giáo gãy giữa trận đánh cướp. Lãnh chúa đến tận lò rèn mắng bạn.',{honor:-10},{}]]),
+ JE('smith','smith3','Thanh kiếm bị nguyền','Một hiệp sĩ mang đến thanh kiếm gãy, chuôi khắc ký tự lạ, nhờ bạn rèn lại. Thanh kiếm nóng ran dù để ngoài trời lạnh.',[
+  ['Rèn lại theo yêu cầu',.55,'Thanh kiếm liền lại, phát ra tiếng ngân như chuông. Hiệp sĩ trả công hậu hĩnh.',{smarts:2},[30,70],'Lời nguyền bùng lên khi búa chạm thép. Bạn bị bỏng nặng.',{health:-15},{sk:'magic'}],
+  ['Mời cha xứ làm phép trước',.8,'Cha xứ rảy nước thánh, ký tự tắt dần. Bạn rèn lại an toàn.',{piety:3},[20,40],'Cha xứ từ chối đụng vào thứ ma quỷ ấy.',{},{}],
+  'Từ chối nhận việc'],{rk:1}),
+ /* Thầy lang */
+ JE('surgeon','surg1','Căn bệnh lạ','Một cô bé lên cơn sốt kéo dài ba tuần, da nổi những vệt bạc như vảy cá. Các thầy lang khác đều lắc đầu.',[
+  ['Nghiên cứu sách cổ tìm cách chữa',.45,'Bạn tìm ra căn bệnh trong một cuốn sách của người Tiên: độc của rắn bạc. Cô bé khỏi hẳn, cả vùng nhắc tên bạn.',{smarts:4,honor:6},[20,50],'Bạn không tìm ra cách. Cô bé qua đời, gia đình đổ lỗi cho bạn.',{happy:-10,honor:-4},{sk:'smarts',item:'heal_book',itemP:.5,promo:.3}],
+  ['Thử phương thuốc mạnh',.35,'Liều thuốc mạnh đẩy lùi cơn sốt chỉ sau một đêm.',{honor:5},[15,40],'Thuốc quá mạnh. Cô bé suy kiệt, may mà còn sống.',{honor:-6},{sk:'smarts'}],
+  ['Đưa cô bé đến tu viện cầu nguyện',.3,'Phép màu xảy ra sau bảy ngày cầu nguyện.',{piety:5},null,'Lời cầu nguyện không được đáp lại.',{happy:-6},{sk:'piety'}]]),
+ JE('surgeon','surg2','Dịch bệnh trong làng','Năm người trong làng lên cơn ho ra máu cùng một tuần. Dân chúng hoảng loạn, đòi đốt nhà người bệnh.',[
+  ['Cách ly người bệnh và chữa trị',.55,'Bạn dựng lều cách ly, đun thuốc ngày đêm. Dịch dừng lại ở năm người.',{honor:8,health:-4},[15,30],'Bạn nhiễm bệnh khi chăm người bệnh.',{health:-22},{sk:'smarts',die:.04,promo:.25}],
+  ['Thuyết phục dân không đốt nhà',.5,'Lời bạn nói khiến đám đông dịu xuống.',{honor:5},null,'Đám đông đẩy bạn ngã rồi đốt nhà người bệnh.',{health:-6,happy:-6},{sk:'honor'}],
+  ['Bỏ đi lánh nạn',1,'Bạn khóa cửa, lánh lên đồi.',{honor:-8},null,'',{}]]),
+ JE('surgeon','surg3','Ca mổ cho quý tộc','Con trai một bá tước bị mũi tên cắm sâu vào bụng. Bá tước rút kiếm: "Cứu nó, hoặc ngươi chết theo."',[
+  ['Mổ lấy mũi tên',.5,'Mũi tên được lấy ra, cậu bé sống sót. Bá tước quỳ xuống cảm ơn và ban thưởng túi vàng.',{honor:10},[60,140],'Cậu bé không qua khỏi. Bá tước tha mạng nhưng đuổi bạn khỏi lãnh địa.',{honor:-10,happy:-10},{sk:'smarts',promo:.4,bad:s=>addEnemy('Bá tước mất con dưới tay bạn',{cls:'noble',hate:R(55,75)})}],
+  ['Dùng thuốc giảm đau, chờ thời cơ',.35,'Cậu bé tự đẩy được mũi tên ra sau cơn sốt. Bạn gặp may.',{honor:4},[30,60],'Vết thương nhiễm trùng. Bá tước nổi giận.',{honor:-6},{}]],{rk:1}),
+ /* Lính */
+ JE('soldier','sold1','Đào ngũ hay ở lại','Trước trận đánh lớn, ba người lính trong đội rủ bạn trốn trong đêm.',[
+  ['Ở lại chiến đấu',.6,'Bạn đứng vững trong hàng khiên. Đội trưởng nhớ mặt bạn.',{honor:6},[10,25],'Bạn bị thương trong trận.',{health:-18},{sk:'sword',promo:.3,die:.03}],
+  ['Báo cho đội trưởng',1,'Ba kẻ đào ngũ bị bắt. Đội trưởng khen bạn, nhưng đồng đội nhìn bạn lạnh nhạt.',{honor:3},[5,10],'',{}],
+  ['Trốn cùng họ',.5,'Bạn trốn thoát về làng.',{honor:-12},null,'Bạn bị bắt lại và đánh roi trước toàn quân.',{health:-12,honor:-15},{ok:s=>{s.job=null},bad:s=>{s.job=null}}]]),
+ JE('soldier','sold2','Canh gác đêm đông','Đêm lạnh cắt da trên tường thành. Bạn nghe tiếng động lạ dưới chân tường.',[
+  ['Thổi kèn báo động',.6,'Một toán địch đang leo tường! Nhờ bạn, thành được giữ vững.',{honor:8},[10,30],'Chỉ là một con lợn rừng. Cả doanh trại cười bạn suốt tuần.',{honor:-3},{promo:.25}],
+  ['Tự mình xuống kiểm tra',.5,'Bạn bắt sống một tên do thám.',{honor:6},[15,30],'Tên do thám đâm bạn rồi trốn mất.',{health:-15},{sk:'sword'}],
+  ['Mặc kệ, kéo áo cho ấm',.7,'Đêm trôi qua yên ổn.',{},null,'Sáng ra, kho lương bị đốt. Bạn bị phạt vì lơ là.',{honor:-10},{}]]),
+ /* Tu sĩ */
+ JE('church','church1','Lời xưng tội nặng nề','Một người đàn ông xưng tội: hắn đã giết một người, và một kẻ vô tội sắp bị treo cổ thay hắn.',[
+  ['Giữ bí mật xưng tội',1,'Bạn giữ lời thề của người tu hành. Kẻ vô tội bị treo cổ sáng hôm sau.',{piety:3,happy:-10},null,'',{}],
+  ['Thuyết phục hắn tự thú',.4,'Hắn khóc nức nở rồi ra đầu thú. Kẻ vô tội được thả.',{piety:6,honor:6},null,'Hắn bỏ trốn khỏi làng trong đêm.',{happy:-5},{sk:'piety'}],
+  ['Phá lời thề, báo quan',1,'Kẻ vô tội được cứu, nhưng Giám mục khiển trách bạn nặng nề.',{honor:4,piety:-6},null,'',{}]]),
+ JE('church','church2','Thánh tích giả','Tu viện trưởng định trưng bày một mẩu xương "của thánh Aldric" để thu tiền khách hành hương. Bạn biết đó là xương lợn.',[
+  ['Im lặng',1,'Tiền quyên góp chảy về tu viện. Bạn được chia phần.',{piety:-4},[10,25],'',{}],
+  ['Vạch trần trước Giám mục',.5,'Giám mục cách chức tu viện trưởng và giao việc cho bạn.',{honor:6,piety:4},null,'Không ai tin bạn. Bạn bị điều đi một tu viện hẻo lánh.',{happy:-8},{promo:.5}]]),
+ /* Truyền giáo */
+ JE('mission','miss1','Ngôi đền cổ','Dân bản địa thờ một ngôi đền đá cổ. Giám mục ra lệnh phá đền xây nhà thờ.',[
+  ['Phá đền theo lệnh',.6,'Nhà thờ mới mọc lên trên nền đền cũ.',{piety:4},null,'Dân bản địa nổi giận, ném đá đuổi bạn đi.',{health:-12},{promo:.25,ok:s=>{s.flags.conv=(s.flags.conv||0)+20}}],
+  ['Xây nhà thờ bên cạnh đền',.55,'Hai nơi thờ tự đứng cạnh nhau. Dân bản địa dần đến nghe giảng.',{honor:6},null,'Giám mục khiển trách bạn vì khoan dung với tà giáo.',{piety:-3},{sk:'smarts'}]]),
+ JE('mission','miss2','Bệnh dịch ở bộ lạc','Bộ lạc bạn đang truyền giáo bị bệnh đậu mùa. Thầy cúng của họ đổ tội cho "thần của kẻ lạ".',[
+  ['Ở lại chăm sóc người bệnh',.5,'Bạn cứu được nửa bộ lạc. Thầy cúng quỳ xuống chịu phép rửa.',{piety:8,honor:6},null,'Bạn nhiễm bệnh nặng.',{health:-25},{die:.05,promo:.3}],
+  ['Rời đi',1,'Bạn rời bộ lạc trong đêm.',{piety:-4},null,'',{}]]),
+ /* Buôn bán */
+ JE('trade','trade1','Lô hàng bí ẩn','Một thương nhân lạ bán rẻ cho bạn mười thùng gỗ niêm phong, không cho mở trước khi trả tiền.',[
+  ['Mua cả lô (40 xu)',.45,'Trong thùng là gia vị phương Đông! Bạn bán lại lời gấp bốn.',{smarts:2},[120,200],'Toàn là cát và rơm. Bạn bị lừa trắng trợn.',{happy:-8},{cost:40,req:s=>s.money>=40}],
+  ['Đòi mở một thùng trước',.6,'Thương nhân miễn cưỡng mở: lụa thượng hạng. Bạn mua được giá hời.',{},[40,80],'Thương nhân bỏ đi ngay.',{},{sk:'smarts'}],
+  'Không mua'],{rk:0}),
+ JE('trade','trade2','Cướp đường lớn','Đoàn hàng của bạn bị một băng cướp chặn ở đèo. Thủ lĩnh đòi một nửa số hàng.',[
+  ['Nộp một nửa',1,'Bạn mất nửa lô hàng nhưng cả đoàn an toàn.',{},null,'',{},{loss:[20,50]}],
+  ['Thương lượng',.5,'Bạn mời thủ lĩnh rượu và chia cho một thùng. Hắn còn hứa bảo kê lần sau.',{smarts:2},[0,0],'Hắn cười khẩy và lấy toàn bộ.',{happy:-6},{sk:'smarts',loss:[40,80]}],
+  ['Thuê lính đánh lại',.5,'Lính đánh thuê đuổi được bọn cướp.',{honor:3},[10,30],'Lính thuê bỏ chạy, bạn mất hết hàng.',{health:-8},{loss:[50,90]}]]),
+ /* Thư lại */
+ JE('scribe','scribe1','Chiếu thư giả','Một quý tộc trả bạn 80 xu để làm giả một chiếu thư cấp đất có dấu của nhà vua.',[
+  ['Làm giả',.6,'Không ai phát hiện. Túi bạn nặng thêm.',{honor:-6},[80,80],'Bạn bị phát hiện, bị phạt nặng và mất việc.',{honor:-20},{bad:s=>{s.job=null}}],
+  ['Từ chối và báo cáo',1,'Quý tộc kia bị bắt. Chưởng ấn khen bạn liêm chính.',{honor:6},null,'',{},{ok:s=>{if(ch(.4))s.job.ry+=2}}],
+  'Từ chối im lặng']),
+ JE('scribe','scribe2','Cuốn sổ thuế cháy','Kho lưu trữ bốc cháy. Sổ thuế cả năm chỉ còn một nửa.',[
+  ['Chép lại từ trí nhớ',.5,'Bạn thức trắng ba tuần, phục dựng gần trọn sổ thuế. Lãnh chúa thăng chức cho bạn.',{smarts:4},null,'Bạn ghi sai nhiều chỗ, dân kêu ca bị thu thuế oan.',{honor:-5},{sk:'smarts',promo:.6}],
+  ['Đi từng làng hỏi lại',.8,'Chậm nhưng chắc. Sổ thuế được phục hồi.',{health:-3},[5,10],'Dân làng khai gian để trốn thuế.',{},{}]]),
+ /* Hầu cận phu nhân */
+ JE('lady','lady1','Bí mật của phu nhân','Bạn vô tình thấy phu nhân bá tước lén gặp một hiệp sĩ trẻ trong vườn.',[
+  ['Giữ kín',1,'Phu nhân biết bạn đã thấy. Bà tặng bạn một chiếc vòng vàng và tin tưởng bạn hơn.',{},[0,0],'',{},{item:'br_gold',ok:s=>{s.job.perf=100}}],
+  ['Báo cho bá tước',.5,'Bá tước thưởng bạn hậu hĩnh.',{honor:-3},[40,80],'Bá tước không tin, còn phu nhân đuổi bạn khỏi lâu đài.',{},{bad:s=>{s.job=null;addEnemy('Phu nhân bá tước bị bạn tố giác',{sex:'f',cls:'noble',hate:R(50,70)})}}]]),
+ JE('lady','lady2','Yến tiệc mùa xuân','Phu nhân giao bạn tổ chức yến tiệc đón một hoàng tử nước bạn.',[
+  ['Tổ chức thật lộng lẫy',.6,'Hoàng tử khen bữa tiệc trước cả triều đình. Phu nhân thăng chức cho bạn.',{honor:6,looks:2},[10,20],'Đầu bếp làm cháy món chim công. Phu nhân xấu hổ.',{honor:-5},{sk:'smarts',promo:.4}],
+  ['Mời thêm gánh hát rong',.7,'Hoàng tử cười suốt buổi tiệc.',{happy:4},[10,20],'Gánh hát diễn vở chế giễu hoàng gia.',{honor:-6},{}]]),
+ /* Tháp Ma Pháp */
+ JE('wizard','wiz1','Thí nghiệm cấm','Tổng pháp sư vắng mặt. Phòng thí nghiệm của ông để mở, trên bàn là một câu thần chú dang dở.',[
+  ['Đọc thử câu thần chú',.4,'Câu thần chú mở ra một tầng ma pháp mới trong đầu bạn.',{magic:10},null,'Câu thần chú phản ngược, bạn bất tỉnh ba ngày.',{health:-18},{sk:'magic',promo:.3}],
+  ['Chép lại để nghiên cứu sau',.7,'Bạn hiểu thêm nhiều điều.',{smarts:3,magic:3},null,'Tổng pháp sư bắt quả tang.',{honor:-8},{}],
+  'Đóng cửa lại']),
+ JE('wizard','wiz2','Học đồ mất kiểm soát','Một học đồ trẻ gọi ra con quỷ lửa nhỏ, giờ nó đang đốt cháy thư viện tháp.',[
+  ['Dập lửa bằng phép băng',.55,'Con quỷ lửa tắt phụt. Thư viện được cứu.',{magic:4,honor:5},null,'Phép băng của bạn yếu quá, bạn bị bỏng nặng.',{health:-15},{sk:'magic',promo:.3}],
+  ['Phong ấn con quỷ',.4,'Bạn nhốt được con quỷ lửa vào lọ thủy tinh.',{magic:6},null,'Con quỷ thoát ra và biến mất qua cửa sổ.',{honor:-4},{sk:'magic',item:'sc_crystal',itemP:.3}]]),
+ /* Giả kim (đã có alchtest) */
+ JE('alch','alch2','Lời đề nghị của bá tước','Một bá tước muốn bạn chế thuốc độc không mùi, trả 150 xu.',[
+  ['Nhận lời',.65,'Bạn giao lọ thuốc. Ba tuần sau, đối thủ của bá tước chết bí ẩn.',{honor:-12,piety:-6},[150,150],'Lọ thuốc bị phát hiện. Bạn bị bắt giam.',{honor:-20,health:-10},{bad:s=>{s.job=null}}],
+  ['Đưa thuốc giả',.5,'Bá tước không phát hiện. Bạn vừa có tiền vừa giữ được lương tâm.',{},[150,150],'Bá tước phát hiện và cho người đánh bạn.',{health:-15},{sk:'smarts'}],
+  ['Từ chối',1,'Bá tước nhìn bạn lạnh lùng rồi bỏ đi.',{honor:3},null,'',{}]]),
+ /* Ranger */
+ JE('ranger','rang1','Kẻ đốt rừng','Một nhóm thợ đốn gỗ của con người phóng hỏa rừng thiêng để mở đường.',[
+  ['Đuổi chúng đi bằng cung tên',.55,'Bọn đốn gỗ bỏ chạy. Rừng thiêng được cứu.',{honor:6},null,'Bọn chúng đông hơn, bạn bị thương.',{health:-15},{sk:'sword',promo:.3}],
+  ['Dập lửa trước',.7,'Bạn và đồng đội dập được đám cháy.',{health:-5,happy:4},null,'Lửa lan quá nhanh, một phần rừng cháy rụi.',{happy:-8},{}],
+  ['Thương lượng với lãnh chúa của chúng',.4,'Lãnh chúa đồng ý dời đường.',{smarts:3},[10,20],'Lãnh chúa cười vào mặt bạn.',{},{sk:'smarts'}]]),
+ JE('ranger','rang2','Con hươu bạc','Bạn bắt gặp con hươu bạc huyền thoại bị mắc bẫy của bọn săn trộm.',[
+  ['Gỡ bẫy thả nó',1,'Con hươu nhìn bạn rất lâu rồi biến mất. Sáng hôm sau, một bông hoa tiên mọc trước lều bạn.',{happy:6,magic:3},null,'',{},{item:'flower',itemP:.5}],
+  ['Phục kích bọn săn trộm',.55,'Bạn bắt gọn bọn săn trộm khi chúng quay lại.',{honor:6},[10,25],'Bọn săn trộm bắn trả.',{health:-12},{sk:'sword'}]]),
+ /* Druid */
+ JE('druid','dru1','Cây thiêng héo úa','Cây sồi nghìn năm giữa vòng đá bắt đầu héo từ ngọn.',[
+  ['Truyền ma lực cho cây',.5,'Cây sồi đâm chồi non. Các druid khác cúi đầu trước bạn.',{magic:-5,honor:6},null,'Bạn kiệt sức mà cây vẫn héo.',{health:-12},{sk:'magic',promo:.35}],
+  ['Tìm nguyên nhân',.6,'Bạn phát hiện một con sâu bóng tối trong rễ cây và tiêu diệt nó.',{smarts:3},null,'Bạn không tìm ra gì.',{},{sk:'smarts'}]]),
+ JE('druid','dru2','Hạn hán','Ba tháng không mưa. Dân làng con người đến xin druid gọi mưa.',[
+  ['Gọi mưa',.5,'Mây đen kéo đến ngay đêm đó. Dân làng mang lúa gạo đến tạ ơn.',{honor:5},[15,30],'Mưa không đến. Dân làng gọi bạn là lang băm.',{honor:-5},{sk:'magic'}],
+  ['Chỉ cho họ mạch nước ngầm',.7,'Bạn dẫn họ đến một mạch nước dưới rặng liễu.',{smarts:2,honor:3},[5,10],'Mạch nước đã cạn.',{},{}]]),
+ /* Thi sĩ */
+ JE('bard','bard1','Bài ca châm biếm','Một quý tộc trả bạn 50 xu để sáng tác bài ca chế giễu đối thủ của ông.',[
+  ['Sáng tác thật cay độc',.6,'Bài ca lan khắp các quán rượu. Quý tộc thưởng thêm.',{happy:3},[50,80],'Đối thủ của quý tộc cho người đánh gãy đàn của bạn.',{health:-10},{bad:s=>addEnemy('Quý tộc bị bạn chế giễu',{cls:'noble',hate:R(45,60)})}],
+  ['Viết bài ca hài hước, không ác ý',.7,'Cả hai quý tộc đều bật cười.',{honor:3},[30,50],'Không ai hài lòng.',{},{sk:'smarts'}],
+  'Từ chối']),
+ JE('bard','bard2','Cuộc thi hát cung đình','Nhà vua tổ chức cuộc thi hát. Người thắng được làm thi sĩ cung đình.',[
+  ['Hát bản tình ca',.45,'Hoàng hậu rơi nước mắt. Bạn được mời vào cung.',{looks:2,honor:8},[30,60],'Bạn run tay, đứt dây đàn giữa bài.',{happy:-8},{sk:'looks',promo:.5}],
+  ['Hát anh hùng ca',.45,'Các hiệp sĩ đập bàn tán thưởng.',{honor:8},[30,60],'Giọng bạn vỡ ở nốt cao.',{happy:-8},{sk:'smarts',promo:.5}]]),
+ /* Phù chú */
+ JE('enchanter','ench1','Đơn hàng của vương tử','Một vương tử muốn bạn yểm bùa bất khả chiến bại lên thanh kiếm của chàng.',[
+  ['Yểm bùa mạnh nhất',.4,'Thanh kiếm sáng xanh. Vương tử thắng ba trận đấu liền và thưởng lớn.',{magic:3},[60,120],'Bùa phản ngược, thanh kiếm vỡ tan.',{honor:-8},{sk:'magic',promo:.3}],
+  ['Yểm bùa vừa phải',.75,'Vương tử hài lòng.',{},[30,50],'Vương tử chê bùa yếu.',{},{}]]),
+ /* Truy dấu */
+ JE('tracker','track1','Đứa trẻ mất tích','Một đứa trẻ con người lạc vào rừng sâu từ đêm qua. Dân làng nhờ bạn.',[
+  ['Lần theo mùi',.65,'Bạn tìm thấy đứa trẻ đang ngủ trong hang gấu bỏ hoang. Cả làng biết ơn bạn.',{honor:8},[10,20],'Mưa xóa sạch dấu vết.',{happy:-6},{sk:'health',promo:.3}],
+  ['Huy động cả bầy',.8,'Cả bầy tỏa ra khắp rừng và tìm thấy đứa trẻ.',{honor:6},[5,15],'',{}]]),
+ /* Người nói tiếng muông thú */
+ JE('beastspeak','beast1','Con gấu nổi giận','Một con gấu mẹ tấn công làng vì thợ săn bắt mất con của nó.',[
+  ['Nói chuyện với gấu mẹ',.55,'Bạn hứa trả lại gấu con. Gấu mẹ rút vào rừng.',{magic:3,honor:5},null,'Gấu mẹ không nghe, quật bạn ngã.',{health:-18},{sk:'magic'}],
+  ['Tìm gấu con trả lại',.6,'Bạn lẻn vào nhà thợ săn mang gấu con đi.',{honor:3},null,'Thợ săn bắt quả tang.',{honor:-5},{bad:s=>addEnemy('Thợ săn bị bạn lấy mất gấu con',{hate:R(40,55)})}]]),
+ /* Lính đánh thuê */
+ JE('merc','merc1','Hai phe trả tiền','Cả hai lãnh chúa đang đánh nhau đều muốn thuê đoàn của bạn. Phe thua trả gấp đôi.',[
+  ['Theo phe mạnh',.7,'Phe bạn thắng. Chiến lợi phẩm chia đều.',{},[30,60],'Phe mạnh bất ngờ thua.',{health:-12},{}],
+  ['Theo phe trả nhiều',.45,'Bạn lật ngược thế cờ. Lãnh chúa trả công gấp đôi và mời ở lại.',{honor:5},[60,120],'Phe bạn thua tan tác.',{health:-20},{sk:'sword',die:.03,promo:.3}],
+  ['Nhận tiền cả hai bên rồi bỏ đi',.4,'Bạn biến mất cùng hai túi bạc.',{honor:-10},[50,90],'Cả hai bên treo thưởng đầu bạn.',{honor:-15},{bad:s=>addEnemy('Lãnh chúa bị bạn lừa',{cls:'noble',hate:R(55,75)})}]]),
+ /* Khế ước sư */
+ JE('warlock','warl1','Con quỷ đòi nợ','Con quỷ trong khế ước hiện ra: "Đến hạn rồi. Một linh hồn, của ngươi hoặc của kẻ khác."',[
+  ['Mặc cả thêm thời gian',.4,'Con quỷ đồng ý gia hạn, đổi lấy ba giọt máu của bạn.',{health:-6},null,'Con quỷ cắn ngập vai bạn.',{health:-20},{sk:'smarts',die:.03}],
+  ['Lừa con quỷ bằng điều khoản trong khế ước',.35,'Bạn tìm ra kẽ hở trong khế ước. Con quỷ gào lên rồi tan biến, để lại sức mạnh cho bạn.',{magic:10},null,'Con quỷ cười: "Ta viết khế ước, không phải ngươi."',{health:-15,magic:-5},{sk:'smarts',promo:.4}],
+  ['Trả bằng tuổi thọ',1,'Bạn thấy mình già đi mười tuổi trong một đêm.',{health:-15,looks:-5},null,'',{}]]),
+ /* Hội Bóng Đêm */
+ JE('shadowblade','shad1','Mục tiêu là người quen','Hợp đồng mới của Hội: mục tiêu là một người bạn cũ thời thơ ấu của bạn.',[
+  ['Hoàn thành hợp đồng',.6,'Hợp đồng hoàn thành. Bạn không ngủ được nhiều đêm.',{happy:-12,honor:-6},[60,100],'Bạn chần chừ, mục tiêu trốn thoát.',{},{promo:.3}],
+  ['Báo cho người bạn trốn đi',.5,'Người bạn trốn kịp. Hội không phát hiện.',{happy:4},null,'Hội phát hiện và trừng phạt bạn.',{health:-18},{sk:'smarts'}],
+  ['Bỏ Hội',1,'Bạn ném dao găm xuống bàn và bước ra.',{honor:4},null,'',{},{ok:s=>{s.job=null;addEnemy('Chủ hội Bóng Đêm',{race:'fiend',hate:R(55,75)})}}]]),
+ /* Chợ đen */
+ JE('blackmarket','bm1','Hàng nóng','Một tên trộm mang đến vương miện của một bá tước, muốn bán gấp.',[
+  ['Mua lại giá rẻ (60 xu)',.55,'Bạn bán vương miện sang nước khác, lời gấp ba.',{},[150,220],'Lính tuần lần ra dấu vết.',{honor:-12},{cost:60,req:s=>s.money>=60,loss:[20,40]}],
+  ['Báo cho bá tước lấy thưởng',.7,'Bá tước trả thưởng và hỏi sao bạn biết.',{honor:2},[40,60],'Tên trộm biết bạn bán đứng hắn.',{},{bad:s=>addEnemy('Tên trộm bị bạn bán đứng',{hate:R(45,60)})}],
+  'Không dính vào']),
+ /* Thợ săn quỷ */
+ JE('demonhunter','dh1','Quỷ nhập thân','Một linh mục nhờ bạn: quỷ đã nhập vào một cô gái trong làng.',[
+  ['Trừ quỷ bằng bạc và lửa',.5,'Con quỷ bị kéo ra và tiêu diệt.',{honor:6,piety:3},[20,40],'Con quỷ chuyển sang nhập vào bạn trong giây lát.',{health:-15,magic:5},{sk:'piety',promo:.3}],
+  ['Dùng máu quỷ của bạn để dụ nó ra',.45,'Con quỷ nhận ra đồng loại và tự rời đi.',{magic:5},[20,40],'Dân làng thấy mắt bạn đỏ rực, la hét gọi bạn là quỷ.',{honor:-8},{sk:'magic'}]]),
+ /* Thợ mỏ */
+ JE('miner','mine1','Mạch vàng sâu','Bạn phát hiện một mạch vàng sâu dưới tầng mỏ bị bỏ hoang vì hay sập.',[
+  ['Đào ngay',.45,'Vàng lấp lánh trong ánh đuốc. Bạn giàu to.',{},[80,180],'Đá sập! Bạn bị kẹt hai ngày.',{health:-22},{die:.04,item:'gem',itemP:.5}],
+  ['Gia cố trước rồi đào',.7,'Chậm nhưng chắc. Mạch vàng cho bạn một khoản kha khá.',{},[40,90],'Mạch vàng nhỏ hơn bạn nghĩ.',{},{promo:.25}],
+  ['Báo cho chúa mỏ',1,'Chúa mỏ thưởng bạn và giao bạn làm đốc công tầng ấy.',{honor:3},[20,30],'',{},{promo:.5}]]),
+ JE('miner','mine2','Tiếng gõ trong lòng núi','Đêm đêm có tiếng gõ đều đặn vọng lên từ tầng mỏ sâu nhất.',[
+  ['Xuống xem',.5,'Đó là một người lùn mắc kẹt từ trăm năm trước nhờ ma pháp. Ông tặng bạn một viên đá quý.',{magic:3},null,'Đó là một con sâu đá khổng lồ.',{health:-18},{item:'gem'}],
+  'Bịt tai lại']),
+ /* Thợ rèn cổ tự */
+ JE('runesmith','rune1','Rune bị lãng quên','Bạn tìm thấy một rune cổ trong bức tường hầm. Truyền thuyết nói nó có thể làm vũ khí bất hoại.',[
+  ['Khắc rune lên vũ khí',.35,'Thanh rìu sáng lên ánh đỏ. Nó sẽ không bao giờ gãy.',{magic:4,honor:6},null,'Rune phát nổ, lò rèn sập một góc.',{health:-14},{sk:'magic',item:['battleaxe','warhammer'],promo:.35}],
+  ['Báo hội đồng trưởng lão',1,'Các trưởng lão khen bạn và cho bạn học rune cổ.',{smarts:4},null,'',{}]]),
+ /* Thợ nấu bia */
+ JE('brewer','brew1','Mẻ bia của vua','Nhà vua người lùn ghé qua và muốn nếm thử bia của bạn.',[
+  ['Mời bia đen lâu năm nhất',.6,'Nhà vua uống cạn ba vại và ban danh hiệu "Bia của Vương Triều".',{honor:8,happy:5},[30,60],'Bia bị chua. Nhà vua nhổ ra.',{honor:-8},{promo:.4}],
+  ['Thử công thức mới',.4,'Một hương vị chưa ai từng nếm. Nhà vua đặt cả trăm thùng.',{honor:6},[60,120],'Nhà vua ngủ gục sau một ngụm.',{honor:-4},{sk:'smarts'}]]),
+ /* Vệ binh khiên núi */
+ JE('shieldguard','shg1','Lũ yêu tinh tràn qua','Lũ yêu tinh tấn công Cổng Đá lúc nửa đêm. Đồng đội của bạn còn đang ngủ.',[
+  ['Một mình giữ cổng',.45,'Bạn đứng chắn cổng đến khi viện binh tới. Cả núi ca ngợi bạn.',{honor:10},[10,30],'Bạn bị đánh gục.',{health:-25},{sk:'health',die:.04,promo:.4}],
+  ['Gõ chuông báo động',.85,'Đồng đội tỉnh dậy kịp. Cổng được giữ.',{honor:4},null,'Chuông bị kẹt.',{health:-10},{}]]),
+ /* Nông dân, chăn cừu */
+ JE('farm','farm1','Mùa màng kỳ lạ','Ruộng của bạn mọc lên một cây bí khổng lồ to bằng xe bò, phát sáng mờ mờ trong đêm.',[
+  ['Mang ra chợ bán',.6,'Một pháp sư mua cây bí với giá cao.',{},[30,70],'Không ai dám mua thứ ma quái ấy.',{},{}],
+  ['Bổ ra xem',.5,'Bên trong là một viên đá phát sáng.',{magic:3},null,'Cây bí chỉ toàn nước bốc mùi.',{happy:-4},{item:'gem'}],
+  ['Mời cha xứ đến làm phép',1,'Cha xứ rảy nước thánh. Cây bí héo rũ ngay tối đó.',{piety:3},null,'',{}]]),
+ JE('farm','farm2','Tranh chấp bờ ruộng','Hàng xóm lén dời cột mốc ruộng sang phía bạn hai sải tay.',[
+  ['Kiện lên trưởng thôn',.6,'Trưởng thôn xử cho bạn.',{honor:3},null,'Hàng xóm đút lót trưởng thôn. Bạn thua kiện.',{happy:-6},{sk:'honor'}],
+  ['Dời cột mốc về chỗ cũ trong đêm',.7,'Hàng xóm không dám nói gì.',{},null,'Hàng xóm bắt quả tang, hai bên ẩu đả.',{health:-8},{bad:s=>addEnemy('Hàng xóm tranh chấp bờ ruộng',{cls:'serf',hate:R(40,55)})}],
+  ['Bỏ qua cho êm',1,'Bạn mất hai sải ruộng nhưng giữ được hòa khí.',{happy:-2},null,'',{}]]),
+ JE('shepherd','shep1','Cừu lạc','Con cừu đầu đàn lạc lên vách đá dựng đứng trong cơn bão.',[
+  ['Leo lên cứu',.55,'Bạn cõng con cừu xuống an toàn. Chủ đàn thưởng thêm.',{health:-3},[5,12],'Bạn trượt chân ngã.',{health:-14},{sk:'health'}],
+  ['Thổi sáo gọi',.6,'Con cừu nghe tiếng sáo, tự tìm đường xuống.',{happy:4},null,'Con cừu không nghe.',{happy:-4},{}]]),
+ /* Hiệp sĩ (đường hiệp sĩ) */
+ JE('knight','kni1','Thử thách của thị đồng','Lãnh chúa sai bạn đưa thư khẩn qua khu rừng có cướp, một mình, trong đêm.',[
+  ['Phi ngựa thẳng qua rừng',.6,'Bạn đến nơi trước bình minh. Lãnh chúa gật đầu hài lòng.',{honor:5},null,'Bọn cướp chặn đường, bạn bị thương.',{health:-12},{sk:'sword',promo:.3}],
+  ['Đi đường vòng an toàn',.85,'Bạn đến muộn nửa ngày, nhưng thư vẫn nguyên vẹn.',{honor:2},null,'',{}]],{c:s=>s.job.rank<=1}),
+ JE('knight','kni2','Lời thề hiệp sĩ','Một thiếu nữ bị một hiệp sĩ say rượu ức hiếp giữa chợ.',[
+  ['Thách đấu hắn',.55,'Bạn đánh bay kiếm của hắn. Cả chợ vỗ tay.',{honor:8},null,'Hắn mạnh hơn bạn tưởng.',{health:-14},{sk:'sword',promo:.25}],
+  ['Can ngăn bằng lời',.5,'Hắn xấu hổ bỏ đi.',{honor:4},null,'Hắn đẩy bạn ngã.',{honor:-2},{sk:'honor'}]]),
+ /* Orc */
+ JE('orcwar','orc1','Cuộc đột kích lớn','Thủ lĩnh muốn đột kích một thị trấn con người giàu có.',[
+  ['Dẫn đầu cuộc đột kích',.5,'Cả đoàn mang về xe đầy chiến lợi phẩm.',{honor:5},[30,70],'Lính thị trấn chờ sẵn.',{health:-20},{sk:'sword',die:.04,promo:.3,item:'waraxe',itemP:.3}],
+  ['Đề nghị đánh đoàn buôn thay',.65,'Ít rủi ro hơn, vẫn có của.',{},[20,40],'Đoàn buôn có lính đánh thuê hộ tống.',{health:-10},{}],
+  ['Phản đối, giữ hòa bình với con người',.4,'Thủ lĩnh nghe theo. Bộ lạc buôn bán với thị trấn.',{honor:4,smarts:2},[10,20],'Thủ lĩnh gọi bạn là kẻ hèn.',{honor:-6},{sk:'smarts'}]]),
+ JE('orcshaman','sham1','Linh hồn tổ tiên nổi giận','Các vật tổ của bộ lạc nứt toác trong một đêm. Mọi người sợ hãi chờ shaman lên tiếng.',[
+  ['Làm lễ tế xin tha',.55,'Khói lễ bay thẳng lên trời. Tổ tiên đã nguôi giận.',{piety:3,honor:5},null,'Lễ tế không có tác dụng. Bộ lạc mất niềm tin vào bạn.',{honor:-6},{sk:'magic',promo:.3}],
+  ['Tìm kẻ gây ra',.5,'Bạn phát hiện một shaman đối địch yểm bùa.',{smarts:3},[10,20],'Không tìm ra ai.',{},{}]]),
+ JE('pitfighter','pit1','Trận đấu với quái thú','Ông chủ hố máu thả một con gấu hang vào để đấu với bạn.',[
+  ['Đấu tay không',.45,'Bạn vật ngã con gấu. Đám đông ném tiền như mưa.',{honor:8},[40,90],'Con gấu cào nát lưng bạn.',{health:-25},{sk:'health',die:.04,promo:.3}],
+  ['Đòi được cầm vũ khí',.6,'Với cây giáo, bạn hạ con gấu gọn gàng.',{honor:4},[25,50],'Ông chủ không đồng ý, bạn phải đấu tay không và thua.',{health:-18},{}]]),
+ /* Giảng viên */
+ JE('teacher','tch1','Phụ huynh quyền thế','Một công tước đến tận phòng bạn, đòi nâng điểm cho con trai mình.',[
+  ['Giữ nguyên điểm',1,'Công tước hầm hầm bỏ đi. Đồng nghiệp nể bạn.',{honor:5},null,'',{},{ok:s=>{if(s.ac)s.ac.tr=Math.min(100,(s.ac.tr||0)+5);addEnemy('Công tước có con bị điểm kém',{cls:'noble',hate:R(40,55)})}}],
+  ['Nâng điểm, nhận quà',1,'Một túi vàng nằm trên bàn bạn.',{honor:-8},[60,100],'',{},{ok:s=>{if(s.ac)s.ac.tr=Math.max(0,(s.ac.tr||0)-6)}}],
+  ['Cho cậu ta thi lại',.6,'Cậu bé học hành nghiêm túc và qua kỳ thi lại.',{honor:3},null,'Cậu ta vẫn trượt. Công tước càng giận.',{},{}]]),
+ JE('teacher','tch2','Học trò vượt thầy','Một học viên năm ba giải được bài toán ma pháp mà bạn nghiên cứu mười năm chưa xong.',[
+  ['Công bố tên học trò',1,'Học trò được vinh danh. Bạn được ca ngợi là người thầy lớn.',{honor:6,happy:4},null,'',{},{ok:s=>{if(s.ac)s.ac.tr=Math.min(100,(s.ac.tr||0)+8)}}],
+  ['Cùng đứng tên nghiên cứu',1,'Cả hai được Hội đồng khen thưởng.',{honor:3,smarts:3},[20,40],'',{}],
+  ['Nhận công về mình',.6,'Không ai biết. Bạn nổi tiếng khắp các học viện.',{honor:-6,smarts:3},[40,80],'Học trò tố cáo bạn trước Hội đồng.',{honor:-15},{bad:s=>{if(s.ac)s.ac.tr=Math.max(0,(s.ac.tr||0)-20)}}]]),
+ /* Thợ săn (bổ sung ngoài ủy thác) */
+ JE('hunter','hunt1','Tiền thưởng giả','Một kẻ lạ mặt treo thưởng cao cho đầu một "ma cà rồng" sống ở trang viên bên hồ.',[
+  ['Đến trang viên điều tra',.55,'"Ma cà rồng" là một quý bà bị bệnh sợ ánh sáng. Kẻ treo thưởng là cháu muốn chiếm gia sản. Bạn vạch trần hắn.',{honor:8},[30,60],'Bạn bị bẫy trong trang viên.',{health:-15},{sk:'smarts'}],
+  ['Nhận tiền và ra tay ngay',.4,'Bạn hoàn thành ủy thác, nhưng lương tâm cắn rứt khi biết sự thật.',{honor:-10,happy:-8},[60,90],'Bạn nhận ra sự thật đúng lúc và bỏ đi tay trắng.',{},{}]],{w:3})
+];
+for(const e of JOB_EV){EV.push(e);EVB[e.id]=e}
+Object.assign(EIMG,{j_alch2:'alchemy',j_wiz1:'manatest',j_wiz2:'manatest',j_miss2:'chieftain',j_miss1:'chieftain',j_sold1:'callarms',j_sold2:'rebels',j_shg1:'rebels',j_orc1:'orcduel',j_sham1:'orcduel',j_pit1:'herocomes',j_hunt1:'swamphunt',j_mine2:'ruins',j_rune1:'ruins',j_church2:'crusade',j_church1:'witchtrial',j_dh1:'abyss',j_warl1:'abyss',j_rang2:'wolfnight',j_track1:'wolfnight',j_beast1:'wolfnight',j_kni2:'merit',j_kni1:'merit',j_lady2:'royalwed',j_bard2:'royalwed',j_tch2:'freshmen',j_tch1:'freshmen',j_surg2:'plague',j_surg3:'knighted'});
+
 /* ---------- migration & events ---------- */
 function migrate(s){
   if(!s)return null;
