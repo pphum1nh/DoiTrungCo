@@ -231,6 +231,8 @@ button.row:hover:not(:disabled) .ri{color:var(--title);border-color:var(--copper
 .cprev{display:flex;gap:16px;align-items:center}
 .cprev h3{margin:0;font:700 1.25rem var(--f-ui);color:var(--title)}.cprev i{color:var(--gold);font-size:.9rem}
 .swr{display:flex;flex-wrap:wrap;gap:6px}
+.slot.eqd{box-shadow:inset 0 0 0 2px var(--gold)}
+.slot.eqe{display:flex;align-items:center;justify-content:center}.slot.eqe span{font:600 .55rem/1.1 var(--f-ui);color:var(--muted);text-align:center}
 .sw{width:36px;height:36px;border:2px solid #3e2c21;box-shadow:inset 0 0 0 2px #0b0807;cursor:pointer;border-radius:2px}
 .sw.on{border-color:var(--gold);box-shadow:inset 0 0 0 2px #0b0807,0 0 10px rgb(234 169 60 / .45)}
 .divs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
@@ -759,7 +761,7 @@ Object.assign(ITEMS,{
   h_crown:{n:'Mũ Gai Bạc',r:2,ic:'H-crown',cb:8,fx:{honor:1},v:0,ev:1,d:'Tìm thấy trên đầu một bộ xương vua cổ trong hầm mộ.'}
 });
 const ARMOR=new Set(['helm','kettle','hornhelm','barbute','greathelm','mail','plate','oak_shield','kite_shield','shield']);Object.assign(ITEMS.scale,{cb:6});Object.assign(ITEMS.dagger,{cb:4});
-const cbB=()=>S?Math.min(60,S.bag.reduce((a,i)=>a+((ITEMS[i.k]||{}).cb||0),0))+mvPass():0;
+const cbB=()=>S?Math.min(60,eqItems().reduce((a,i)=>a+((ITEMS[i.k]||{}).cb||0),0))+mvPass():0;
 const lit=s=>s.flags.literate;
 const SHOPS=[
   {id:'farm',n:'Chợ gia súc, gia cầm',ic:'cow',d:'Gà, lợn, cừu, bò',assets:['hen','pig','sheep','cow','ox']},
@@ -932,7 +934,7 @@ function ageUp(){
   const a=S.age,ea=a/lifeOf(S.race);
   mod({health:ea<16?R(0,2):ea<30?R(-1,1):ea<50?-R(0,2):ea<65?-R(1,4):-R(2,6)});
   if(ea>=40)mod({looks:-R(0,2)});
-  for(const it of S.bag){const I=ITEMS[it.k];if(I&&I.fx)mod(I.fx)}
+  for(const it of eqItems()){const I=ITEMS[it.k];if(I&&I.fx)mod(I.fx)}
   if(S.flags.were){mod({health:3,happy:-2});if(ch(.3))log('Đêm trăng tròn, bạn lại thức dậy giữa rừng, áo quần rách tả tơi và miệng đầy vị máu thỏ.','magic');S.flags.suspect=(S.flags.suspect||0)+1}
   if(S.own.dragon){mod({honor:1});if(ch(.35))log(pick(['Con rồng của bạn đã lớn bằng con ngựa và hay đốt nhầm đống rơm nhà hàng xóm.','Con rồng nằm cuộn tròn trên mái nhà sưởi nắng. Trẻ con cả làng kéo đến xem.','Con rồng tha về một con cừu béo. Không ai dám hỏi nó lấy ở đâu.']),'magic')}
   if(a===7)log(S.cls==='noble'?'Bạn bắt đầu học cưỡi ngựa và múa kiếm gỗ.':'Bạn bắt đầu phụ việc nhà: nhặt củi, đuổi quạ, cho lợn ăn.');
@@ -1832,10 +1834,10 @@ function drawSheet(){
   if(view==='bag'){
     title='Túi đồ';
     const it=sel&&S.bag.find(x=>x.id===sel);
-    b+=`<p class="sec">Bảo vật và trang bị · ${S.bag.length}/${BAGMAX}</p><div class="bag">`;
-    for(let i=0;i<BAGMAX;i++){const x=S.bag[i];b+=x?`<button class="slot r${ITEMS[x.k].r} ${sel===x.id?'sel':''}" data-sel="${x.id}" aria-label="${esc(ITEMS[x.k].n)}">${ic(ITEMS[x.k].ic)}</button>`:'<div class="slot empty"></div>'}
+    b+=eqHTML()+`<p class="sec">Túi đồ · ${S.bag.length}/${BAGMAX}</p><div class="bag">`;
+    for(let i=0;i<BAGMAX;i++){const x=S.bag[i];b+=x?`<button class="slot r${ITEMS[x.k].r} ${sel===x.id?'sel':''} ${eqHas(x.id)?'eqd':''}" data-sel="${x.id}" aria-label="${esc(ITEMS[x.k].n)}">${ic(ITEMS[x.k].ic)}</button>`:'<div class="slot empty"></div>'}
     b+=`</div><p class="note" style="margin-top:2px">Sức chiến đấu từ trang bị: <b>${cbB()}</b>/60</p>`;
-    if(it){const I=ITEMS[it.k];b+=`<div class="tip"><h4 class="c-r${I.r}">${I.n}</h4><span class="rk">${RARE[I.r]}${I.ev?' · chỉ có qua sự kiện':''}${I.use?' · dùng một lần':' · truyền cho đời sau'}</span><ul>${I.cb?`<li>+${I.cb} Sức chiến đấu</li>`:''}${fxList(I.fx)}</ul><p><i>${I.d}</i></p><p>Nguồn gốc: ${esc(it.origin)}</p><div class="acts">${I.use?`<button class="btn sm pri" data-use="${it.id}">Dùng</button>`:''}${I.v?`<button class="btn sm" data-sellit="${it.id}">Bán · ${I.v} xu</button>`:'<span class="rk">Bảo vật của gia tộc, không thể bán</span>'}</div></div>`}
+    if(it){const I=ITEMS[it.k];b+=`<div class="tip"><h4 class="c-r${I.r}">${I.n}</h4><span class="rk">${RARE[I.r]}${islot(it.k)?' · ô '+EQN[islot(it.k)].toLowerCase()+(eqHas(it.id)?' · đang mang':''):''}${I.ev?' · chỉ có qua sự kiện':''}${I.use?' · dùng một lần':' · truyền cho đời sau'}</span><ul>${I.cb?`<li>+${I.cb} Sức chiến đấu</li>`:''}${fxList(I.fx)}</ul><p><i>${I.d}</i></p><p>Nguồn gốc: ${esc(it.origin)}</p><div class="acts">${islot(it.k)?(eqHas(it.id)?`<button class="btn sm" data-x="eq:off:${it.id}">Tháo ra</button>`:`<button class="btn sm pri" data-x="eq:on:${it.id}">Trang bị</button>`):''}${I.use?`<button class="btn sm pri" data-use="${it.id}">Dùng</button>`:''}${I.v?`<button class="btn sm" data-sellit="${it.id}">Bán · ${I.v} xu</button>`:'<span class="rk">Bảo vật của gia tộc, không thể bán</span>'}</div></div>`}
     else b+=`<p class="note">${S.bag.length?'Chạm vào một ô để xem bảo vật. Toàn bộ túi đồ sẽ truyền cho người thừa kế khi bạn qua đời.':'Túi còn trống. Bảo vật có được qua sự kiện, thám hiểm hầm mộ, lập công, hoặc mua ở mục Mua sắm.'}</p>`;
   }
   if(view==='shop'||view.startsWith('shop:')||view==='owned'){
@@ -1845,7 +1847,7 @@ function drawSheet(){
       const nOwn=Object.entries(S.own).filter(([k,n])=>n>0&&ASSETS[k]).reduce((a,[,n])=>a+n,0);
       b+=gRow('data-open="owned"','house','Tài sản của bạn',`${nOwn} tài sản · thu ${inc}${domOn()&&S.house.dom?' + lãnh địa '+domCalc().net:''} xu mỗi năm`,'',false);
       b+='<p class="sec">Chợ và cửa hàng</p>';
-      for(const g of SHOPS)b+=gRow(`data-open="shop:${g.id}"`,g.ic,g.n,g.d,'',false);
+      for(const g of SHOPS){if(g.vis&&!g.vis(S))continue;b+=gRow(`data-open="shop:${g.id}"`,g.ic,g.n,g.d,'',false)}
     }else if(view==='owned'){
       back='shop';title='Tài sản';
       const mine=Object.entries(S.own).filter(([k,n])=>n>0&&ASSETS[k]);
@@ -8376,6 +8378,76 @@ function actTrainExtra(){mnEnsure();const m=MENH[S.hid.menh];return gRow('data-o
 
 
 {const a=ACTS.find(x=>x.id==='sword');if(a){const f0=a.f;a.f=s=>{const r=arr(f0(s));if(s.alive){const b0=s.blade||0;bladeAdd(R(2,4));talSync();const g=(s.blade||0)-b0;if(g>0)r[0]+=` Kiếm thuật +${g}.`}return r}}}
+
+
+/* ---------- V11: ô trang bị, dược phẩm, Mục Hồng Giáo ---------- */
+const EQN={hat:'Mũ',armor:'Giáp',weapon:'Vũ khí',acc:'Phụ kiện'};
+const ISLOT={crown:'hat',darkcrown:'hat',vm_curse:'hat',starstaff:'weapon',wand:'weapon',sc_royal:'weapon',sc_crystal:'weapon',sc_moon:'weapon',sword_anc:'weapon',holy_sword:'weapon',lightsword:'weapon',rune_blade:'weapon',dagger:'weapon',mw_blade:'weapon',mw_armor:'armor',mail:'armor',plate:'armor',cloak_shadow:'armor'};
+function islot(k){const I=ITEMS[k];if(!I||I.use)return null;if(I.sl)return I.sl;if(ISLOT[k])return ISLOT[k];const c=I.ic||'';if(c.startsWith('H-'))return'hat';if(c.startsWith('A-'))return'armor';if(c.startsWith('w-')||c.startsWith('L-'))return/shield|kite/.test(c)?'acc':'weapon';return'acc'}
+const EQ=()=>{if(!S.eq||typeof S.eq!=='object')S.eq={hat:null,armor:null,weapon:null,acc:[null,null,null]};if(!Array.isArray(S.eq.acc))S.eq.acc=[null,null,null];return S.eq};
+const eqIds=()=>{const E=EQ();return[E.hat,E.armor,E.weapon,...E.acc].filter(Boolean)};
+const eqHas=id=>eqIds().includes(id);
+const eqItems=()=>{const L=eqIds();return(S.bag||[]).filter(x=>L.includes(x.id)&&ITEMS[x.k])};
+function eqClean(){const E=EQ(),ids=new Set((S.bag||[]).map(x=>x.id));for(const s of['hat','armor','weapon'])if(E[s]&&!ids.has(E[s]))E[s]=null;E.acc=E.acc.map(a=>a&&ids.has(a)?a:null)}
+const iScore=k=>{const I=ITEMS[k];return(I.cb||0)+Object.values(I.fx||{}).reduce((a,v)=>a+v*3,0)};
+function eqAuto(){const E=EQ();const free=(S.bag||[]).filter(x=>islot(x.k)&&!eqHas(x.id)).sort((a,b)=>iScore(b.k)-iScore(a.k));
+  for(const x of free){const s=islot(x.k);if(s==='acc'){const i=E.acc.indexOf(null);if(i>=0)E.acc[i]=x.id}else if(!E[s])E[s]=x.id}}
+function eqAct(a,id){const it=S.bag.find(x=>x.id===id);if(!it)return drawSheet();const E=EQ(),s=islot(it.k),I=ITEMS[it.k];let t='';
+  if(a==='on'){if(!s)return;if(s==='acc'){const i=E.acc.indexOf(null);if(i<0){note={t:'Ba ô phụ kiện đã đầy. Hãy tháo một phụ kiện trước.',tone:'bad'};return drawSheet()}E.acc[i]=id}else{const old=E[s]&&S.bag.find(x=>x.id===E[s]);E[s]=id;if(old)t=` Bạn tháo ${ITEMS[old.k].n.toLowerCase()} ra.`}t=`Bạn trang bị ${I.n.toLowerCase()} vào ô ${EQN[s].toLowerCase()}.`+t}
+  else{for(const k of['hat','armor','weapon'])if(E[k]===id)E[k]=null;E.acc=E.acc.map(x=>x===id?null:x);t=`Bạn tháo ${I.n.toLowerCase()} ra.`}
+  note={t,tone:''};save();render();drawSheet()}
+function eqHTML(){const E=EQ();const cell=(id,lab)=>{const x=id&&S.bag.find(y=>y.id===id);return x?`<button class="slot r${ITEMS[x.k].r} ${sel===x.id?'sel':''} eqd" data-sel="${x.id}" aria-label="${esc(ITEMS[x.k].n)}">${ic(ITEMS[x.k].ic)}</button>`:`<div class="slot empty eqe"><span>${lab}</span></div>`};
+  return`<p class="sec">Trang bị · chỉ đồ đang mang mới cộng chỉ số</p><div class="bag">${cell(E.hat,'Mũ')}${cell(E.armor,'Giáp')}${cell(E.weapon,'Vũ khí')}${E.acc.map(a=>cell(a,'Phụ kiện')).join('')}</div>`}
+{const x0=extAct3;extAct3=function(x){const[a,b,c]=x.split(':');if(a==='eq')return eqAct(b,c);return x0(x)}}
+{const r0=render;render=function(){if(S&&S.bag){if(!S.eq){EQ();eqAuto()}else eqClean()}r0()}}
+
+/* dược phẩm: cộng vào năng lực (kiếm thuật, ma lực), không cộng vào thiên phú */
+Object.assign(ITEMS,{
+  p_tinh:{n:'Tinh Dược',r:1,ic:'potion',use:true,v:80,d:'Tăng kiếm thuật và ma lực. Người thiên phú tầm thường tăng nhiều hơn. Uống quá dày sẽ bị phản phệ.'},
+  p_than:{n:'Thần Dược',r:3,ic:'potion-02',use:true,v:800,d:'Tăng mạnh kiếm thuật và ma lực, không phản phệ. Tín đồ Hồng Nguyệt uống vào sẽ bị thánh quang thiêu đốt.'},
+  p_ma:{n:'Ma Dược',r:2,ic:'potion',use:true,v:60,d:'Tìm thấy trong hầm ngục. Tăng nhiều kiếm thuật và ma lực, nhưng uống nhiều sẽ bị phản phệ và ác ma có thể dụ dỗ chiếm xác.'},
+  p_hong:{n:'Hồng Dược',r:2,ic:'potion-02',use:true,v:120,d:'Dược riêng của Hồng Giáo. Chỉ tín đồ Hồng Nguyệt uống được, người ngoài uống vào sẽ bị phản phệ.'},
+  rw_scythe:{n:'Lưỡi Hái Huyết Nguyệt',r:2,ic:'X-scep3',cb:16,fx:{magic:1},v:300,sl:'weapon',d:'Lưỡi hái đỏ thẫm của các pháp quan Hồng Giáo.'},
+  rw_twin:{n:'Song Đoản Trăng Máu',r:2,ic:'L-moondagger',cb:13,fx:{},v:220,sl:'weapon',d:'Hai lưỡi dao cong như trăng khuyết, dùng trong các nghi lễ máu.'},
+  rw_staff:{n:'Trượng Xương Hồng Nguyệt',r:2,ic:'X-scep2',cb:10,fx:{magic:3},v:350,sl:'weapon',d:'Đầu trượng là một viên ngọc đỏ sáng lên mỗi đêm trăng.'},
+  ra_robe:{n:'Áo Choàng Tư Tế Đỏ',r:1,ic:'A-dark',cb:10,fx:{magic:2},v:250,sl:'armor',d:'Áo choàng thêu chỉ đỏ hình mặt trăng.'},
+  ra_plate:{n:'Giáp Huyết Nguyệt',r:3,ic:'A-necro',cb:20,fx:{health:1,piety:-1},v:450,sl:'armor',d:'Giáp tấm nhuộm máu, chỉ chỉ huy dị giáo mới được mặc.'},
+  rh_mask:{n:'Mặt Nạ Trăng Máu',r:1,ic:'H-demon',cb:6,fx:{magic:1,smarts:1},v:180,sl:'hat',d:'Đeo vào, người ta chỉ thấy một vầng trăng đỏ thay cho gương mặt.'},
+  rh_crown:{n:'Vương Miện Gai Đỏ',r:3,ic:'X-ccrown',cb:8,fx:{magic:2,honor:-1},v:400,sl:'hat',d:'Gai bạc nhuộm đỏ, đâm nhẹ vào trán người đội.'},
+  rx_ring:{n:'Nhẫn Máu Trăng',r:2,ic:'X-ring1',cb:3,fx:{magic:2},v:200,sl:'acc',d:'Viên đá đỏ trong nhẫn đập theo nhịp tim.'},
+  rx_amulet:{n:'Bùa Mắt Trăng Đỏ',r:1,ic:'amulet',cb:0,fx:{magic:1,health:1,piety:-1},v:150,sl:'acc',d:'Con mắt đỏ trên bùa luôn nhìn về phía mặt trăng.'},
+  rx_chain:{n:'Chuỗi Răng Ác Ma',r:2,ic:'X-brace3',cb:5,fx:{health:1},v:220,sl:'acc',d:'Răng của ba con tiểu quỷ xâu bằng chỉ bạc.'}
+});
+{const g=SHOPS.find(x=>x.id==='magic');g.items.push(['p_tinh',200],['p_than',2000,s=>s.realm==='Thánh quốc Lumaris'||s.done.rgv==='crypts','Chỉ bán ở tiệm bùa phép của Thánh quốc Lumaris'])}
+const isRed=s=>(s.flags.her||0)>=1;
+SHOPS.push({id:'redshop',n:'Mục Hồng Giáo',ic:'night',d:'Chỉ tín đồ Hồng Nguyệt mới tìm được lối vào',vis:isRed,items:[['p_hong',300,isRed,'Chỉ dành cho tín đồ Hồng Nguyệt'],['rx_amulet',300,isRed,'Chỉ dành cho tín đồ'],['rh_mask',350,isRed,'Chỉ dành cho tín đồ'],['rx_ring',400,isRed,'Chỉ dành cho tín đồ'],['rw_twin',450,isRed,'Chỉ dành cho tín đồ'],['rx_chain',450,isRed,'Chỉ dành cho tín đồ'],['ra_robe',500,isRed,'Chỉ dành cho tín đồ'],['rw_scythe',600,isRed,'Chỉ dành cho tín đồ'],['rw_staff',700,isRed,'Chỉ dành cho tín đồ'],['rh_crown',800,isRed,'Chỉ dành cho tín đồ'],['ra_plate',900,isRed,'Chỉ dành cho tín đồ']]});
+const POT={p_tinh:{g:6,tox:1},p_ma:{g:10,tox:2},p_than:{g:15,tox:0},p_hong:{g:12,tox:1}};
+function potGain(base){talSync();const f=t=>Math.max(.4,1.5-t/100);const b=Math.max(1,Math.round(base*f(S.tal.sword)*(1-(S.blade||0)/140))),m=Math.max(1,Math.round(base*f(S.tal.arcane)*(1-S.st.magic/140)));
+  S.blade=Math.min(100,(S.blade||0)+b);S.st.magic=Math.min(100,S.st.magic+m);return`Kiếm thuật +${b}, ma lực +${m}.`}
+function potBack(){const r=R(0,2);if(r===0){const d=R(8,18);mod({health:-d});return` Phản phệ: máu trong người bạn sôi lên, mất ${d} sức khỏe.`}if(r===1){const d=R(2,6);S.blade=Math.max(0,(S.blade||0)-d);mod({health:-R(3,8)});return` Phản phệ: tay chân bạn run rẩy suốt một tháng, kiếm thuật giảm ${d}.`}const d=R(2,6);S.st.magic=Math.max(0,S.st.magic-d);mod({health:-R(3,8)});return` Phản phệ: ma lực trong người bạn rối loạn, giảm ${d}.`}
+{const u0=useItem;useItem=function(id){const i=S.bag.findIndex(x=>x.id===id),it=S.bag[i];if(!it||!POT[it.k])return u0(id);const k=it.k,P=POT[k];S.bag.splice(i,1);sel=null;let t,tone='magic';
+  if(k==='p_than'&&isRed(S)){const d=R(25,40);mod({health:-d,magic:0});S.st.magic=Math.max(0,S.st.magic-R(5,10));t=`Thánh quang trong Thần Dược thiêu đốt máu trăng đỏ trong người bạn. Bạn quằn quại ba ngày, mất ${d} sức khỏe.`;tone='bad'}
+  else if(k==='p_hong'&&!isRed(S)){const d=R(15,25);mod({health:-d});t=`Hồng Dược đặc quánh như máu đông. Thân thể của người ngoài giáo phái không chịu nổi nó. Bạn mất ${d} sức khỏe.`;tone='bad'}
+  else{t={p_tinh:'Bạn uống cạn lọ Tinh Dược. Một luồng hơi ấm chạy dọc sống lưng.',p_ma:'Ma Dược đen như mực, đắng như mật. Bạn nghe thấy tiếng ai đó cười rất khẽ.',p_than:'Thần Dược sáng như ánh nắng trong lọ pha lê. Bạn thấy mình nhẹ bẫng.',p_hong:'Hồng Dược ấm như máu. Mặt trăng đêm ấy đỏ hơn trong mắt bạn.'}[k]+' '+potGain(P.g);
+    S.potX=(S.potX||0)+P.tox;if(P.tox&&S.potX>=3&&ch((S.potX-2)*.18)){t+=potBack();tone='bad'}
+    if(k==='p_ma'){S.potMa=(S.potMa||0)+1;if(ch(.08*S.potMa)&&!S.pend.includes('pot_demon'))S.pend.push('pot_demon')}}
+  if(S.st.health<=0)die('phản phệ dược phẩm');log(t,tone);note={t,tone};afterSheetAction()}}
+{const e=EVB.pot_demon||null}
+const POT_EV=[{id:'pot_demon',queued:true,big:true,art:'demon',img:'demon',c:s=>s.alive,title:'Lời Thì Thầm Trong Máu',
+  text:s=>`Ma Dược bạn uống mang theo thứ gì đó từ hầm ngục. Đêm nay, một giọng nói vang lên từ chính máu của bạn: "Ngươi uống phần của ta ${s.potMa} lần rồi. Giờ cho ta mượn thân xác này."`,
+  ch:[{t:'Cự tuyệt bằng ý chí',f:s=>{if(ch(.45+s.st.piety/250+s.st.smarts/400)){mod({piety:2});s.potMa=Math.max(0,s.potMa-2);return['Bạn nghiến răng cầu nguyện đến sáng. Giọng nói im bặt.','good']}mod({health:-R(15,30),honor:-6});s.flags.suspect=(s.flags.suspect||0)+3;s.flags.darkBlood=1;return['Bạn tỉnh dậy giữa cánh đồng cháy, tay đầy tro. Không ai biết đêm qua bạn đã làm gì, kể cả bạn.','bad']}},
+      {t:'Nhờ linh mục trừ tà (50 xu)',cost:50,f:s=>{s.money-=50;s.potMa=0;mod({piety:2});return['Linh mục rảy nước thánh lên ngực bạn. Một làn khói đen bay ra khỏi miệng bạn.','good']}},
+      {t:'Chấp nhận giao ước',f:s=>{s.potMa=0;s.st.magic=Math.min(100,s.st.magic+15);mod({piety:-20});s.flags.darkBlood=1;return['Ác ma cười khẽ. Ma lực của bạn tăng vọt, và bóng của bạn không còn đi theo ánh nến nữa.','magic']}}]}];
+for(const e of POT_EV){EV.push(e);EVB[e.id]=e;EIMG[e.id]=e.img}
+/* độc tố giảm dần mỗi năm; ma dược rơi ra trong hầm ngục */
+{const y0=extYear3;extYear3=function(){y0();if(S.potX)S.potX=Math.max(0,S.potX-1)}}
+{const r0=rdEnd;rdEnd=function(win){const r=r0(win);try{if(win&&GD().raid&&ch(.35)&&gainItem('p_ma'))GD().raid.log.push(['Trong rương của trùm hầm ngục có một lọ Ma Dược.','item'])}catch(e){}return r}}
+{const e0=cbEnd;cbEnd=function(res,t,low){const F=S.cb;const r=e0(res,t,low);if(res==='win'&&F&&((F.ctx==='enc'&&['xac','quy','phap'].includes(F.f)&&ch(.15))||(F.ctx==='hq'&&ch(.1)))&&gainItem('p_ma'))r[0]+=' Bạn nhặt được một lọ Ma Dược.';return r}}
+{const a0=orgAct;orgAct=function(a,k){const had=S.done.om;const r=a0(a,k);if(a==='task'&&!had&&S.om&&S.om.k==='flame'&&S.alive&&ch(.2)&&gainItem('p_ma')){log('Trong phế tích còn sót một lọ Ma Dược.','item')}return r}}
+function v28Norm(s){if(s.eq&&typeof s.eq!=='object')s.eq=null;if(typeof s.potX!=='number')s.potX=0;if(typeof s.potMa!=='number')s.potMa=0}
+{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object')try{v28Norm(r)}catch(e){}return r}}
+{const i0=inherit;inherit=function(id){const old=S;i0(id);if(S===old)return;S.eq=null;S.potX=0;S.potMa=0;EQ();eqAuto();save();render()}}
+
 
 /* ---------- migration & events ---------- */
 function migrate(s){
