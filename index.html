@@ -2017,16 +2017,15 @@ function showIntro(){
   renderIntro();
 }
 function renderIntro(){
-  modal(`<div class="shead"><div class="plate"><h2>Đời Trung Cổ</h2></div></div><div class="cbody"><p style="color:var(--muted)">Nhân vật dưới đây được tạo ngẫu nhiên, bạn có thể sửa tùy ý. Sinh ra, lớn lên, cầm kiếm hay luyện phép, lập gia tộc, tranh ngai vàng, và có thể trở thành Anh Hùng trong Lời Tiên Tri. Mỗi lần bấm "Sang năm" là một năm trôi qua.</p>
+  modal(`<div class="shead"><div class="plate"><h2>Đời Trung Cổ</h2></div></div><div class="cbody"><p style="color:var(--muted)">Nhân vật được tạo ngẫu nhiên, bạn có thể sửa tùy ý.</p>
   <label class="fl" for="nm">Tên thánh</label>
   <div class="nmrow"><input id="nm" value="${esc(draft.name)}" maxlength="20" autocomplete="off"><button class="btn sm" data-reroll>Đổi tên</button></div>
   <label class="fl" for="hs">Tên gia tộc</label>
   <div class="nmrow"><input id="hs" value="${esc(draft.house)}" maxlength="24" autocomplete="off"><button class="btn sm" data-rehouse>Đổi họ</button></div>
   <p class="fl">Giới tính</p><div class="seg">${[['m','Nam'],['f','Nữ']].map(([k,l])=>`<button class="opt ${draft.sex===k?'on':''}" data-sex="${k}" aria-pressed="${draft.sex===k}">${l}</button>`).join('')}</div>
-  <p class="fl">Chủng tộc</p><div class="opts">${Object.entries(RACES).filter(([k,r])=>!r.hidden).map(([k,r])=>`<button class="opt ${draft.race===k?'on':''}" data-race="${k}" aria-pressed="${draft.race===k}">${r.n}<small>${r.desc}</small></button>`).join('')}</div>
-  <p class="fl">Xuất thân</p><div class="opts">${Object.entries(CLASSES).map(([k,c])=>`<button class="opt ${draft.cls===k?'on':''}" data-cls="${k}" aria-pressed="${draft.cls===k}">${c.n}<small>${c.desc}</small></button>`).join('')}</div>
-  ${draft.sex==='f'&&draft.race==='human'?'<p class="note magic" style="margin-top:10px">Nữ con người có cơ hội được Giáo hội chọn làm Thánh Nữ.</p>':''}
-  <div class="choices"><button class="btn pri" data-born>Chào đời</button><button class="btn" data-randall style="text-align:center">Ngẫu nhiên tất cả</button></div></div>`);
+  <p class="fl">Chủng tộc</p><div class="opts">${Object.entries(RACES).filter(([k,r])=>!r.hidden).map(([k,r])=>`<button class="opt ${draft.race===k?'on':''}" data-race="${k}" aria-pressed="${draft.race===k}">${r.n}</button>`).join('')}</div>
+  <p class="fl">Xuất thân</p><div class="opts">${Object.entries(CLASSES).map(([k,c])=>`<button class="opt ${draft.cls===k?'on':''}" data-cls="${k}" aria-pressed="${draft.cls===k}">${c.n}</button>`).join('')}</div>
+    <div class="choices"><button class="btn pri" data-born>Chào đời</button><button class="btn" data-randall style="text-align:center">Ngẫu nhiên tất cả</button></div></div>`);
 }
 function readName(){const i=$('#nm');if(i)draft.name=i.value;const h=$('#hs');if(h)draft.house=h.value}
 
