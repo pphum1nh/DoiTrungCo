@@ -651,7 +651,7 @@ const JOBS={
   trade:{n:'Buôn bán',min:16,t:['Người bán rong','Thương nhân','Đại thương gia'],pay:[15,36,95],need:[3,6],vol:true,fx:{smarts:1},req:s=>s.money>=30||s.cls==='merchant',why:'Cần 30 xu làm vốn'},
   scribe:{races:['human','elf','dwarf','fiend'],n:'Thư lại',min:15,t:['Thư lại','Thư ký lãnh địa','Chưởng ấn'],pay:[22,42,85],need:[4,8],fx:{smarts:2},req:s=>s.flags.literate,why:'Phải biết chữ'},
   surgeon:{races:['human','elf','dwarf'],n:'Thầy lang',min:16,t:['Thợ cạo kiêm thầy lang','Thầy lang','Ngự y'],pay:[18,38,100],need:[4,8],fx:{smarts:1},req:s=>s.st.smarts>=50,why:'Cần Trí tuệ từ 50'},
-  knight:{races:['human'],n:'Đường hiệp sĩ',min:7,t:['Thị đồng','Cận vệ','Hiệp sĩ','Lãnh chúa'],pay:[0,6,75,170],need:[7,7,10],sure:[1,1],fx:{health:1,honor:2},req:s=>s.cls==='noble'&&s.sex==='m',why:'Chỉ dành cho con trai nhà quý tộc',
+  knight:{races:['human'],n:'Đường hiệp sĩ',min:7,t:['Thị đồng','Cận vệ','Hiệp sĩ'],pay:[0,6,75],need:[7,7],sure:[1,1],fx:{health:1,honor:2},req:s=>s.cls==='noble'&&s.sex==='m',why:'Chỉ dành cho con trai nhà quý tộc',
     gate:(s,r)=>{if(r===1&&s.st.honor<40)return'Lãnh chúa chưa cho bạn làm cận vệ: danh dự còn thấp (cần 40).';if(r===2&&s.st.honor<75)return'Lãnh chúa chưa phong hiệp sĩ cho bạn: danh dự còn thấp (cần 75).';return true}},
   lady:{races:['human'],n:'Hầu cận phu nhân bá tước',min:12,t:['Thị nữ','Nữ quan','Quản gia lâu đài'],pay:[4,30,70],need:[4,8],fx:{looks:1,honor:1},req:s=>s.cls==='noble'&&s.sex==='f',why:'Chỉ dành cho con gái nhà quý tộc'},
   wizard:{races:['human','elf','fiend'],n:'Học viện Tháp Bạc',min:14,t:['Học đồ','Pháp sư','Tổng pháp sư'],pay:[2,45,120],need:[5,10],fx:{magic:2,smarts:1},magicJob:true,req:s=>s.st.magic>=(s.flags.academy?30:50)||s.hid.arcane>=75,why:'Cần Ma lực từ 50 (30 nếu có thư mời), hoặc cảm nhận ma pháp thiên bẩm'},
@@ -1046,7 +1046,6 @@ function promote(){
   j.rank++;j.ry=0;mod({happy:6});log(`Bạn được thăng lên ${jt()}.`,'good');
   if(j.rank===J.t.length-1&&J.top)J.top(S);
   if(j.id==='knight'&&j.rank===2){S.flags.knight=1;mod({honor:15});log('Lãnh chúa đặt lưỡi kiếm lên vai bạn. Từ nay người ta gọi bạn là Ngài.','good')}
-  if(j.id==='knight'&&j.rank===3)grantTitle(2);
   if((j.id==='church'||j.id==='wizard')&&j.rank>=1)S.flags.literate=1;
   if(j.id==='mission'&&j.rank===2)announce('Giám mục truyền giáo',`Sau ${j.yr} năm rao giảng nơi rừng sâu, ${S.first} được Đức Thánh Tọa phong làm Giám mục truyền giáo.`,'cross');
 }
@@ -3450,10 +3449,10 @@ const STAFF_EV=[
 
 /* ===== Nghề Hiệp sĩ có chủ thuê · Chính Giáo / Hồng Giáo · Đại Chinh Phạt ===== */
 const KEMP={
-  lord:{n:'Quý tộc',ranks:['Hiệp sĩ gia thần','Cận vệ thân tín','Đội trưởng cận vệ','Chỉ huy quân lãnh địa'],pay:[30,45,65,90],ic:'shield'},
-  royal:{n:'Hoàng gia',ranks:['Hiệp sĩ Hoàng gia','Cận vệ Hoàng cung','Đội trưởng Cấm vệ','Tổng chỉ huy Cấm vệ'],pay:[40,60,85,120],ic:'crown'},
-  orth:{n:'Chính Giáo',ranks:['Hiệp sĩ Chính Giáo','Người Bảo Vệ Thánh Đường','Cận Vệ Của Thánh'],pay:[35,55,80],ic:'holy'},
-  red:{n:'Hồng Giáo',ranks:['Hiệp sĩ Hồng Giáo','Người Giữ Thánh Địa','Hộ vệ Giáo chủ'],pay:[35,55,80],ic:'night'}
+  lord:{n:'Quý tộc',ranks:['Hiệp sĩ gia thần','Cận vệ thân tín','Đội trưởng cận vệ','Chỉ huy quân lãnh địa'],pay:[85,110,140,175],ic:'shield'},
+  royal:{n:'Hoàng gia',ranks:['Hiệp sĩ Hoàng gia','Cận vệ Hoàng cung','Đội trưởng Cấm vệ','Tổng chỉ huy Cấm vệ'],pay:[95,125,160,200],ic:'crown'},
+  orth:{n:'Chính Giáo',ranks:['Hiệp sĩ Chính Giáo','Người Bảo Vệ Thánh Đường','Cận Vệ Của Thánh'],pay:[90,125,170],ic:'holy'},
+  red:{n:'Hồng Giáo',ranks:['Hiệp sĩ Hồng Giáo','Người Giữ Thánh Địa','Hộ vệ Giáo chủ'],pay:[95,135,180],ic:'night'}
 };
 const KREP=[0,40,70,90];
 const isKn=s=>!!(s.flags.knight||(s.job&&s.job.id==='knight'&&s.job.rank>=2));
@@ -8745,7 +8744,8 @@ EV.push(NCB);EVB.nc_corpse=NCB;
 const mvCount=re=>mvList().filter(id=>re.test(MV[id].src||'')).length;
 {const e=EVB.hn_snow;if(e)e.c=s=>s.age>=18&&s.age<=70&&s.flags.seenS&&(s.blade||0)>=75&&(s.hid.sword>=50||(s.blade||0)>=90)&&mvCount(/^kiem$/)>=3&&s.st.honor>=40&&!HONS().some(h=>h.id==='kiemthanh')}
 {const e=EVB.hn_council;if(e){const c0=e.c;e.c=s=>c0(s)&&mvCount(/^m:/)>=3}}
-const GV='32';
+{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&r.job&&r.job.id==='knight'&&r.job.rank>2)r.job.rank=2;return r}}
+const GV='33';
 for(const e of EV)if(/^cru_/.test(e.id)){const c0=e.c;e.c=s=>!!(s.world&&s.world.cat&&CATS[s.world.cat.id])&&(!c0||c0(s))}
 {let guard=0;const s0=showNext;showNext=function(){try{s0();guard=0}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null;try{save()}catch(e){}}if(++guard<20)showNext();else{guard=0;closeModal();render()}}}}
 {const c0=choose;choose=function(i){try{c0(i)}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null}try{save();render()}catch(e){}closeModal();showNext()}}}
