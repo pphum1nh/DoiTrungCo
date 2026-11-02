@@ -2023,8 +2023,8 @@ function renderIntro(){
   <label class="fl" for="hs">Tên gia tộc</label>
   <div class="nmrow"><input id="hs" value="${esc(draft.house)}" maxlength="24" autocomplete="off"><button class="btn sm" data-rehouse>Đổi họ</button></div>
   <p class="fl">Giới tính</p><div class="seg">${[['m','Nam'],['f','Nữ']].map(([k,l])=>`<button class="opt ${draft.sex===k?'on':''}" data-sex="${k}" aria-pressed="${draft.sex===k}">${l}</button>`).join('')}</div>
-  <p class="fl">Chủng tộc</p><div class="opts">${Object.entries(RACES).filter(([k,r])=>!r.hidden).map(([k,r])=>`<button class="opt ${draft.race===k?'on':''}" data-race="${k}" aria-pressed="${draft.race===k}">${r.n}</button>`).join('')}</div>
-  <p class="fl">Xuất thân</p><div class="opts">${Object.entries(CLASSES).map(([k,c])=>`<button class="opt ${draft.cls===k?'on':''}" data-cls="${k}" aria-pressed="${draft.cls===k}">${c.n}</button>`).join('')}</div>
+  <p class="fl">Chủng tộc</p><div class="opts">${Object.entries(RACES).filter(([k,r])=>!r.hidden).map(([k,r])=>`<button class="opt ${draft.race===k?'on':''}" data-race="${k}" aria-pressed="${draft.race===k}">${r.n}<small>${r.desc}</small></button>`).join('')}</div>
+  <p class="fl">Xuất thân</p><div class="opts">${Object.entries(CLASSES).map(([k,c])=>`<button class="opt ${draft.cls===k?'on':''}" data-cls="${k}" aria-pressed="${draft.cls===k}">${c.n}<small>${c.desc}</small></button>`).join('')}</div>
     <div class="choices"><button class="btn pri" data-born>Chào đời</button><button class="btn" data-randall style="text-align:center">Ngẫu nhiên tất cả</button></div></div>`);
 }
 function readName(){const i=$('#nm');if(i)draft.name=i.value;const h=$('#hs');if(h)draft.house=h.value}
@@ -7397,14 +7397,14 @@ function hqWorld(){const L=S.world.hcLeg;if(!L||!L.length||S.done.hqw)return;
 function hqOnWhy(k){if(!S.alive)return'Đã qua đời';if(k&&HQ[k].mv)return hqAll().some(o=>o.st==='act'&&HQ[o.k].mv&&o.k!==k)?'Bạn đang theo đuổi một hành trình học chiêu khác':'';if(S.hc)return'Bạn đã mang một nghề ẩn. Mỗi người chỉ mang được một nghề ẩn.';if(hqActN()>=2)return'Bạn đang theo đuổi đủ hai chuỗi cùng lúc';return''}
 function hqView(v){
   const k=v.split(':')[1];if(k&&S.hq&&S.hq[k])return hqDetail(k);
-  const L=hqAll();let b='<p class="note">Mỗi nghề ẩn bắt đầu bằng một bí mật và kéo dài nhiều năm: manh mối, thử thách, lựa chọn, rồi mới thức tỉnh. Bạn theo đuổi tối đa hai chuỗi cùng lúc, mỗi năm có ba lượt hành trình.</p>';
+  const L=hqAll();let b='';
   const row=q=>{const D=HQ[q.k],C=D.ch[Math.min(q.ch,D.ch.length-1)],open=['act','known','diary'].includes(q.st),[a,n]=q.st==='act'?hqCnt(q):[0,0];
     return gRow(`data-open="hq:${q.k}"`,HC[q.k].ic,D.n,`${HC[q.k].n} · ${open?`Chương ${q.ch+1}/${D.ch.length}: ${qtx(C.n,q)}`:HQST[q.st]}${q.st==='act'?` · ${a}/${n} mục tiêu`:''}`,q.st==='act'?(!hqOK(q.k)?'Tạm dừng':q.due?'Chờ bước ngoặt':'Đang làm'):'',false)};
   const A=L.filter(q=>q.st==='act'),K=L.filter(q=>q.st==='known'||q.st==='diary'),X=L.filter(q=>['done','lost','fail'].includes(q.st));
   if(A.length)b+=`<p class="sec">Đang theo đuổi · ${A.filter(q=>!HQ[q.k].mv).length}/2 nghề ẩn · còn ${hqLeft()}/${HQA} lượt năm nay</p>`+A.map(row).join('');
   if(K.length)b+='<p class="sec">Bí mật đã biết</p>'+K.map(row).join('');
   if(X.length)b+='<p class="sec">Đã khép lại</p>'+X.map(row).join('');
-  if(!L.length)b+='<p class="note">Bạn chưa biết bí mật nào. Hãy làm nghề gốc vài năm: thợ rèn, thương nhân, ngư dân, nông dân, thầy thuốc, thư lại, chăn nuôi, binh sĩ, thợ săn hay giáo sĩ. Bí mật thường đến khi bạn ít ngờ nhất.</p>';
+  if(!L.length)b+='<p class="note">Bạn chưa biết bí mật nào.</p>';
   const W=(S.world.hcLeg||[]).filter(e=>HQB[e.k]).slice(-8).reverse();
   if(W.length)b+='<p class="sec">Truyền thuyết nghề ẩn trong thiên hạ</p>'+W.map(e=>{const B=HQB[e.k][e.br]||HQB[e.k][HQBD[e.k]];return`<p class="note">Năm ${e.y} · ${esc(e.who)} trở thành ${esc(B.t[0])}${e.npc?'':' · gia tộc '+esc(e.house||'')}</p>`}).join('');
   return['Hành Trình Bí Ẩn',b,'act'];
@@ -7803,18 +7803,18 @@ function vhAct(a,id){mnEnsure();if(!S.alive)return;let t='',tone='';
 function vhRow(id,act){const M=MV[id],P=S.mv[id];return gRow(act,mvIc(M),`${M.n}${P?` · cấp ${P.lv}/5`:''}`,`${MVTY[M.ty]}${M.sv.length?' · khắc '+M.sv.map(t=>CBTN[t]).join(', '):''}${M.mp?` · ${M.mp} ma lực`:''}${M.hp?` · ${M.hp} sức khỏe`:''}`,S.mvL.includes(id)?'Đang mang':'',!S.alive)}
 const mvSrcN=M=>M.src==='kiem'?'Kiếm thuật':M.src[0]==='m'?`${MENH[M.src.slice(2)].n} mệnh`:M.src[0]==='r'?{hero:'Anh Hùng',saint:'Thánh Nữ',dark:'Ma Vương'}[M.src.slice(2)]:`Nghề ẩn ${HC[M.src.slice(2)].n}`;
 function vhView(v){mnEnsure();const id=v.split(':')[1];if(id&&MV[id])return vhMove(id);const dis=!S.alive,m=MENH[S.hid.menh];let b='';
-  b+=mnOn()?gRow('',m.ic,`${m.n} mệnh`,m.d,'',false,true):gRow('','star','Mệnh ẩn: chưa thức tỉnh','Ai cũng mang một trong bảy mệnh: Hỏa, Mộc, Thủy, Thổ, Hắc, Quang, Huyết. Mệnh thường thức tỉnh khi ma lực đủ mạnh hoặc qua sách vở','',false,true);
-  b+=statGrid([['Thiên phú kiếm thuật',S.flags.seenS?talentWord(S.hid.sword):'chưa rõ'],['Cảm nhận ma pháp',S.flags.seenA?talentWord(S.hid.arcane):'chưa rõ'],['Kiếm thuật',(S.blade||0)+'/100'],['Ma lực',S.st.magic+'/100']]);b+='<p class="note">Thiên phú là tài năng bẩm sinh, không đổi. Kiếm thuật và ma lực tăng khi luyện tập; thiên phú càng cao thì tăng càng nhanh và càng ít bị thương khi luyện hay khi giao chiến.</p>';
-  b+=`<p class="sec">Mang vào trận · ${S.mvL.length}/4</p>`;b+=S.mvL.length?S.mvL.map(x=>vhRow(x,`data-open="vh:${x}"`)).join(''):'<p class="note">Chưa có chiêu nào. Khi gặp trận đánh, bạn sẽ chọn một trong những chiêu mang theo.</p>';
+  b+=mnOn()?gRow('',m.ic,`${m.n} mệnh`,m.d,'',false,true):gRow('','star','Mệnh ẩn: chưa thức tỉnh','','',false,true);
+  b+=statGrid([['Kiếm thuật',`${S.blade||0}/100`],['Ma lực',`${S.st.magic}/100`]]);if(S.flags.seenS||S.flags.seenA)b+=`<p class="note">Thiên phú: ${[S.flags.seenS?'kiếm '+talentWord(S.hid.sword):'',S.flags.seenA?'phép '+talentWord(S.hid.arcane):''].filter(Boolean).join(', ')}.</p>`;
+  b+=`<p class="sec">Mang vào trận · ${S.mvL.length}/4</p>`;b+=S.mvL.length?S.mvL.map(x=>vhRow(x,`data-open="vh:${x}"`)).join(''):'<p class="note">Chưa có chiêu nào.</p>';
   const rest=mvList().filter(x=>!S.mvL.includes(x));if(rest.length)b+='<p class="sec">Chiêu khác đã học</p>'+rest.map(x=>vhRow(x,`data-open="vh:${x}"`)).join('');
   b+=`<p class="sec">Học chiêu mới · còn ${vhLeft()}/2 buổi luyện năm nay</p>`;
-  const can=Object.keys(MV).filter(x=>!mvWhy(x));b+=can.length?can.map(x=>{const M=MV[x];return gRow(`data-x="vh:learn:${x}"`,'book',M.n,`${mvSrcN(M)} · ${M.d}${M.src==='kiem'?' · 10 xu thuê thầy':''}`,'',dis||!vhLeft())}).join(''):'<p class="note">Chưa có chiêu nào học được ngay. Hãy luyện các chiêu đã có lên cấp, tăng ma lực, hoặc tìm bí kíp.</p>';
+  const can=Object.keys(MV).filter(x=>!mvWhy(x));b+=can.length?can.map(x=>{const M=MV[x];return gRow(`data-x="vh:learn:${x}"`,'book',M.n,`${mvSrcN(M)}${M.src==='kiem'?' · 10 xu':''}`,'',dis||!vhLeft())}).join(''):'<p class="note">Chưa có chiêu mới để học.</p>';
   const near=Object.keys(MV).filter(x=>{const w=mvWhy(x),M=MV[x];return w&&w!=='Đã học'&&(M.src==='kiem'||(mnOn()&&M.src==='m:'+S.hid.menh))&&!/Từ 10/.test(w)}).slice(0,6);
   if(near.length)b+='<p class="sec">Chiêu sắp mở</p>'+near.map(x=>gRow('','lock',MV[x].n,mvWhy(x),'',false,true)).join('');
   if(S.bk.length)b+='<p class="sec">Bí kíp đang giữ</p>'+S.bk.map((x,i)=>{const w=mvWhy(x,true);return gRow(`data-x="vh:bk:${i}"`,'book',`Bí kíp: ${MV[x].n}`,w?(S.done['bk'+i]?'Đã đọc năm nay':`${mvSrcN(MV[x])} · ${w}`):'Đọc để học chiêu này','',dis||(!!w&&!!S.done['bk'+i]))+(w?gRow(`data-x="vh:sell:${i}"`,'coins',`Bán bí kíp ${MV[x].n}`,'Thương nhân sách cũ trả 15–35 xu','',dis):'')}).join('');
   b+='<p class="sec">Thư viện và tỉ thí</p>';
-  b+=gRow('data-x="vh:lib"','book','Đọc sách ở thư viện',S.age<8?'Từ 8 tuổi':(S.done.lib||0)>=2?'Đã đọc đủ hai lần năm nay':S.money<3?'Cần 3 xu':'3 xu · có thể tìm thấy bí kíp, tăng trí tuệ, vui vẻ, hoặc chẳng hiểu gì','',dis||S.age<8||(S.done.lib||0)>=2||S.money<3);
-  b+=gRow('data-x="vh:spar"','sword','Tỉ thí với võ sư',S.age<12?'Từ 12 tuổi':S.done.spar?'Đã tỉ thí năm nay':'Dùng chiêu thức thật, không nguy hiểm đến tính mạng','',dis||S.age<12||!!S.done.spar);
+  b+=gRow('data-x="vh:lib"','book','Đọc sách ở thư viện',S.age<8?'Từ 8 tuổi':(S.done.lib||0)>=2?'Đã đọc đủ hai lần năm nay':S.money<3?'Cần 3 xu':'3 xu','',dis||S.age<8||(S.done.lib||0)>=2||S.money<3);
+  b+=gRow('data-x="vh:spar"','sword','Tỉ thí với võ sư',S.age<12?'Từ 12 tuổi':S.done.spar?'Đã tỉ thí năm nay':'Không nguy hiểm tính mạng','',dis||S.age<12||!!S.done.spar);
   return['Võ học',b,'act:train']}
 function vhMove(id){const M=MV[id],P=S.mv[id],dis=!S.alive;let b='';
   b+=gRow('',mvIc(M),M.n,`${mvSrcN(M)} · ${MVTY[M.ty]}${M.u||M.src[0]==='h'?' · chiêu độc nhất':''}`,'',false,true);
@@ -7973,7 +7973,7 @@ function ctAct(a){const C=ctOf();if(!C||!S.alive)return;const D=CTO[C.o];let t='
   if(a==='raise'){if(S.year-C.ry<3)return;C.ry=S.year;if(ch(.3+ctScore(C.o)/400+C.dn*.02)){C.pay=Math.round(C.pay*1.2);t=`${D.n} đồng ý tăng lương cho bạn lên ${C.pay} xu mỗi năm.`;tone='good'}else{C.warn=Math.min(2,C.warn+1);t=`${D.n} từ chối, và bắt đầu nghi ngờ lòng trung thành của bạn.`;tone='bad'}}
   if(a==='quit'){if(S.ctQuit!==S.year){S.ctQuit=S.year;note={t:'Nhấn "Rời tổ chức" lần nữa để xác nhận.',tone:'bad'};return drawSheet()}S.ct=null;S.ctQuit=0;t=`Bạn rời ${D.n}.`;view='org'}
   if(t){log(t,tone);note={t,tone}}afterSheetAction()}
-function ctView(){const C=ctOf();if(!C)return['Hợp đồng','<p class="note">Bạn chưa ký hợp đồng với tổ chức nào. Khi bạn đủ nổi tiếng về chiến đấu, ma pháp, kiếm thuật, buôn bán hay thế giới ngầm, các tổ chức sẽ tự gửi lời mời.</p>'+ctScan(),'org'];
+function ctView(){const C=ctOf();if(!C)return['Hợp đồng','<p class="note">Chưa có hợp đồng.</p>'+ctScan(),'org'];
   const D=CTO[C.o],dis=!S.alive;let b=imgBanner('guildinvite');
   b+=gRow('',D.ic,D.n,`${D.roles[C.rk]}${C.ally?' · đồng minh độc lập':''} · từ năm ${C.y}`,'',false,true);
   b+=statGrid([['Lương mỗi năm',`${Math.round(C.pay*(C.ally?.5:1))} xu`],['Nhiệm vụ đã làm',C.dn],['Thăng chức',C.rk>=D.roles.length-1?'đã cao nhất':`${C.dn}/${(C.rk+1)*3} nhiệm vụ`],['Cảnh cáo',`${C.warn}/3`]]);
@@ -8044,7 +8044,6 @@ function ncAct(a,i){if(!isNc()||!S.alive)return;let t='',tone='';
   b+=UD().length?UD().map(u=>gRow(`data-x="nc:free:${u.id}"`,'skull',`${u.n}`,`${u.t} · sức mạnh ${Math.round(u.pw*100)} · nhấn để giải thoát linh hồn`,'',dis)).join(''):'<p class="note">Chưa có tướng nào. Người đã khuất có thể đứng dậy theo lệnh bạn.</p>';
   const C=ncCands();b+=`<p class="sec">Triệu hồi người đã khuất${S.done.ncr?' · đã triệu hồi năm nay':''}</p>`;
   b+=C.length?C.map((c,i)=>gRow(`data-x="nc:raise:${i}"`,'gravestone',c.n,`${c.t.replace('tướng xác sống, ','')} · cơ hội ${Math.round(ncP(c.diff)*100)}%`,'',dis||!!S.done.ncr)).join(''):'<p class="note">Không có người quen nào đã khuất để triệu hồi.</p>';
-  b+='<p class="note">Tướng xác sống có thể ra trận thay bạn trong mọi trận đánh. Khi có Thảm Họa, bạn có thể tới chiến trường của Anh Hùng và Ma Vương, chờ một trong hai gục ngã rồi trói linh hồn người ấy.</p>';
   r[1]+=b;return r}}
 {const x0=extAct3;extAct3=function(x){const[a,b,c]=x.split(':');if(a==='nc')return ncAct(b,c);if(a==='ct')return ctAct(b);return x0(x)}}
 {const d0=drawExt3;drawExt3=function(v){if(v==='ct')return ctView();return d0(v)}}
