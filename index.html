@@ -826,7 +826,7 @@ const BAGMAX=16;
 
 let S=null,view=null,note=null,draft=null,sel=null;
 
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));saveFailed=0}catch(e){saveFail()}}
 function load(){try{const r=localStorage.getItem(KEY);return r?JSON.parse(r):null}catch(e){return null}}
 function wipe(){try{localStorage.removeItem(KEY)}catch(e){}}
 
@@ -3598,12 +3598,13 @@ const HJOBS=[
   [4,'Rồng đá phương Bắc','Một con rồng đá đòi cống nạp một thành phố.',320,250,.32]
 ];
 function hnBoard(){const H=HN();if(!H.board||H.by!==S.year){H.by=S.year;H.n=0;const g=hnG();const pool=HJOBS.map((j,i)=>i).filter(i=>HJOBS[i][0]<=g&&HJOBS[i][0]>=g-1);const b=pool.sort(()=>Math.random()-.5).slice(0,3);if(g>=1&&!(H.gob&&H.gob.done===S.year)&&!(H.gob&&H.gob.st))b.push('gob');if(g>=2)b.push('crypt');H.board=b}return H.board}
-function hnTake(x){const H=HN();if(x==='crypt'){view='hn:party';note=null;drawSheet();return}H.n++;H.board=H.board.filter(b=>String(b)!==String(x));if(x==='gob'){H.gob={st:1,var:(r=>r<.5?'raid':r<.75?'flee':r<.9?'aldric':'sorc')(Math.random()),clues:[],inv:2,reward:55,prep:0,milit:0,info:0,hp:3,host:2};S.pend.push('hg1')}else if(x==='crypt'){view='hn:party';note=null;drawSheet();return}else{H.cur=+x;S.pend.push('hn_job')}afterSheetAction()}
+function hnTake(x){const H=HN();if(x==='crypt'){view='hn:party';note=null;drawSheet();return}H.n++;H.board=H.board.filter(b=>String(b)!==String(x));if(x==='gob'){H.gob={st:1,var:(r=>r<.5?'raid':r<.75?'flee':r<.9?'aldric':'sorc')(Math.random()),clues:[],inv:2,reward:55,prep:0,milit:0,info:0,hp:3,host:2};S.pend.push('hg1')}else if(x==='crypt'){view='hn:party';note=null;drawSheet();return}else{H.cur=+x;S.pend.push(HJOBS[+x][0]>=3?'hn_prep':'hn_job')}afterSheetAction()}
 function hnJobRes(kind){
   const H=HN(),J=HJOBS[H.cur],g=hnG();let p,mul=1;
-  if(kind==='fight')p=.45+(S.blade||0)/250+cbB()/180+S.st.health/500-J[0]*.06+g*.05;
-  else if(kind==='plan'){p=.55+S.st.smarts/300-J[0]*.05+g*.05;mul=.9}
+  if(kind==='fight')p=.45+(S.blade||0)/250+cbB()/180+S.st.health/500-J[0]*.06+g*.05+(H.pb||0);
+  else if(kind==='plan'){p=.55+S.st.smarts/300-J[0]*.05+g*.05+(H.pb||0);mul=.9}
   else{p=.75;mul=.5}
+  H.pb=0;
   if(ch(p)){const m=Math.round(J[3]*mul),c=Math.round(J[4]*mul);S.money+=m;H.merit+=c;H.q++;mod({honor:2+J[0]});if(J[0]>=2&&ch(.25))gainItem(pick(J[0]>=3?['scale','greatsword','plate','sc_crystal']:['halberd','kite_shield','greathelm','gem']));if(J[0]>=3)H.boss++;if(J[0]===4){S.flags.dragonslayer=1;H.trial=Math.max(H.trial,2)}return[`${J[1]}: hoàn thành. Bạn nhận ${m} xu và ${c} công trạng (tổng ${H.merit}).`,'good']}
   if(kind==='flee')return[`${J[1]}: bạn rút lui, không nhận được gì.`,''];
   const d=R(8,18)+J[0]*5;mod({health:-d});if(ch(J[5]*.4)){die(`trong ủy thác "${J[1]}"`);return['Con quái vật mạnh hơn mọi lời đồn.','bad']}return[`${J[1]}: thất bại, bạn mất ${d} sức khỏe.`,'bad'];
@@ -8682,7 +8683,69 @@ function tmAct(a){if(!$('#sheet').hidden){$('#sheet').hidden=true;view=null;note
   talSync();const gb=(S.blade||0)-b0,gm=S.st.magic-m0;const ex=[gb>0?`Kiếm thuật +${gb}.`:'',gm>0?`Ma lực +${gm}.`:''].filter(Boolean).join(' ');
   if(ex&&note){note.t+=' '+ex;const it=S.log[S.log.length-1].items;if(it.length)it[it.length-1].t+=' '+ex}
   if(held)afterSheetAction()}}
-const GV='31';
+
+/* ---------- V32: sửa theo báo cáo kiểm tra ---------- */
+/* báo khi không ghi được bản lưu */
+var saveFailed=0;
+function saveFail(){if(saveFailed)return;saveFailed=1;try{toast('Không lưu được vào trình duyệt. Hãy vào Màn hình chính, lưu cuộc đời ra file.')}catch(e){}}
+/* hợp đồng: mỗi nhiệm vụ hoàn thành xóa một cảnh cáo và tính là đã làm nghĩa vụ năm đó */
+{const y0=ctYear;ctYear=function(){const C=ctOf();if(C){if(C.wdn==null)C.wdn=C.dn;const d=C.dn-C.wdn;if(d>0){C.warn=Math.max(0,(C.warn||0)-d);C.dy=Math.max(C.dy||0,S.year-1)}}y0();const C2=ctOf();if(C2)C2.wdn=C2.dn}}
+/* ảnh riêng */
+EIMG.frostknight='frostknight';
+const HJIMG={0:'hj_mushroom',2:'hj_escort',6:'hj_spider',7:'hj_lizard',8:'hj_basilisk',9:'hj_stonedragon'};
+for(const id of['hn_job','hn_prep'])Object.defineProperty(EIMG,id,{get(){const c=S&&S.hn?S.hn.cur:null;return HJIMG[c]||'swamphunt'},set(v){},configurable:true,enumerable:true});
+/* mỗi ủy thác một diễn biến riêng */
+const HJTX=[
+ ['Bạn phân biệt được nấm phát quang thật với loại nấm độc mọc cạnh, hái đầy một túi.','Bạn hái nhầm nấm độc, rồi giẫm phải hang cá sấu đầm lầy.'],
+ ['Lần theo dấu chân trên sườn núi, bạn tìm thấy cậu bé trú trong một hang đá, đói lả nhưng còn sống.','Bạn lạc giữa sương núi và trượt chân xuống một khe đá.'],
+ ['Đêm thứ hai, bầy sói vây xe thư. Bạn giữ đèn sáng và đẩy lui chúng đến tận bình minh.','Bầy sói lao vào ngựa kéo, xe thư lật xuống mương.'],
+ ['Bạn đặt bẫy ở bãi chăn và hạ con sói đầu đàn khi nó quay lại.','Con sói đầu đàn đánh hơi được bẫy và vồ bạn từ phía sau.'],
+ ['Bạn tìm ra ngôi mộ bị đào trộm, thiêu con xác sống trước khi nó cắn thêm ai.','Con xác sống trúng ba nhát kiếm vẫn đứng dậy, cắn vào vai bạn.'],
+ ['Bạn dụ hai cái đầu của con ogre cãi nhau, rồi chém vào khoeo chân nó.','Một cái đầu ogre ngủ, nhưng cái đầu kia thì không.'],
+ ['Bạn đốt các bọc trứng, cắt tơ cứu hai thợ mỏ, rồi hạ Nhện Chúa trong đường hầm.','Tơ nhện dính chặt chân bạn giữa đường ray, nọc độc làm bạn tê dại.'],
+ ['Bạn dụ Vua Thằn Lằn lên bãi đất cứng, nơi nó không lặn được, rồi đâm xuyên lớp vảy.','Vua Thằn Lằn kéo bạn xuống làn nước đen của đầm lầy.'],
+ ['Bạn nhìn basilisk qua mặt khiên đánh bóng thay vì nhìn thẳng, rồi chém đứt đầu nó.','Bạn lỡ nhìn vào mắt basilisk. Một bên tay hóa đá suốt mấy ngày.'],
+ ['Rồng đá lao xuống tường thành. Bạn đâm vào khe vảy dưới cổ, nơi đá chưa kịp liền.','Một cú quét đuôi của rồng đá hất bạn khỏi tường thành.']];
+{const h0=hnJobRes;hnJobRes=function(kind){const i=HN().cur,r=h0(kind);const x=HJTX[i];if(kind==='flee'||!x||!Array.isArray(r)||!S.alive)return r;
+  if(/: hoàn thành/.test(r[0]))r[0]=x[0]+' '+r[0];else if(/: thất bại/.test(r[0]))r[0]=x[1]+' '+r[0];return r}}
+/* ủy thác hạng cao phải chuẩn bị trước */
+const hjFee=s=>Math.round(HJOBS[s.hn.cur][3]*.3);
+const HNPREP={id:'hn_prep',queued:true,big:true,art:'hunter',c:s=>isHn(s)&&s.hn&&s.hn.cur!=null,title:s=>`Chuẩn bị: ${HJOBS[s.hn.cur][1]}`,
+  text:s=>`${HJOBS[s.hn.cur][2]} Đây là ủy thác hạng ${HG[HJOBS[s.hn.cur][0]]}, nhiều thợ săn đã không trở về. Chuẩn bị kỹ thì cơ hội sống sót cao hơn.`,
+  ch:[{t:s=>`Thuê thêm hai thợ săn kỳ cựu (${hjFee(s)} xu)`,req:s=>s.money>=hjFee(s),f:s=>{s.money-=hjFee(s);s.hn.pb=.12;s.pend.push('hn_job');return'Hai thợ săn kỳ cựu nhận tiền và đi cùng bạn.'}},
+      {t:'Điều tra sào huyệt, tìm điểm yếu',f:s=>{s.pend.push('hn_job');if(ch(.4+s.st.smarts/250)){s.hn.pb=.12;return['Bạn hỏi dân quanh vùng và đọc hồ sơ cũ ở Hiệp hội. Bạn biết nó yếu ở đâu.','good']}s.hn.pb=0;return'Bạn mất ba ngày mà không tìm ra điều gì mới.'}},
+      {t:'Mua thuốc giải và bẫy (25 xu)',req:s=>s.money>=25,f:s=>{s.money-=25;s.hn.pb=.07;s.pend.push('hn_job');return'Túi đồ của bạn nặng thêm thuốc giải, dây thép và bẫy sắt.'}},
+      {t:'Lên đường ngay',f:s=>{s.hn.pb=0;s.pend.push('hn_job');return'Bạn không muốn cho con quái thêm thời gian.'}}]};
+EV.push(HNPREP);EVB.hn_prep=HNPREP;
+/* Chiến Trường Định Mệnh: kết quả theo sức kháng cự của thế giới; thi thể Ma Vương bị Giáo hội giữ */
+{const e=EVB.nc_battle;if(e){e.ch[0].f=s=>{const c=s.world.cat,C=CATS[c.id],hero=s.ncH,yrs=s.year-c.y,hm=pick(HEROMV),bm=pick(BOSSNM[c.id]||['một đòn chí mạng']);
+  const p=Math.min(.75,.15+(c.res||0)*.1+Math.min(yrs,6)*.05);
+  let t=`Từ bóng tối, bạn nhìn Anh Hùng ${hero} dẫn đoàn hộ vệ vào cánh đồng. Anh Hùng mở đầu bằng ${hm}. ${C.boss} đáp trả bằng ${bm}, quét bay nửa đoàn hộ vệ. `;
+  if(ch(p)){t+=`Trận chiến kéo dài đến rạng sáng, và ${C.boss} gục xuống.`;c.fw=`Anh Hùng ${hero}`;endCat();s.ncBody={n:C.boss,y:s.year};
+    return[`${t} Bạn chưa kịp bước ra thì các tu sĩ Chính Giáo đã vây quanh thi thể, khiêng về giam trong hầm mộ thánh. Muốn trói linh hồn nó, bạn phải lấy được thi thể.`,'magic']}
+  t+=`Đến lúc trăng lặn, Anh Hùng ${hero} ngã xuống. ${C.boss} gầm lên rồi rút về sào huyệt.`;c.res=Math.max(0,(c.res||0)-2);news(`Anh Hùng ${hero} tử trận trước ${C.boss}. Thi thể người biến mất khỏi chiến trường.`,'bad',true);
+  const[ok,tt]=ncRaise({n:`Anh Hùng ${hero}`,t:'đại tướng xác sống, Anh Hùng sa ngã',pw:.3,diff:.25,leg:5});if(ok){mod({piety:-6});s.flags.suspect=(s.flags.suspect||0)+2}
+  return[`${t} Bạn kéo thi thể người vào bóng tối. ${tt}`,ok?'magic':'bad']}}}
+const NCB={id:'nc_corpse',queued:true,big:true,art:'skull',img:'necro',c:s=>!!(s.alive&&isNc()&&s.ncBody),title:s=>`Thi thể ${s.ncBody.n}`,
+  text:s=>`Thi thể ${s.ncBody.n} bị giam dưới hầm mộ thánh, ngày đêm có tu sĩ canh giữ. Nghe nói Giáo hội sẽ thiêu nó trong vài năm nữa.`,
+  ch:[{t:'Một mình lẻn vào hầm mộ',f:s=>{const B=s.ncBody;if(ch(.3+s.st.smarts/300+s.st.magic/400)){s.ncBody=null;const[ok,tt]=ncRaise({n:B.n,t:`đại tướng xác sống, từng là ${B.n}`,pw:.35,diff:.3,leg:20});return[`Bạn vượt qua ba lớp cửa ấn thánh. ${tt}`,ok?'magic':'bad']}
+      mod({health:-R(10,20)});s.flags.suspect=(s.flags.suspect||0)+2;return['Một tu sĩ canh hầm bắt gặp bạn. Bạn thoát ra được, nhưng mang theo vết bỏng nước thánh.','bad']}},
+      {t:'Sai đạo quân xác sống tấn công',req:s=>UD().length>=2||(SKX().leg||0)>=20,f:s=>{const B=s.ncBody;s.ncBody=null;if(ch(.3+UD().length*.07+(SKX().leg||0)/400)){s.flags.suspect=(s.flags.suspect||0)+3;const[ok,tt]=ncRaise({n:B.n,t:`đại tướng xác sống, từng là ${B.n}`,pw:.35,diff:.3,leg:20});return[`Đạo quân của bạn tràn qua tu viện trong đêm. ${tt}`,ok?'magic':'bad']}
+      SKX().leg=Math.floor((SKX().leg||0)/2);s.flags.suspect=(s.flags.suspect||0)+3;return['Các tu sĩ dựng kết giới, đạo quân của bạn tan thành tro. Ngay đêm ấy, họ thiêu thi thể.','bad']}},
+      {t:'Từ bỏ',f:s=>{s.ncBody=null;return'Bạn để Giáo hội thiêu thi thể. Có những thứ không nên đánh thức.'}}]};
+EV.push(NCB);EVB.nc_corpse=NCB;
+{const y0=ncYear;ncYear=function(){if(S.ncBody&&S.alive){if(!isNc()||S.year-S.ncBody.y>3){if(isNc())log(`Giáo hội đã thiêu thi thể ${S.ncBody.n}.`,'');S.ncBody=null}else if(S.year>S.ncBody.y&&!S.pend.includes('nc_corpse')&&ch(.7)){S.pend.push('nc_corpse');return}}return y0()}}
+/* Cánh Đồng Sau Trận Chiến: vị tướng là danh tướng có thật của vương quốc, gia đình sẽ phản ứng */
+{const e=EVB.nc_field;if(e){
+  e.prep=s=>{const W=s.world;if(!W.rgen||W.rgen.dead||W.rgen.realm!==s.realm){const sx='m',rc=(NATIONS[s.realm]&&NATIONS[s.realm].race)||'human';W.rgen={first:pick(nameList(sx,rc)),sur:surFor(rc,'noble'),rc,realm:s.realm,wins:R(3,9),y:s.year}}s.ncG=`${W.rgen.first} ${W.rgen.sur}`;s.tmp=1};
+  e.text=s=>{const g=s.world.rgen;return`Trận đánh giữa ${s.realm} và kẻ thù vừa tàn. Hàng trăm xác lính nằm trên cánh đồng, trong đó có cả tướng ${s.ncG}, người đã thắng ${g?g.wins:'nhiều'} trận cho ${s.realm}.`};
+  const f0=e.ch[0].f;e.ch[0].f=s=>{const g=s.world.rgen;if(g)g.dead=s.year;const r=arr(f0(s));if(g&&r[1]==='magic'){news(`Thi thể tướng ${s.ncG} biến mất khỏi nhà mồ gia tộc ${g.sur}.`,'bad');if(ch(.6)){const sx=pick(['m','f']);const en=addEnemy(`Con của tướng ${s.ncG}, thề tìm kẻ đã đánh thức cha mình`,{sex:sx,race:g.rc||'human',first:pick(nameList(sx,g.rc||'human')),sur:g.sur,cls:'noble',age:R(18,35),hate:R(60,80)});if(en)r[0]+=` Gia tộc ${g.sur} treo thưởng tìm kẻ trộm xác.`}}return r};
+  for(const c of e.ch.slice(1)){const f1=c.f;c.f=s=>{if(s.world.rgen)s.world.rgen.dead=s.year;return f1(s)}}}}
+/* danh hiệu phải đi kèm kỹ thuật thật */
+const mvCount=re=>mvList().filter(id=>re.test(MV[id].src||'')).length;
+{const e=EVB.hn_snow;if(e)e.c=s=>s.age>=18&&s.age<=70&&s.flags.seenS&&(s.blade||0)>=75&&(s.hid.sword>=50||(s.blade||0)>=90)&&mvCount(/^kiem$/)>=3&&s.st.honor>=40&&!HONS().some(h=>h.id==='kiemthanh')}
+{const e=EVB.hn_council;if(e){const c0=e.c;e.c=s=>c0(s)&&mvCount(/^m:/)>=3}}
+const GV='32';
 for(const e of EV)if(/^cru_/.test(e.id)){const c0=e.c;e.c=s=>!!(s.world&&s.world.cat&&CATS[s.world.cat.id])&&(!c0||c0(s))}
 {let guard=0;const s0=showNext;showNext=function(){try{s0();guard=0}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null;try{save()}catch(e){}}if(++guard<20)showNext();else{guard=0;closeModal();render()}}}}
 {const c0=choose;choose=function(i){try{c0(i)}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null}try{save();render()}catch(e){}closeModal();showNext()}}}
