@@ -8449,6 +8449,106 @@ function v28Norm(s){if(s.eq&&typeof s.eq!=='object')s.eq=null;if(typeof s.potX!=
 {const i0=inherit;inherit=function(id){const old=S;i0(id);if(S===old)return;S.eq=null;S.potX=0;S.potMa=0;EQ();eqAuto();save();render()}}
 
 
+
+/* ---------- V12: bộ biểu tượng đồ Hồng Giáo, Chính Giáo săn lùng tín đồ Hồng Nguyệt ---------- */
+const RCOL='#c8323a';
+const RMOON=(x,y,r)=>`M${x+r*.35} ${y-r}a${r} ${r} 0 1 0 0 ${2*r} ${r*.82} ${r*.82} 0 0 1 0-${2*r}z`;
+Object.assign(CI,{
+ 'R-scythe':[{p:'M8 22.4L15.6 3.4',st:1.9},{p:'M15.6 3.4C10.6 1.6 5 3.4 2.2 8.6c3.8-2.6 8.4-3 12.6-1.6z'},{p:'M14.6 6.2c-3.6-.8-7 .2-9.6 2.2',st:.7,sub:1},{p:Cc(8,22.4,1.3)},{p:RMOON(18.6,9.6,2.6),c:RCOL}],
+ 'R-twin':[{p:'M5.2 2.2c4 3 6.2 7 6.4 11.4l-2.2.8C8.6 10.6 7.4 6.6 5.2 2.2z'},{p:'M18.8 2.2c-4 3-6.2 7-6.4 11.4l2.2.8c.8-3.8 2-7.8 4.2-12.2z'},{p:'M6.8 15.2h5.2M12 15.2h5.2',st:1.4},{p:'M9.4 15.6l-1.6 6M14.6 15.6l1.6 6',st:1.9},{p:RMOON(12.6,19.6,2.2),c:RCOL}],
+ 'R-staff':[{p:'M12 9.6V23',st:2},{p:Cc(12,5.6,3.1),c:RCOL},{p:'M6.4 3.4a5.8 5.8 0 0 0 11.2 0',st:1.3},{p:'M10.3 12.2h3.4v1.5h-3.4zM10.6 17.4h2.8v1.4h-2.8z'},{p:Cc(12,5.6,1),sub:1}],
+ 'R-robe':[{p:'M12 1.8c-3.1 0-5.2 2.5-5.2 5.6v1.8L3.6 21.6h16.8L17.2 9.2V7.4c0-3.1-2.1-5.6-5.2-5.6z'},{p:'M12 4.2c-1.6 0-2.7 1.4-2.7 3.1v1.6h5.4V7.3c0-1.7-1.1-3.1-2.7-3.1z',sub:1},{p:RMOON(12.4,14.6,2.4),c:RCOL},{p:'M8.6 21.6l1.2-6.6M15.4 21.6l-1.2-6.6',st:.7,sub:1}],
+ 'R-plate':[{p:'M4.8 4l4.2-1.6 3 2 3-2L19.2 4l1 6.2-2.2 10H6L3.8 10.2z'},{p:'M6.6 17.2h10.8M12 5.4v2',st:.8,sub:1},{p:RMOON(12.6,11.4,3),c:RCOL}],
+ 'R-mask':[{p:'M3.8 5.6c3.2-2.8 13.2-2.8 16.4 0 0 7.4-3.6 13.6-8.2 14.8C7.4 19.2 3.8 13 3.8 5.6z'},{p:'M6.8 10c1.1-1.4 2.8-1.4 3.7 0-1.1.7-2.6.7-3.7 0zM13.5 10c.9-1.4 2.6-1.4 3.7 0-1.1.7-2.6.7-3.7 0z',sub:1},{p:'M10.4 15.2c1 .7 2.2.7 3.2 0',st:.8,sub:1},{p:RMOON(12.4,6.4,1.6),c:RCOL}],
+ 'R-crown':[{p:'M4 15.4l1.4-7.6 2.2 4.4 2-6.6L12 12l2.4-6.4 2 6.6 2.2-4.4 1.4 7.6z'},{p:'M4 15.4h16v3.2H4z'},{p:Cc(12,17,1.1),c:RCOL},{p:Cc(7.4,17,.7),c:RCOL},{p:Cc(16.6,17,.7),c:RCOL}],
+ 'R-ring':[{p:Cc(12,15.4,5),st:1.9},{p:'M12 3.2l3.2 3.6L12 10 8.8 6.8z',c:RCOL},{p:'M10.6 6.8h2.8',st:.6,sub:1}],
+ 'R-amulet':[{p:'M5.8 2l6.2 7.8L18.2 2',st:1.3},{p:Cc(12,15.2,5.6)},{p:'M8.2 15.2c2-2.6 5.6-2.6 7.6 0-2 2.6-5.6 2.6-7.6 0z',sub:1},{p:Cc(12,15.2,1.3),c:RCOL}],
+ 'R-chain':[{p:'M2.8 4.6c2 9.4 16.4 9.4 18.4 0',st:1.3},{p:'M6.6 9l1.2 6.4 1.3-5.6zM11 10.8l1 7.6 1-7.6zM14.9 9.8l1.3 5.6L17.4 9z'},{p:Cc(12,11,1),c:RCOL}],
+ 'R-potion':[{p:'M9.8 1.8h4.4v1.5h-.7v4.4c3.1 1 5.2 3.7 5.2 7a7.7 7.7 0 0 1-15.4 0c0-3.3 2.1-6 5.2-7V3.3h-.7z'},{p:'M6 13.4h12',st:.8,sub:1},{p:RMOON(12.6,16.6,2.4),c:RCOL}]
+});
+Object.assign(ITEMS.rw_scythe,{ic:'R-scythe'});Object.assign(ITEMS.rw_twin,{ic:'R-twin'});Object.assign(ITEMS.rw_staff,{ic:'R-staff'});Object.assign(ITEMS.ra_robe,{ic:'R-robe'});Object.assign(ITEMS.ra_plate,{ic:'R-plate'});
+Object.assign(ITEMS.rh_mask,{ic:'R-mask'});Object.assign(ITEMS.rh_crown,{ic:'R-crown'});Object.assign(ITEMS.rx_ring,{ic:'R-ring'});Object.assign(ITEMS.rx_amulet,{ic:'R-amulet'});Object.assign(ITEMS.rx_chain,{ic:'R-chain'});Object.assign(ITEMS.p_hong,{ic:'R-potion'});
+
+/* Chính Giáo săn lùng: mỗi lần thoát được, kẻ đến sau mạnh hơn; cuối cùng là Giáo Hoàng thân chinh */
+const HUNT=()=>{if(!S.hunt||typeof S.hunt!=='object')S.hunt={lv:0,y:0,esc:0};return S.hunt};
+const popeN=()=>{const rs=WD().rs['Thánh quốc Lumaris'];return rs?String(rs.ruler).replace(/^Giáo hoàng-vua\s*/,''):'Innocent'};
+function hrEscape(t){const H=HUNT();H.lv++;H.esc++;H.y=S.year;return`${t} Bạn thoát được. Tòa Dị Giáo sẽ cử kẻ mạnh hơn.`}
+function hrCaught(t){const H=HUNT();H.y=S.year;
+  if(H.lv<=1){fine(R(20,40));mod({piety:-2});S.flags.suspect=(S.flags.suspect||0)+2;H.lv=Math.max(0,H.lv-1);return[`${t} Bạn bị bắt quả tang, phải nộp phạt và đọc kinh sám hối trước cả giáo xứ.`,'bad']}
+  if(ch(.15+H.lv*.06)){die('bị thiêu trên giàn hỏa vì tội dị giáo');return[`${t} Tòa Dị Giáo kết án bạn. Giàn hỏa dựng giữa quảng trường.`,'bad']}
+  const l=Math.floor(Math.max(S.money,0)/2);S.money-=l;mod({health:-R(15,25),happy:-10});H.lv=1;return[`${t} Bạn bị giam trong ngục tối của Tòa Dị Giáo hai năm, mất ${l} xu tiền chuộc. Khi được thả, cuộc săn lùng bắt đầu lại từ đầu.`,'bad']}
+const HR_EV=[
+ {id:'hr_0',queued:true,big:true,art:'church',img:'witchtrial',c:s=>s.alive&&isRed(s),title:'Thầy Dòng Dò Hỏi',
+  text:'Một thầy dòng áo nâu ghé nhà, hỏi han về những đêm trăng đỏ. Ánh mắt ông dừng rất lâu trên chiếc rương nơi bạn cất khăn đỏ.',
+  ch:[{t:'Nói dối thật trơn tru',f:s=>ch(.5+s.st.smarts/300)?[hrEscape('Thầy dòng gật gù rồi đi.'),'good']:hrCaught('Ông ta lật nắp rương.')},
+      {t:'Hối lộ thầy dòng (30 xu)',cost:30,f:s=>{s.money-=30;return[hrEscape('Thầy dòng nhét túi tiền vào tay áo và quên luôn đường về nhà bạn.'),'good']}},
+      {t:'Thủ tiêu ông ta',f:s=>{mod({honor:-10,piety:-3});if(ch(.6+(s.blade||0)/300)){const t=hrEscape('Thầy dòng không bao giờ về tới tu viện.');HUNT().lv++;return[t+' Cái chết của một thầy dòng khiến Tòa Dị Giáo nổi giận.','bad']}return hrCaught('Thầy dòng kêu cứu, cả làng chạy tới.')}}]},
+ {id:'hr_1',queued:true,big:true,art:'church',img:'inquisition',c:s=>s.alive&&isRed(s),title:'Thẩm Phán Dị Giáo Tới Làng',
+  text:'Một thẩm phán dị giáo cùng sáu lính gác tới làng, dựng bàn xử án trước nhà thờ. Từng nhà bị gọi lên tra hỏi. Tên bạn nằm ở cuối danh sách.',
+  ch:[{t:'Giấu hết thánh vật Hồng Nguyệt',f:s=>ch(.45+s.st.smarts/300)?[hrEscape('Lính lục soát cả nhà mà không thấy gì.'),'good']:hrCaught('Một con dao găm đỏ rơi ra từ khe tường.')},
+      {t:'Đổ tội cho người khác',f:s=>{mod({honor:-8,happy:-5});if(ch(.6)){const v=`${pick(nameList('f','human'))} ${surFor('human','serf')}`;return[hrEscape(`Bạn tố cáo bà góa ${v}. Thẩm phán hài lòng với một kẻ phải chịu tội.`),'bad']}return hrCaught('Lời tố cáo của bạn có quá nhiều chỗ hở.')}},
+      {t:'Bỏ trốn trong đêm',f:s=>{const l=Math.floor(Math.max(s.money,0)/4);s.money-=l;if(ch(.7))return[hrEscape(`Bạn bỏ lại ${l} xu và trốn qua cánh đồng lúc nửa đêm.`),'good'];return hrCaught('Chó săn của lính gác đánh hơi được bạn.')}}]},
+ {id:'hr_2',queued:true,big:true,art:'knight',img:'crusade',c:s=>s.alive&&isRed(s),title:'Đội Thánh Kỵ Sĩ Truy Lùng',
+  text:'Mười hai Thánh Kỵ Sĩ áo trắng phi ngựa vào làng, giơ cao chiếu chỉ của Tòa Dị Giáo có tên bạn. Họ không đến để tra hỏi.',
+  ch:[{t:'Giao chiến',f:s=>{s.cb={ctx:'hr',n:'Đội Thánh Kỵ Sĩ',tags:['nguoi','giap','dong'],d:.14,dm:[10,18],die:.02,ic:'knight',intro:'Mười hai Thánh Kỵ Sĩ dàn hàng, kiếm sáng như bạc.'};s.pend.push('cb_fight');return'Bạn rút vũ khí.'}},
+      {t:'Trốn vào rừng',f:s=>ch(.45+s.st.health/400+(mvList().some(id=>MV[id].ty==='esc')?.15:0))?[hrEscape('Bạn lẩn vào rừng sâu, ngựa của kỵ sĩ không theo kịp.'),'good']:hrCaught('Kỵ sĩ quây bạn lại ở bìa rừng.')},
+      {t:'Nhờ tín đồ che giấu',req:s=>(s.flags.her||0)>=2||!!s.cult,f:s=>ch(.7)?[hrEscape('Tín đồ giấu bạn trong hầm rượu của một tu viện bỏ hoang.'),'good']:hrCaught('Một tín đồ đã bán đứng bạn.')}]},
+ {id:'hr_3',queued:true,big:true,art:'church',img:'witchtrial',c:s=>s.alive&&isRed(s),title:'Vây Bắt Lúc Nửa Đêm',
+  text:'Nửa đêm, đuốc sáng rực quanh nhà bạn. Cả trăm lính của Tòa Dị Giáo đã vây kín, cung tên nhắm vào từng ô cửa.',
+  ch:[{t:'Phá vòng vây',f:s=>{s.cb={ctx:'hr',n:'Lính Tòa Dị Giáo vây nhà',tags:['nguoi','dong','truy'],d:.18,dm:[12,22],die:.03,ic:'church',intro:'Bạn đạp cửa lao ra giữa rừng đuốc.'};s.pend.push('cb_fight');return'Bạn hít một hơi thật sâu.'}},
+      {t:'Thoát qua đường hầm bí mật',f:s=>ch(.4+s.st.smarts/400)?[hrEscape('Đường hầm dẫn bạn ra tận bờ sông.'),'good']:hrCaught('Lính đã chặn sẵn đầu kia đường hầm.')},
+      {t:'Ra đầu thú',f:s=>{HUNT().lv=Math.max(HUNT().lv,2);return hrCaught('Bạn bước ra, giơ hai tay lên.')}}]},
+ {id:'hr_4',queued:true,big:true,art:'church',img:'inquisition',c:s=>s.alive&&isRed(s),title:'Đại Pháp Quan Tòa Dị Giáo',
+  text:'Đại Pháp Quan của Tòa Dị Giáo, người đã thiêu ba trăm kẻ dị giáo, tự mình tìm tới. Ông ta đứng giữa đường, một tay cầm kinh, một tay cầm kiếm.',
+  ch:[{t:'Đấu tay đôi',f:s=>{s.cb={ctx:'hr',n:'Đại Pháp Quan Tòa Dị Giáo',tags:['phep','nguoi','giap'],d:.24,dm:[14,26],die:.05,ic:'church',intro:'Đại Pháp Quan đọc một câu kinh. Lưỡi kiếm của ông bừng sáng.'};s.pend.push('cb_fight');return'Bạn bước ra giữa đường.'}},
+      {t:'Trốn sang nước khác',f:s=>{const old=s.realm;s.realm=pick(HUMAN_REALMS.filter(r=>r!==old&&r!=='Thánh quốc Lumaris'));s.village=pick(VILL);HUNT().y=s.year+2;if(s.job&&!JOBS[s.job.id].mobile)s.job=null;return[`Bạn bỏ lại tất cả, trốn sang ${s.realm}. Tòa Dị Giáo sẽ mất vài năm mới lần ra bạn.`,'']}}]},
+ {id:'hr_pope',queued:true,big:true,art:'holy',img:'saint',c:s=>s.alive&&isRed(s),title:s=>`Giáo Hoàng ${popeN()} Thân Chinh`,
+  text:s=>`Bạn đã thoát khỏi Tòa Dị Giáo ${HUNT().esc} lần. Giờ chính Giáo Hoàng ${popeN()} rời Thánh quốc, khoác giáp thánh, dẫn theo Thánh Quân. Chuông nhà thờ khắp các vương quốc cùng rung. Đây là trận chiến định mệnh của Hồng Nguyệt.`,
+  ch:[{t:'Nghênh chiến',f:s=>{s.pf={hp:7,max:7,round:0,last:'start',bonus:0,call:0};s.pend.push('pope_fight');return[`Bạn bước ra đón Giáo Hoàng ${popeN()} giữa cánh đồng trước Thánh Quân.`,'']}},
+      {t:'Bỏ trốn khỏi các vương quốc loài người',f:s=>{s.realm='Hãn quốc Nanh Đá';s.village=pick(VILL);HUNT().lv=4;HUNT().y=s.year+4;if(s.job&&!JOBS[s.job.id].mobile)s.job=null;mod({happy:-8});return['Bạn trốn sang thảo nguyên của tộc Orc, nơi Tòa Dị Giáo không với tới. Nhưng Giáo Hoàng không quên.','bad']}}]}
+];
+/* trận với Giáo Hoàng: nhiều hiệp như trận Anh Hùng với Thảm Họa */
+const POPEMV=['giáng Thánh Quang Phán Quyết xuống đầu bạn','dựng Kết Giới Mười Hai Thánh rồi ép nó lại','gọi Thiên Sứ Giáng Lâm, một luồng sáng xuyên qua vai bạn','đọc Lời Nguyền Trục Xuất, máu trăng đỏ trong người bạn sôi lên'];
+const POPET=['phep','nguoi','giap'];
+function popeHit(lo,hi){const d=Math.round(R(lo,hi)*talMul()*(1+((S.pf&&S.pf.round)||0)*.05));mod({health:-d});const m=pick(POPEMV);if(S.st.health<=0){die(`dưới tay Giáo Hoàng ${popeN()}`);return` Giáo Hoàng ${m}. Bạn gục xuống.`}return` Giáo Hoàng ${m}, bạn mất ${d} sức khỏe.`}
+function popeWin(){const n=popeN();S.pf=null;const H=HUNT();H.done=1;H.lv=0;fac(-25,25);mod({honor:-5,magic:5});S.house.prestige+=150;S.flags.popeSlain=1;if(S.flags.her<3)S.flags.her=Math.min(3,(S.flags.her||0)+1);
+  const rs=WD().rs['Thánh quốc Lumaris'];if(rs){rs.stab=Math.max(0,rs.stab-30);rs.ruler=`Giáo hoàng-vua ${pick(nameList('m','human'))}`}
+  announce('Giáo Hoàng Tử Trận',`Giáo Hoàng ${n} ngã xuống trước ${S.first} ${S.surname}. Thánh Quân tan rã, mặt trăng đêm ấy đỏ như máu trên khắp các vương quốc.`,'night','redmoon');news(`Giáo Hoàng ${n} tử trận trước một thủ lĩnh Hồng Nguyệt. Thánh quốc Lumaris rơi vào hỗn loạn.`,'bad',true);
+  return' Giáo Hoàng gục ngã. Thánh Quân vứt cờ bỏ chạy.'}
+function popeRound(kind,id){const F=S.pf;F.round++;let p=.05+((S.blade||0)+S.st.magic)/600+cbB()/300+((S.flags.her||0)>=2?.05:0)+(F.bonus||0);F.bonus=0;let t='',lab='';
+  if(kind==='mv'){const M=MV[id],lv=(S.mv[id]||{lv:1}).lv;let low=false;if(M.mp){if(S.st.magic>=M.mp)mod({magic:-M.mp});else low=true}if(M.hp)mod({health:-M.hp});if(M.pc)mod({piety:-M.pc});
+    if(M.ty==='heal'||M.ty==='esc'){if(M.ty==='heal'){const h=R(M.h[0],M.h[1]);mod({health:h});t=`Bạn dùng ${M.n}: ${M.x}, hồi ${h} sức khỏe.`}else t=`Bạn dùng ${M.n}: ${M.x}. Bạn lùi ra tìm sơ hở.`;F.bonus=.15;F.last='guard';mvXP(id,true);if(ch(.4))t+=popeHit(4,10);if(S.alive)S.pend.push('pope_fight');return[t,'']}
+    p+=M.pw+(lv-1)*.04+mvTal(id)+mvMatch(id,POPET)-(low?.15:0);lab=`Bạn tung ${M.n}: ${M.x}.`;mvXP(id,true)}
+  else if(kind==='blade'){p+=(S.blade||0)/400;lab='Lưỡi kiếm của bạn chém vào giáp thánh.'}
+  else if(kind==='spell'){mod({magic:-8});p+=S.st.magic/500+.03;lab='Ngọn lửa trăng đỏ trong tay bạn xé toạc kết giới.'}
+  else if(kind==='ud'){const u=udBest();p+=u.pw+SKX().rk*.03;lab=`${u.n} lao vào Giáo Hoàng.`;if(!ch(p)&&ch(.35)){UD().splice(UD().indexOf(u),1);lab+=` ${u.n} tan thành tro dưới thánh quang.`}}
+  else if(kind==='call'){F.call=1;p+=.2;lab='Hàng trăm tín đồ đeo khăn đỏ từ bốn phía lao vào Thánh Quân.'}
+  p=Math.max(.06,Math.min(.75,p));
+  if(ch(p)){F.hp=Math.max(0,F.hp-(kind==='mv'&&MV[id].ty==='ult'&&ch(.3)?2:1));F.last='hit';t=`${lab} Giáo Hoàng còn ${F.hp}/${F.max} sinh lực.`;if(F.hp<=0)return[lab+popeWin(),'good'];if(ch(.4))t+=popeHit(6,12)}
+  else{F.last='miss';t=`${lab.replace(/\.$/,'')}, nhưng Giáo Hoàng gạt đi.`+popeHit(13,26)}
+  if(S.alive&&S.pf)S.pend.push('pope_fight');return[t,F.last==='hit'?'good':'bad']}
+HR_EV.push({id:'pope_fight',queued:true,big:true,art:'holy',img:'saint',c:s=>!!(s.alive&&s.pf),title:s=>`Giáo Hoàng ${popeN()} · Hiệp ${s.pf.round+1}`,
+  text:s=>{const F=s.pf;return`${F.last==='miss'?'Bạn vừa trúng đòn và đang ở thế bất lợi. ':F.last==='hit'?'Bạn vừa giành được lợi thế. ':''}Giáo Hoàng: ${'■'.repeat(F.hp)+'□'.repeat(F.max-F.hp)} · Sức khỏe của bạn: ${s.st.health}/100 · Ma lực: ${s.st.magic}/100. Bạn làm gì tiếp theo?`},
+  ch:[0,1,2,3].map(i=>({t:s=>cbLabel(s.mvL[i],POPET),hide:true,req:s=>!!(s.mvL&&s.mvL[i]&&MV[s.mvL[i]]&&s.mv[s.mvL[i]]),f:s=>popeRound('mv',s.mvL[i])})).concat([
+   {t:'Tấn công bằng vũ khí',f:s=>popeRound('blade')},
+   {t:'Thi triển phép trăng đỏ (−8 ma lực)',req:s=>s.st.magic>=8,f:s=>popeRound('spell')},
+   {t:s=>{const u=udBest();return u?`Sai ${u.n} ra trận`:''},hide:true,req:s=>!!(isNc()&&udBest()),f:s=>popeRound('ud')},
+   {t:'Gọi tín đồ Hồng Nguyệt xông lên',hide:true,req:s=>!s.pf.call&&((s.flags.her||0)>=2||!!s.cult),f:s=>popeRound('call')},
+   {t:'Phòng thủ, chờ sơ hở',f:s=>{s.pf.bonus=.15;s.pf.last='guard';mod({health:4});let t='Bạn lùi lại, nhìn từng cử động của Giáo Hoàng.';if(ch(.4))t+=popeHit(3,8);if(s.alive)s.pend.push('pope_fight');return[t,'']}},
+   {t:'Rút lui, bỏ trốn',f:s=>{s.pf=null;const H=HUNT();H.lv=4;H.y=s.year+2;mod({honor:-4});s.realm=pick(HUMAN_REALMS.filter(r=>r!=='Thánh quốc Lumaris'&&r!==s.realm));s.village=pick(VILL);return[`Bạn rút khỏi chiến trường, trốn sang ${s.realm}. Giáo Hoàng sẽ quay lại.`,'bad']}}])});
+for(const e of HR_EV){EV.push(e);EVB[e.id]=e;if(e.img)EIMG[e.id]=e.img}
+/* kết quả các trận săn lùng */
+{const e0=cbEnd;cbEnd=function(res,t,low){const F=S.cb;if(F&&F.ctx==='hr'){S.cb=null;if(res==='win')S.cbw=(S.cbw||0)+1;if(low)t+=' (Ma lực cạn nên chiêu thức yếu đi.)';
+    if(res==='win'||res==='esc')return[hrEscape(t+(res==='win'?` ${F.n} bị đánh lui.`:'')),'good'];const h=cbHurt(F);if(!S.alive)return[t+h,'bad'];const r=hrCaught(t+h);return r}
+  return e0(res,t,low)}}
+function hrYear(){if(!S.alive||S.age<14||!isRed(S)||(typeof rmOn==='function'&&rmOn()))return;const H=HUNT();if(H.done||S.year<H.y+1||S.pend.some(x=>x.startsWith('hr_')||x==='pope_fight'))return;
+  if(ch(Math.min(.5,.18+(S.flags.suspect||0)*.03+H.lv*.04)))S.pend.push(H.lv>=5?'hr_pope':'hr_'+Math.min(4,H.lv))}
+{const y0=extYear3;extYear3=function(){y0();try{hrYear()}catch(e){console.error(e)}}}
+{const i0=inherit;inherit=function(id){const old=S;i0(id);if(S===old)return;S.hunt=old.hunt&&old.hunt.lv>=3&&isRed(S)?{lv:Math.max(1,old.hunt.lv-2),y:S.year,esc:0}:null;S.pf=null;save()}}
+function v29Norm(s){if(s.hunt&&typeof s.hunt!=='object')s.hunt=null;if(s.pf&&(typeof s.pf!=='object'||typeof s.pf.hp!=='number'))s.pf=null}
+{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object')try{v29Norm(r)}catch(e){}return r}}
+
+
 /* ---------- migration & events ---------- */
 function migrate(s){
   if(!s)return null;
