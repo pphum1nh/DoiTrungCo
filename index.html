@@ -8547,6 +8547,12 @@ function v29Norm(s){if(s.hunt&&typeof s.hunt!=='object')s.hunt=null;if(s.pf&&(ty
 {const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object')try{v29Norm(r)}catch(e){}return r}}
 
 
+
+/* ---------- an toàn: sự kiện lỗi không được làm kẹt game ---------- */
+for(const e of EV)if(/^cru_/.test(e.id)){const c0=e.c;e.c=s=>!!(s.world&&s.world.cat&&CATS[s.world.cat.id])&&(!c0||c0(s))}
+{let guard=0;const s0=showNext;showNext=function(){try{s0();guard=0}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null;try{save()}catch(e){}}if(++guard<20)showNext();else{guard=0;closeModal();render()}}}}
+{const c0=choose;choose=function(i){try{c0(i)}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null}try{save();render()}catch(e){}closeModal();showNext()}}}
+
 /* ---------- migration & events ---------- */
 function migrate(s){
   if(!s)return null;
