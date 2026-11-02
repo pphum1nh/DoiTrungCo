@@ -58,6 +58,7 @@ button{font:inherit;color:inherit}
 .hb i{position:absolute;inset:0 auto 0 0;transition:width .4s ease}
 .hb.hp i{background:linear-gradient(#e8513f,#8a1a12)}
 .hb.mp i{background:linear-gradient(#5a8ff0,#1c3c86)}
+.hb.kb i{background:linear-gradient(#e0b862,#7a5518)}
 .hb span{position:relative;display:block;text-align:center;font:700 .64rem/15px var(--f-ui);color:#fff;text-shadow:0 1px 1px #000;letter-spacing:.05em;font-variant-numeric:tabular-nums}
 .hudside{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
 .gold{display:flex;align-items:center;gap:5px;font:700 .95rem var(--f-ui);color:var(--gold);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -249,6 +250,7 @@ button.row:hover:not(:disabled) .ri{color:var(--title);border-color:var(--copper
       <p class="sub" id="sub">Một kiếp người thời Trung cổ</p>
       <div class="hb hp"><i id="hp" style="width:0"></i><span id="hpt">Sức khỏe</span></div>
       <div class="hb mp"><i id="mp" style="width:0"></i><span id="mpt">Ma lực</span></div>
+      <div class="hb kb"><i id="sw" style="width:0"></i><span id="swt">Kiếm thuật</span></div>
     </div>
     <div class="hudside">
       <div class="gold" id="goldBox"><span id="coin"></span><b id="money">0</b></div>
@@ -774,7 +776,7 @@ Object.assign(JOBS,{
   orcshaman:{races:['orc'],n:'Shaman tổ linh',min:13,t:['Kẻ đánh trống','Shaman','Đại shaman tổ linh'],pay:[4,25,65],need:[4,8],fx:{magic:2,piety:1},magicJob:true,req:s=>s.st.magic>=25||s.hid.arcane>=55,why:'Cần Ma lực từ 25 hoặc cảm nhận ma pháp tốt',
     yr:s=>{if(ch(.1)){mod({health:6});log('Bạn nhảy múa quanh đống lửa suốt đêm. Các tổ linh ban cho bạn sức mạnh.','magic')}},top:JTOP('Đại shaman tổ linh','totem',s=>`${s.first} nói chuyện được với linh hồn của mọi thủ lĩnh đã khuất. Cả tộc Orc cúi đầu trước người.`)},
   pitfighter:{races:['orc','beast'],n:'Đấu sĩ hố máu',min:15,t:['Đấu sĩ mới','Đấu sĩ được ưa chuộng','Vô địch hố máu'],pay:[12,35,90],need:[2,5],vol:true,risk:.08,riskDie:'dưới đáy hố máu',riskMsg:['Đối thủ cắn đứt một mẩu tai của bạn.','Bạn bị quật ngã, gãy hai xương sườn.'],fx:{health:-1,honor:1},req:s=>s.st.health>=50,why:'Cần Sức khỏe từ 50',
-    yr:s=>{if(ch(.2+s.hid.sword/400)){const g=R(10,40);s.money+=g;mod({honor:3});log(`Đám đông ném ${g} xu xuống hố sau trận thắng của bạn.`,'good')}}},
+    yr:s=>{if(ch(.2+(s.blade||0)/400)){const g=R(10,40);s.money+=g;mod({honor:3});log(`Đám đông ném ${g} xu xuống hố sau trận thắng của bạn.`,'good')}}},
   ranger:{races:['elf'],n:'Kiểm lâm rừng sâu',min:14,t:['Kiểm lâm tập sự','Kiểm lâm','Thủ lĩnh kiểm lâm'],pay:[8,26,60],need:[5,12],risk:.03,riskDie:'khi tuần tra biên giới rừng',riskMsg:['Một con nhện khổng lồ phục bạn trên cành cây.','Bọn săn trộm bắn trúng vai bạn.'],mobile:true,fx:{health:1,honor:1},req:()=>true,
     yr:s=>{if(ch(.1)){mod({happy:4});log(pick(['Bạn dẫn một con hươu bạc bị lạc về với bầy.','Bạn đuổi bọn đốn gỗ trộm ra khỏi rừng thiêng.']),'good')}},top:JTOP('Thủ lĩnh kiểm lâm','flower',s=>`${s.first} được trao cây cung bạc của các Thủ lĩnh kiểm lâm. Mọi cánh rừng của Tiên tộc nay dưới sự bảo hộ của người.`)},
   druid:{races:['elf','beast'],n:'Druid rừng già',min:16,t:['Người giữ hạt giống','Druid','Đại Druid'],pay:[3,22,55],need:[6,14],fx:{magic:2,happy:1},magicJob:true,req:s=>s.st.magic>=30||s.hid.arcane>=50,why:'Cần Ma lực từ 30 hoặc cảm nhận ma pháp tốt',
@@ -806,7 +808,7 @@ Object.assign(JOBS,{
 const JIC={orcwar:'w-battleaxe',orcshaman:'shaman',pitfighter:'w-flail',ranger:'w-bow',druid:'druid',bard:'bard',enchanter:'enchant',tracker:'paw',beastspeak:'beastspeak',merc:'merc',warlock:'warlock',shadowblade:'hood',blackmarket:'blackmarket',demonhunter:'w-crossbow',miner:'pickaxe',runesmith:'runeforge',brewer:'mug',shieldguard:'w-kite',shepherd:'sheep',farm:'hayfork',smith:'anvil',soldier:'w-halberd',church:'church',mission:'mission',trade:'sack',scribe:'quill',surgeon:'medical-kit',knight:'H-great',lady:'necklace',wizard:'spellcast',alch:'cauldron',hunter:'hunter'};
 const AIC={pray:'church',bless:'bless',confess:'candle',letters:'quill',study:'study',sword:'dummy',tavern:'mug',barber:'medical-kit',bath:'bath',wise:'crystal-ball',poach:'poach',pilgrim:'shell',joust:'joust',spell:'spellcast',rite:'hood',alchemy:'cauldron',forest:'tree',dungeon:'crypt',stars:'night',court:'court',work:'hammer'};
 const ACT_GROUPS=[
-  {id:'train',n:'Luyện tập',ic:'crossed',d:'Luyện kiếm, luyện phép, đấu thương',acts:['sword','spell','joust','work']},
+  {id:'train',n:'Luyện tập',ic:'crossed',d:'Luyện kiếm, luyện phép, đấu thương, võ học',acts:['sword','spell','joust','work']},
   {id:'faith',n:'Đức tin',ic:'church',d:'Cầu nguyện, xưng tội, hành hương',acts:['pray','confess','bless','pilgrim']},
   {id:'learn',n:'Học vấn',ic:'study',d:'Chữ nghĩa, sách vở, sao trời, giả kim',acts:['letters','study','stars','alchemy']},
   {id:'care',n:'Thư giãn và chăm sóc',ic:'mug',d:'Quán rượu, nhà tắm, thầy lang',acts:['tavern','bath','barber','wise']},
@@ -854,7 +856,7 @@ function entry(){S.log.push({age:S.age,year:S.year,items:[]});if(S.log.length>90
 function log(t,tone=''){S.log[S.log.length-1].items.push({t,tone})}
 function die(cause){if(!S.alive)return;S.alive=false;S.cause=cause;S.pend=[];S.ann=[];log(`Bạn qua đời vì ${cause}.`,'bad')}
 function healthCheck(){if(S.alive&&S.st.health<=0)die('vết thương và bệnh tật')}
-function jt(){const j=S.job,J=JOBS[j.id],L=(S.sex==='f'&&J.tf?J.tf:J.t);return L[Math.max(0,Math.min(j.rank,L.length-1))]}
+function jt(){const j=S.job;if(!j||!JOBS[j.id])return'';const J=JOBS[j.id],L=(S.sex==='f'&&J.tf?J.tf:J.t);return L[Math.max(0,Math.min(j.rank,L.length-1))]}
 function prefix(){const t=S.house.title,ru=rules();
   if(S.flags.dark)return t>=6&&ru?(S.sex==='m'?'Ma Vương ':'Ma Hậu '):'Hắc Ám '+(t>=2&&ru?titleName(t,S.sex)+' ':'');
   if(!ru&&t>=6)return firstInLine()&&S.sex==='m'?'Thái tử ':S.sex==='m'?'Hoàng tử ':'Công chúa ';
@@ -987,7 +989,7 @@ function fightBase(){return Math.max(.12,Math.min(.56,.2+(heroPower()-100)/240+(
 function bossHit(lo,hi){const C=CATS[S.world.cat.id];const d=R(lo,hi);mod({health:-d});const m=pick(BOSSMOVE[S.world.cat.id]||['tấn công']);if(S.st.health<=0){die('trong trận chiến với '+C.boss);return` ${C.boss} ${m}. Bạn gục xuống, không đứng dậy được nữa.`}return` ${C.boss} ${m}, bạn mất ${d} sức khỏe.`}
 function fightRound(kind){
   const F=S.fight,C=CATS[S.world.cat.id];F.round++;let p=fightBase()+(F.bonus||0);F.bonus=0;let t,tone='';
-  if(kind==='blade')p+=S.hid.sword/400+cbB()/400;
+  if(kind==='blade')p+=(S.blade||0)/400+cbB()/400;
   if(kind==='spell'){p+=S.hid.arcane/400+S.st.magic/500;mod({magic:-8})}
   if(kind==='allin')p+=.08;
   if(ch(p)){F.hp-=kind==='allin'?F.hp:1;F.last='hit';
@@ -1262,7 +1264,7 @@ const EV=[
   text:'Một con rồng đỏ, vảy như than hồng, đáp xuống tháp chuông nhà thờ. Nó đã thiêu rụi kho thóc và đòi cả vùng cống nạp vàng.',
   ch:[{t:'Trốn xuống hầm rượu',f:s=>{const k=ANIMALS.find(a=>s.own[a]>0);if(k&&ch(.5)){s.own[k]--;return[`Con rồng mang đi một con ${ASSETS[k].n.toLowerCase()} của bạn.`,'bad']}return'Bạn nín thở dưới hầm cho đến khi tiếng cánh đập xa dần.'}},
       {t:'Góp vàng cống nạp (20 xu)',cost:20,f:s=>{s.money-=20;return'Con rồng ngửi đống vàng, ợ ra một làn khói rồi bay đi.'}},
-      {t:'Cầm giáo ra nghênh chiến',req:s=>s.age>=16,f:s=>{const hunt=s.job&&s.job.id==='hunter';const p=.12+(hunt?.25:0)+s.st.health/400+s.hid.sword/300+cbB()/250+(s.own.dragon?.15:0)+(s.race==='orc'||s.race==='dwarf'?.05:0);
+      {t:'Cầm giáo ra nghênh chiến',req:s=>s.age>=16,f:s=>{const hunt=s.job&&s.job.id==='hunter';const p=.12+(hunt?.25:0)+s.st.health/400+(s.blade||0)/300+cbB()/250+(s.own.dragon?.15:0)+(s.race==='orc'||s.race==='dwarf'?.05:0);
         if(ch(p)){const g=R(100,300);s.money+=g;s.flags.dragonslayer=1;mod({honor:30,happy:10});s.house.prestige+=150;if(hunt){s.job.rank=2;s.job.ry=0}gainItem('dragonspear');gainItem('arm_dragon');announce('Kẻ Diệt Rồng',`${s.first} ${s.surname} đã hạ con rồng đỏ. Các thi sĩ khắp ${s.realm} sẽ hát về chiến công này qua nhiều thế hệ.`,'flame','dragon');
           if(s.house.title<2&&ch(.5))grantTitle(2);return[`Bạn đâm mũi giáo vào khe vảy dưới cánh. Con rồng rơi xuống sông. Từ hang của nó bạn mang về ${g} xu.`,'good']}
         if(ch(.35)){die('lửa rồng');return['Một luồng lửa trắng nuốt chửng bạn.','bad']}mod({health:-R(20,35)});return['Đuôi rồng quật bạn văng vào tường đá. Bạn may mắn sống sót.','bad']}}]},
@@ -1331,7 +1333,7 @@ const EV=[
  /* --- thăng tiến, quyền lực --- */
  {id:'merit',big:true,art:'shield',w:s=>2+(s.job&&s.job.id==='soldier'?8:0)+(s.race==='orc'?2:0),c:s=>s.age>=16&&s.age<=50&&s.house.title<2&&s.st.honor>=40&&!s.flags.saint&&!(s.job&&['church','mission'].includes(s.job.id)),title:'Lập công cứu giá',
   text:s=>`Trận chiến bên bờ sông. Cờ hoàng gia đổ, hoàng tử xứ ${s.realm} ngã ngựa giữa vòng vây kẻ thù, chỉ cách bạn mươi bước.`,
-  ch:[{t:'Lao vào cứu hoàng tử',f:s=>{const p=.35+s.st.health/300+s.st.honor/400+s.hid.sword/300+cbB()/300+(s.race==='orc'?.1:0);if(ch(p)){s.money+=200;mod({honor:20});gainItem('shield');grantTitle(2);return['Bạn kéo hoàng tử lên lưng ngựa và phá vòng vây. Nhà vua ban cho gia tộc bạn đất phong và tước Nam tước.','good']}if(ch(.4)){die('tử trận khi cứu hoàng tử');return['Bạn ngã xuống bên cạnh hoàng tử.','bad']}mod({health:-30,honor:5});return['Một mũi giáo đâm xuyên vai. Hoàng tử được người khác cứu.','bad']}},
+  ch:[{t:'Lao vào cứu hoàng tử',f:s=>{const p=.35+s.st.health/300+s.st.honor/400+(s.blade||0)/300+cbB()/300+(s.race==='orc'?.1:0);if(ch(p)){s.money+=200;mod({honor:20});gainItem('shield');grantTitle(2);return['Bạn kéo hoàng tử lên lưng ngựa và phá vòng vây. Nhà vua ban cho gia tộc bạn đất phong và tước Nam tước.','good']}if(ch(.4)){die('tử trận khi cứu hoàng tử');return['Bạn ngã xuống bên cạnh hoàng tử.','bad']}mod({health:-30,honor:5});return['Một mũi giáo đâm xuyên vai. Hoàng tử được người khác cứu.','bad']}},
       {t:'Giữ vững hàng ngũ',f:()=>{mod({honor:2});return'Bạn giữ chặt khiên trong hàng. Trận chiến kết thúc lúc hoàng hôn.'}},
       {t:'Tháo chạy',f:()=>{mod({honor:-15});return['Bạn sống sót, nhưng người làng gọi bạn là kẻ hèn.','bad']}}]},
  {id:'rebels',big:true,art:'banner',w:W(4),c:s=>s.house.title>=2&&s.house.title<=4&&s.age>=18&&s.age<=60&&!s.flags.saint,title:'Dẹp loạn biên cương',
@@ -1384,7 +1386,7 @@ const EV=[
       {t:'Hy sinh bản thân để phong ấn',hide:true,req:s=>s.st.health<30,f:s=>{const b=CATS[s.world.cat.id].boss;s.fight=null;heroWin(true);die('hy sinh để phong ấn '+b);return[`Bạn ôm lấy ${b} và đọc câu thần chú phong ấn cuối cùng. Ánh sáng nuốt chửng cả hai.`,'good']}}]},
  {id:'catyear',queued:true,big:true,art:s=>s.world.cat?CATS[s.world.cat.id].art:'skull',c:s=>s.world.cat&&!['player','plague'].includes(s.world.cat.id),title:s=>s.world.cat?CATS[s.world.cat.id].n:'Thảm Họa',
   text:s=>CATS[s.world.cat.id].yr,
-  ch:[{t:'Cầm vũ khí bảo vệ làng',req:s=>s.age>=14,f:s=>{const p=.35+s.hid.sword/200+s.st.health/400+cbB()/250;if(ch(p)){if(s.world.cat&&s.world.cat.id==='undead'&&ch(.35)&&!hasItem('arm_necro'))gainItem('arm_necro');mod({honor:10});s.house.prestige+=20;return['Bạn đẩy lùi đợt tấn công. Dân làng gọi bạn là người bảo hộ.','good']}if(ch(.25)){die('trong thảm họa '+CATS[s.world.cat.id].n.toLowerCase());return['Bạn ngã xuống trước cổng làng.','bad']}mod({health:-25});return['Bạn bị thương nặng, làng bị cướp phá.','bad']}},
+  ch:[{t:'Cầm vũ khí bảo vệ làng',req:s=>s.age>=14,f:s=>{const p=.35+(s.blade||0)/200+s.st.health/400+cbB()/250;if(ch(p)){if(s.world.cat&&s.world.cat.id==='undead'&&ch(.35)&&!hasItem('arm_necro'))gainItem('arm_necro');mod({honor:10});s.house.prestige+=20;return['Bạn đẩy lùi đợt tấn công. Dân làng gọi bạn là người bảo hộ.','good']}if(ch(.25)){die('trong thảm họa '+CATS[s.world.cat.id].n.toLowerCase());return['Bạn ngã xuống trước cổng làng.','bad']}mod({health:-25});return['Bạn bị thương nặng, làng bị cướp phá.','bad']}},
       {t:'Đưa gia đình chạy trốn',f:s=>{fine(Math.round(Math.max(s.money,0)/3));for(const k of ANIMALS)s.own[k]=0;mod({happy:-10});return['Bạn bỏ lại nhà cửa và gia súc, chạy về phương Nam cùng dòng người tị nạn.','bad']}},
       {t:'Trốn trong hầm và cầu nguyện',f:s=>{mod({piety:6});for(const m of s.fam)if(m.alive&&ch(.12)){m.alive=false;return[`Bạn sống sót, nhưng ${m.rel.toLowerCase()} ${m.first} thì không.`,'bad']}return'Bạn sống sót qua một năm tối tăm.'}},
       {t:'Gia nhập Giáo phái Hồng Nguyệt',hide:true,req:s=>s.world.cat.id==='heresy'&&!s.flags.her&&!s.flags.saint&&s.age>=14,f:s=>{s.flags.her=1;s.flags.herxp=2;s.flags.revealed=1;mod({magic:6,honor:-8,piety:-10});if(s.job&&['church','mission'].includes(s.job.id))s.job=null;return['Bạn khoác áo đỏ, uống rượu thề từ chén sừng. Từ năm sau, bạn sẽ chiến đấu cho Hồng Nguyệt.','magic']}},
@@ -1413,7 +1415,7 @@ const EV=[
   ch:[{t:'Thử (1 xu)',cost:1,f:s=>{s.money-=1;s.flags.magetest=1;s.flags.seenA=1;const v=s.hid.arcane;if(v>=75){mod({magic:6});return[`Quả cầu sáng rực như mặt trời nhỏ. Pháp sư lùi lại: "Cảm nhận ma pháp ${talentWord(v)}!"`,'magic']}return`Quả cầu le lói. Pháp sư nhún vai: cảm nhận ma pháp của bạn ${talentWord(v)}.`}},
       {t:'Không tin trò bịp',f:s=>{s.flags.magetest=1;return'Bạn bỏ đi. Sau lưng, quả cầu chợt lóe sáng một chút.'}}]},
  {id:'bandits',w:W(5),c:s=>s.age>=14,title:'Cướp đường',text:'Trên đường đi chợ, ba tên cướp bịt mặt nhảy ra từ bụi rậm, kiếm gỉ chĩa vào bạn.',
-  ch:[{t:'Rút dao chống trả',f:s=>{if(ch(.3+s.hid.sword/150+cbB()/200)){mod({honor:8});s.money+=R(5,20);return['Bạn hạ một tên, hai tên kia bỏ chạy để lại túi tiền.','good']}mod({health:-R(10,20)});fine(15);return['Bạn bị đánh ngất và mất túi tiền.','bad']}},
+  ch:[{t:'Rút dao chống trả',f:s=>{if(ch(.3+(s.blade||0)/150+cbB()/200)){mod({honor:8});s.money+=R(5,20);return['Bạn hạ một tên, hai tên kia bỏ chạy để lại túi tiền.','good']}mod({health:-R(10,20)});fine(15);return['Bạn bị đánh ngất và mất túi tiền.','bad']}},
       {t:'Nộp tiền (10 xu)',cost:10,f:s=>{s.money-=10;return'Bọn cướp đếm tiền rồi biến vào rừng.'}},
       {t:'Bỏ chạy',f:()=>{if(ch(.6))return'Bạn chạy một mạch về làng.';fine(10);mod({health:-5});return['Chúng đuổi kịp và lột sạch túi bạn.','bad']}}]},
  {id:'mermaid',w:W(3),c:s=>s.age>=14,title:'Tiếng hát bên hồ',text:'Sương mù phủ mặt hồ. Một tiếng hát ngọt như mật vọng lên, và một bàn tay trắng vẫy bạn xuống nước.',
@@ -1427,7 +1429,7 @@ const EV=[
   ch:[{t:'Cho 3 xu và một ổ bánh',cost:3,f:s=>{s.money-=3;mod({piety:4});if(ch(.2)){const g=R(40,120);s.money+=g;mod({honor:6});return[`Tuần sau, lính hoàng gia mang đến ${g} xu: lão ăn xin chính là nhà vua cải trang.`,'good']}return'Lão cúi đầu cảm ơn và chúc phúc cho bạn.'}},
       {t:'Lờ đi',f:()=>{if(ch(.15)){mod({happy:-6});return['Lão nhìn theo bạn, lẩm bẩm gì đó. Cả tháng sau bạn xui xẻo liên miên.','bad']}return'Bạn đi tiếp.'}}]},
  {id:'duel',w:s=>s.cls==='noble'||s.flags.knight?6:2,c:s=>s.age>=16&&s.age<=50,title:'Lời thách đấu',text:'Một kẻ kiêu ngạo ném găng tay xuống trước mặt bạn giữa quảng trường: "Ta thách ngươi đấu kiếm đến giọt máu đầu tiên!"',
-  ch:[{t:'Nhận lời thách đấu',f:s=>{if(ch(.25+s.hid.sword/130+cbB()/250)){mod({honor:12,happy:5});s.house.prestige+=10;if(ch(.4))addEnemy('Kẻ thua bạn trong cuộc đấu kiếm',{sex:'m',cls:'noble',hate:R(45,60)});return['Ba đường kiếm, và kẻ kia đã quỳ xuống. Đám đông reo hò tên bạn.','good']}mod({health:-15,honor:-5});return['Mũi kiếm của hắn rạch một đường dài trên cánh tay bạn.','bad']}},
+  ch:[{t:'Nhận lời thách đấu',f:s=>{if(ch(.25+(s.blade||0)/130+cbB()/250)){mod({honor:12,happy:5});s.house.prestige+=10;if(ch(.4))addEnemy('Kẻ thua bạn trong cuộc đấu kiếm',{sex:'m',cls:'noble',hate:R(45,60)});return['Ba đường kiếm, và kẻ kia đã quỳ xuống. Đám đông reo hò tên bạn.','good']}mod({health:-15,honor:-5});return['Mũi kiếm của hắn rạch một đường dài trên cánh tay bạn.','bad']}},
       {t:'Từ chối',f:()=>{mod({honor:-8});return'Hắn cười khẩy và gọi bạn là kẻ hèn.'}}]},
  {id:'cat',w:W(1),c:s=>s.age>=6&&!s.flags.cat,title:'Con mèo biết nói',text:'Con mèo mướp nhà bạn bỗng ngồi thẳng dậy và nói: "Ta cần ba con cá trích. Đổi lại, ta kể cho ngươi một bí mật."',
   ch:[{t:'Mang cá cho mèo (2 xu)',cost:2,f:s=>{s.flags.cat=1;s.money-=2;const r=R(1,3);if(r===1){const g=R(15,50);s.money+=g;return[`Mèo chỉ chỗ lão hàng xóm giấu tiền dưới chuồng gà. Bạn "nhặt được" ${g} xu.`,'good']}if(r===2){s.flags.seenA=1;return[`Mèo nhìn bạn rất lâu rồi nói: "Cảm nhận ma pháp của ngươi ${talentWord(s.hid.arcane)}."`,'magic']}mod({smarts:4});return'Mèo kể chuyện về các vị vua xưa. Rồi nó không bao giờ nói thêm lời nào nữa.'}},
@@ -1469,13 +1471,13 @@ const EV=[
       {t:'Giảm thuế năm nay',f:s=>{s.house.dom.tax='low';s.house.dom.sat+=3;return'Bạn hạ thuế xuống mức thấp để dân có cái ăn.'}},
       {t:'Mặc kệ',f:s=>{s.house.dom.sat-=14;return['Người chết đói nằm dọc đường. Dân oán bạn đến tận xương tủy.','bad']}}]},
  {id:'dombandit',w:W(4),c:s=>myDom()&&s.age>=16,title:'Cướp quấy nhiễu lãnh địa',text:'Một băng cướp chiếm khu rừng phía đông, chặn đường buôn và cướp phá các làng ven rừng.',
-  ch:[{t:'Thân chinh dẹp cướp',f:s=>{if(ch(.4+s.hid.sword/200+cbB()/200)){s.house.dom.sat+=6;mod({honor:6});const g=R(20,60);s.money+=g;return[`Bạn treo cờ thắng trận trên hang ổ bọn cướp và thu về ${g} xu.`,'good']}mod({health:-18});s.house.dom.sat-=3;return['Bọn cướp phục kích. Bạn bị thương và phải rút về.','bad']}},
+  ch:[{t:'Thân chinh dẹp cướp',f:s=>{if(ch(.4+(s.blade||0)/200+cbB()/200)){s.house.dom.sat+=6;mod({honor:6});const g=R(20,60);s.money+=g;return[`Bạn treo cờ thắng trận trên hang ổ bọn cướp và thu về ${g} xu.`,'good']}mod({health:-18});s.house.dom.sat-=3;return['Bọn cướp phục kích. Bạn bị thương và phải rút về.','bad']}},
       {t:'Treo thưởng cho thợ săn tiền thưởng (40 xu)',cost:40,f:s=>{s.money-=40;s.house.dom.sat+=3;return'Một tháng sau, đầu tên cầm đầu được bêu trước cổng thành.'}},
       {t:'Làm ngơ',f:s=>{s.house.dom.sat-=6;return['Các làng ven rừng phải tự lo thân.','bad']}}]},
  {id:'domheretic',w:W(3),c:s=>myDom()&&s.age>=16,title:'Nhà tiên tri lang thang',text:'Một nhà tiên tri chân đất giảng đạo ngay giữa chợ, nói rằng mọi người sinh ra đều bình đẳng và lãnh chúa không có quyền thu thuế.',
   ch:[{t:'Bắt giam hắn',f:s=>{s.house.dom.sat-=3;mod({piety:2});return'Hắn bị tống ngục. Những người nghe giảng lặng lẽ giải tán.'}},{t:'Mời hắn vào lâu đài đàm đạo',f:s=>{if(ch(.5)){s.house.dom.sat+=5;mod({smarts:3});return['Hai người tranh luận suốt đêm. Hắn rời đi và kể với dân rằng bạn là người biết lắng nghe.','good']}s.house.dom.sat-=2;return'Hắn mắng bạn ngay giữa sảnh rồi bỏ đi.'}},{t:'Để hắn giảng tiếp',f:s=>{s.house.dom.sat-=4;return['Ngày càng nhiều người không chịu nộp thuế.','bad']}}]},
  {id:'archery',w:W(4),c:s=>s.age>=12,title:'Hội thi bắn cung',text:'Lãnh chúa treo giải một con ngỗng bạc cho người bắn trúng hồng tâm từ trăm bước.',
-  ch:[{t:'Tham gia (2 xu)',cost:2,f:s=>{s.money-=2;if(ch(.15+s.hid.sword/300+(s.race==='elf'?.25:0))){s.money+=40;mod({honor:6,happy:6});return['Mũi tên của bạn tách đôi mũi tên của nhà vô địch năm ngoái. Bạn mang về con ngỗng bạc, đổi được 40 xu.','good']}return'Mũi tên của bạn cắm vào cột rào.'}},
+  ch:[{t:'Tham gia (2 xu)',cost:2,f:s=>{s.money-=2;if(ch(.15+(s.blade||0)/300+(s.race==='elf'?.25:0))){s.money+=40;mod({honor:6,happy:6});return['Mũi tên của bạn tách đôi mũi tên của nhà vô địch năm ngoái. Bạn mang về con ngỗng bạc, đổi được 40 xu.','good']}return'Mũi tên của bạn cắm vào cột rào.'}},
       {t:'Đứng xem',f:()=>{mod({happy:3});return'Một cô gái Tiên tộc thắng giải năm nay.'}}]},
  {id:'gingerbread',w:W(2),c:s=>s.age>=5&&s.age<=14,title:'Ngôi nhà bánh gừng',text:'Lạc trong rừng, bạn thấy một ngôi nhà làm bằng bánh gừng và kẹo đường. Một bà lão mỉm cười mời vào.',
   ch:[{t:'Vào ăn bánh',f:s=>{if(ch(.5)){mod({happy:6,health:3});return'Bà lão hóa ra là một phù thủy tốt bụng, cho bạn ăn no rồi chỉ đường về.'}if(ch(.6+s.st.smarts/300)){mod({smarts:5,honor:4});return['Bà lão định nhốt bạn vào lồng, nhưng bạn lừa bà chui vào lò và chạy thoát.','good']}mod({health:-12});return['Bạn bị nhốt ba ngày trước khi trốn được qua khe cửa.','bad']}},
@@ -1530,7 +1532,7 @@ const EV=[
       {t:'Từ chối',f:s=>{const f=s.rel.find(x=>x.id===s.tmp.fid);f.bond-=15;if(f.bond<20&&ch(.3)){addEnemy('Người bạn cũ bị bạn bỏ mặc lúc khó khăn',{id:f.id,hate:R(40,55)})}return['Bạn đóng cửa lại. Tiếng bước chân xa dần trong đêm.','bad']}}]},
  {id:'enemyact',queued:true,c:s=>s.rel.some(x=>x.id===s.tmpE&&x.alive&&x.kind==='enemy'),title:s=>({rumor:'Lời đồn độc địa',arson:'Lửa trong đêm',ambush:'Phục kích',accuse:'Đơn tố giác'})[s.tmpEA]||'Kẻ thù ra tay',
   text:s=>{const e=s.rel.find(x=>x.id===s.tmpE);return{rumor:`${e.name} đi khắp nơi rêu rao rằng bạn là kẻ bất lương. Người quen bắt đầu tránh mặt bạn.`,arson:`Nửa đêm, chuồng gia súc nhà bạn bốc cháy. Người canh đêm thấy bóng ${e.first} chạy vào rừng.`,ambush:`Trên đường về, ${e.name} cùng hai tên côn đồ chặn bạn lại, tay lăm lăm gậy gộc.`,accuse:`${e.name} gửi đơn lên Tòa Dị Giáo, tố bạn thờ quỷ.`}[s.tmpEA]},
-  ch:[{t:'Đánh trả',f:s=>{const e=s.rel.find(x=>x.id===s.tmpE);if(ch(.3+s.hid.sword/200+cbB()/200+s.st.health/400)){e.hate+=5;mod({honor:5});if(s.tmpEA==='ambush'&&ch(.25)){e.alive=false;return[`Bạn quật ngã ${e.first}. Hắn không bao giờ đứng dậy nữa.`,'good']}return[`Bạn khiến ${e.first} phải bỏ chạy.`,'good']}mod({health:-R(10,20)});if(s.tmpEA==='arson'){const k=ANIMALS.find(a=>s.own[a]>0);if(k)s.own[k]--}return['Bạn bị đánh bầm dập.','bad']}},
+  ch:[{t:'Đánh trả',f:s=>{const e=s.rel.find(x=>x.id===s.tmpE);if(ch(.3+(s.blade||0)/200+cbB()/200+s.st.health/400)){e.hate+=5;mod({honor:5});if(s.tmpEA==='ambush'&&ch(.25)){e.alive=false;return[`Bạn quật ngã ${e.first}. Hắn không bao giờ đứng dậy nữa.`,'good']}return[`Bạn khiến ${e.first} phải bỏ chạy.`,'good']}mod({health:-R(10,20)});if(s.tmpEA==='arson'){const k=ANIMALS.find(a=>s.own[a]>0);if(k)s.own[k]--}return['Bạn bị đánh bầm dập.','bad']}},
       {t:'Chịu đựng',f:s=>{const t=s.tmpEA;if(t==='rumor')mod({honor:-R(5,10)});if(t==='arson'){const k=ANIMALS.find(a=>s.own[a]>0);if(k){s.own[k]--;return[`Bạn mất một con ${ASSETS[k].n.toLowerCase()} trong đám cháy.`,'bad']}fine(15)}if(t==='ambush'){fine(20);mod({health:-8})}if(t==='accuse'){s.flags.suspect=(s.flags.suspect||0)+2;mod({honor:-8})}return['Bạn cắn răng chịu đựng. Kẻ thù cười đắc thắng.','bad']}},
       {t:'Xin làm hòa (20 xu)',cost:20,f:s=>{const e=s.rel.find(x=>x.id===s.tmpE);s.money-=20;if(ch(.65-e.hate/200)){e.alive=false;e.gone=1;return[`${e.first} nhận tiền và bắt tay bạn. Mối thù khép lại.`,'good']}e.hate+=5;return[`${e.first} ném túi tiền xuống bùn.`,'bad']}}]},
 ];
@@ -1543,7 +1545,7 @@ const ACTS=[
  {id:'confess',n:'Xưng tội với cha xứ',d:'Nhẹ lòng hơn',min:7,f:()=>{mod({piety:R(2,5),happy:R(2,5)});return'Cha xứ nghe bạn kể tội rồi bắt đọc năm mươi kinh Thánh Quang.'}},
  {id:'letters',n:'Học chữ với cha xứ',d:'5 xu · Đọc và viết cổ ngữ Aldor',min:6,cost:5,req:s=>!s.flags.literate,why:'Bạn đã biết chữ',f:s=>{s.money-=5;s.flags.lp=(s.flags.lp||0)+1;mod({smarts:R(2,5)});if(s.flags.lp>=3){s.flags.literate=1;return['Bạn đã đọc trôi chảy Thánh thư bằng cổ ngữ Aldor. Cả làng chẳng mấy ai làm được thế.','good']}return`Bạn tập viết từng nét trên bảng sáp. Còn ${3-s.flags.lp} năm học nữa.`}},
  {id:'study',n:'Chép sách ở tu viện',d:'Trí tuệ',min:10,req:s=>s.flags.literate,why:'Phải biết chữ',f:()=>{mod({smarts:R(3,7)});return'Bạn chép sách dưới ánh nến, mực túi mật sồi dính đầy ngón tay.'}},
- {id:'sword',n:'Luyện kiếm',d:'Sức khỏe, danh dự, rèn thiên phú kiếm',min:10,f:s=>{s.flags.swc=(s.flags.swc||0)+1;if(ch(.12-s.hid.sword/1000)){mod({health:-R(5,12)});return['Thanh kiếm gỗ quất trúng xương sườn. Bạn đau ê ẩm mấy tuần.','bad']}mod({health:R(1,4),honor:1+Math.floor(s.hid.sword/40)});if(ch(.15))s.hid.sword=Math.min(100,s.hid.sword+1);
+ {id:'sword',n:'Luyện kiếm',d:'Sức khỏe, danh dự, kiếm thuật',min:10,f:s=>{s.flags.swc=(s.flags.swc||0)+1;if(ch(.12-s.hid.sword/1000)){mod({health:-R(5,12)});return['Thanh kiếm gỗ quất trúng xương sườn. Bạn đau ê ẩm mấy tuần.','bad']}mod({health:R(1,4),honor:1+Math.floor((s.blade||0)/40)});if(ch(.15))s.hid.sword=Math.min(100,s.hid.sword+1);
    if(s.flags.swc===3&&!s.flags.seenS){s.flags.seenS=1;return[`Thầy dạy kiếm làng quan sát bạn ba năm rồi nói: thiên phú kiếm thuật của bạn ${talentWord(s.hid.sword)}.`,s.hid.sword>=75?'good':'']}
    return s.hid.sword>=75?'Lưỡi kiếm trong tay bạn nhẹ như một phần cơ thể. Hình nộm rơm đứt làm đôi.':'Bạn tập với hình nộm rơm đến khi cánh tay mỏi nhừ.'}},
  {id:'tavern',n:'Ra quán rượu',d:'2 xu · Bia, xúc xắc, chuyện phiếm',min:14,cost:2,f:s=>{s.money-=2;if(ch(.15)){mod({health:-R(5,14),honor:-3});return['Một gã thợ thuộc da say khướt gây sự. Bạn về nhà với con mắt bầm tím.','bad']}if(ch(.05)){gainItem('map');return['Một gã thủy thủ say khướt gán cho bạn tấm bản đồ kho báu thay tiền bia.','item']}mod({happy:R(4,9),health:-R(0,2)});return pick(['Bạn uống bia mạch nha và nghe người lái buôn kể chuyện thành phố mái vàng Kharvon.','Bạn thắng ván xúc xắc và được cả quán mời bia.'])}},
@@ -1552,7 +1554,7 @@ const ACTS=[
  {id:'wise',n:'Hỏi bà lang vườn',d:'4 xu · Bùa ngải và thảo dược',min:12,cost:4,f:s=>{s.money-=4;s.flags.suspect=(s.flags.suspect||0)+1;const r=R(1,4);if(r===1){mod({health:R(4,10)});return'Bà đưa nhúm cỏ thi bảo đắp lên ngực. Lạ thay, bạn thấy khỏe hơn.'}if(r===2){mod({looks:R(2,5)});return'Bà bôi lên mặt bạn thứ thuốc mỡ mùi hoa cúc.'}if(r===3&&!hasItem('amulet')){gainItem('amulet');return['Bà treo lên cổ bạn một túi bùa nhỏ và dặn không bao giờ được tháo ra.','item']}mod({happy:-3});return['Bà nhìn tay bạn, lắc đầu, không nói gì. Bạn mất ngủ mấy đêm.','bad']}},
  {id:'poach',n:'Săn trộm trong rừng lãnh chúa',d:'Có thịt, có tiền, có rủi ro',min:12,req:s=>s.house.title<2,why:'Bạn là chủ khu rừng rồi',f:s=>{if(ch(s.race==='beast'?.8:.6)){const g=R(3,12);s.money+=g;return[`Bẫy của bạn bắt được một con nai non. Bán thịt được ${g} xu.`,'good']}fine(10);mod({honor:-10,happy:-5});return['Người giữ rừng tóm được bạn. Tòa án trang viên phạt 10 xu và cùm chân một ngày.','bad']}},
  {id:'pilgrim',n:'Hành hương',d:'40 xu · Đức tin tăng mạnh',min:16,cost:40,f:s=>{s.money-=40;const to=pick(['Thánh địa Lumaris','Đền Tinh Tú trên núi Aster','Giếng Thánh Aurel']);mod({piety:R(10,18),happy:6});if(ch(.15)){const l=Math.min(Math.max(s.money,0),R(5,20));s.money-=l;mod({health:-8});return[`Trên đường đến ${to}, bọn cướp lấy mất ${l} xu. Bạn vẫn đến được đền thánh.`,'bad']}if(ch(.12))gainItem('relic');return[`Bạn đi bộ đến ${to} và mua một huy hiệu vỏ sò gắn lên mũ.`,'good']}},
- {id:'joust',n:'Dự đấu thương',d:'Vinh quang hoặc gãy xương',min:16,req:s=>s.cls==='noble'||s.flags.knight,why:'Chỉ dành cho quý tộc và hiệp sĩ',f:s=>{if(ch(.015)){die('ngã ngựa trong cuộc đấu thương');return['Mũi thương gãy, bạn ngã ngựa và không đứng dậy nữa.','bad']}if(ch(.25+s.st.health/300+s.st.honor/400+s.hid.sword/250+cbB()/300+(hasItem('lance')?.08:0)+(s.own.horse?.05:0))){const g=R(30,90);s.money+=g;mod({honor:R(6,12),happy:8});s.house.prestige+=8;return[`Bạn hất ngã đối thủ ở lượt thứ hai và nhận ${g} xu tiền thưởng.`,'good']}if(ch(.35)){mod({health:-R(10,22)});return['Mũi thương đối thủ trúng giữa ngực. Bạn gãy hai xương sườn.','bad']}mod({honor:-2});return'Bạn thua sát nút trước một hiệp sĩ xứ Ironmark.'}},
+ {id:'joust',n:'Dự đấu thương',d:'Vinh quang hoặc gãy xương',min:16,req:s=>s.cls==='noble'||s.flags.knight,why:'Chỉ dành cho quý tộc và hiệp sĩ',f:s=>{if(ch(.015)){die('ngã ngựa trong cuộc đấu thương');return['Mũi thương gãy, bạn ngã ngựa và không đứng dậy nữa.','bad']}if(ch(.25+s.st.health/300+s.st.honor/400+(s.blade||0)/250+cbB()/300+(hasItem('lance')?.08:0)+(s.own.horse?.05:0))){const g=R(30,90);s.money+=g;mod({honor:R(6,12),happy:8});s.house.prestige+=8;return[`Bạn hất ngã đối thủ ở lượt thứ hai và nhận ${g} xu tiền thưởng.`,'good']}if(ch(.35)){mod({health:-R(10,22)});return['Mũi thương đối thủ trúng giữa ngực. Bạn gãy hai xương sườn.','bad']}mod({honor:-2});return'Bạn thua sát nút trước một hiệp sĩ xứ Ironmark.'}},
  {id:'spell',n:'Luyện phép',d:'Ma lực · nhưng hàng xóm sẽ để ý',min:8,req:s=>s.st.magic>=20,why:'Ma lực quá yếu (cần 20)',f:s=>{if(!(s.job&&JOBS[s.job.id].magicJob))s.flags.suspect=(s.flags.suspect||0)+1;if(ch(.12)){mod({health:-R(5,12)});return['Quả cầu lửa nổ tung ngay trên lòng bàn tay. Lông mày bạn cháy sạch.','bad']}s.flags.spc=(s.flags.spc||0)+1;mod({magic:R(2,4)+Math.round(s.hid.arcane/20)});if(ch(.15))s.hid.arcane=Math.min(100,s.hid.arcane+1);if(s.flags.spc===3&&!s.flags.seenA){s.flags.seenA=1;return[`Sau ba năm tự luyện, bạn hiểu rõ bản thân: cảm nhận ma pháp của bạn ${talentWord(s.hid.arcane)}.`,'magic']}return[pick(['Bạn làm một chiếc lông quạ lơ lửng suốt một khắc.','Bạn gọi được gió thổi tắt ngọn nến từ đầu kia căn phòng.','Bạn khiến dòng suối chảy ngược trong chốc lát.']),'magic']}},
  {id:'rite',n:'Dự nghi lễ Hồng Nguyệt',d:'Ma lực, thăng bậc trong giáo phái',min:15,hide:true,req:s=>s.flags.her>0,f:s=>{s.flags.herxp=(s.flags.herxp||0)+1;s.flags.suspect=(s.flags.suspect||0)+1;mod({magic:R(3,7),piety:-2});
    if(s.flags.her===1&&s.flags.herxp>=3){s.flags.her=2;gainItem('dagger');return['Đại tư tế rạch tay bạn bằng dao găm đỏ và trao nó cho bạn. Bạn đã là Pháp sư bóng tối.','magic']}
@@ -1592,7 +1594,7 @@ function relAct(sx){
   if(a==='propose'){if(ch(.15+r.bond/120)){r.alive=false;r.gone=1;t=marry({...r,dowry:r.sex==='f'?Math.round(CLASSES[r.cls].money/3)+R(2,15):0});tone='good'}else{r.bond-=10;mod({happy:-6});t=`${F} bảo chưa sẵn sàng. Không khí trở nên ngượng ngùng.`;tone='bad'}}
   if(a==='breakup'){r.alive=false;r.gone=1;mod({happy:-6});t=`Bạn chia tay ${F}.`;tone='bad';if(ch(.3)){addEnemy('Người yêu cũ bị bạn bỏ rơi',{id:r.id,hate:R(40,60)});r.alive=true}}
   if(a==='peace'){S.money-=10;if(ch(.7-r.hate/150)){r.alive=false;r.gone=1;t=`${F} nhận quà và gật đầu. Mối thù khép lại.`;tone='good';if(ch(.3)){r.alive=true;r.gone=0;r.kind='friend';r.bond=R(25,40);t+=' Thậm chí hai người còn bắt đầu chào nhau.'}}else{r.hate=clamp(r.hate+5);t=`${F} ném món quà xuống đất.`;tone='bad'}}
-  if(a==='duel'){if(ch(.3+S.hid.sword/160+cbB()/200)){mod({honor:8});if(ch(.3)){r.alive=false;t=`Mũi kiếm của bạn xuyên qua ngực ${F}. Mối thù kết thúc trong máu.`;mod({piety:-4})}else{r.hate=clamp(r.hate-20);t=`Bạn đánh bay kiếm của ${F} trước mặt cả làng. Hắn bẽ mặt bỏ đi.`}tone='good'}else{if(ch(.05)){die(`trong trận đấu kiếm với ${r.name}`);afterSheetAction();return}mod({health:-R(12,20),honor:-4});r.hate=clamp(r.hate+8);t=`${F} rạch một đường dài trên vai bạn.`;tone='bad'}}
+  if(a==='duel'){if(ch(.3+(S.blade||0)/160+cbB()/200)){mod({honor:8});if(ch(.3)){r.alive=false;t=`Mũi kiếm của bạn xuyên qua ngực ${F}. Mối thù kết thúc trong máu.`;mod({piety:-4})}else{r.hate=clamp(r.hate-20);t=`Bạn đánh bay kiếm của ${F} trước mặt cả làng. Hắn bẽ mặt bỏ đi.`}tone='good'}else{if(ch(.05)){die(`trong trận đấu kiếm với ${r.name}`);afterSheetAction();return}mod({health:-R(12,20),honor:-4});r.hate=clamp(r.hate+8);t=`${F} rạch một đường dài trên vai bạn.`;tone='bad'}}
   if(a==='plot'){if(ch(.25+S.st.smarts/200)){r.alive=false;r.gone=1;mod({honor:-2});t=`Bạn khéo léo để lộ chuyện mờ ám của ${F} cho viên quản gia. Hắn bị đuổi khỏi vùng.`;tone='good'}else{mod({honor:-10});r.hate=clamp(r.hate+15);t=`Âm mưu bị lộ. Cả làng biết bạn định hãm hại ${F}.`;tone='bad'}}
   if(a==='hire'){S.money-=80;mod({piety:-6});if(ch(.55)){r.alive=false;t=`Sáng hôm sau, người ta tìm thấy ${F} nằm úp mặt dưới mương. Không ai biết chuyện gì xảy ra.`;tone='magic'}else if(ch(.35)){mod({honor:-25});fine(50);S.flags.suspect=(S.flags.suspect||0)+1;t='Tên sát thủ bị bắt và khai ra tên bạn. Bạn bị phạt nặng và mất hết thanh danh.';tone='bad'}else{r.hate=clamp(r.hate+20);t=`Tên sát thủ cầm tiền rồi biến mất. ${F} nghe phong thanh và càng căm bạn hơn.`;tone='bad'}}
   log(t,tone);note={t,tone};afterSheetAction();
@@ -1733,6 +1735,7 @@ function drawSheet(){
       for(const id of g.acts){const a=ACTS.find(x=>x.id===id);if(!visible(a))continue;
         const why=S.age<a.min?`Từ ${a.min} tuổi`:a.req&&!a.req(S)?a.why:S.done[a.id]?'Đã làm năm nay':a.cost&&S.money<a.cost?'Không đủ tiền':'';
         b+=gRow(`data-act="${a.id}"`,AIC[a.id]||'torch',a.n,why||a.d,'',!!why||!S.alive)}
+      if(g.id==='train')b+=actTrainExtra();
     }
   }
   if(view==='rel'){
@@ -1802,7 +1805,7 @@ function drawSheet(){
     }
     if(E){
       b+=gRow(`data-ra="${r.id}|peace"`,'peace','Xin làm hòa',dn||(S.money<10?'Không đủ tiền':'10 xu quà cáp · càng hận càng khó'),'',!!dn||S.money<10);
-      b+=gRow(`data-ra="${r.id}|duel"`,'crossed','Thách đấu kiếm',dn||(S.age<14?'Từ 14 tuổi':'Dựa vào thiên phú kiếm và trang bị'),'',!!dn||S.age<14);
+      b+=gRow(`data-ra="${r.id}|duel"`,'crossed','Thách đấu kiếm',dn||(S.age<14?'Từ 14 tuổi':'Dựa vào kiếm thuật và trang bị'),'',!!dn||S.age<14);
       b+=gRow(`data-ra="${r.id}|plot"`,'hood','Bày mưu hạ bệ',dn||(S.age<14?'Từ 14 tuổi':'Dựa vào trí tuệ · thất bại sẽ mất danh dự'),'',!!dn||S.age<14);
       b+=gRow(`data-ra="${r.id}|hire"`,'assassin','Thuê sát thủ',dn||(S.age<18?'Từ 18 tuổi':S.money<80?'Không đủ tiền':'80 xu · rủi ro bị lộ'),'',!!dn||S.age<18||S.money<80);
     }
@@ -2278,7 +2281,7 @@ function riseUp(){
   log(`THẢM HỌA · ${S.first} phát động cuộc bạo động Hồng Nguyệt.`,'bad');
   afterSheetAction();
 }
-function heroNpcFight(bonus){return ch(.3+S.st.magic/350+S.hid.arcane/400+S.hid.sword/500+cbB()/300+(bonus||0))}
+function heroNpcFight(bonus){return ch(.3+S.st.magic/350+S.hid.arcane/400+(S.blade||0)/500+cbB()/300+(bonus||0))}
 const HERESY_EV=[
  {id:'herreveal',queued:true,big:true,art:'moon',c:s=>s.flags.her>0&&s.world.cat&&s.world.cat.id==='heresy',title:'Lộ diện thân thế',
   text:s=>`Giáo phái Hồng Nguyệt đã công khai nổi dậy. Không ai trong làng biết bạn là ${HER[s.flags.her]}. Các tín đồ đang chờ xem bạn sẽ đứng ở đâu.`,
@@ -2382,7 +2385,7 @@ const JACT={
 };
 function jobAct(i){
   const J=JOBS[S.job.id],A=JACT[S.job.id][i];S.done['ja'+i]=1;let t,tone;
-  const p=A[2]+S.job.rank*.04+(S.job.perf||40)/600+(A[0].match(/Săn|đột kích|Đấu|truy|Đẩy lui|tuần/i)?S.hid.sword/600+cbB()/500:0);
+  const p=A[2]+S.job.rank*.04+(S.job.perf||40)/600+(A[0].match(/Săn|đột kích|Đấu|truy|Đẩy lui|tuần/i)?(S.blade||0)/600+cbB()/500:0);
   if(ch(p)){
     mod(A[4]);const m=A[5]&&A[5][1]?Math.round(R(A[5][0],A[5][1])*(1+S.job.rank*.5)):0;S.money+=m;
     S.job.perf=Math.min(100,(S.job.perf||40)+R(8,16));t=A[3]+(m?` (+${m} xu)`:'');tone='good';
@@ -2448,7 +2451,7 @@ const DUNGEON_EV=[
       {t:'Không đụng vào',f:()=>'Bạn đi vòng qua chiếc rương, tránh xa vòng tròn máu.'}]},
  {id:'dg_guard',queued:true,big:true,art:'skull',c:s=>s.alive,title:'Kẻ canh giữ kho báu',
   text:s=>`Cuối hành lang là một căn phòng đầy vàng bạc. Canh giữ nó là ${pick(['một con golem đá cao gấp ba người','một hiệp sĩ bất tử với đôi mắt lửa xanh','một con nhện khổng lồ to bằng xe ngựa','một con rồng đất già đang ngủ'])}.`,
-  ch:[{t:'Rút vũ khí chiến đấu',f:s=>{if(ch(.3+s.hid.sword/250+cbB()/150+s.st.health/500)){const g=R(40,120);s.money+=g;mod({honor:6});const a=loot(ch(.5)?'w':'a',true),b=ch(.3)?loot('x'):null;return[`Sau trận chiến nảy lửa, kẻ canh giữ gục ngã. Bạn mang về ${g} xu${a?', '+a.toLowerCase():''}${b?' và '+b.toLowerCase():''}.`,'item']}if(ch(.08)){die('dưới tay kẻ canh giữ hầm mộ');return['Kẻ canh giữ quá mạnh.','bad']}mod({health:-R(18,30)});return['Bạn bị hất văng vào tường và phải lết ra khỏi hầm.','bad']}},
+  ch:[{t:'Rút vũ khí chiến đấu',f:s=>{if(ch(.3+(s.blade||0)/250+cbB()/150+s.st.health/500)){const g=R(40,120);s.money+=g;mod({honor:6});const a=loot(ch(.5)?'w':'a',true),b=ch(.3)?loot('x'):null;return[`Sau trận chiến nảy lửa, kẻ canh giữ gục ngã. Bạn mang về ${g} xu${a?', '+a.toLowerCase():''}${b?' và '+b.toLowerCase():''}.`,'item']}if(ch(.08)){die('dưới tay kẻ canh giữ hầm mộ');return['Kẻ canh giữ quá mạnh.','bad']}mod({health:-R(18,30)});return['Bạn bị hất văng vào tường và phải lết ra khỏi hầm.','bad']}},
       {t:'Lẻn vào lúc nó lơ là',f:s=>{if(ch(.35+s.st.smarts/250)){const g=R(20,60);s.money+=g;return[`Bạn nhón chân vốc được ${g} xu rồi chuồn êm.`,'good']}mod({health:-12});return['Nó phát hiện ra bạn. Bạn chạy thục mạng, lưng rướm máu.','bad']}},
       {t:'Rút lui',f:()=>'Kho báu không đáng để chết.'}]},
  {id:'dg_altar',queued:true,big:true,art:'candle',c:s=>s.alive,title:'Bàn thờ cổ',
@@ -2515,7 +2518,7 @@ const STATUS_EV=[
       {t:'Từ chối',f:()=>{mod({honor:3});return'Bạn đuổi người của thương hội ra khỏi cửa.'}},
       {t:'Đòi họ quyên góp cho dân nghèo',f:s=>{mod({honor:6,piety:3});s.house.prestige+=20;return['Thương hội xây một nhà tế bần mang tên bạn.','good']}}]},
  {id:'h_impostor',big:true,art:'crossed',w:W(4),c:isLegend,title:'Kẻ mạo danh thách đấu',text:'Một kẻ lạ mặt đi khắp các làng tự xưng mới là Anh Hùng thật trong lời tiên tri, và thách bạn đấu tay đôi trước đám đông.',
-  ch:[{t:'Đấu tay đôi',f:s=>{if(ch(.6+s.hid.sword/400+cbB()/300)){mod({honor:8});s.house.prestige+=30;return['Chỉ ba đường kiếm, kẻ mạo danh đã quỳ xin tha.','good']}mod({health:-18,honor:-8});return['Hắn mạnh hơn bạn tưởng. Bạn thua trước mặt cả làng.','bad']}},
+  ch:[{t:'Đấu tay đôi',f:s=>{if(ch(.6+(s.blade||0)/400+cbB()/300)){mod({honor:8});s.house.prestige+=30;return['Chỉ ba đường kiếm, kẻ mạo danh đã quỳ xin tha.','good']}mod({health:-18,honor:-8});return['Hắn mạnh hơn bạn tưởng. Bạn thua trước mặt cả làng.','bad']}},
       {t:'Điều tra lai lịch hắn',f:s=>{if(ch(.5+s.st.smarts/300)){mod({honor:4});return['Hắn là đào binh bị truy nã. Lính tuần đến bắt hắn ngay trong đêm.','good']}return'Không ai biết hắn từ đâu đến.'}},
       {t:'Bỏ qua',f:()=>{mod({honor:-3});return'Bạn mặc kệ. Vài làng bắt đầu tin hắn.'}}]},
  {id:'h_suspect',big:true,art:'crown',w:W(3),c:s=>s.flags.legend&&s.house.title<6,title:'Nhà vua nghi kỵ',text:s=>`Danh tiếng của bạn lấn át cả hoàng gia. Nhà vua ${s.realm} cho gọi bạn về kinh, giọng điệu trong thư lạnh như băng.`,
@@ -2547,7 +2550,7 @@ const STATUS_EV=[
       {t:'Từ chối',f:()=>{mod({honor:-3});return'Hoàng gia nuốt giận. Họ sẽ nhớ chuyện này.'}},
       {t:'Đặt điều kiện: đất phong riêng',f:s=>{if(ch(.4)){const sx=s.sex==='m'?'f':'m',f=pick(nameList(sx,'human')),sur=pick(ROYAL);const t=marry({sex:sx,cls:'noble',race:'human',first:f,sur,name:f+' '+sur,age:Math.max(16,s.age+R(-6,1)),dowry:200});grantTitle(Math.max(5,s.house.title));return[t+' Nhà vua ban thêm một công quốc.','good']}mod({honor:-4});return['Nhà vua cho rằng bạn đòi hỏi quá đáng.','bad']}}]},
  {id:'h_revenge',big:true,art:'skull',w:W(3),c:s=>s.flags.legend,title:'Kẻ thù trở lại',text:'Một cựu tướng của kẻ thù xưa tập hợp tàn quân, thề lấy đầu bạn để báo thù cho chủ.',
-  ch:[{t:'Đối đầu trực diện',f:s=>{if(ch(.55+s.hid.sword/300+cbB()/250)){mod({honor:6});if(ch(.3))gainItem(pick(['h_demon','arm_dark','greatsword']));return['Bạn hạ hắn trên chiến trường xưa.','good']}if(ch(.15)){die('dưới tay kẻ báo thù');return['Hắn đã chờ ngày này quá lâu.','bad']}mod({health:-25});return['Hắn trốn thoát sau khi đâm bạn trọng thương.','bad']}},
+  ch:[{t:'Đối đầu trực diện',f:s=>{if(ch(.55+(s.blade||0)/300+cbB()/250)){mod({honor:6});if(ch(.3))gainItem(pick(['h_demon','arm_dark','greatsword']));return['Bạn hạ hắn trên chiến trường xưa.','good']}if(ch(.15)){die('dưới tay kẻ báo thù');return['Hắn đã chờ ngày này quá lâu.','bad']}mod({health:-25});return['Hắn trốn thoát sau khi đâm bạn trọng thương.','bad']}},
       {t:'Thương lượng',f:s=>{if(ch(.35+s.st.smarts/250)){mod({honor:2});return['Hắn chỉ muốn chôn cất chủ mình tử tế. Bạn đồng ý, và hắn rời đi.','good']}addEnemy('Cựu tướng của kẻ thù xưa',{hate:R(70,90),age:s.age+R(-5,10)});return['Hắn nhổ nước bọt và thề sẽ quay lại.','bad']}},
       {t:'Truy tìm kẻ chủ mưu',f:s=>{mod({smarts:3});if(ch(.5)){s.money+=R(40,100);return['Bạn lần ra kẻ đứng sau: một lãnh chúa tham lam. Hắn bị tịch biên tài sản, bạn được chia phần.','good']}return'Manh mối đứt đoạn ở bến cảng.'}}]},
  /* --- Nam tước --- */
@@ -2567,7 +2570,7 @@ const STATUS_EV=[
  {id:'v_vassal',w:W(5),c:rk(3),title:'Nam tước không phục tùng',text:'Nam tước Gerard, chư hầu của bạn, từ chối nộp thuế và đóng cổng lâu đài trước mặt sứ giả.',
   ch:[{t:'Hòa giải',f:s=>{if(ch(.55)){mod({honor:2});return'Gerard chịu nộp thuế sau khi bạn hứa giảm một phần.'}mod({honor:-4});return['Gerard coi sự nhún nhường của bạn là yếu đuối.','bad']}},
       {t:'Triệu tập ra tòa xét xử',f:s=>{if(ch(.5+s.st.honor/300)){s.money+=R(40,80);mod({honor:5});return['Gerard bị phạt nặng trước toàn thể chư hầu.','good']}addEnemy('Nam tước Gerard bất phục',{sex:'m',cls:'noble',hate:R(55,70)});return['Gerard không đến. Hắn bắt đầu liên kết với kẻ thù của bạn.','bad']}},
-      {t:'Đem quân trấn áp',f:s=>{if(ch(.45+cbB()/200+s.hid.sword/400)){s.money+=R(80,150);mod({honor:6});dsat(-3);return['Lâu đài của Gerard thất thủ sau một tuần. Bạn tịch thu kho bạc của hắn.','good']}mod({health:-15,honor:-6});return['Cuộc vây hãm thất bại.','bad']}}]},
+      {t:'Đem quân trấn áp',f:s=>{if(ch(.45+cbB()/200+(s.blade||0)/400)){s.money+=R(80,150);mod({honor:6});dsat(-3);return['Lâu đài của Gerard thất thủ sau một tuần. Bạn tịch thu kho bạc của hắn.','good']}mod({health:-15,honor:-6});return['Cuộc vây hãm thất bại.','bad']}}]},
  {id:'v_border',w:W(4),c:rk(3),title:'Biên giới bị xâm phạm',text:'Quân của tử tước láng giềng dời cột mốc biên giới, chiếm ba làng của bạn.',
   ch:[{t:'Tăng phòng thủ',f:s=>{s.money-=Math.min(Math.max(s.money,0),40);dsat(2);return'Bạn xây thêm tháp canh dọc biên giới.'}},
       {t:'Phản công',f:s=>{if(ch(.5+cbB()/200)){mod({honor:6});s.house.prestige+=20;return['Bạn giành lại ba làng và còn chiếm thêm một khu rừng.','good']}mod({health:-12});dsat(-5);return['Phản công thất bại. Ba làng vẫn trong tay địch.','bad']}},
@@ -2637,14 +2640,14 @@ const STATUS_EV=[
       {t:'Trốn học đi săn',f:()=>{mod({happy:6,honor:-2});return'Một ngày săn hươu tuyệt vời. Thầy giáo mách với phụ hoàng.'}}]},
  {id:'r_treason',big:true,art:'dagger',w:W(3),c:s=>royalKid(s)&&s.age>=16&&(s.flags.faction||0)>=1,title:'Bị nghi mưu phản',text:'Gián điệp trưởng trình lên một bức thư có chữ ký giống của bạn, hứa hẹn ngai vàng cho một công tước.',
   ch:[{t:'Thề trước bàn thờ',f:s=>{if(ch(.5+s.st.piety/250)){mod({honor:4});return['Phụ hoàng tin lời thề của bạn. Bức thư bị xác định là giả.','good']}mod({honor:-10,happy:-8});s.flags.faction=0;return['Bạn bị giam lỏng trong cung một năm.','bad']}},
-      {t:'Chứng minh bằng quyết đấu',f:s=>{if(ch(.4+s.hid.sword/200+cbB()/250)){mod({honor:10});return['Bạn hạ kẻ tố cáo trong cuộc quyết đấu. Thần linh đã phán xét.','good']}mod({health:-20,honor:-6});return['Bạn thua. Lời buộc tội càng thêm nặng.','bad']}},
+      {t:'Chứng minh bằng quyết đấu',f:s=>{if(ch(.4+(s.blade||0)/200+cbB()/250)){mod({honor:10});return['Bạn hạ kẻ tố cáo trong cuộc quyết đấu. Thần linh đã phán xét.','good']}mod({health:-20,honor:-6});return['Bạn thua. Lời buộc tội càng thêm nặng.','bad']}},
       {t:'Trốn ra nước ngoài',f:s=>{const old=s.realm;s.realm=pick(REALMS.filter(r=>r!==old));s.house.title=5;S.house.holder=null;mod({honor:-6});return[`Bạn trốn sang ${s.realm}. Triều đình tước quyền kế vị, nhưng gia tộc vẫn giữ tước Công tước nơi đất khách.`,'bad']}}]},
  {id:'r_regency',big:true,art:'crown',w:W(4),c:s=>firstInLine()&&s.age>=16&&(()=>{const h=holderP();return h&&h.age/lifeOf(h.race)>=60})(),title:'Tranh giành quyền nhiếp chính',text:s=>`${holderName()[0].toUpperCase()+holderName().slice(1)} đã già yếu, ít khi rời giường bệnh. Triều đình cần người điều hành.`,
   ch:[{t:'Nắm quyền nhiếp chính',f:s=>{if(ch(.5+s.st.honor/300)){S.house.holder=null;ensureDom();announce('Nhiếp chính vương',`${s.first} nắm quyền điều hành ${domName()} thay ${holderName()}.`,'crown');return['Hội đồng triều đình cúi đầu trước bạn.','good']}mod({honor:-6});return['Các đại thần chống đối. Bạn phải lùi bước.','bad']}},
       {t:'Chia quyền với hội đồng',f:()=>{mod({honor:4,smarts:2});return'Bạn ngồi ghế đầu của hội đồng nhiếp chính.'}},
       {t:'Nhường cho mẫu hậu',f:()=>{mod({honor:2,happy:2});return'Mẫu hậu điều hành triều chính. Bạn có thêm thời gian cho riêng mình.'}}]},
  {id:'r_campaign',big:true,art:'w-halberd',w:W(4),c:s=>royalKid(s)&&s.age>=17&&s.age<=40,title:'Cầm quân lập công',text:'Biên giới có loạn. Một chỉ huy hoàng tộc có thể làm nên tên tuổi ở đó.',
-  ch:[{t:'Xin cầm quân',f:s=>{if(ch(.45+s.hid.sword/250+cbB()/250)){mod({honor:10});s.house.prestige+=50;s.flags.ptitle=Math.max(s.flags.ptitle||0,5);return['Bạn dẹp yên biên giới. Phụ hoàng phong cho bạn một công quốc riêng.','good']}if(ch(.15)){die('tử trận nơi biên giới');return['Bạn ngã xuống giữa chiến trường.','bad']}mod({health:-18});return['Chiến dịch thất bại.','bad']}},
+  ch:[{t:'Xin cầm quân',f:s=>{if(ch(.45+(s.blade||0)/250+cbB()/250)){mod({honor:10});s.house.prestige+=50;s.flags.ptitle=Math.max(s.flags.ptitle||0,5);return['Bạn dẹp yên biên giới. Phụ hoàng phong cho bạn một công quốc riêng.','good']}if(ch(.15)){die('tử trận nơi biên giới');return['Bạn ngã xuống giữa chiến trường.','bad']}mod({health:-18});return['Chiến dịch thất bại.','bad']}},
       {t:'Làm phó tướng học việc',f:()=>{mod({honor:4,smarts:2});return'Bạn học được nhiều điều từ vị tướng già.'}},
       {t:'Ở lại kinh thành',f:()=>'Bạn ở lại dự những buổi tiệc mùa xuân.'}]}
 ];
@@ -3191,7 +3194,7 @@ function acAct(k){
   log(t,tone);note={t,tone};afterSheetAction();
 }
 function acJoin(k){S.ac.club=k;S.done.acclub=1;const t=`Bạn gia nhập ${ACLUB[k].n}.`;log(t,'good');note={t,tone:'good'};afterSheetAction()}
-const ACACTS=[['lecture','Học trên giảng đường','Học lực, trí tuệ · căng thẳng tăng','study'],['sword','Luyện kiếm với giảng viên','Thiên phú kiếm, sức khỏe · có thể bị thương','dummy'],['spell','Luyện phép với giảng viên','Ma lực, thiên phú phép · có thể mất kiểm soát','spellcast'],['library','Đọc sách thư viện','Mười cuốn sách, mỗi năm không đọc trùng','book'],['group','Học nhóm với bạn cùng phòng','Học lực, tình bạn · giảm căng thẳng','user-group'],['club','Sinh hoạt câu lạc bộ','Theo câu lạc bộ đã chọn','flag'],['work','Làm thêm trong trường','Ít tiền · căng thẳng tăng','sack'],['explore','Khám phá khu cấm, tầng hầm','Bí mật, cổ vật · kỷ luật giảm','crypt'],['rest','Nghỉ ngơi ở ký túc xá','Giảm mạnh căng thẳng','bath'],['social','Giao lưu ở đại sảnh','Bạn bè, tin đồn, danh tiếng','mug'],['elect','Tranh cử Hội học sinh','Từ năm III · cần danh tiếng','scroll']];
+const ACACTS=[['lecture','Học trên giảng đường','Học lực, trí tuệ · căng thẳng tăng','study'],['sword','Luyện kiếm với giảng viên','Kiếm thuật, sức khỏe · có thể bị thương','dummy'],['spell','Luyện phép với giảng viên','Ma lực, thiên phú phép · có thể mất kiểm soát','spellcast'],['library','Đọc sách thư viện','Mười cuốn sách, mỗi năm không đọc trùng','book'],['group','Học nhóm với bạn cùng phòng','Học lực, tình bạn · giảm căng thẳng','user-group'],['club','Sinh hoạt câu lạc bộ','Theo câu lạc bộ đã chọn','flag'],['work','Làm thêm trong trường','Ít tiền · căng thẳng tăng','sack'],['explore','Khám phá khu cấm, tầng hầm','Bí mật, cổ vật · kỷ luật giảm','crypt'],['rest','Nghỉ ngơi ở ký túc xá','Giảm mạnh căng thẳng','bath'],['social','Giao lưu ở đại sảnh','Bạn bè, tin đồn, danh tiếng','mug'],['elect','Tranh cử Hội học sinh','Từ năm III · cần danh tiếng','scroll']];
 function acActWhy(k){const A=S.ac;if(S.done['a_'+k])return'Đã làm năm nay';if(!acLeft())return'Hết lượt năm nay';if(k==='club'&&!A.club)return'Chưa vào câu lạc bộ';if(k==='elect'&&(acY()<3||A.council||A.q.elect===S.year))return acY()<3?'Từ năm III':'Không thể ứng cử năm nay';return''}
 /* --- events --- */
 const XAC=s=>isStu(s);
@@ -3259,7 +3262,7 @@ const ACADEMY_EV=[
   ch:[{t:'Góp tiền giúp đỡ (10 xu)',cost:10,f:s=>{s.money-=10;const r=roomies()[0];r.bond=clamp(r.bond+20);if(ch(.5))return['Nhờ số tiền ấy, cậu ấy ở lại học tiếp. Cậu thề sẽ không quên ơn bạn.','good'];r.room=0;return'Cậu ấy vẫn phải đi, nhưng mang theo tình bạn của bạn.'}},{t:'Tiễn bạn',f:s=>{const r=roomies()[0];r.room=0;mod({happy:-4});return'Bạn đứng ở cổng trường đến khi chiếc xe ngựa khuất bóng.'}}]},
  /* --- chuỗi bắt nạt --- */
  {id:'acb1',queued:true,big:true,art:'enemy',c:XAC,title:'Kẻ bắt nạt Cedric',text:'Cedric, con trai một bá tước, dồn một học viên thường dân vào góc tường, ép nộp tiền ăn.',
-  ch:[{t:'Bảo vệ nạn nhân',f:s=>{s.ac.q.bully='fought';const r=addFriend({age:s.age,bond:R(60,75),cls:'serf'});if(r)r.why='victim';if(ch(.45+s.hid.sword/250+s.st.health/400)){acc('rep',8);mod({honor:5});addEnemy('Cedric, kẻ bắt nạt bị bạn hạ nhục',{sex:'m',first:'Cedric',cls:'noble',age:s.age+1,hate:R(55,70)});return['Bạn thắng Cedric trong một trận đấu tay đôi sau giờ học. Học viên thường dân nhìn bạn như anh hùng.','good']}mod({health:-10});addEnemy('Cedric, kẻ bắt nạt',{sex:'m',first:'Cedric',cls:'noble',age:s.age+1,hate:R(45,60)});return['Bạn bị đám tay chân của Cedric đánh bầm dập, nhưng nạn nhân thoát được.','bad']}},
+  ch:[{t:'Bảo vệ nạn nhân',f:s=>{s.ac.q.bully='fought';const r=addFriend({age:s.age,bond:R(60,75),cls:'serf'});if(r)r.why='victim';if(ch(.45+(s.blade||0)/250+s.st.health/400)){acc('rep',8);mod({honor:5});addEnemy('Cedric, kẻ bắt nạt bị bạn hạ nhục',{sex:'m',first:'Cedric',cls:'noble',age:s.age+1,hate:R(55,70)});return['Bạn thắng Cedric trong một trận đấu tay đôi sau giờ học. Học viên thường dân nhìn bạn như anh hùng.','good']}mod({health:-10});addEnemy('Cedric, kẻ bắt nạt',{sex:'m',first:'Cedric',cls:'noble',age:s.age+1,hate:R(45,60)});return['Bạn bị đám tay chân của Cedric đánh bầm dập, nhưng nạn nhân thoát được.','bad']}},
       {t:'Báo giảng viên',f:s=>{s.ac.q.bully='report';if(ch(.5)){acc('rep',3);return'Giảng viên bắt quả tang Cedric. Hắn bị phạt lao động.'}return['Không có chứng cứ. Cedric thoát tội và để ý đến bạn.','bad']}},
       {t:'Hòa giải',f:s=>{s.ac.q.bully='peace';if(ch(.35+s.st.smarts/250)){acc('rep',5);return['Bạn nói gì đó khiến Cedric chột dạ và bỏ đi.','good']}return'Cedric cười vào mặt bạn.'}},
       {t:'Bỏ đi',f:s=>{s.ac.q.bully='ignore';mod({honor:-2});return'Bạn quay đi. Ánh mắt nạn nhân đi theo bạn mãi.'}},
@@ -3302,7 +3305,7 @@ const ACADEMY_EV=[
       {t:'Tự mình ra tay',f:s=>{if(ch(.25+s.st.magic/300)){acc('rep',20);s.house.prestige+=40;return['Bạn đâm lưỡi dao bạc vào tim Ác Ma đúng lúc nó vừa thoát ra một nửa.','good']}s.pend.push('acd_o');return['Bạn thất bại. Phong ấn rạn vỡ.','bad']}}]},
  {id:'acd_o',queued:true,big:true,art:'demon',c:XAC,title:'Phong ấn vỡ',text:'Tiếng nổ rung chuyển cả Tháp Bạc. Quỷ nhỏ tràn ra từ tầng hầm. Giảng viên đang tìm kẻ đã xé phong ấn.',
   ch:[{t:'Thú nhận và giúp tái phong ấn',f:s=>{acc('disc',-20);mod({honor:-4,health:-10});if(ch(.6)){acc('rep',5);return['Bạn dẫn giảng viên đến đúng chỗ. Phong ấn được dựng lại. Bạn bị phạt nặng, nhưng được tha.','good']}return['Phong ấn được dựng lại sau ba ngày. Bạn bị đình chỉ một năm.','bad']}},
-      {t:'Chiến đấu với quỷ để sửa sai',f:s=>{if(ch(.4+s.hid.sword/300+s.st.magic/400)){acc('rep',10);return['Bạn chặn quỷ ở cầu thang tầng hầm suốt đêm.','good']}mod({health:-25});return['Bạn bị quỷ cắn nát vai.','bad']}},
+      {t:'Chiến đấu với quỷ để sửa sai',f:s=>{if(ch(.4+(s.blade||0)/300+s.st.magic/400)){acc('rep',10);return['Bạn chặn quỷ ở cầu thang tầng hầm suốt đêm.','good']}mod({health:-25});return['Bạn bị quỷ cắn nát vai.','bad']}},
       {t:'Im lặng',f:s=>{s.flags.suspect=(s.flags.suspect||0)+2;if(ch(.4)){acc('disc',-40);return['Một nhân chứng khai ra bạn.','bad']}return'Không ai biết. Nhưng bạn biết.'}}]},
  {id:'acd_hunt',queued:true,big:true,art:'demon',c:s=>s.ac&&s.ac.q.demon==='d',title:'Kẻ phản bội Học viện',text:'Ác Ma sai bạn tấn công các giảng viên. Bạn bè cũ đã nghi ngờ, và nghe nói Giáo hội cử một Anh Hùng đến Học viện.',
   ch:[{t:'Tấn công theo lệnh Ác Ma',f:s=>{if(ch(.4)){mod({magic:10});s.ac.st='expelled';s.ac.q.demon='dd';s.flags.dark=1;s.world.cat=s.world.cat||{id:'player',y:s.year};announce('Đứa con của Ác Ma',`${s.first} tấn công Học viện Tháp Bạc rồi biến mất cùng Ác Ma. Một Thảm Họa mới ra đời.`,'moon','demon');return['Tháp Bạc chìm trong lửa đỏ.','magic']}die('dưới lưỡi kiếm của Anh Hùng bảo vệ Học viện');return['Anh Hùng chờ sẵn bạn ở cổng.','bad']}},
@@ -3320,7 +3323,7 @@ const ACADEMY_EV=[
  {id:'acs5',queued:true,big:true,art:'demon',c:XAC,title:'Bí mật dưới Tháp Bạc · Đêm trước tốt nghiệp',
   text:s=>`Đêm trước lễ tốt nghiệp, phong ấn vỡ. Bạn có ${s.ac.q.secA||0} đồng minh và mức chuẩn bị ${s.ac.q.secP||0}. Một học viên không thể một mình đánh bại thực thể này.`,
   ch:[{t:'Tái phong ấn cùng tổ đội',f:s=>{s.ac.q.sec=5;const p=.15+(s.ac.q.secA||0)*.08+(s.ac.q.secP||0)*.07+s.st.magic/500;if(ch(p)){acc('grade',10);acc('rep',25);s.house.prestige+=80;mod({honor:10});gainItem('br_rune');return['Phong ấn sáng lên trắng xóa và đóng lại. Bạn và bạn bè được Hiệu trưởng vinh danh trước toàn trường.','good']}mod({health:-30});return['Phong ấn chỉ khép lại được một nửa. Các giảng viên phải gánh phần còn lại, và hai người không qua khỏi.','bad']}},
-      {t:'Đánh bại thực thể',f:s=>{s.ac.q.sec=5;if(ch(.08+(s.ac.q.secA||0)*.06+s.hid.sword/400+s.hid.arcane/400)){acc('rep',30);mod({honor:15});gainItem('h_crown');return['Không ai tin được: tổ đội học viên đã hạ thực thể dưới Tháp Bạc.','good']}if(ch(.3)){die('khi chiến đấu với thực thể dưới Tháp Bạc');return['Thực thể quá mạnh.','bad']}mod({health:-35});return['Bạn bị hất văng. Giảng viên kịp đến cứu.','bad']}},
+      {t:'Đánh bại thực thể',f:s=>{s.ac.q.sec=5;if(ch(.08+(s.ac.q.secA||0)*.06+(s.blade||0)/400+s.hid.arcane/400)){acc('rep',30);mod({honor:15});gainItem('h_crown');return['Không ai tin được: tổ đội học viên đã hạ thực thể dưới Tháp Bạc.','good']}if(ch(.3)){die('khi chiến đấu với thực thể dưới Tháp Bạc');return['Thực thể quá mạnh.','bad']}mod({health:-35});return['Bạn bị hất văng. Giảng viên kịp đến cứu.','bad']}},
       {t:'Thương lượng với thực thể',hide:true,req:s=>s.ac.q.secM,f:s=>{s.ac.q.sec=5;mod({magic:12});s.flags.suspect=(s.flags.suspect||0)+2;return['Morrow và bạn ký giao ước với thực thể: nó ngủ thêm trăm năm, đổi lấy một bí mật. Bạn không bao giờ kể cho ai.','magic']}}]},
  /* --- thảm họa tấn công Học viện --- */
  {id:'ac_cat',queued:true,big:true,art:'skull',c:s=>isStu(s)&&s.world.cat&&s.world.cat.id!=='player',title:'Thảm Họa tấn công Học viện',text:s=>`Tin dữ: ${CATS[s.world.cat.id].n.toLowerCase()} đã lan đến Học viện Tháp Bạc. Chuông báo động vang khắp ký túc xá.`,
@@ -3436,7 +3439,7 @@ const STAFF_EV=[
       {t:'Cứu bạn bè',hide:true,req:isStu,f:s=>{s.ac.q.fire=1;if(ch(.65)){acc('rep',10);return['Bạn kéo bạn mình ra khỏi đống đổ nát.','good']}mod({health:-20});return['Bạn bị ma vật cào trúng khi cứu bạn.','bad']}},
       {t:'Chiến đấu cùng giảng viên',hide:true,req:s=>isStu(s)&&(s.hid.sword>=60||s.hid.arcane>=60),f:s=>{s.ac.q.fire=1;if(ch(.4+Math.max(s.hid.sword,s.hid.arcane)/300)){acc('rep',20);mod({honor:10});return['Bạn chiến đấu như một giảng viên thực thụ. Tên bạn được khắc lên tường đại sảnh.','good']}mod({health:-28});return['Bạn bị thương nặng.','bad']}},
       {t:'Dẫn học sinh sơ tán',hide:true,req:s=>isStaff(s)&&s.job.rank<3,f:s=>{s.ac.tr=Math.min(100,s.ac.tr+10);return['Bạn đưa cả lớp ra ngoài an toàn.','good']}},
-      {t:'Tham chiến',hide:true,req:s=>isStaff(s)&&s.job.rank<3,f:s=>{if(ch(.45+s.st.magic/300+s.hid.sword/400)){s.ac.tr=Math.min(100,s.ac.tr+15);mod({honor:8});return['Bạn chặn ma vật ở cầu thang tháp chính.','good']}mod({health:-25});return['Bạn ngã xuống, được học trò kéo ra.','bad']}},
+      {t:'Tham chiến',hide:true,req:s=>isStaff(s)&&s.job.rank<3,f:s=>{if(ch(.45+s.st.magic/300+(s.blade||0)/400)){s.ac.tr=Math.min(100,s.ac.tr+15);mod({honor:8});return['Bạn chặn ma vật ở cầu thang tháp chính.','good']}mod({health:-25});return['Bạn ngã xuống, được học trò kéo ra.','bad']}},
       {t:'Duy trì kết giới',hide:true,req:s=>s.job&&s.job.id==='teacher'&&s.job.rank===3,f:s=>{const X=ensureSch();sc('qual',-6);if(ch(.4+X.sec/150)){sc('rep',12);return['Kết giới đứng vững cho đến khi cổng không gian đóng lại. Hội đồng vinh danh bạn.','good']}sc('sec',-15);return['Kết giới vỡ ở phút cuối. Học viện thắng nhưng thiệt hại nặng.','bad']}},
       {t:'Thuê Thợ săn hạng S (150 xu ngân sách)',hide:true,req:s=>s.job&&s.job.id==='teacher'&&s.job.rank===3,f:s=>{const X=ensureSch();X.bud-=150;if(ch(.75)){sc('rep',8);return['Tổ đội hạng S hạ thủ lĩnh ma vật trong một đêm.','good']}return'Thợ săn đến muộn. Học viện chịu tổn thất.'}},
       {t:'Sơ tán toàn trường',hide:true,req:s=>s.job&&s.job.id==='teacher'&&s.job.rank===3,f:s=>{const X=ensureSch();const k=Object.keys(X.bld);if(k.length){delete X.bld[pick(k)]}sc('rep',-3);return['Không ai chết, nhưng một công trình bị phá hủy hoàn toàn.','']}},
@@ -3485,7 +3488,7 @@ const KMIS=[
 function knMission(){S.done.knm=1;S.knM=R(0,KMIS.length-1);S.pend.push('kn_mis');afterSheetAction()}
 function knRes(kind){
   const K=S.kn,M=KMIS[S.knM];let p,t,tone;
-  if(kind==='fight')p=.4+S.hid.sword/250+cbB()/200+S.st.health/500;
+  if(kind==='fight')p=.4+(S.blade||0)/250+cbB()/200+S.st.health/500;
   else if(kind==='talk')p=.35+S.st.smarts/250+S.st.honor/400;
   else p=.55+S.st.smarts/400;
   const ok=ch(p),gain=kind==='fight'?R(10,16):kind==='talk'?R(8,13):R(4,8);
@@ -3524,7 +3527,7 @@ const KNIGHT_EV=[
       {t:'Xin thời gian suy nghĩ',f:s=>{s.kn.rep-=5;return'Bạn cúi đầu xin thêm thời gian. Cơ hội có thể quay lại.'}},
       {t:'Khước từ',f:s=>{s.kn.rep-=15;return'Bạn từ chối. Cấp trên không giấu được thất vọng.'}}]},
  {id:'kn_cathedral',queued:true,big:true,art:'church',c:s=>s.kn&&s.kn.t==='orth'&&s.kn.rank>=1,title:'Đêm máu tại thánh đường',text:'Khi buổi lễ chưa kết thúc, một nhóm người bịt mặt phá cửa thánh đường. Tiếng chuông báo động dội khắp phố.',
-  ch:[{t:'Dẫn đội bảo vệ',f:s=>{if(ch(.45+s.hid.sword/250+cbB()/200)){s.kn.rep=Math.min(100,s.kn.rep+12);mod({honor:6});fac(6,-3);return['Bạn đẩy lùi kẻ tấn công. Không tín đồ nào thiệt mạng.','good']}mod({health:-20});return['Bạn bị thương. Thánh đường thiệt hại nặng.','bad']}},
+  ch:[{t:'Dẫn đội bảo vệ',f:s=>{if(ch(.45+(s.blade||0)/250+cbB()/200)){s.kn.rep=Math.min(100,s.kn.rep+12);mod({honor:6});fac(6,-3);return['Bạn đẩy lùi kẻ tấn công. Không tín đồ nào thiệt mạng.','good']}mod({health:-20});return['Bạn bị thương. Thánh đường thiệt hại nặng.','bad']}},
       {t:'Đưa tín đồ thoát bằng cửa sau',f:s=>{s.kn.rep=Math.min(100,s.kn.rep+5);mod({honor:3});if(ch(.4))return['Mọi người an toàn, nhưng thánh tích bị cướp mất.','bad'];return['Bạn đưa hết tín đồ ra ngoài an toàn.','good']}},
       {t:'Đàm phán',f:s=>{if(ch(.35+s.st.smarts/250)){s.kn.rep=Math.min(100,s.kn.rep+10);ten(-8);return['Bạn thuyết phục được chúng hạ vũ khí và khai ra kẻ chủ mưu.','good']}mod({health:-10});return['Cuộc đàm phán đổ vỡ.','bad']}},
       {t:'Rút lui tìm viện binh',f:s=>{s.kn.rep=Math.max(0,s.kn.rep-8);return'Bạn quay lại cùng viện binh khi mọi chuyện đã xong. Có người gọi bạn là kẻ hèn.'}}]},
@@ -3544,7 +3547,7 @@ const KNIGHT_EV=[
       {t:'Từ chức',f:s=>{s.kn=null;mod({honor:10});return'Bạn đặt kiếm xuống trước ngai vàng và bước ra.'}},
       {t:'Tố cáo trước triều đình',f:s=>{if(ch(.35+s.st.honor/300)){mod({honor:15});s.house.prestige+=40;return['Các đại thần đứng về phía bạn. Nhà vua phải rút lệnh.','good']}s.kn=null;if(ch(.3)){die('bị xử tử vì tội khi quân');return['Nhà vua không tha thứ.','bad']}return['Bạn bị trục xuất khỏi triều đình.','bad']}}]},
  {id:'kn_framed',queued:true,big:true,art:'cross',c:s=>s.kn&&s.kn.t==='orth'&&s.kn.rank===2,title:'Thánh Nữ bị vu oan',text:'Tòa Dị Giáo ra lệnh bắt Thánh Nữ mà bạn bảo vệ. Bạn biết bằng chứng là giả.',
-  ch:[{t:'Bảo vệ Thánh Nữ',f:s=>{if(ch(.45+s.hid.sword/300)){mod({honor:12});fac(-10,0);return['Bạn đứng chắn trước cửa nhà nguyện. Không ai dám bước qua.','good']}s.kn=null;mod({health:-20});return['Bạn bị bắt cùng Thánh Nữ.','bad']}},
+  ch:[{t:'Bảo vệ Thánh Nữ',f:s=>{if(ch(.45+(s.blade||0)/300)){mod({honor:12});fac(-10,0);return['Bạn đứng chắn trước cửa nhà nguyện. Không ai dám bước qua.','good']}s.kn=null;mod({health:-20});return['Bạn bị bắt cùng Thánh Nữ.','bad']}},
       {t:'Điều tra tìm sự thật',f:s=>{if(ch(.4+s.st.smarts/250)){s.kn.rep=Math.min(100,s.kn.rep+15);fac(8,0);return['Bạn lần ra kẻ làm giả bằng chứng: một giám mục tham vọng.','good']}return'Thời gian không đủ. Thánh Nữ bị giam lỏng.'}},
       {t:'Tuân lệnh bắt giữ',f:s=>{mod({honor:-10,piety:-5});s.kn.rep=Math.max(0,s.kn.rep-10);return['Bạn tự tay áp giải Thánh Nữ. Bà nhìn bạn không một lời trách.','bad']}}]},
  {id:'kn_redsecret',queued:true,big:true,art:'moon',c:s=>s.flags.her>0&&s.world.cat&&s.world.cat.id==='heresy',title:'Bí mật của Hồng Giáo',text:'Một trưởng lão tiết lộ: nghi lễ sắp tới có thể khiến hàng nghìn người gặp nguy hiểm. Ông ra lệnh bạn giữ kín.',
@@ -3562,7 +3565,7 @@ const KNIGHT_EV=[
  {id:'cru_gather',queued:true,big:true,art:'banner',c:s=>s.world.cru&&s.world.cru.j,title:'Đại Chinh Phạt · Tập hợp lực lượng',text:'Đạo quân Thánh Quang đóng trại dưới chân núi. Bạn được giao một nhiệm vụ trước khi hành quân.',
   ch:[{t:'Đi quyên tiền và lương thực',f:s=>{s.world.cru.sup+=20;mod({honor:3});return['Bạn đi khắp các trang viên, mang về hai mươi xe lương.','good']}},{t:'Huấn luyện tân binh',f:s=>{s.world.cru.army+=20;mod({health:-4});return['Tân binh học được cách giữ hàng khiên.','good']}},{t:'Tìm thánh tích cổ',f:s=>{if(ch(.4)){s.world.cru.prog+=15;gainItem('relic');return['Bạn tìm được thánh tích của vị thánh đầu tiên. Cả đạo quân phấn chấn.','good']}return'Bạn tìm mãi không thấy.'}},{t:'Cầu nguyện cùng các giáo sĩ',f:s=>{mod({piety:8});s.world.cru.prog+=6;return'Lời cầu nguyện vang suốt đêm.'}}]},
  {id:'cru_march',queued:true,big:true,art:'sword',c:s=>s.world.cru&&s.world.cru.j,title:'Anh Hùng và đoàn Thập Tự',text:'Đạo quân hành quân qua vùng đất cháy. Anh Hùng đề nghị một cuộc đột kích táo bạo, còn các giáo sĩ muốn giữ chắc tuyến tiếp tế.',
-  ch:[{t:'Theo Anh Hùng đột kích',f:s=>{if(ch(.45+s.hid.sword/300+cbB()/250)){s.world.cru.prog+=25;mod({honor:8});return['Cuộc đột kích phá tan một cánh quân của Thảm Họa.','good']}mod({health:-25});s.world.cru.army-=10;return['Đoàn đột kích bị phục kích. Bạn suýt chết.','bad']}},{t:'Giữ tuyến tiếp tế',f:s=>{s.world.cru.sup+=20;return['Nhờ bạn, đạo quân không thiếu một bữa ăn.','good']}},{t:'Bảo vệ người tị nạn',f:s=>{mod({honor:6,piety:3});s.world.cru.army-=5;return['Hàng nghìn người tị nạn sống sót nhờ bạn.','good']}},{t:'Nghi ngờ lời tiên tri',f:s=>{fac(-5,0);if(ch(.3)){s.world.cru.prog+=10;return['Bạn phát hiện nhà tiên tri bị mua chuộc để dẫn quân vào bẫy. Kế hoạch được sửa lại kịp thời.','good']}return['Cấp trên khiển trách bạn vì làm lung lay lòng quân.','bad']}}]},
+  ch:[{t:'Theo Anh Hùng đột kích',f:s=>{if(ch(.45+(s.blade||0)/300+cbB()/250)){s.world.cru.prog+=25;mod({honor:8});return['Cuộc đột kích phá tan một cánh quân của Thảm Họa.','good']}mod({health:-25});s.world.cru.army-=10;return['Đoàn đột kích bị phục kích. Bạn suýt chết.','bad']}},{t:'Giữ tuyến tiếp tế',f:s=>{s.world.cru.sup+=20;return['Nhờ bạn, đạo quân không thiếu một bữa ăn.','good']}},{t:'Bảo vệ người tị nạn',f:s=>{mod({honor:6,piety:3});s.world.cru.army-=5;return['Hàng nghìn người tị nạn sống sót nhờ bạn.','good']}},{t:'Nghi ngờ lời tiên tri',f:s=>{fac(-5,0);if(ch(.3)){s.world.cru.prog+=10;return['Bạn phát hiện nhà tiên tri bị mua chuộc để dẫn quân vào bẫy. Kế hoạch được sửa lại kịp thời.','good']}return['Cấp trên khiển trách bạn vì làm lung lay lòng quân.','bad']}}]},
  {id:'rift1',w:W(3),big:true,art:'moon',c:s=>s.age>=16&&W2().ten>=70&&!s.world.rift,title:'Rạn nứt đức tin',text:'Chính Giáo đưa tối hậu thư: Hồng Giáo phải giải tán hoặc đối mặt thánh chiến. Phe ôn hòa của Hồng Giáo đề nghị đàm phán. Mọi người phải chọn phe.',
   ch:[{t:'Đứng về Chính Giáo',f:s=>{s.world.rift=1;fac(10,-15);if(ch(.5)){ten(-30);return['Hồng Giáo cực đoan bị đánh tan. Phe ôn hòa được ân xá.','good']}ten(10);mod({health:-10});return['Thánh chiến nổ ra, nhiều lãnh địa bị tàn phá.','bad']}},
       {t:'Đứng về Hồng Giáo',f:s=>{s.world.rift=1;fac(-15,15);s.flags.her=Math.max(s.flags.her||0,1);ten(10);return['Bạn khoác áo đỏ. Chính Giáo ghi tên bạn vào danh sách kẻ thù.','magic']}},
@@ -3596,7 +3599,7 @@ function hnBoard(){const H=HN();if(!H.board||H.by!==S.year){H.by=S.year;H.n=0;co
 function hnTake(x){const H=HN();if(x==='crypt'){view='hn:party';note=null;drawSheet();return}H.n++;H.board=H.board.filter(b=>String(b)!==String(x));if(x==='gob'){H.gob={st:1,var:(r=>r<.5?'raid':r<.75?'flee':r<.9?'aldric':'sorc')(Math.random()),clues:[],inv:2,reward:55,prep:0,milit:0,info:0,hp:3,host:2};S.pend.push('hg1')}else if(x==='crypt'){view='hn:party';note=null;drawSheet();return}else{H.cur=+x;S.pend.push('hn_job')}afterSheetAction()}
 function hnJobRes(kind){
   const H=HN(),J=HJOBS[H.cur],g=hnG();let p,mul=1;
-  if(kind==='fight')p=.45+S.hid.sword/250+cbB()/180+S.st.health/500-J[0]*.06+g*.05;
+  if(kind==='fight')p=.45+(S.blade||0)/250+cbB()/180+S.st.health/500-J[0]*.06+g*.05;
   else if(kind==='plan'){p=.55+S.st.smarts/300-J[0]*.05+g*.05;mul=.9}
   else{p=.75;mul=.5}
   if(ch(p)){const m=Math.round(J[3]*mul),c=Math.round(J[4]*mul);S.money+=m;H.merit+=c;H.q++;mod({honor:2+J[0]});if(J[0]>=2&&ch(.25))gainItem(pick(J[0]>=3?['scale','greatsword','plate','sc_crystal']:['halberd','kite_shield','greathelm','gem']));if(J[0]>=3)H.boss++;if(J[0]===4){S.flags.dragonslayer=1;H.trial=Math.max(H.trial,2)}return[`${J[1]}: hoàn thành. Bạn nhận ${m} xu và ${c} công trạng (tổng ${H.merit}).`,'good']}
@@ -3627,7 +3630,7 @@ function gobEnd(out){
   return[`${T[2]}${money?` Nhận ${money} xu`:''}${T[1]?`, ${T[1]} công trạng.`:'.'}`,money?'good':'bad'];
 }
 function gobRound(kind){
-  const G=gob();let p=.45+G.prep/100+S.hid.sword/300+cbB()/250+(G.milit?.06:0)-(G.var==='sorc'?.05:0);let t,tone='';
+  const G=gob();let p=.45+G.prep/100+(S.blade||0)/300+cbB()/250+(G.milit?.06:0)-(G.var==='sorc'?.05:0);let t,tone='';
   if(kind==='power'){p-=.08}if(kind==='magic'){p+=S.st.magic/300;mod({magic:-6})}if(kind==='leader'){p-=.12+(G.clues.includes('kid')?-.12:0)}if(kind==='defend'){G.prep+=10;mod({health:2});if(ch(.4))mod({health:-R(2,6)});S.pend.push('hg4');return['Bạn giữ thế phòng thủ, chờ thủ lĩnh lộ sơ hở.','']}
   if(kind==='rescue'){if(ch(.55+S.st.smarts/400)){G.host=2;G.prep+=5;t='Bạn cắt dây trói, đưa hai con tin ra khỏi trại.';tone='good'}else{G.host=Math.max(0,G.host-1);mod({health:-8});t='Bạn bị phát hiện khi đang cởi trói. Một con tin bị thương.';tone='bad'}S.pend.push('hg4');return[t,tone]}
   if(ch(p)){const dmg=kind==='power'||kind==='leader'?2:1;G.hp-=dmg;t=kind==='leader'?'Bạn lao thẳng vào Goblin giáp đỏ và chém trúng vai nó.':kind==='magic'?'Ngọn lửa của bạn thiêu cháy hàng rào trại.':'Đòn của bạn trúng đích.';tone='good';
@@ -3659,7 +3662,7 @@ const HUNTER_EV=[
       {t:'Rút lui',f:s=>gobEnd('flee')}]},
  {id:'hg_flee',queued:true,big:true,art:'hunter',c:s=>s.hn&&s.hn.gob&&s.hn.gob.st===5,title:'Những kẻ bị xua đuổi',text:'Thủ lĩnh Goblin quỳ xuống: "Bọn ta không muốn đánh. Một con Troll chiếm hang của bọn ta. Không có chỗ nào để đi."',
   ch:[{t:'Đàm phán: chúng rời đi, làng không truy đuổi',f:s=>{if(ch(.6+s.st.smarts/400))return gobEnd('peace');gob().st=4;s.pend.push('hg4');return['Đàm phán đổ vỡ khi một dân binh ném đá.','bad']}},
-      {t:'Giúp chúng xử lý con Troll',f:s=>{if(ch(.4+s.hid.sword/250+cbB()/200)){HN().merit+=20;mod({honor:6});return gobEnd('peace')}mod({health:-20});return gobEnd('fail')}},
+      {t:'Giúp chúng xử lý con Troll',f:s=>{if(ch(.4+(s.blade||0)/250+cbB()/200)){HN().merit+=20;mod({honor:6});return gobEnd('peace')}mod({health:-20});return gobEnd('fail')}},
       {t:'Đánh bầy Goblin',f:s=>{gob().st=4;s.pend.push('hg4');return'Bạn rút kiếm.'}}]},
  {id:'hg_aldric',queued:true,big:true,art:'scroll',c:s=>s.hn&&s.hn.gob&&s.hn.gob.st===5,title:'Âm mưu trưởng làng',text:'Thủ lĩnh Goblin tiết lộ: lính đánh thuê của Aldric đốt trại cũ để chiếm khu mỏ. Bầy Goblin cướp lương thực vì đói. Aldric đã lợi dụng bạn.',
   ch:[{t:'Tố cáo Aldric với lãnh chúa',f:s=>{addEnemy('Trưởng làng Aldric bị bạn vạch trần',{sex:'m',first:'Aldric',cls:'serf',hate:R(55,70)});return gobEnd('expose')}},
@@ -3674,11 +3677,11 @@ const HUNTER_EV=[
  {id:'hn_gobgift',queued:true,art:'gift',c:isHn,title:'Món quà từ bầy Goblin',text:'Thủ lĩnh Goblin bạn từng tha mạng xuất hiện trước cửa, tay ôm một bọc vải.',
   ch:[{t:'Nhận quà',f:s=>{const g=R(30,80);s.money+=g;if(ch(.4))gainItem('gem');return[`Bọc vải chứa ${g} xu và lời cảm ơn bằng thứ tiếng lắp bắp. Làng và bầy Goblin giờ buôn bán với nhau.`,'good']}}]},
  {id:'hn_trial',queued:true,big:true,art:'skull',c:s=>isHn(s)&&s.job.rank===1,title:'Thử thách tinh anh',text:'Để lên hạng B, Hiệp hội yêu cầu bạn hạ một con wyvern non đang làm tổ trên tháp chuông bỏ hoang.',
-  ch:[{t:'Nhận thử thách',f:s=>{if(ch(.45+s.hid.sword/250+cbB()/180)){HN().trial=1;HN().merit+=30;return['Con wyvern rơi xuống từ tháp chuông. Hiệp hội ghi nhận chiến công.','good']}mod({health:-22});return['Bạn bị wyvern quật ngã. Năm sau thử lại.','bad']}},{t:'Hoãn lại',f:()=>'Bạn cần chuẩn bị thêm.'}]},
+  ch:[{t:'Nhận thử thách',f:s=>{if(ch(.45+(s.blade||0)/250+cbB()/180)){HN().trial=1;HN().merit+=30;return['Con wyvern rơi xuống từ tháp chuông. Hiệp hội ghi nhận chiến công.','good']}mod({health:-22});return['Bạn bị wyvern quật ngã. Năm sau thử lại.','bad']}},{t:'Hoãn lại',f:()=>'Bạn cần chuẩn bị thêm.'}]},
  {id:'hn_strial',queued:true,big:true,art:'flame',c:s=>isHn(s)&&s.job.rank===3,title:'Thử thách hạng S',text:'Hiệp hội chỉ phong hạng S cho người lập chiến công cấp quốc gia. Một con rồng đá đang đòi cống nạp thành Kingsbridge.',
-  ch:[{t:'Một mình đối đầu rồng đá',f:s=>{if(ch(.3+s.hid.sword/250+cbB()/150+s.st.health/400)){HN().trial=2;s.flags.dragonslayer=1;gainItem('scale');s.house.prestige+=150;return['Bạn hạ con rồng đá trước mắt cả thành phố.','good']}if(ch(.2)){die('dưới móng rồng đá');return['Rồng đá quá mạnh.','bad']}mod({health:-30});return['Bạn suýt chết.','bad']}},{t:'Chờ một Thảm Họa để chứng minh',f:()=>'Bạn biết cơ hội sẽ đến.'}]},
+  ch:[{t:'Một mình đối đầu rồng đá',f:s=>{if(ch(.3+(s.blade||0)/250+cbB()/150+s.st.health/400)){HN().trial=2;s.flags.dragonslayer=1;gainItem('scale');s.house.prestige+=150;return['Bạn hạ con rồng đá trước mắt cả thành phố.','good']}if(ch(.2)){die('dưới móng rồng đá');return['Rồng đá quá mạnh.','bad']}mod({health:-30});return['Bạn suýt chết.','bad']}},{t:'Chờ một Thảm Họa để chứng minh',f:()=>'Bạn biết cơ hội sẽ đến.'}]},
  {id:'hn_invite',queued:true,big:true,art:'banner',c:s=>isHn(s)&&s.job.rank>=3&&s.world.cat&&s.world.cat.id!=='player',title:'Lời mời từ quốc gia',text:s=>`Hoàng gia và Giáo hội mời Thợ săn hạng ${HG[s.job.rank]} ${s.first} cùng đánh ${CATS[s.world.cat.id].boss}.`,
-  ch:[{t:'Dẫn tổ đội tham chiến',f:s=>{const p=.15+s.job.rank*.06+s.hid.sword/400+cbB()/250;if(ch(p)){const n=CATS[s.world.cat.id].boss;s.world.cat=null;s.world.last=s.year;HN().trial=2;HN().merit+=300;HN().boss++;s.money+=300;mod({honor:20});s.house.prestige+=300;announce('Thợ săn diệt Thảm Họa',`Tổ đội của Thợ săn ${s.first} ${s.surname} đã hạ ${n}. Hiệp hội Thợ săn được cả thế giới ghi ơn.`,'hunter','prophets');return['Bạn đứng trên xác kẻ thù vĩ đại.','good']}mod({health:-25});HN().merit+=60;if(ch(.15)){die('khi đối đầu Thảm Họa');return['Thảm Họa quá mạnh.','bad']}return['Cuộc tấn công thất bại, nhưng bạn làm suy yếu kẻ thù.','bad']}},
+  ch:[{t:'Dẫn tổ đội tham chiến',f:s=>{const p=.15+s.job.rank*.06+(s.blade||0)/400+cbB()/250;if(ch(p)){const n=CATS[s.world.cat.id].boss;s.world.cat=null;s.world.last=s.year;HN().trial=2;HN().merit+=300;HN().boss++;s.money+=300;mod({honor:20});s.house.prestige+=300;announce('Thợ săn diệt Thảm Họa',`Tổ đội của Thợ săn ${s.first} ${s.surname} đã hạ ${n}. Hiệp hội Thợ săn được cả thế giới ghi ơn.`,'hunter','prophets');return['Bạn đứng trên xác kẻ thù vĩ đại.','good']}mod({health:-25});HN().merit+=60;if(ch(.15)){die('khi đối đầu Thảm Họa');return['Thảm Họa quá mạnh.','bad']}return['Cuộc tấn công thất bại, nhưng bạn làm suy yếu kẻ thù.','bad']}},
       {t:'Hỗ trợ sơ tán dân',f:s=>{HN().merit+=40;mod({honor:6});return'Bạn đưa hàng nghìn người đến nơi an toàn.'}},{t:'Từ chối',f:()=>'Bạn chưa sẵn sàng.'}]}
 ];
 
@@ -3721,7 +3724,7 @@ function dNext(n,t){const d=D();if(d.hp<=0){d.end='tragedy';S.pend.push('hdend')
 const dRetreat={t:'Rút lui khỏi hầm mộ',f:s=>{D().end='survive';s.pend.push('hdend');return'Bạn ra lệnh rút lui trong khi còn đường thoát.'}};
 function dBoss(a){
   const d=D();let t='';let dmg=0;
-  const pw=1+S.hid.sword/150+cbB()/120+S.st.magic/400;
+  const pw=1+(S.blade||0)/150+cbB()/120+S.st.magic/400;
   if(a==='atk'){dmg=Math.round(R(8,14)*pw);t=`Bạn chém trúng Vua Không Ngai.`}
   if(a==='tank'){dmg=Math.round(R(4,8)*(sk('t')/80));d.guard=1;t=`${pm('t',d.t).n} giơ khiên giữ chân Boss, kéo hết đòn về mình.`}
   if(a==='snipe'){const ok=d.ph===3&&(d.weak||d.name);dmg=ok?Math.round(R(20,30)*sk('s')/80):Math.round(R(4,8)*sk('s')/80);t=ok?`${pm('s',d.s).n} bắn vỡ viên ngọc trên vương miện của Boss! Phòng thủ của nó sụp đổ.`:`${pm('s',d.s).n} bắn một mũi tên vào khe giáp.`}
@@ -3745,7 +3748,7 @@ const CRYPT_EV=[
       dRetreat]},
  {id:'hd2',queued:true,big:true,art:'shield',c:s=>s.hn&&s.hn.dgr&&!s.hn.dgr.end,title:'Tầng II · Đại sảnh tượng đá',text:s=>`Hai tượng hiệp sĩ canh cửa. Dòng chữ khắc: "Chỉ kẻ biết cúi đầu trước sự thật mới được bước tiếp." ${dStat()}`,
   ch:[{t:'Cúi đầu trước tượng',f:s=>{const d=D();d.loot+=15;d.coh+=4;let t='Cánh cửa đá trượt mở. Một ngăn bí mật lộ ra phía sau tượng.';if(ch(.4)){d.items.push('chieu_chi');t+=' Bên trong có một cuộn chiếu chỉ cổ.'}return dNext(3,t)}},
-      {t:s=>`${alive('t')?pm('t',D().t).n:'Tanker'} phá cửa`,f:s=>{const d=D();let t='Cửa vỡ, hai tượng đá thức tỉnh!'+dHit(18);if(ch(.5+sk('t')/300+S.hid.sword/400)){t+=' Tổ đội đập tan hai hộ vệ đá.';if(ch(.4))d.items.push('kh_vevuong'),t+=' Bạn nhặt được chiếc khiên khắc vương miện của chúng.'}else t+=dHit(15,'trước nắm đấm đá');return dNext(3,t)}},
+      {t:s=>`${alive('t')?pm('t',D().t).n:'Tanker'} phá cửa`,f:s=>{const d=D();let t='Cửa vỡ, hai tượng đá thức tỉnh!'+dHit(18);if(ch(.5+sk('t')/300+(S.blade||0)/400)){t+=' Tổ đội đập tan hai hộ vệ đá.';if(ch(.4))d.items.push('kh_vevuong'),t+=' Bạn nhặt được chiếc khiên khắc vương miện của chúng.'}else t+=dHit(15,'trước nắm đấm đá');return dNext(3,t)}},
       {t:s=>`${alive('s')?pm('s',D().s).n:'Support'} tìm đường vòng`,f:s=>{const d=D();d.coh+=2;return dNext(3,'Một khe hẹp dẫn vòng qua đại sảnh.'+dHit(6))}},
       dRetreat]},
  {id:'hd3',queued:true,big:true,art:'chest',c:s=>s.hn&&s.hn.dgr&&!s.hn.dgr.end,title:'Tầng III · Kho báu bị nguyền',text:s=>`Rương vàng cổ phát ra ma lực đen. ${alive('h')?pm('h',D().h).n+' nhận ra dấu ấn nguyền rủa.':''} ${dStat()}`,
@@ -4247,7 +4250,7 @@ const LEG_EV=[
  {id:'lg_claim',queued:true,big:true,art:'scroll',c:s=>s.lgH&&hmem()[s.lgH]&&s.house.title>=2,title:'Người thừa kế đến đòi lại đất',
   text:s=>{const o=hmem()[s.lgH];return`Một hiệp sĩ trẻ của ${s.lgH} mang theo văn tự cũ, nói gia tộc bạn đã cướp đất của họ (${o.why}, đời ${o.first}). Hắn đòi trả lại.`},
   ch:[{t:'Bồi thường bằng vàng (100 xu)',cost:100,f:s=>{s.money-=100;remember(s.lgH,30,'được bồi thường');mod({honor:4});return['Hai bên ký giấy hòa giải. Mối thù nhạt đi một nửa.','good']}},
-      {t:'Thách đấu tay đôi',req:s=>s.age>=16,f:s=>{if(ch(.35+s.hid.sword/250+cbB()/250+s.st.health/500)){mod({honor:8});s.house.prestige+=30;remember(s.lgH,-10,'thua trong cuộc đấu đòi đất');return['Bạn đánh bật kiếm khỏi tay hắn. Hắn rời đi, nhưng ánh mắt vẫn đầy căm hờn.','good']}mod({health:-R(15,30),honor:-5});dsat(-4);return['Bạn thua. Hắn không lấy được đất, nhưng cả vùng chứng kiến bạn bại trận.','bad']}},
+      {t:'Thách đấu tay đôi',req:s=>s.age>=16,f:s=>{if(ch(.35+(s.blade||0)/250+cbB()/250+s.st.health/500)){mod({honor:8});s.house.prestige+=30;remember(s.lgH,-10,'thua trong cuộc đấu đòi đất');return['Bạn đánh bật kiếm khỏi tay hắn. Hắn rời đi, nhưng ánh mắt vẫn đầy căm hờn.','good']}mod({health:-R(15,30),honor:-5});dsat(-4);return['Bạn thua. Hắn không lấy được đất, nhưng cả vùng chứng kiến bạn bại trận.','bad']}},
       {t:'Đuổi hắn đi',f:s=>{remember(s.lgH,-15,'bị đuổi khi đến đòi đất');addEnemy(`Người thừa kế của ${s.lgH}`,{cls:'noble',hate:R(45,65)});return['Hắn thề sẽ quay lại với quân đội.','bad']}}]},
  {id:'lg_feud',queued:true,big:true,art:'dagger',c:s=>s.lgH&&hmem()[s.lgH],title:'Mối thù truyền kiếp',
   text:s=>{const o=hmem()[s.lgH];return`Người của ${s.lgH} chặn bạn ngoài chợ. Họ chưa quên chuyện ${o.why} thời ${o.first}. Không khí căng như dây cung.`},
@@ -4645,7 +4648,7 @@ const DRAGON_EV=[
   text:s=>`Có tin một nhóm thợ săn được một quý tộc phương xa thuê, đang giăng lưới sắt quanh nơi ${s.dragon.name} hay ngủ.`,
   ch:[{t:'Thương lượng (30 xu)',cost:30,f:s=>{s.money-=30;return'Bạn trả tiền cho trưởng nhóm. Bọn chúng gỡ bẫy rời đi.'}},
       {t:'Gài bẫy ngược',f:s=>{if(ch(.4+s.st.smarts/250)){s.money+=20;reps({d:3});return['Bạn dụ bọn săn trộm vào hẻm núi. Lính tuần bắt cả nhóm, bạn nhận 20 xu tiền thưởng.','good']}drHurt(s.dragon,1);return['Bọn chúng nhanh hơn. Con rồng bị mắc lưới, phải vật lộn mới thoát.','bad']}},
-      {t:'Bảo vệ bằng vũ lực',req:s=>s.age>=16,f:s=>{if(ch(.45+s.hid.sword/300+cbB()/300+s.dragon.tr.fire/300)){mod({honor:3});return['Bạn và con rồng đánh đuổi bọn săn trộm. Một tên để lại cả thanh kiếm.','good']}mod({health:-R(10,25)});addEnemy('Trưởng nhóm săn trộm rồng',{hate:R(40,60)});return['Bạn bị thương, nhưng con rồng vẫn an toàn.','bad']}}]},
+      {t:'Bảo vệ bằng vũ lực',req:s=>s.age>=16,f:s=>{if(ch(.45+(s.blade||0)/300+cbB()/300+s.dragon.tr.fire/300)){mod({honor:3});return['Bạn và con rồng đánh đuổi bọn săn trộm. Một tên để lại cả thanh kiếm.','good']}mod({health:-R(10,25)});addEnemy('Trưởng nhóm săn trộm rồng',{hate:R(40,60)});return['Bạn bị thương, nhưng con rồng vẫn an toàn.','bad']}}]},
  {id:'dr_tamer',queued:true,big:true,art:'user',c:s=>s.dragon&&s.dragon.alive,title:'Kẻ thuần long phương Bắc',
   text:s=>`Một người đàn ông râu bạc, mặc áo da gấu, tự xưng là bậc thầy thuần long cuối cùng của phương Bắc. Ông muốn nhận ${s.dragon.name} làm học trò.`,
   ch:[{t:'Nhận lời (60 xu)',cost:60,f:s=>{s.money-=60;const D=s.dragon;D.flags.tamer=1;D.tr.obey=Math.min(100,D.tr.obey+15);D.tr.fly=Math.min(100,D.tr.fly+10);D.bond=clamp(D.bond-10);return'Sau một mùa, con rồng nghe lời răm rắp. Nhưng nó ngủ cạnh chuồng ngựa của ông thầy chứ không còn nằm cạnh bạn.'}},
@@ -4788,7 +4791,7 @@ const SEA_EV=[
   ch:[{t:'Leo lên tàu',f:s=>{if(ch(.5)){const g=R(30,90);s.money+=g;if(ch(.3))gainItem(pick(['map','gem','sword_anc']));return[`Trong khoang thuyền trưởng có một rương bạc: ${g} xu. Bạn quay về thuyền mình trước khi sương tan.`,'good']}mod({health:-R(10,20),happy:-6});return['Những bóng người hiện ra trong sương, cùng lúc quay đầu nhìn bạn. Bạn nhảy xuống biển và bơi như chưa từng bơi.','bad']}},
       {t:'Tránh xa',f:()=>'Bạn quay mũi thuyền, đọc kinh suốt đường về.'}]},
  {id:'sea_monster',queued:true,big:true,art:'trident',c:s=>s.alive,title:'Quái vật biển',text:'Mặt biển sủi bọt. Một xúc tu to bằng thân cây quấn lấy mũi thuyền.',
-  ch:[{t:'Chặt xúc tu bằng rìu',f:s=>{if(ch(.4+s.st.health/300+s.hid.sword/400)){mod({honor:4});s.money+=R(10,30);return['Bạn chặt đứt xúc tu. Con quái vật rút về đáy biển. Thịt xúc tu bán được giá ở chợ.','good']}if(s.boat)s.boat.cond=Math.max(0,s.boat.cond-30);mod({health:-R(15,30)});return['Con quái vật quật gãy cột buồm trước khi chìm xuống.','bad']}},
+  ch:[{t:'Chặt xúc tu bằng rìu',f:s=>{if(ch(.4+s.st.health/300+(s.blade||0)/400)){mod({honor:4});s.money+=R(10,30);return['Bạn chặt đứt xúc tu. Con quái vật rút về đáy biển. Thịt xúc tu bán được giá ở chợ.','good']}if(s.boat)s.boat.cond=Math.max(0,s.boat.cond-30);mod({health:-R(15,30)});return['Con quái vật quật gãy cột buồm trước khi chìm xuống.','bad']}},
       {t:'Ném hết cá xuống biển',f:s=>{return'Con quái vật buông thuyền ra để đuổi theo đống cá. Bạn trắng tay nhưng còn sống.'}}]},
  {id:'sea_island',queued:true,big:true,art:'location',c:s=>s.alive,title:'Hòn đảo lạ',text:'Gió đẩy thuyền đến một hòn đảo không có trên bản đồ. Có khói bốc lên từ giữa đảo.',
   ch:[{t:'Lên đảo khám phá',f:s=>{const r=Math.random();if(r<.4){const g=R(20,60);s.money+=g;return[`Đảo có một làng chài nhỏ chưa từng gặp người ngoài. Họ đổi ngọc trai lấy dao sắt của bạn (${g} xu).`,'good']}if(r<.7){gainItem(pick(['gem','amulet','map']));return['Bạn tìm thấy một hang đá có đồ tùy táng của người xưa.','item']}mod({health:-R(5,15)});return['Thổ dân trên đảo bắn tên đuổi bạn ra khơi.','bad']}},
@@ -5034,7 +5037,7 @@ const ORGS={
   church:{n:'Chính giáo Thánh Quang',ic:'church',d:'Quản linh hồn, xử dị giáo, nắm tòa án tôn giáo'},
   red:{n:'Hồng Nguyệt',ic:'night',d:'Giáo phái bí mật thờ mặt trăng đỏ'},
   merch:{n:'Hội Thương nhân Muối Bạc',ic:'coins',join:1,fee:30,rk:['Hội viên','Chủ hàng','Trưởng phường','Đại hội trưởng'],pay:[0,8,20,45],d:'Buôn bán đường dài, giữ giá chợ',req:s=>s.age>=16,why:'Từ 16 tuổi'},
-  merc:{n:'Đoàn lính đánh thuê Sói Sắt',ic:'wolf',join:1,fee:0,rk:['Lính mới','Lính tinh nhuệ','Đội trưởng','Thủ lĩnh đoàn'],pay:[4,12,25,50],d:'Đánh thuê cho ai trả tiền',req:s=>s.age>=16&&s.st.health>=40,why:'Từ 16 tuổi, sức khỏe từ 40'},
+  merc:{n:'Bang Sói Sắt',ic:'wolf',join:1,fee:0,rk:['Lính mới','Lính tinh nhuệ','Đội trưởng','Thủ lĩnh đoàn'],pay:[4,12,25,50],d:'Đánh thuê cho ai trả tiền',req:s=>s.age>=16&&s.st.health>=40,why:'Từ 16 tuổi, sức khỏe từ 40'},
   spy:{n:'Mạng lưới Mắt Quạ',ic:'visible',join:1,fee:10,rk:['Tai mắt','Người đưa tin','Quạ đầu đàn','Chủ Mắt Quạ'],pay:[2,8,18,35],d:'Mua bán tin tức và bí mật',req:s=>s.age>=16&&s.st.smarts>=45,why:'Từ 16 tuổi, trí tuệ từ 45'}
 };
 const OREQ=[0,30,80,160];
@@ -5065,14 +5068,14 @@ function orgAct(a,k){
   else if(a==='give'){if(!S.om||S.money<20)return;S.money-=20;S.om.c+=12;O[S.om.k].pow=Math.min(95,O[S.om.k].pow+1);t=`Bạn đóng góp 20 xu vào quỹ chung của ${ORGS[S.om.k].n}.`}
   else if(a==='task'){const M=S.om;if(!M||S.done.om)return;S.done.om=1;const D=ORGS[M.k],m=M.rk+1;
     if(M.k==='merch'){if(ch(.18)){const l=Math.min(Math.max(S.money,0),R(10,30));S.money-=l;mod({health:-R(5,12)});M.c+=4;t=`Đoàn xe muối bị cướp trên đèo. Bạn mất ${l} xu tiền hàng.`;tone='bad'}else{const g=R(10,25)*m;S.money+=g;M.c+=R(10,16);rep('n',1);t=`Bạn áp tải đoàn xe muối sang ${pick(REALMS.filter(r=>r!==S.realm))} an toàn, lãi ${g} xu.`;tone='good'}}
-    else if(M.k==='merc'){const pw=.55+S.st.health/400+S.hid.sword/400+cbB()/300;if(ch(.02)){die('tử trận khi đánh thuê');t='Mũi tên lạc xuyên qua cổ họng bạn.';tone='bad'}else if(ch(pw)){const g=R(12,35)*m;S.money+=g;M.c+=R(12,18);mod({honor:1});t=`${pick(['Bạn giữ cầu cho một bá tước suốt ba ngày.','Bạn hộ tống một đoàn hành hương qua rừng có sói.','Bạn đánh đuổi một toán cướp khỏi một tu viện.'])} Hợp đồng trả ${g} xu.`;tone='good'}else{mod({health:-R(10,25)});M.c+=3;t='Trận đánh thất bại. Bạn lết về trại với vết thương sâu bên sườn.';tone='bad'}}
+    else if(M.k==='merc'){const pw=.55+S.st.health/400+(S.blade||0)/400+cbB()/300;if(ch(.02)){die('tử trận khi đánh thuê');t='Mũi tên lạc xuyên qua cổ họng bạn.';tone='bad'}else if(ch(pw)){const g=R(12,35)*m;S.money+=g;M.c+=R(12,18);mod({honor:1});t=`${pick(['Bạn giữ cầu cho một bá tước suốt ba ngày.','Bạn hộ tống một đoàn hành hương qua rừng có sói.','Bạn đánh đuổi một toán cướp khỏi một tu viện.'])} Hợp đồng trả ${g} xu.`;tone='good'}else{mod({health:-R(10,25)});M.c+=3;t='Trận đánh thất bại. Bạn lết về trại với vết thương sâu bên sườn.';tone='bad'}}
     else if(M.k==='spy'){M.c+=R(10,15);rep('u',2);const c=(S.rel||[]).filter(r=>r.alive&&(r.kind==='enemy'||r.kind==='friend'));if(c.length&&ch(.75)){const r=pick(c);npcInit(r);const got=clueRoll(r,true);t=`Mắt Quạ gửi bạn một mẩu giấy về ${r.first}: ${got}`}else{const g=R(8,20)*m;S.money+=g;t=`Bạn bán một tin đồn về hôn sự của nhà công tước cho đúng người, được ${g} xu.`;tone='good'}}}
   log(t,tone);note={t,tone};afterSheetAction();
 }
 function orgView(){
   const O=ORG(),M=S.om,mine=myOrgs(),dis=!S.alive;let b='';
   if(M){const D=ORGS[M.k];b+=`<div class="row"><span class="ri">${ic(D.ic,24)}</span><div><b>${D.n}</b><small>${D.rk[M.rk]} · đóng góp ${M.c}${M.rk<3?`/${OREQ[M.rk+1]} để lên ${D.rk[M.rk+1].toLowerCase()}`:''} · ${D.pay[M.rk]} xu/năm</small><div class="bond"><i style="width:${M.rk<3?Math.min(100,Math.round(M.c/OREQ[M.rk+1]*100)):100}%"></i></div></div></div>`;
-    const T={merch:['Áp tải đoàn xe muối','Lãi theo bậc · có thể gặp cướp'],merc:['Nhận một hợp đồng đánh thuê','Tiền theo bậc · dựa vào sức khỏe, kiếm thuật, trang bị · có thể bị thương'],spy:['Nghe ngóng cho Mắt Quạ','Manh mối về bạn bè, kẻ thù, hoặc tiền bán tin']}[M.k];
+    const T={merch:['Áp tải đoàn xe muối','Lãi theo bậc · có thể gặp cướp'],merc:['Nhận một hợp đồng đánh thuê','Tiền theo bậc · dựa vào sức khỏe, kiếm thuật, trang bị · có thể bị thương'],spy:['Nghe ngóng cho Mắt Quạ','Manh mối về bạn bè, kẻ thù, hoặc tiền bán tin'],shield:['Hộ tống một đoàn buôn','Tiền theo bậc · dựa vào sức khỏe, kiếm thuật · có thể bị thương'],flame:['Thám hiểm một phế tích','Kho báu, có khi cả bí kíp · có thể gặp bẫy'],wind:['Bênh vực người yếu','Danh dự, kiếm thuật · có thể bị thương']}[M.k];
     b+=gRow('data-x="og:task"',D.ic,T[0],S.done.om?'Đã nhận việc năm nay':T[1],'',dis||!!S.done.om);
     b+=gRow('data-x="og:give"','coins','Đóng góp vào quỹ chung',S.money<20?'Cần 20 xu':'20 xu · tăng đóng góp để thăng bậc','',dis||S.money<20);
     b+=gRow('data-x="og:leave"','door','Rời hội',M.k==='spy'&&M.rk>=2?'Người biết nhiều bí mật rời hội sẽ gặp nguy':'','',dis)}
@@ -5415,7 +5418,7 @@ const V19_EV=[
       {t:'Ở nhà, mặc kệ chuyện triều đình',f:()=>'Vua nào thì thuế vẫn phải nộp.'},
       {t:'Ngấm ngầm ủng hộ phe chống đối',req:s=>s.age>=16,f:s=>{rep('n',-3);rep('u',3);myRealm().stab=Math.max(5,myRealm().stab-4);if(ch(.25)){fine(25);mod({honor:-5});return['Lính triều đình khám nhà bạn, tìm thấy thư từ với phe chống đối. Bạn bị phạt nặng.','bad']}return'Bạn gửi vài lời hứa và chút tiền cho các đại công tước bất mãn.'}}]},
  {id:'wd_draft',queued:true,big:true,art:'w-spear',c:s=>s.alive&&s.age>=16&&s.age<=50&&atWar(),title:'Lệnh trưng binh',text:s=>`Sứ giả đóng đinh tờ chiếu lên cửa nhà thờ: mỗi nhà phải nộp một người cầm giáo cho cuộc chiến ${myRealm().war&&myRealm().war.vs!=='nội chiến'?'với '+myRealm().war.vs:'của vương quốc'}.`,
-  ch:[{t:'Tự mình ra trận',f:s=>{if(ch(.06)){die('tử trận khi bị trưng binh');return['Bạn ngã xuống ngay trận đầu.','bad']}if(ch(.55+s.st.health/400+s.hid.sword/400)){const g=R(10,35);s.money+=g;mod({honor:6});rep('n',2);return[`Bạn sống sót qua chiến dịch, mang về ${g} xu chiến lợi phẩm và một câu chuyện để kể suốt đời.`,'good']}mod({health:-R(15,30)});return['Bạn trở về với một vết thương không bao giờ lành hẳn.','bad']}},
+  ch:[{t:'Tự mình ra trận',f:s=>{if(ch(.06)){die('tử trận khi bị trưng binh');return['Bạn ngã xuống ngay trận đầu.','bad']}if(ch(.55+s.st.health/400+(s.blade||0)/400)){const g=R(10,35);s.money+=g;mod({honor:6});rep('n',2);return[`Bạn sống sót qua chiến dịch, mang về ${g} xu chiến lợi phẩm và một câu chuyện để kể suốt đời.`,'good']}mod({health:-R(15,30)});return['Bạn trở về với một vết thương không bao giờ lành hẳn.','bad']}},
       {t:'Nộp tiền miễn dịch (30 xu)',cost:30,f:s=>{s.money-=30;return'Viên quan đếm tiền, gạch tên nhà bạn khỏi danh sách.'}},
       {t:'Trốn vào rừng',f:s=>{if(ch(.6)){rep('u',1);return'Bạn trốn trong rừng ba tháng đến khi đoàn trưng binh đi qua.'}fine(20);mod({honor:-8});return['Lính bắt được bạn. Bạn bị phạt và bị dân làng gọi là kẻ hèn.','bad']}}]},
  {id:'wd_refugees',queued:true,big:true,art:'user-group',img:'rebels',c:s=>s.alive&&!!s.wdRef,title:'Đoàn người tị nạn',text:s=>`Một đoàn người rách rưới từ ${s.wdRef} kéo về làng. Họ chạy trốn ${WD().rs[s.wdRef].war?'chiến tranh':'nạn đói'}, trẻ con gầy trơ xương.`,
@@ -5429,7 +5432,7 @@ const V19_EV=[
       {t:'Gọi lính gác dẹp',f:s=>{rep('d',-6);dsat(-6);if(ch(.3)){mod({health:-R(5,15)});return['Một hòn đá trúng đầu bạn trước khi lính kịp đến.','bad']}return['Lính gác dùng roi quất tan đám đông. Không ai quên hôm nay.','bad']}},
       {t:'Trốn ra cửa sau',f:s=>{const H=MKH();if(H.grain&&ch(.6)){delete H.grain;return['Đám đông phá cửa kho, khuân sạch lúa của bạn.','bad']}return'Bạn trốn trong nhà kho của hàng xóm đến khi trời tối.'}}]},
  {id:'og_clash',queued:true,big:true,art:'crossed',c:s=>s.alive&&!!s.ogc,title:s=>s.ogc.why,text:s=>{const C=s.ogc,o=C.me===C.a?C.b:C.a;return`${ORGS[C.a].n} và ${ORGS[C.b].n} đụng độ: ${C.why.toLowerCase()}. Là người của ${ORGS[C.me].n}, bạn được gọi đến để góp sức chống lại ${ORGS[o].n}.`},
-  ch:[{t:'Dốc sức vì phe mình',f:s=>{const C=s.ogc,O=ORG(),o=C.me===C.a?C.b:C.a;const win=ch(.45+(O[C.me].pow-O[o].pow)/200+s.st.smarts/400+s.hid.sword/500);if(s.om&&s.om.k===C.me)s.om.c+=win?15:5;
+  ch:[{t:'Dốc sức vì phe mình',f:s=>{const C=s.ogc,O=ORG(),o=C.me===C.a?C.b:C.a;const win=ch(.45+(O[C.me].pow-O[o].pow)/200+s.st.smarts/400+(s.blade||0)/500);if(s.om&&s.om.k===C.me)s.om.c+=win?15:5;
       if(win){O[C.me].pow=Math.min(95,O[C.me].pow+7);O[o].pow=Math.max(5,O[o].pow-7);news(`${C.why}: ${ORGS[C.me].n} thắng thế.`);if(C.me==='church'&&o==='red')fac(4,-4);if(C.me==='red')fac(-3,5);mod({honor:3});return[`Phe bạn thắng. Người của ${ORGS[o].n} phải nhượng bộ, tên bạn được nhắc trong hội.`,'good']}
       O[C.me].pow=Math.max(5,O[C.me].pow-5);mod({health:-R(5,15)});return['Phe bạn thua. Bạn về nhà với vài vết bầm và nỗi nhục.','bad']}},
       {t:'Đứng ra hòa giải',req:s=>s.age>=20,f:s=>{const C=s.ogc;if(ch(.35+s.st.smarts/200+s.st.honor/400)){mod({honor:5});rep('n',2);news(`${C.why}: hai bên đạt được thỏa thuận nhờ một người trung gian.`);return['Bạn ngồi giữa hai phe suốt đêm. Đến sáng, hai bên chịu ký thỏa ước.','good']}if(s.om&&s.om.k===C.me)s.om.c=Math.max(0,s.om.c-8);return['Cả hai phe đều cho rằng bạn đứng về phía bên kia.','bad']}},
@@ -5447,7 +5450,7 @@ const V19_EV=[
       {t:'Tìm đồng minh phòng thân',f:s=>{rep('n',1);const f=rels('friend');if(f.length){const a=pick(f);a.bond=clamp(a.bond+5);return`${a.first} hứa sẽ đứng về phía bạn nếu có chuyện.`}return'Bạn đi gõ cửa từng nhà mà không ai dám dính vào.'}},
       {t:'Mặc kệ',f:()=>'Bạn tự nhủ: chim đậu cành cao thì gió càng to.'}]},
  {id:'np_plot',queued:true,big:true,art:'hood',img:'assassin',c:s=>!!npT(),title:'Âm mưu bị lộ',text:s=>{const r=npT();return`Một gã ăn mày chặn bạn lại, bán cho bạn một tin: ${r.first} đang gom người và tiền để ra tay với bạn trong năm nay.`},
-  ch:[{t:'Ra tay trước',req:s=>s.age>=16,f:s=>{const r=npT();if(ch(.35+s.hid.sword/250+cbB()/300+s.st.smarts/400)){r.ap=0;r.hate=Math.min(100,r.hate+5);mod({honor:2});return[`Bạn phục kích người của ${r.first} giữa đường. Kế hoạch của hắn tan thành mây khói.`,'good']}mod({health:-R(10,25)});r.ap=Math.min(100,r.ap+10);return['Hắn đã đề phòng. Bạn rơi vào chính cái bẫy định giăng cho hắn.','bad']}},
+  ch:[{t:'Ra tay trước',req:s=>s.age>=16,f:s=>{const r=npT();if(ch(.35+(s.blade||0)/250+cbB()/300+s.st.smarts/400)){r.ap=0;r.hate=Math.min(100,r.hate+5);mod({honor:2});return[`Bạn phục kích người của ${r.first} giữa đường. Kế hoạch của hắn tan thành mây khói.`,'good']}mod({health:-R(10,25)});r.ap=Math.min(100,r.ap+10);return['Hắn đã đề phòng. Bạn rơi vào chính cái bẫy định giăng cho hắn.','bad']}},
       {t:'Thuê vệ sĩ (25 xu)',cost:25,f:s=>{const r=npT();s.money-=25;r.ap=Math.max(0,r.ap-40);return'Hai gã vệ sĩ to như hộ pháp theo bạn suốt năm. Người của hắn không dám lại gần.'}},
       {t:'Cho gã ăn mày một đồng rồi quên đi',f:s=>{const r=npT();r.ap=Math.min(100,r.ap+15);return'Bạn cười trừ. Có lẽ chỉ là chuyện bịa để xin tiền.'}}]},
  {id:'np_return',queued:true,big:true,art:'friends',c:s=>s.alive&&s.age>=10,title:'Một người bạn cũ trở lại',text:s=>{const d=dqd('np_return');return`Có người gõ cửa giữa trưa. Là ${d.name}, người bạn đã lâu không gặp. Tóc đã điểm bạc, nhưng nụ cười vẫn như xưa.`},
@@ -5462,7 +5465,7 @@ const V19_EV=[
       {t:'Nộp ngay cho Tòa Dị Giáo',f:s=>{const d=S.q.cellar.d,r=s.rel.find(x=>x.id===d.id);if(r&&r.alive){r.alive=false;r.gone=1}fac(5,-3);const g=R(15,30);s.money+=g;qEnd('cellar',`${d.who} bị bắt nhờ lá thư ${s.first} nộp lên.`,'');return[`Các thầy dòng đến bắt ${d.who} trong đêm. Bạn được thưởng ${g} xu. Những cái tên khác trong thư thì không ai truy tiếp.`,'good']}},
       {t:'Đốt lá thư',f:s=>{qEnd('cellar','lá thư bị đốt, bí mật chìm vào quên lãng.','');return'Ngọn lửa nuốt lấy tờ giấy. Có những chuyện không nên biết.'}}]},
  {id:'q_cellar2',queued:true,big:true,art:'user',img:'wolfnight',c:s=>qOn('cellar',1)&&s.alive,title:'Nhân chứng biến mất',text:'Người hầu Odo, kẻ duy nhất có thể làm chứng, đã biến mất khỏi làng. Có người thấy hắn bị kéo lên một cỗ xe ngựa không huy hiệu.',
-  ch:[{t:'Lần theo dấu bánh xe',f:s=>{const d=S.q.cellar.d;if(ch(.4+s.st.smarts/300+s.hid.sword/400)){d.ev+=2;qNext('cellar','q_cellar3',1);return['Bạn tìm thấy Odo bị nhốt trong một trang trại bỏ hoang và cởi trói cho hắn. Hắn đồng ý làm chứng.','good']}mod({health:-R(8,18)});d.ev+=0;qNext('cellar','q_cellar3',1);return['Bạn bị phục kích giữa đường. Odo vẫn bặt tăm, nhưng bạn biết mình đang đi đúng hướng.','bad']}},
+  ch:[{t:'Lần theo dấu bánh xe',f:s=>{const d=S.q.cellar.d;if(ch(.4+s.st.smarts/300+(s.blade||0)/400)){d.ev+=2;qNext('cellar','q_cellar3',1);return['Bạn tìm thấy Odo bị nhốt trong một trang trại bỏ hoang và cởi trói cho hắn. Hắn đồng ý làm chứng.','good']}mod({health:-R(8,18)});d.ev+=0;qNext('cellar','q_cellar3',1);return['Bạn bị phục kích giữa đường. Odo vẫn bặt tăm, nhưng bạn biết mình đang đi đúng hướng.','bad']}},
       {t:'Nhờ Mắt Quạ tìm (30 xu, hội viên miễn phí)',req:s=>s.money>=30||(s.om&&s.om.k==='spy'),f:s=>{const d=S.q.cellar.d;if(!(s.om&&s.om.k==='spy'))s.money-=30;d.ev+=1;rep('u',2);qNext('cellar','q_cellar3',1);return'Mấy ngày sau, một con quạ đậu trên bậu cửa với mẩu giấy: Odo đang trốn ở tu viện trên núi. Hắn sẽ làm chứng, nhưng run như cầy sấy.'}},
       {t:'Bỏ cuộc',f:s=>{qEnd('cellar','nhân chứng biến mất, cuộc điều tra dừng lại.','');return'Bạn cất lá thư vào đáy rương.'}}]},
  {id:'q_cellar3',queued:true,big:true,art:'court',img:'witchtrial',c:s=>qOn('cellar',2)&&s.alive,title:'Phiên xét xử bí mật',text:s=>{const d=S.q.cellar.d;return`Tòa Dị Giáo mở phiên xét xử kín ${d.who}. Trong phòng chỉ có nến, các thầy dòng trùm mũ và bạn. ${d.ev>=2?'Odo đứng sau lưng bạn, sẵn sàng làm chứng.':'Bạn chỉ có lá thư.'}`},
@@ -5499,7 +5502,7 @@ const V19_EV=[
       {t:'Đi trước bọn chúng một mình',f:s=>{const d=S.q.dragoncontract.d;if(ch(.5+s.st.smarts/300)){d.p+=1;qNext('dragoncontract','qd_lair',1);return['Bạn đi đường tắt qua khe núi và đến hang trước một ngày.','good']}mod({health:-R(8,15)});qNext('dragoncontract','qd_lair',1);return['Bạn trượt chân xuống khe đá. Khi leo lên được thì lính Sói Sắt đã đi trước.','bad']}},
       {t:'Nhờ học giả Tháp Bạc tìm điểm yếu (25 xu)',cost:25,f:s=>{const d=S.q.dragoncontract.d;s.money-=25;d.p+=2;rep('m',2);qNext('dragoncontract','qd_lair',1);return'Một học giả già chỉ cho bạn chỗ vảy mỏng dưới nách trái con rồng.'}}]},
  {id:'qd_lair',queued:true,big:true,art:'flame',img:'dragon',c:s=>qOn('dragoncontract',2)&&s.alive,title:'Hang rồng trên núi Đá Xám',text:'Con rồng lục cuộn mình trên đống xương cừu. Sau lưng nó, trong hốc đá, có ba quả trứng đang tỏa hơi ấm.',
-  ch:[{t:'Tấn công',f:s=>{const d=S.q.dragoncontract.d;const pw=.25+d.p*.1+s.hid.sword/250+cbB()/200+s.st.health/500;if(ch(pw)){const g=d.share?150:300;s.money+=g;mod({honor:12});s.house.prestige+=80;s.flags.dragonslayer=1;if(isHn(s))HN().merit+=150;ORG()[d.side==='merc'?'merc':'hunt'].pow=Math.min(95,ORG()[d.side==='merc'?'merc':'hunt'].pow+5);qEnd('dragoncontract',`${s.first} hạ được rồng lục núi Đá Xám.`,'');announce('Kẻ Diệt Rồng',`${s.first} ${s.surname} mang đầu rồng lục về làng. Ba làng mở tiệc bảy ngày.`,'flame','dragon');return[`Bạn hạ được con rồng. Tiền thưởng ${g} xu.`,'good']}
+  ch:[{t:'Tấn công',f:s=>{const d=S.q.dragoncontract.d;const pw=.25+d.p*.1+(s.blade||0)/250+cbB()/200+s.st.health/500;if(ch(pw)){const g=d.share?150:300;s.money+=g;mod({honor:12});s.house.prestige+=80;s.flags.dragonslayer=1;if(isHn(s))HN().merit+=150;ORG()[d.side==='merc'?'merc':'hunt'].pow=Math.min(95,ORG()[d.side==='merc'?'merc':'hunt'].pow+5);qEnd('dragoncontract',`${s.first} hạ được rồng lục núi Đá Xám.`,'');announce('Kẻ Diệt Rồng',`${s.first} ${s.surname} mang đầu rồng lục về làng. Ba làng mở tiệc bảy ngày.`,'flame','dragon');return[`Bạn hạ được con rồng. Tiền thưởng ${g} xu.`,'good']}
       if(ch(.15)){die('móng rồng lục trên núi Đá Xám');return['Móng rồng xé toạc giáp của bạn.','bad']}mod({health:-R(25,45)});qEnd('dragoncontract',`${s.first} thất bại trước rồng lục núi Đá Xám.`,'bad');return['Bạn bị hất văng khỏi miệng hang, may mắn sống sót. Hợp đồng về tay người khác.','bad']}},
       {t:'Lấy một quả trứng rồi rút lui',f:s=>{if(ch(.55)){s.dragon=newDragon();rep('m',2);qEnd('dragoncontract',`${s.first} mang về một quả trứng rồng thay vì đầu rồng.`,'');later('qd_mother',R(2,4));return['Bạn ôm quả trứng chạy xuống núi khi con rồng còn ngủ.','magic']}mod({health:-R(15,30)});qEnd('dragoncontract','kẻ trộm trứng bị rồng lục đuổi chạy.','bad');return['Con rồng mở mắt đúng lúc bạn chạm vào trứng.','bad']}},
       {t:'Rời đi, để mẹ con nó yên',f:s=>{mod({honor:2,piety:2});rep('m',3);qEnd('dragoncontract',`${s.first} tha cho rồng mẹ và đàn con.`,'');return'Bạn lặng lẽ lùi ra. Từ hôm ấy con rồng không xuống làng bắt cừu nữa, như thể nó hiểu.'}}]},
@@ -5640,9 +5643,9 @@ const RGA={
   irondeep:[['anvil','Đứng Đại Lò Rune','120 xu · chỉ thợ rèn · rèn một thanh gươm Rune',s=>{const ok=s.job&&['smith','runesmith'].includes(s.job.id)||(s.hc&&s.hc.k==='smith');if(!ok)return null;if(s.money<120)return null;s.money-=120;const p=.35+(s.job&&s.job.rank||0)*.15+(s.hc&&s.hc.k==='smith'?s.hc.rk*.1:0);if(ch(p)){gainItem('rune_blade');s.flags.runeForged=1;rgAdd('irondeep',8);mod({honor:5});return['Đại Lò Rune gầm lên như một con rồng. Khi bạn nhúng lưỡi gươm vào nước, những ký tự cổ sáng lên rồi chìm vào thép.','item']}mod({health:-R(5,12)});return['Lưỡi gươm nứt đôi khi ký tự cuối cùng chưa kịp khắc xong. Lão thợ cả vỗ vai bạn: "Lần sau."','bad']},'Chỉ thợ rèn có 120 xu mới được đứng lò'],
     ['pickaxe','Khai mỏ thuê','Tiền công · có thể sập hầm',s=>{if(ch(.08)){mod({health:-R(12,25)});return['Một vách đá sụp xuống ngay sau lưng bạn. Bạn bò ra được, người đầy bụi và máu.','bad']}const g=R(8,25)+(s.race==='dwarf'?8:0);s.money+=g;rgAdd('irondeep',2);return[`Bạn đẽo quặng trong lòng núi suốt một mùa, được trả ${g} xu.`,'good']}],
     ['ingot','Mua sắt tận mỏ','Giá rẻ hơn chợ 30% · một lô',s=>{const p=Math.round(mkP('iron')*.7);if(s.money<p||mkHeld()>=mkCap())return null;s.money-=p;const H=MKH();H.iron=H.iron||{n:0,cost:0};H.iron.n++;H.iron.cost+=p;return`Bạn mua một lô sắt thỏi tận miệng mỏ với giá ${p} xu.`},'Cần tiền và chỗ trong kho']],
-  fangsteppe:[['crossed','Đấu trường Nanh Đá','Tiền thưởng, danh dự với tộc Orc · có thể chết',s=>{if(ch(.012)){die('đấu trường Nanh Đá');return['Rìu của đối thủ bổ xuống trước khi bạn kịp giơ khiên.','bad']}if(ch(.4+s.hid.sword/250+s.st.health/400+cbB()/300)){const g=R(15,45);s.money+=g;rgAdd('fangsteppe',6);mod({honor:3});return[`Đám đông Orc gõ rìu vào khiên gọi tên bạn. Bạn mang về ${g} xu tiền thưởng.`,'good']}mod({health:-R(10,20)});return['Bạn bị quật ngã ở hiệp thứ ba. Đám đông vẫn vỗ tay vì bạn không chịu xin tha.','bad']}],
+  fangsteppe:[['crossed','Đấu trường Nanh Đá','Tiền thưởng, danh dự với tộc Orc · có thể chết',s=>{if(ch(.012)){die('đấu trường Nanh Đá');return['Rìu của đối thủ bổ xuống trước khi bạn kịp giơ khiên.','bad']}if(ch(.4+(s.blade||0)/250+s.st.health/400+cbB()/300)){const g=R(15,45);s.money+=g;rgAdd('fangsteppe',6);mod({honor:3});return[`Đám đông Orc gõ rìu vào khiên gọi tên bạn. Bạn mang về ${g} xu tiền thưởng.`,'good']}mod({health:-R(10,20)});return['Bạn bị quật ngã ở hiệp thứ ba. Đám đông vẫn vỗ tay vì bạn không chịu xin tha.','bad']}],
     ['bow','Theo đoàn săn thảo nguyên','Sức khỏe, tiền bán thịt',s=>{const g=R(5,15);s.money+=g;mod({health:2});rgAdd('fangsteppe',3);return`Bạn phi ngựa theo đàn bò rừng ba ngày đêm. Phần thịt được chia bán được ${g} xu.`}],
-    ['shield','Thách đấu tù trưởng','Cần uy tín Orc 40 · danh dự, có thể nhận vật phẩm',s=>{if(rgRep('fangsteppe')<40)return null;if(ch(.3+s.hid.sword/200+cbB()/250)){rgAdd('fangsteppe',20);mod({honor:6});if(ch(.4))gainItem(pick(['waraxe','warhammer']));return['Bạn hạ gục tù trưởng trong vòng tròn đá. Ông ta đứng dậy, cười lớn và gọi bạn là anh em.','good']}mod({health:-R(15,30)});rgAdd('fangsteppe',3);return['Tù trưởng quật bạn xuống đất ba lần. Lần thứ ba bạn không đứng dậy được.','bad']},'Cần uy tín Orc 40']],
+    ['shield','Thách đấu tù trưởng','Cần uy tín Orc 40 · danh dự, có thể nhận vật phẩm',s=>{if(rgRep('fangsteppe')<40)return null;if(ch(.3+(s.blade||0)/200+cbB()/250)){rgAdd('fangsteppe',20);mod({honor:6});if(ch(.4))gainItem(pick(['waraxe','warhammer']));return['Bạn hạ gục tù trưởng trong vòng tròn đá. Ông ta đứng dậy, cười lớn và gọi bạn là anh em.','good']}mod({health:-R(15,30)});rgAdd('fangsteppe',3);return['Tù trưởng quật bạn xuống đất ba lần. Lần thứ ba bạn không đứng dậy được.','bad']},'Cần uy tín Orc 40']],
   beastwood:[['animal','Viếng vật tổ','Niềm vui, uy tín Thú Nhân',s=>{mod({happy:5,piety:1});rgAdd('beastwood',4);return'Bạn đặt một nắm muối dưới chân cột vật tổ hình đầu sói. Từ xa vọng lại một tiếng hú như lời chào.'}],
     ['flower-02','Đổi muối lấy dược liệu','Một lô dược liệu giá rẻ',s=>{const p=Math.round(mkP('herb')*.6);if(s.money<p||mkHeld()>=mkCap())return null;s.money-=p;const H=MKH();H.herb=H.herb||{n:0,cost:0};H.herb.n++;H.herb.cost+=p;rgAdd('beastwood',2);return`Bạn đổi muối lấy một lô dược liệu quý giá ${p} xu.`},'Cần tiền và chỗ trong kho'],
     ['protect','Canh giữ vùng thiêng','Uy tín Thú Nhân, giảm nguy cơ chiến tranh rừng',s=>{RG().beastwood.stab=Math.min(95,RG().beastwood.stab+5);rgAdd('beastwood',6);if(ch(.25)){mod({health:-R(5,12)});return['Bạn đuổi một toán lâm tặc khỏi vùng thiêng, lãnh một mũi tên vào vai.','']}mod({honor:2});return['Bạn cùng các chiến binh Sói canh giữ suối thiêng ba đêm. Không lâm tặc nào dám bén mảng.','good']}]],
@@ -5734,7 +5737,7 @@ const CR_EV=[
  {id:'cr_fh2',queued:true,big:true,art:'sword',img:'fallenhero',c:s=>CR()&&CR().id==='hero',title:'Đồng Đội Bị Phản Bội',text:s=>`Anh Hùng ${crTxt()} cùng hàng nghìn người theo chiếm một thành phía ${pick(['Bắc','Nam','Tây'])}. ${CR().mot==='people'?'Dân trong thành mở cổng đón ông như đón cứu tinh.':'Hai đồng đội cũ của ông bị treo trên cổng thành.'}`,
   ch:[{t:'Dẫn quân vây thành',req:s=>isMil(s)&&s.co.rk>=2||isKing(),f:s=>{if(ch(.35+(s.co?s.co.ab.cmd:50)/250)){CR().reb-=25;if(s.co)s.co.merit+=25;return['Quân bạn siết vòng vây. Trong thành bắt đầu thiếu lương.','good']}CR().reb+=10;mod({health:-R(10,25)});if(s.co)s.co.merit-=10;return['Anh Hùng dẫn kỵ binh phá vây ngay trong đêm. Bạn suýt mất mạng.','bad']}},
       {t:'Đột nhập vào gặp Anh Hùng',req:s=>s.age>=16,f:s=>{if(ch(.5+s.st.smarts/300)){CR().pts+=2;CR().fl.met=1;return['Bạn vào được thành, đối mặt Anh Hùng dưới ánh đuốc. Ông ta mệt mỏi hơn bạn tưởng.','magic']}mod({health:-R(10,20)});return['Lính gác bắt được bạn. Anh Hùng thả bạn đi, không nói lời nào.','bad']}},
-      {t:'Thách đấu Anh Hùng',req:s=>hasHon('kiemthanh')||s.hid.sword>=80,f:s=>{if(ch(.3+s.hid.sword/300+cbB()/250)){CR().reb-=30;mod({honor:10});s.house.prestige+=80;return['Hai lưỡi kiếm chạm nhau ba trăm lần. Lần thứ ba trăm lẻ một, kiếm của Anh Hùng rơi xuống.','good']}if(ch(.25)){die('dưới thánh kiếm của Anh Hùng Phản Bội');return['Ánh sáng xuyên qua tim bạn.','bad']}mod({health:-R(20,40)});return['Bạn thua. Anh Hùng tha mạng, nói rằng bạn đáng được sống.','bad']}},
+      {t:'Thách đấu Anh Hùng',req:s=>hasHon('kiemthanh')||s.hid.sword>=80,f:s=>{if(ch(.3+(s.blade||0)/300+cbB()/250)){CR().reb-=30;mod({honor:10});s.house.prestige+=80;return['Hai lưỡi kiếm chạm nhau ba trăm lần. Lần thứ ba trăm lẻ một, kiếm của Anh Hùng rơi xuống.','good']}if(ch(.25)){die('dưới thánh kiếm của Anh Hùng Phản Bội');return['Ánh sáng xuyên qua tim bạn.','bad']}mod({health:-R(20,40)});return['Bạn thua. Anh Hùng tha mạng, nói rằng bạn đáng được sống.','bad']}},
       {t:'Đứng ngoài',f:()=>'Bạn khóa cửa và mong mọi chuyện qua nhanh.'}]},
  {id:'cr_fh3',queued:true,big:true,art:'court',img:'fallenhero',c:s=>CR()&&CR().id==='hero',title:'Phiên Tòa Của Kẻ Cứu Thế',text:s=>{const C=CR();return C.reb<35?`Anh Hùng ${C.lead} bị bắt, xiềng xích dẫn về kinh đô. Cả vương quốc chờ phán quyết.`:`Anh Hùng ${C.lead} đã ở trước cổng kinh thành. Triều đình đề nghị một phiên đàm phán cuối cùng.`},
   ch:[{t:'Đưa ra sự thật để cứu Anh Hùng',req:s=>CR().fl.inv||CR().fl.proof||CR().fl.cure||CR().fl.met,f:s=>{const C=CR();const p=.3+C.pts*.08+(C.fl.proof?.2:0)+(C.fl.cure?.2:0);if(ch(p)){s.flags.peace=1;mod({honor:8});rep('d',5);s.house.prestige+=60;if(C.mot==='plot'){myRealm().stab=Math.max(5,myRealm().stab-10);news('Âm mưu ám sát Anh Hùng bị phanh phui, ba đại thần bị cách chức.','',true)}crEnd('redeemed',C.mot==='curse'?'lời nguyền được giải, Anh Hùng quỳ xuống xin tội.':C.mot==='people'?'nhà vua chấp nhận cải cách, Anh Hùng hạ kiếm.':'Anh Hùng được minh oan.','good');return['Những gì bạn tìm được làm cả phiên tòa im lặng. Anh Hùng được tha.','good']}crEnd('executed','Anh Hùng bị xử tử trước cổng thành.','bad');rep('d',-3);return['Không ai nghe bạn. Anh Hùng bị xử tử khi trời vừa sáng.','bad']}},
@@ -5743,7 +5746,7 @@ const CR_EV=[
  /* Thú Nhân vây thành */
  {id:'cr_bs0',queued:true,big:true,art:'wolf',img:'beastwood',c:s=>CR()&&CR().id==='beast',title:'Tiếng Gầm Từ Đại Sâm Lâm',text:s=>`Lâm tặc chặt trụi một cánh rừng thiêng. Đêm đó, tiếng gầm vang khắp Đại Sâm Lâm. ${crTxt()} gọi các bộ tộc Sói, Sư Tử, Cáo, Gấu về một mối.`,
   ch:[{t:'Theo tiếng gọi của các bộ tộc',req:s=>s.race==='beast',f:s=>{CR().side='beast';CR().reb+=10;rgAdd('beastwood',10);return['Bạn vẽ vằn đỏ lên mặt và đi về phía rừng sâu.','good']}},
-      {t:'Bắt bọn lâm tặc giao cho các bộ tộc',req:s=>s.age>=16,f:s=>{if(ch(.45+s.hid.sword/300)){CR().pts+=3;rgAdd('beastwood',10);mod({honor:3});return['Bạn trói ba tên lâm tặc giao cho các trưởng lão Thú Nhân. Tiếng gầm trong rừng dịu đi.','good']}mod({health:-R(8,18)});return['Bọn lâm tặc đông hơn bạn tưởng.','bad']}},
+      {t:'Bắt bọn lâm tặc giao cho các bộ tộc',req:s=>s.age>=16,f:s=>{if(ch(.45+(s.blade||0)/300)){CR().pts+=3;rgAdd('beastwood',10);mod({honor:3});return['Bạn trói ba tên lâm tặc giao cho các trưởng lão Thú Nhân. Tiếng gầm trong rừng dịu đi.','good']}mod({health:-R(8,18)});return['Bọn lâm tặc đông hơn bạn tưởng.','bad']}},
       {t:'Mua gỗ tích trữ',req:s=>s.age>=16,f:s=>{const H=MKH();let n=0;while(n<3&&s.money>=mkBuy('wood')&&mkHeld()<mkCap()){s.money-=mkBuy('wood');H.wood=H.wood||{n:0,cost:0};H.wood.n++;H.wood.cost+=mkBuy('wood');n++}return n?`Bạn mua ${n} lô gỗ trước khi đường rừng bị chặn.`:'Bạn không đủ tiền hoặc kho đã đầy.'}},
       {t:'Mặc kệ',f:()=>'Rừng thì xa, thành thì cao.'}]},
  {id:'cr_bs1',queued:true,big:true,art:'wolf',img:'beastwood',c:s=>CR()&&CR().id==='beast',title:'Các bộ lạc liên kết',text:s=>`Bốn bộ tộc lớn đã uống máu thề trước vật tổ. Các đoàn buôn gỗ không dám vào rừng, giá gỗ lên từng ngày.`,
@@ -5753,7 +5756,7 @@ const CR_EV=[
       {t:'Đứng ngoài',f:()=>'Bạn mua thêm then cài cửa.'}]},
  {id:'cr_bs2',queued:true,big:true,art:'wolf',img:'beastsiege',c:s=>CR()&&CR().id==='beast',title:'Cổng Thành Bị Bao Vây',text:s=>`${crTxt()} dẫn hàng nghìn chiến binh Thú Nhân vây thành. Tiếng trống da vang suốt đêm, những đôi mắt sáng lấp lóe ngoài hào nước.`,
   ch:[{t:'Chỉ huy phòng thủ',req:s=>isMil(s)||isKing()||s.house.title>=3,f:s=>{const p=.4+(s.co?s.co.ab.cmd:50)/250+(CR().fl.walls?.15:0);if(ch(p)){CR().reb-=25;if(s.co)s.co.merit+=25;mod({honor:4});return['Ba đợt công thành vỡ dưới chân tường. Quân Thú Nhân lùi về bìa rừng.','good']}CR().reb+=10;mod({health:-R(10,25)});return['Cổng phụ bị phá. Bạn phải bỏ khu chợ ngoài thành.','bad']}},
-      {t:'Lên tường thành chiến đấu',req:s=>s.age>=16&&s.race!=='beast',f:s=>{if(ch(.05)){die('trận vây thành của Thú Nhân');return['Một ngọn giáo bay qua lỗ châu mai.','bad']}if(ch(.5+s.hid.sword/300)){CR().reb-=8;mod({honor:5});return['Bạn giữ một đoạn tường suốt đêm.','good']}mod({health:-R(10,25)});return['Bạn bị móng vuốt cào rách vai.','bad']}},
+      {t:'Lên tường thành chiến đấu',req:s=>s.age>=16&&s.race!=='beast',f:s=>{if(ch(.05)){die('trận vây thành của Thú Nhân');return['Một ngọn giáo bay qua lỗ châu mai.','bad']}if(ch(.5+(s.blade||0)/300)){CR().reb-=8;mod({honor:5});return['Bạn giữ một đoạn tường suốt đêm.','good']}mod({health:-R(10,25)});return['Bạn bị móng vuốt cào rách vai.','bad']}},
       {t:'Mở cổng phụ cho Thú Nhân',req:s=>CR().side==='beast'||s.race==='beast',f:s=>{CR().side='beast';CR().reb+=20;rep('d',-5);if(isCourt(s))s.co.sus=100;return['Bạn rút then cổng phụ lúc nửa đêm.','']}},
       {t:'Mở kho phát lương cho dân trong thành',req:s=>s.money>=25,f:s=>{s.money-=25;rep('d',4);CR().pts+=1;return['Dân trong thành cầm cự được thêm một tháng nhờ kho của bạn.','good']}}]},
  {id:'cr_bs3',queued:true,big:true,art:'scroll',img:'beastwood',c:s=>CR()&&CR().id==='beast',title:'Hiệp Ước Thánh Lâm',text:s=>{const C=CR();return C.pts>=4?`Hai bên đều kiệt sức. ${C.lead} đồng ý gặp phái đoàn của thành dưới gốc sồi ngàn năm.`:C.reb>=55?`Quân Thú Nhân vẫn vây chặt. ${C.lead} đòi trả lại toàn bộ rừng phía Nam.`:'Quân Thú Nhân rút dần. Thành phố có thể đuổi theo, hoặc dừng lại.'},
@@ -5790,7 +5793,7 @@ JOBS.court={n:'Quan trường triều đình',min:16,need:[99,99,99,99,99],fx:{s
 Object.defineProperty(JOBS.court,'t',{get(){return S&&S.co&&S.co.br==='vo'?COVO:COVAN}});
 Object.defineProperty(JOBS.court,'pay',{get(){return COPAY[S&&S.co&&S.co.br==='vo'?'vo':'van']}});
 JIC.court='court';
-function coNew(br){const s=S;return{br,rk:0,ab:{adm:clamp(Math.round(s.st.smarts*.5+R(0,10))),dip:clamp(Math.round((s.st.smarts+s.st.looks)/4+R(0,10))),cmd:clamp(Math.round(s.hid.sword/3+s.st.health/5+R(0,10))),itg:clamp(Math.round(s.st.honor*.7+R(0,10))),inf:clamp(10+s.house.title*8+(s.cls==='noble'?10:0)),loy:R(55,75)},merit:0,sus:0,y:S.year,sw:0,ruler:myRealm().ruler,lost:0}}
+function coNew(br){const s=S;return{br,rk:0,ab:{adm:clamp(Math.round(s.st.smarts*.5+R(0,10))),dip:clamp(Math.round((s.st.smarts+s.st.looks)/4+R(0,10))),cmd:clamp(Math.round((s.blade||0)/3+s.st.health/5+R(0,10))),itg:clamp(Math.round(s.st.honor*.7+R(0,10))),inf:clamp(10+s.house.title*8+(s.cls==='noble'?10:0)),loy:R(55,75)},merit:0,sus:0,y:S.year,sw:0,ruler:myRealm().ruler,lost:0}}
 {const j0=joinJob;joinJob=function(id){if(id==='court'){S.co=coNew(S.flags.literate?'van':'vo')}else if(S.co&&id!=='court')S.co=null;return j0(id)}}
 {const q0=quitJob;quitJob=function(){if(S.job&&S.job.id==='court'){S.co=null;log('Bạn từ quan, trả lại ấn tín.')}return q0()}}
 const coKey=C=>C.br==='vo'?['cmd',C.rk>=3?'adm':'loy']:['adm',C.rk>=3?(C.rk>=4?'dip':'itg'):'itg'];
@@ -5950,16 +5953,16 @@ function honAct(a,id){
 const KSN=()=>{if(!S.world.ks)S.world.ks={name:`${pick(MN)} ${pick(['Tuyết Sơn','Gió Bắc','Một Tay','Sương Mai'])}`,y:S.year-R(5,20)};return S.world.ks};
 const HON_EV=[
  {id:'hn_snow',w:W(5),cd:8,big:true,art:'sword',img:'sword_stone',c:s=>s.age>=18&&s.age<=70&&s.flags.seenS&&s.hid.sword>=80&&s.st.honor>=40&&!HONS().some(h=>h.id==='kiemthanh'),title:'Trận Quyết Đấu Trên Đỉnh Tuyết',text:s=>`Kiếm Thánh đương thời ${KSN().name} nghe danh bạn và gửi lời mời: một trận đấu trên đỉnh núi tuyết, không nhân chứng ngoài gió. Kẻ thắng mang danh Kiếm Thánh.`,
-  ch:[{t:'Lên đỉnh tuyết',f:s=>{if(ch(.28+s.hid.sword/300+cbB()/250+s.st.health/600)){const old=KSN().name;s.world.ks={name:`${s.first} ${s.surname}`,y:s.year,me:1};honAward('kiemthanh',`${old} trên đỉnh tuyết`);return['Kiếm của bạn dừng cách cổ họng đối thủ một sợi tóc. Ông ta mỉm cười, quỳ một gối xuống tuyết.','good']}if(ch(.08)){die('trận quyết đấu trên đỉnh tuyết');return['Lưỡi kiếm của Kiếm Thánh nhanh hơn ánh mắt bạn.','bad']}mod({health:-R(15,30)});return['Bạn thua, nhưng Kiếm Thánh để lại một câu: "Mười năm nữa, quay lại."','bad']}},
+  ch:[{t:'Lên đỉnh tuyết',f:s=>{if(ch(.28+(s.blade||0)/300+cbB()/250+s.st.health/600)){const old=KSN().name;s.world.ks={name:`${s.first} ${s.surname}`,y:s.year,me:1};honAward('kiemthanh',`${old} trên đỉnh tuyết`);return['Kiếm của bạn dừng cách cổ họng đối thủ một sợi tóc. Ông ta mỉm cười, quỳ một gối xuống tuyết.','good']}if(ch(.08)){die('trận quyết đấu trên đỉnh tuyết');return['Lưỡi kiếm của Kiếm Thánh nhanh hơn ánh mắt bạn.','bad']}mod({health:-R(15,30)});return['Bạn thua, nhưng Kiếm Thánh để lại một câu: "Mười năm nữa, quay lại."','bad']}},
       {t:'Từ chối, kiếm thuật không phải để tranh danh',f:s=>{mod({honor:2});return'Bạn gửi lại một cành mai thay câu trả lời.'}}]},
  {id:'hn_fake',w:s=>hasHon('kiemthanh')?6:0,cd:6,big:true,art:'crossed',c:s=>hasHon('kiemthanh')&&s.alive,title:'Kẻ Tự Xưng Kiếm Thánh',text:s=>`Một kiếm khách trẻ đi khắp các thành tự xưng là Kiếm Thánh thật sự, thách bạn đấu công khai ở quảng trường. Cả thành đang chờ.`,
-  ch:[{t:'Nhận lời thách đấu',f:s=>{const h=HONS().find(x=>x.id==='kiemthanh');if(ch(.4+s.hid.sword/300+cbB()/300-(s.age>55?.15:0))){if(h.st==='contested')honSet('kiemthanh','held');mod({honor:4});return['Ba chiêu. Chỉ ba chiêu, kiếm của kẻ thách đấu bay lên mái nhà.','good']}if(h.st==='contested'){s.world.ks={name:'kiếm khách trẻ phương Nam',y:s.year};honSet('kiemthanh','stripped','thua kẻ thách đấu lần thứ hai')}else honSet('kiemthanh','contested','thua một trận công khai');mod({health:-R(10,25)});return['Bạn thua trước mặt cả thành.','bad']}},
+  ch:[{t:'Nhận lời thách đấu',f:s=>{const h=HONS().find(x=>x.id==='kiemthanh');if(ch(.4+(s.blade||0)/300+cbB()/300-(s.age>55?.15:0))){if(h.st==='contested')honSet('kiemthanh','held');mod({honor:4});return['Ba chiêu. Chỉ ba chiêu, kiếm của kẻ thách đấu bay lên mái nhà.','good']}if(h.st==='contested'){s.world.ks={name:'kiếm khách trẻ phương Nam',y:s.year};honSet('kiemthanh','stripped','thua kẻ thách đấu lần thứ hai')}else honSet('kiemthanh','contested','thua một trận công khai');mod({health:-R(10,25)});return['Bạn thua trước mặt cả thành.','bad']}},
       {t:'Lờ đi',f:s=>{honSet('kiemthanh','contested','né tránh lời thách đấu');return'Người ta bắt đầu hỏi nhau: Kiếm Thánh sợ rồi sao?'}}]},
  {id:'hn_council',w:W(5),cd:10,big:true,art:'wand',img:'manatest',c:s=>s.st.magic>=80&&s.hid.arcane>=65&&s.st.smarts>=50&&((s.job&&['wizard','teacher'].includes(s.job.id)&&s.job.rank>=1)||(s.ac&&s.ac.st==='grad'))&&!HONS().some(h=>h.id==='daiphapsu')&&!(s.sk&&s.sk.rk>=2&&s.sk.br==='mage'),title:'Hội Đồng Pháp Thuật',text:'Hội Đồng Pháp Thuật của Học viện Tháp Bạc mời bạn trình bày công trình nghiên cứu. Nếu được chấp thuận, bạn sẽ mang danh Đại Pháp Sư.',
   ch:[{t:'Trình bày đại phép phong ấn',f:s=>{if(ch(.35+s.st.smarts/250+s.hid.arcane/300)){honAward('daiphapsu','Hội Đồng Pháp Thuật Tháp Bạc');return['Vòng phép của bạn giữ được một ngọn lửa trong lồng băng suốt buổi. Cả hội đồng đứng dậy.','magic']}mod({magic:3});return['Vòng phép vỡ ở phút cuối. Hội đồng hẹn bạn vài năm sau.','bad']}},
       {t:'Xin hoãn để nghiên cứu thêm',f:()=>{mod({smarts:2,magic:2});return'Bạn quay lại thư viện với ba chồng sách mới.'}}]},
  {id:'hn_dragonfeud',queued:true,big:true,art:'flame',img:'dragon',c:s=>s.alive&&hasHon('dietrong'),title:'Huyết Thù Long Tộc',text:'Một con rồng đỏ khổng lồ đáp xuống đồi gần nhà bạn. Nó ngửi thấy mùi máu của đồng loại trên thanh kiếm của bạn.',
-  ch:[{t:'Rút kiếm',f:s=>{if(ch(.3+s.hid.sword/300+cbB()/200)){mod({honor:8});s.house.prestige+=80;s.money+=R(100,250);return['Con rồng thứ hai gục xuống. Cả vương quốc gọi bạn là Kẻ Diệt Rồng hai lần.','good']}if(ch(.25)){die('móng vuốt rồng đỏ báo thù');return['Con rồng không quên.','bad']}mod({health:-R(25,45)});return['Bạn sống sót nhờ nhảy xuống sông.','bad']}},
+  ch:[{t:'Rút kiếm',f:s=>{if(ch(.3+(s.blade||0)/300+cbB()/200)){mod({honor:8});s.house.prestige+=80;s.money+=R(100,250);return['Con rồng thứ hai gục xuống. Cả vương quốc gọi bạn là Kẻ Diệt Rồng hai lần.','good']}if(ch(.25)){die('móng vuốt rồng đỏ báo thù');return['Con rồng không quên.','bad']}mod({health:-R(25,45)});return['Bạn sống sót nhờ nhảy xuống sông.','bad']}},
       {t:'Bỏ kiếm xuống, xin hòa giải',f:s=>{if(ch(.35+s.st.honor/300)){mod({honor:4,magic:3});return['Con rồng nhìn bạn rất lâu rồi bay đi. Nó để lại một chiếc vảy như lời thề đình chiến.','magic']}const l=Math.min(Math.max(s.money,0),R(30,100));s.money-=l;return['Con rồng đốt kho thóc rồi bay đi.','bad']}}]}
 ];
 
@@ -6115,7 +6118,7 @@ function skView(){
   b+='<p class="sec">Con đường tiến hóa</p>';
   if(!K.br){b+=gRow('data-x="sk:br:war"','sword','Nhánh chiến binh: Skeleton Warrior','Giáp, kiếm nguyền, dẫn cận vệ · cần thiên phú kiếm','',dis);b+=gRow('data-x="sk:br:mage"','wand','Nhánh pháp thuật: Skeleton Mage','Tử thuật, nghiên cứu linh hồn, Hộp Linh Hồn · cần ma lực','',dis);b+='<p class="note">Không bắt buộc. Bạn vẫn có thể sống như một thợ rèn, thương nhân hay thư lại mang hình hài bộ xương.</p>'}
   else{const T=SKBR[K.br].t,mx=T.length;b+=`<p class="note">${SKBR[K.br].n}: ${T.map((x,i)=>i<K.rk?`<b>${x}</b>`:x).join(' → ')}</p>`;
-    if(K.rk<mx){const need=[0,30,70,120][K.rk],why=S.done.skt?'Đã luyện năm nay':K.br==='war'&&S.hid.sword<40+K.rk*10?`Cần thiên phú kiếm ${40+K.rk*10}`:K.br==='mage'&&S.st.magic<40+K.rk*12?`Cần ma lực ${40+K.rk*12}`:'';b+=gRow('data-x="sk:train"',K.br==='war'?'sword':'wand',K.br==='war'?'Luyện kiếm nguyền':'Nghiên cứu tử thuật',why||`Tiến độ ${K.xp}/${need||30} · linh hồn −5`,'',dis||!!why)}
+    if(K.rk<mx){const need=[0,30,70,120][K.rk],why=S.done.skt?'Đã luyện năm nay':K.br==='war'&&(S.blade||0)<40+K.rk*10?`Cần kiếm thuật ${40+K.rk*10}`:K.br==='mage'&&S.st.magic<40+K.rk*12?`Cần ma lực ${40+K.rk*12}`:'';b+=gRow('data-x="sk:train"',K.br==='war'?'sword':'wand',K.br==='war'?'Luyện kiếm nguyền':'Nghiên cứu tử thuật',why||`Tiến độ ${K.xp}/${need||30} · linh hồn −5`,'',dis||!!why)}
     if(K.br==='mage'&&K.rk>=2||K.br==='war'&&K.rk>=2)b+=gRow('data-x="sk:raise"','skull',K.br==='mage'?'Gọi xác sống dậy':'Chiêu mộ cận vệ xương','Quân đoàn +10 · dân sợ hãi',S.done.skr?'Đã làm năm nay':'',dis||!!S.done.skr)}
   b+='<p class="note">Người thân có thể tin, sợ hãi, che giấu hoặc tố cáo bạn. Chính giáo luôn để mắt tới bộ xương biết đi.</p>';
   return[skTitle(),b,'act'];
@@ -6225,7 +6228,7 @@ const DM_EV=[
       {t:s=>s.flags.saint?'Im lặng':'Duy trì chế độ',f:s=>{fac(-6,0);rep('d',-3);if(s.flags.saint&&s.saint)s.saint.doubt=clamp(s.saint.doubt+10);return['Chợ nô lệ vẫn họp. Thánh Nữ rời kinh thành trong im lặng.','bad']}}]},
  {id:'dm_hero',queued:true,big:true,art:'sword',c:s=>s.alive&&s.age>=14,title:'Người Từng Bị Nô Dịch Trở Thành Anh Hùng',text:s=>{const d=dqd('dm_hero');return d.bad?`${d.name}, người bạn từng áp giải đến chợ nô lệ, giờ là thủ lĩnh một đoàn chiến binh tự do. Người ấy đứng trước cửa nhà bạn, tay cầm kiếm.`:`${d.name}, người bạn từng chuộc khỏi chợ nô lệ, giờ là người được cả vùng kính trọng. Người ấy đến tìm bạn.`},
   ch:[{t:s=>dqd('dm_hero').bad?'Quỳ xuống xin lỗi':'Mời vào nhà',f:s=>{const d=dqd('dm_hero');if(d.bad){if(ch(.5+s.st.honor/300)){mod({honor:5,happy:-5});return['Người ấy nhìn bạn rất lâu rồi tra kiếm vào bao. "Ta không tha thứ, nhưng ta không giết người quỳ."','']}mod({health:-R(20,40)});return['Lưỡi kiếm để lại một vết sẹo dài trên mặt bạn. "Để ngươi nhớ."','bad']}const g=R(30,80);s.money+=g;mod({happy:8,honor:4});rep('d',3);return[`Người ấy mang theo ${g} xu và một lời mời: khi bạn cần, đoàn chiến binh tự do sẽ có mặt.`,'good']}},
-      {t:s=>dqd('dm_hero').bad?'Rút kiếm':'Từ chối gặp',f:s=>{const d=dqd('dm_hero');if(d.bad){if(ch(.4+s.hid.sword/300)){mod({honor:-5});addEnemy('người từng bị bạn bán làm nô lệ',{first:d.first,hate:90});return['Bạn đẩy lùi được người ấy. Nhưng người ấy sẽ quay lại.','bad']}if(ch(.25)){die('dưới lưỡi kiếm của người từng bị bán làm nô lệ');return['Công lý đến muộn, nhưng vẫn đến.','bad']}mod({health:-R(20,35)});return['Bạn thua.','bad']}return'Bạn sai người hầu nói mình đi vắng.'}}]},
+      {t:s=>dqd('dm_hero').bad?'Rút kiếm':'Từ chối gặp',f:s=>{const d=dqd('dm_hero');if(d.bad){if(ch(.4+(s.blade||0)/300)){mod({honor:-5});addEnemy('người từng bị bạn bán làm nô lệ',{first:d.first,hate:90});return['Bạn đẩy lùi được người ấy. Nhưng người ấy sẽ quay lại.','bad']}if(ch(.25)){die('dưới lưỡi kiếm của người từng bị bán làm nô lệ');return['Công lý đến muộn, nhưng vẫn đến.','bad']}mod({health:-R(20,35)});return['Bạn thua.','bad']}return'Bạn sai người hầu nói mình đi vắng.'}}]},
  {id:'dm_pow',queued:true,big:true,art:'w-halberd',img:'slavemarket',c:s=>s.alive&&(isKing()||isMil(s)&&s.co.rk>=3),title:'Tù Binh Sau Chiến Tranh',text:'Sau chiến thắng, hàng trăm tù binh bị dồn trong trại. Các lãnh chúa muốn bán họ làm nô lệ để bù chi phí chiến tranh.',
   ch:[{t:'Trao đổi tù binh với đối phương',f:s=>{mod({honor:5});rep('n',2);s.flags.peace=s.flags.peace||ch(.3)?1:0;return['Hai bên đổi tù binh ở cầu biên giới. Lời đồn về lòng khoan dung của bạn lan sang cả nước địch.','good']}},
       {t:'Thả về sau khi chiến tranh kết thúc',f:s=>{mod({honor:4});rep('n',-2);rep('d',2);return'Bạn cho tù binh làm việc sửa đường đến khi hòa bình rồi thả về.'}},
@@ -6254,7 +6257,7 @@ const gdAlive=()=>GD().mem.filter(m=>m.alive);
 const gdCap=()=>GHALL[GD().lv].cap;
 const gdRank=()=>GRANK.filter(x=>GD().fame>=x[0]).pop()[1];
 const gmPw=m=>!m.alive||(m.inj&&m.inj>S.year)?0:m.lv*10+((GTR[m.tr]||{}).pw||0)+(m.off?3:0);
-const mePw=()=>Math.round(20+S.hid.sword/2+cbB()+S.st.magic/5+S.st.health/10);
+const mePw=()=>Math.round(20+(S.blade||0)/2+cbB()+S.st.magic/5+S.st.health/10);
 function gdWhyFound(){if(S.gd)return'Bạn đã có bang hội';if(S.age<20)return'Từ 20 tuổi';if(isSk())return'Không ai đăng ký bang hội cho một bộ xương';if(S.money<300)return`Cần 300 xu (150 lệ phí lập hội, 150 làm quỹ ban đầu), bạn có ${S.money}`;
   const okRep=S.st.honor>=50||S.house.prestige>=250||Math.max(repV('d'),repV('n'),repV('u'),repV('m'))>=60||(S.hon||[]).some(h=>h.st!=='stripped');if(!okRep)return'Cần danh tiếng: danh dự từ 50, uy danh gia tộc từ 250, uy tín 60 với một phe, hoặc có một danh hiệu';return''}
 function gNew(lvMin){const fame=S.gd?S.gd.fame:0;const sx=pick(['m','f']),race=pick(RPUB()),first=pick(nameList(sx,race)),sur=surFor(race,pick(['serf','craft','merchant']));const c=pick(Object.keys(GCLS));const lv=Math.max(1,Math.min(10,(lvMin||R(1,3))+Math.floor(fame/250)+(ch(.15)?1:0)));const tr=pick(Object.keys(GTR));return{id:uid(),first,sur,sex:sx,race,c,lv,xp:0,loy:R(45,70),wage:3+lv*3+((GTR[tr]||{}).wage||0),tr,inj:0,alive:true,off:0,y:S.year,kills:0}}
@@ -6501,7 +6504,7 @@ ITEMS.rune_blade={n:'Gươm Rune Irondeep',r:3,ic:'sword',cb:15,fx:{honor:2},v:0
 /* thám hiểm hầm mộ có thể gặp lời nguyền */
 {const d0=doAct;doAct=function(id){if(id==='dungeon'&&S.alive&&S.age>=16&&!isSk()&&!S.flags.curse&&!S.done.dungeon&&ch(.035)&&!S.pend.includes('sk_coffin'))S.pend.push('sk_coffin');return d0(id)}}
 /* cây gia phả ghi danh hiệu và thân phận */
-{const g0=genRecord;genRecord=function(){const r=g0();r.hon=(S.hon||[]).filter(h=>h.st!=='stripped').map(h=>HON[h.id].n);if(isSk())r.skel=skTitle();if(S.co)r.office=jt();return r}}
+{const g0=genRecord;genRecord=function(){const r=g0();r.hon=(S.hon||[]).filter(h=>h.st!=='stripped').map(h=>HON[h.id].n);if(isSk())r.skel=skTitle();if(S.co&&S.job)r.office=jt();return r}}
 /* thừa kế */
 function v20Inherit(old,p){
   const R0=old.rgr||{};S.rgr={};for(const k in R0)S.rgr[k]=Math.round(25+(R0[k]-25)/2);
@@ -6697,7 +6700,7 @@ const HCE_EV=[
       {t:'Tiêu hủy di chiếu',f:s=>{const g=R(40,90);s.money+=g;mod({honor:-4});if(isCourt(s)){s.co.merit+=10;coAb('loy',8)}return[`Bạn đốt di chiếu. Nhà vua biết chuyện, lặng lẽ gửi bạn ${g} xu và một lời cảm ơn không chữ ký.`,'']}},
       {t:'Bán thông tin cho phe quý tộc đối lập',f:s=>{const g=R(120,250);s.money+=g;rep('u',5);mod({honor:-6});myRealm().stab=Math.max(5,myRealm().stab-12);remember('Phe quý tộc đối lập',15,'nhận được di chiếu thật');later('hce_scr1b',R(2,4));return[`Phe đối lập trả ${g} xu. Từ hôm đó, bạn ngủ không yên.`,'']}}]},
  {id:'hce_scr1b',queued:true,big:true,art:'dagger',img:'assassin',c:s=>s.alive,title:'Kẻ biết quá nhiều',text:'Một bóng đen trèo qua cửa sổ phòng bạn lúc nửa đêm. Ai đó muốn chôn bí mật về bản di chiếu cùng với người đã tìm ra nó.',
-  ch:[{t:'Chống trả',f:s=>{if(ch(.45+s.hid.sword/300+cbB()/300)){mod({honor:3});return['Bạn đánh ngã tên sát thủ. Trong túi hắn có ấn của một gia tộc lớn.','good']}if(ch(.2)){die('bị ám sát vì biết quá nhiều');return['Lưỡi dao nhanh hơn bạn.','bad']}mod({health:-R(20,35)});return['Bạn sống sót với một vết đâm sâu bên sườn.','bad']}},
+  ch:[{t:'Chống trả',f:s=>{if(ch(.45+(s.blade||0)/300+cbB()/300)){mod({honor:3});return['Bạn đánh ngã tên sát thủ. Trong túi hắn có ấn của một gia tộc lớn.','good']}if(ch(.2)){die('bị ám sát vì biết quá nhiều');return['Lưỡi dao nhanh hơn bạn.','bad']}mod({health:-R(20,35)});return['Bạn sống sót với một vết đâm sâu bên sườn.','bad']}},
       {t:'Nhảy qua cửa sổ bỏ trốn',f:s=>{mod({health:-R(5,12)});const l=Math.min(Math.max(s.money,0),R(20,60));s.money-=l;return[`Bạn trốn sang làng bên, bỏ lại ${l} xu trong nhà.`,'bad']}}]},
  {id:'hce_scr2',queued:true,big:true,art:'mail',c:hcR('scribe',2),title:'Mật mã của ngoại bang',text:s=>`Bạn giải được một bức thư của gián điệp ${pick(REALMS.filter(r=>r!==S.realm))}: họ sắp đánh úp một pháo đài biên giới.`,
   ch:[{t:'Báo cho quân đội',f:s=>{rep('n',4);myRealm().stab=Math.min(95,myRealm().stab+5);mod({honor:4});if(isCourt(s))s.co.merit+=25;return['Quân đội phục kích được đội đánh úp. Bạn được thưởng một thanh kiếm danh dự.','good']}},
@@ -6728,7 +6731,7 @@ const HCE_EV=[
  /* Kẻ Mang Huyết Long */
  {id:'hce_hunt1',queued:true,big:true,art:'flame',img:'dragon',c:hcR('hunter',2),title:'Tiếng Gọi Của Long Vương',text:'Máu rồng trong người bạn sôi lên suốt bảy đêm. Đêm thứ tám, giọng của Long Vương Vermithrax vang trong đầu: "Kẻ mang máu ta, hãy quỳ xuống. Hoặc ta sẽ đến lấy lại nó."',
   ch:[{t:'Quỳ xuống, nhận làm kỵ sĩ của Long Vương',f:s=>{mod({health:10,magic:5});s.hid.sword=Math.min(100,s.hid.sword+5);rep('d',-5);s.flags.vermVassal=1;hcXP(25);later('hce_hunt1b',R(3,6));return['Vảy rồng phủ kín hai cánh tay bạn, cứng như thép. Long Vương sẽ có ngày đòi bạn trả ơn.','magic']}},
-      {t:'Thách thức Long Vương',f:s=>{if(ch(.2+s.hid.sword/300+cbB()/250)){mod({honor:12});s.house.prestige+=100;s.flags.dragonslayer=1;news(`${s.first} đánh trọng thương Long Vương Vermithrax.`,'good',true);return['Bạn đối mặt Long Vương trên đỉnh núi lửa. Bạn không giết được nó, nhưng nó rút lui với một vết thương mang tên bạn.','good']}if(ch(.25)){die('móng vuốt của Long Vương Vermithrax');return['Long Vương lấy lại máu của nó.','bad']}mod({health:-R(25,45)});hcXP(-30);return['Long Vương thiêu bạn gần chết rồi bỏ đi, như dạy một đứa trẻ hư.','bad']}},
+      {t:'Thách thức Long Vương',f:s=>{if(ch(.2+(s.blade||0)/300+cbB()/250)){mod({honor:12});s.house.prestige+=100;s.flags.dragonslayer=1;news(`${s.first} đánh trọng thương Long Vương Vermithrax.`,'good',true);return['Bạn đối mặt Long Vương trên đỉnh núi lửa. Bạn không giết được nó, nhưng nó rút lui với một vết thương mang tên bạn.','good']}if(ch(.25)){die('móng vuốt của Long Vương Vermithrax');return['Long Vương lấy lại máu của nó.','bad']}mod({health:-R(25,45)});hcXP(-30);return['Long Vương thiêu bạn gần chết rồi bỏ đi, như dạy một đứa trẻ hư.','bad']}},
       {t:'Tìm cách rút máu rồng khỏi người',f:s=>{s.hc.xp=Math.max(0,s.hc.xp-60);if(s.hc.rk>1)s.hc.rk--;mod({looks:6});return'Pháp sư Tháp Bạc rút máu rồng khỏi người bạn qua bảy đêm đau đớn. Long Vương không gọi nữa.'}}]},
  {id:'hce_hunt1b',queued:true,big:true,art:'flame',img:'dragon',c:s=>s.alive&&s.flags.vermVassal,title:'Long Vương đòi trả ơn',text:'Vermithrax ra lệnh: hãy đốt kho lương của một lãnh chúa đã săn trứng rồng. Đó là người cùng vương quốc với bạn.',
   ch:[{t:'Tuân lệnh',f:s=>{rep('n',-6);mod({honor:-6});mkPush('grain',20);return['Kho lương cháy rực suốt đêm. Long Vương hài lòng.','bad']}},
@@ -6778,7 +6781,7 @@ const HQB={
           join:{t:['Người Giữ Mật','Kẻ Nắm Giữ Bí Mật','Con Mắt Của Hội Đồng Không Tên'],d:'Thành viên Hội Đồng Không Tên · được che chở và trả lương, nhưng phải phục tùng',on:s=>{s.money+=80;rep('n',4);return'Hội Đồng trả bạn 80 xu mỗi mùa và một con dấu không khắc tên.'}}},
   shepherd:{tame:{t:['Thuần Thú Sư','Người Dẫn Dắt Thần Thú','Vạn Thú Chi Chủ'],d:'Linh thú chiến đấu bên bạn · có thể huấn luyện và dẫn thần thú ra trận',on:s=>{s.flags.beastPet=1;mod({happy:6});return'Linh thú sừng bạc từ nay đi theo bạn, ngủ trước cửa nhà bạn.'}},
             wild:{t:['Thuần Thú Sư','Người Dẫn Dắt Thần Thú','Người Giữ Rừng Thiêng'],d:'Bạn bảo vệ linh thú hoang · Liên bang Vạn Thú kính trọng bạn',on:s=>{rgAdd('beastwood',15);return'Bảy tộc Thú Nhân gửi tặng bạn chiếc vòng cổ nanh sói của người bảo hộ rừng.'}}},
-  soldier:{hold:{t:['Cựu Binh Bất Khuất','Chiến Binh Không Ngã','Bất Bại Chiến Thần'],d:'Không bao giờ rút lui · rất khó tử trận, danh tiếng lẫy lừng, gần với danh hiệu Kiếm Thánh',fx:{health:1},on:s=>{s.hid.sword=Math.min(100,(s.hid.sword||0)+10);if(isMil(s))s.co.merit+=30;return'Thiên phú kiếm của bạn tăng lên. Binh lính kể về bạn như kể về một bức tường.'}},
+  soldier:{hold:{t:['Cựu Binh Bất Khuất','Chiến Binh Không Ngã','Bất Bại Chiến Thần'],d:'Không bao giờ rút lui · rất khó tử trận, danh tiếng lẫy lừng, gần với danh hiệu Kiếm Thánh',fx:{health:1},on:s=>{s.hid.sword=Math.min(100,(s.hid.sword||0)+10);if(isMil(s))s.co.merit+=30;return'Kiếm thuật của bạn tăng lên. Binh lính kể về bạn như kể về một bức tường.'}},
            save:{t:['Cựu Binh Bất Khuất','Chiến Binh Không Ngã','Lá Chắn Của Muôn Binh'],d:'Mạng lính là trên hết · binh sĩ thề chết theo bạn, đồng đội ít người tử trận',on:s=>{s.hid.sword=Math.min(100,(s.hid.sword||0)+6);rep('d',5);if(isMil(s))s.co.merit+=20;return'Những người lính bạn cứu năm ấy khắc tên bạn lên khiên của họ.'}}},
   hunter:{slay:{t:['Huyết Long Sơ Khai','Thợ Săn Huyết Long','Long Đồ Sát Giả'],d:'Sức mạnh chống rồng · đánh rồng mạnh hơn, rồng hoang căm ghét bạn',fx:{health:1},on:s=>{s.flags.dragonslayer=1;if(isHn(s))HN().merit+=60;return'Hiệp hội Thợ săn ghi tên bạn vào sổ những kẻ diệt rồng.'}},
           ride:{t:['Huyết Long Sơ Khai','Long Huyết Chiến Binh','Long Kỵ Sĩ'],d:'Có thể ký khế ước với rồng · rồng tin bạn như đồng loại',on:s=>{if(s.dragon&&s.dragon.alive){s.dragon.trust=Math.min(100,s.dragon.trust+20);s.dragon.bond=Math.min(100,s.dragon.bond+15);return`${s.dragon.name||'Rồng của bạn'} cúi đầu cho bạn trèo lên lưng.`}if(!s.own.dragon&&!s.dragon&&EVB.egg&&!s.pend.includes('egg')){s.pend.push('egg');return'Long Vương để lại cho bạn một quả trứng rồng.'}mod({magic:4});return'Long Vương hứa sẽ có một con rồng chọn bạn.'}},
@@ -7100,7 +7103,7 @@ const HQ={
     o:[oG('Đến Vực Tro Tàn','ashrift','Gió tro thổi rát mặt. Mặt đất ấm như lưng một con thú.'),
        oR('Gọi tên Long Vương bằng huyết khế','magic',.35,'Mặt đất rung chuyển. Một con mắt vàng to bằng cánh cổng mở ra trong vách núi.','Chỉ có tiếng vọng trả lời.',{at:'ashrift'})],
     ev:{img:'dragon',x:q=>'Long Vương Vermithrax trườn ra khỏi miệng núi lửa. Nó già đến mức vảy đã hóa đá. "Kẻ mang máu ta. Ngươi đến để giết ta, quỳ trước ta, hay đứng cạnh ta?"',
-     c:[{t:'Săn nó',f:q=>{if(ch(.3+S.st.health/400+cbB()/150+(S.hid.sword||0)/400)){q.br='slay';mod({honor:10});S.house.prestige+=50;return['Mũi kiếm của bạn tìm được khe hở dưới cằm Long Vương. Núi lửa phun suốt ba ngày.','good']}q.stay=1;mod({health:-R(20,35)});if(ch(.05)){die('lửa của Long Vương Vermithrax');return['Long Vương không cần đến lần thứ hai.','bad']}return['Long Vương hất bạn văng xuống sườn núi như hất một con ruồi. Bạn phải chuẩn bị lại từ đầu.','bad']}},
+     c:[{t:'Săn nó',f:q=>{if(ch(.3+S.st.health/400+cbB()/150+(S.blade||0)/400)){q.br='slay';mod({honor:10});S.house.prestige+=50;return['Mũi kiếm của bạn tìm được khe hở dưới cằm Long Vương. Núi lửa phun suốt ba ngày.','good']}q.stay=1;mod({health:-R(20,35)});if(ch(.05)){die('lửa của Long Vương Vermithrax');return['Long Vương không cần đến lần thứ hai.','bad']}return['Long Vương hất bạn văng xuống sườn núi như hất một con ruồi. Bạn phải chuẩn bị lại từ đầu.','bad']}},
         {t:'Quỳ xuống, xin máu của nó',f:q=>{q.br='blood';mod({health:5,looks:-3});return['Long Vương nhỏ một giọt máu lên trán bạn. Giọt máu nóng như sắt nung.','magic']}},
         {t:'Đứng cạnh nó như ngang hàng',f:q=>{q.br='ride';mod({honor:5});return['Long Vương cười, tiếng cười làm rơi đá khắp vách núi. "Vậy thì ta sẽ cho ngươi một đôi cánh."','magic']},req:q=>S.st.honor>=30}]}},
    {n:'Khế Ước Huyết Long',d:'Chịu thử thách biến đổi cơ thể.',clue:'Máu rồng chỉ chịu ở yên trong người đủ mạnh.',
@@ -7155,7 +7158,7 @@ const HQ={
 
 /* ---------- động cơ chuỗi nhiệm vụ ẩn ---------- */
 const HQST={act:'Đang theo đuổi',known:'Đang gác lại',diary:'Nhật ký truyền lại',done:'Đã thức tỉnh',lost:'Cơ hội đã trôi qua',fail:'Đã từ bỏ'};
-const HQSN={smarts:'trí tuệ',magic:'ma lực',health:'sức khỏe',piety:'đức tin',honor:'danh dự',looks:'dung mạo',happy:'tinh thần',sword:'thiên phú kiếm'};
+const HQSN={smarts:'trí tuệ',magic:'ma lực',health:'sức khỏe',piety:'đức tin',honor:'danh dự',looks:'dung mạo',happy:'tinh thần',sword:'kiếm thuật'};
 const qtx=(v,q)=>typeof v==='function'?v(q,S):v;
 const hqAll=()=>Object.values(S&&S.hq||{});
 const hqActN=()=>hqAll().filter(q=>q.st==='act'&&!(HQ[q.k]&&HQ[q.k].mv)).length;
@@ -7207,8 +7210,8 @@ function hqAct(k,key){
   const m=q.npc.m,self=o.k==='men'&&!menOK(q);let ok=true,t='',tone='good';
   if(o.k==='pay'){S.money-=o.c;if(o.fx)o.fx()}
   else if(o.k==='roll'||self){const s=self?'smarts':o.s||'smarts',b=self?.4:o.b||.4;if(self)S.money-=15;
-    const v=s==='sword'?(S.hid.sword||0):(S.st[s]||0);ok=ch(Math.max(.1,Math.min(.92,b+v/250+(menOK(q)&&m.tr>=50?.08:0)-(q.fl.books&&o.k==='men'?.05:0))))}
-  else if(o.k==='fight')ok=ch(Math.max(.1,Math.min(.9,o.b+S.st.health/400+cbB()/150+(S.hid.sword||0)/400)));
+    const v=s==='sword'?(S.blade||0):(S.st[s]||0);ok=ch(Math.max(.1,Math.min(.92,b+v/250+(menOK(q)&&m.tr>=50?.08:0)-(q.fl.books&&o.k==='men'?.05:0))))}
+  else if(o.k==='fight')ok=ch(Math.max(.1,Math.min(.9,o.b+S.st.health/400+cbB()/150+(S.blade||0)/400)));
   if(o.k==='men'&&!self)m.tr=Math.min(100,m.tr+4);
   if(ok){q.o[key]=o.k==='time'?(q.o[key]||0)+1:1;t=(self?'Không còn người chỉ dạy, bạn tự học bằng sách cổ. ':'')+qtx(o.ok,q);if(o.k==='time'&&q.o[key]<o.yrs)t+=` (${q.o[key]}/${o.yrs} năm)`;mod({happy:1})}
   else{tone='bad';t=qtx(o.no,q)||'Lần này không thành.';
@@ -7347,7 +7350,7 @@ const HQX_EV=[
  {id:'hqx_rivaldone',queued:true,big:true,art:'rival',img:'fallenhero',c:s=>{const q=hqQ(s,'hqx_rivaldone');return!!(s.alive&&q&&q.st==='act'&&q.npc.r)},title:'Đối Thủ Đi Trước Một Bước',
   text:s=>{const q=hxq('hqx_rivaldone'),r=q.npc.r;return`${r.n} đã trở thành ${HC[q.k].n} trước bạn. ${r.ally?'Người ấy gửi thư mời bạn tới học, đúng như đã hứa.':'Người ấy đi khắp nơi khoe rằng con đường này giờ đã có chủ.'}`},
   ch:[{t:'Xin làm đệ tử',f:s=>{const q=hxq('hqx_rivaldone'),r=q.npc.r;for(const[key,o]of hqObjs(q))q.o[key]=o.k==='time'?o.yrs:1;if(!q.due)q.due=s.year+1;if(!r.ally)mod({honor:-4});if(!menOK(q))q.npc.m={n:r.n,t:`${HC[q.k].n} đi trước bạn`,race:r.race,tr:r.ally?60:35,alive:1,a:R(30,50)};q.hist.push({y:s.year,t:`Học dưới tay ${r.n}`});return[`${r.n} chỉ cho bạn những điều bạn còn thiếu ở chương này.`,'good']}},
-      {t:'Thách đấu',f:s=>{const q=hxq('hqx_rivaldone'),r=q.npc.r;if(ch(.35+s.st.health/400+cbB()/150+(s.hid.sword||0)/400)){r.fallen=1;mod({honor:8});s.house.prestige+=20;q.hist.push({y:s.year,t:`Thắng ${r.n} trong một trận thách đấu`});return[`Bạn đánh bại ${r.n} trước mặt mọi người. Danh hiệu của người ấy giờ chẳng còn ai tin.`,'good']}mod({health:-R(12,22)});q.boss=1;addEnemy(`${r.n}, ${HC[q.k].n} từng đánh bại bạn`,{hate:R(50,70),first:r.n.split(' ')[0]});return[`${r.n} hạ bạn chỉ sau vài chiêu. Muốn đi tới cuối con đường, bạn sẽ phải vượt qua người này.`,'bad']}},
+      {t:'Thách đấu',f:s=>{const q=hxq('hqx_rivaldone'),r=q.npc.r;if(ch(.35+s.st.health/400+cbB()/150+(s.blade||0)/400)){r.fallen=1;mod({honor:8});s.house.prestige+=20;q.hist.push({y:s.year,t:`Thắng ${r.n} trong một trận thách đấu`});return[`Bạn đánh bại ${r.n} trước mặt mọi người. Danh hiệu của người ấy giờ chẳng còn ai tin.`,'good']}mod({health:-R(12,22)});q.boss=1;addEnemy(`${r.n}, ${HC[q.k].n} từng đánh bại bạn`,{hate:R(50,70),first:r.n.split(' ')[0]});return[`${r.n} hạ bạn chỉ sau vài chiêu. Muốn đi tới cuối con đường, bạn sẽ phải vượt qua người này.`,'bad']}},
       {t:'Mặc kệ',f:s=>{const q=hxq('hqx_rivaldone');q.boss=1;return'Bạn tiếp tục đường của mình. Nhưng bạn biết, ở cuối đường, người ấy sẽ đứng chờ.'}}]},
  {id:'hq_diary',queued:true,big:true,art:'scroll',img:'destiny',c:s=>!!(s.alive&&s.hqDia&&s.hq&&s.hq[s.hqDia]&&s.hq[s.hqDia].st==='diary'),title:s=>`Nhật Ký Của ${s.hq[s.hqDia].from}`,
   text:s=>{const q=s.hq[s.hqDia],C=HQ[q.k].ch[q.ch];return`Trong rương đồ cũ của ${q.from}, bạn tìm thấy cuốn nhật ký ghi chép hành trình "${HQ[q.k].n}" tới con đường ${HC[q.k].n}. Những trang cuối dừng ở chương "${qtx(C.n,q)}": "${qtx(C.clue,q)}"`},
@@ -7693,13 +7696,13 @@ const mnOn=()=>!!(S&&S.flags&&S.flags.mnK);
 const mvList=()=>Object.keys(S.mv||{}).filter(id=>MV[id]);
 function mvLearn(id,auto){mnEnsure();if(!MV[id])return'';if(S.mv[id])return'';S.mv[id]={lv:1,xp:0};if(S.mvL.length<4&&!S.mvL.includes(id))S.mvL.push(id);if(auto)log(`Bạn học được chiêu ${MV[id].n}.`,'magic');return MV[id].n}
 function mvPass(){if(!S||!S.mv)return 0;let v=0;for(const id in S.mv){const M=MV[id];if(M&&M.ty!=='heal'&&M.ty!=='esc')v+=S.mv[id].lv||1}return Math.min(15,v)}
-function mvTal(id){const M=MV[id];if(M.src==='kiem')return((S.hid.sword||0)-50)/250;if(M.src[0]==='m')return(((S.hid.arcane||0)+S.st.magic)/2-50)/250;return((S.hc&&S.hc.rk||1)-1)*.03}
+function mvTal(id){const M=MV[id];if(M.src==='kiem')return((S.blade||0)-40)/250;if(M.src[0]==='m')return(((S.hid.arcane||0)+S.st.magic)/2-50)/250;return((S.hc&&S.hc.rk||1)-1)*.03}
 function mvMatch(id,tags){const M=MV[id];if(!M||!tags)return 0;const a=M.sv.filter(t=>tags.includes(t)).length,b=M.wk.filter(t=>tags.includes(t)).length;return Math.min(.24,a*.12)-Math.min(.2,b*.1)}
 function mvXP(id,win){const P=S.mv[id];if(!P||P.lv>=5)return'';P.xp+=win?R(5,9):R(2,4);if(P.xp>=MVXP[P.lv]){P.lv++;const t=` ${MV[id].n} lên cấp ${P.lv}.`;log(`Chiêu ${MV[id].n} lên cấp ${P.lv}.`,'good');return t}return''}
 function mvWhy(id,book){const M=MV[id];if(!M)return'Không có';if(S.mv&&S.mv[id])return'Đã học';if(S.age<10)return'Từ 10 tuổi';
   if(M.src[0]==='h')return'Chiêu độc nhất của nghề ẩn';
   if(M.src[0]==='m'){if(!mnOn())return'Chưa thức tỉnh mệnh';if(M.src.slice(2)!==S.hid.menh)return`Chỉ người mang ${MENH[M.src.slice(2)].n} mệnh mới học được`;if(S.st.magic<(M.mg||0))return`Cần ma lực ${M.mg}`}
-  if(M.src==='kiem'&&(S.hid.sword||0)<(M.sw||0))return'Thiên phú kiếm chưa đủ';
+  if(M.src==='kiem'&&(S.blade||0)<(M.sw||0))return`Cần kiếm thuật ${M.sw}`;
   if(M.pre){const P=S.mv[M.pre[0]];if(!P||P.lv<M.pre[1])return`Cần ${MV[M.pre[0]].n} cấp ${M.pre[1]}`}
   if(!book){if(M.u)return'Chiêu độc nhất: chỉ học được qua nhiệm vụ';if(M.q&&M.bk)return'Học qua nhiệm vụ hoặc bí kíp';if(M.bk)return'Cần bí kíp (thư viện, hầm ngục)'}
   return''}
@@ -7713,7 +7716,7 @@ function cbTags(n){const t=new Set();const s=n.toLowerCase();
   if(/rồng|wyvern|long vương|leviathan|thằn lằn/.test(s))t.add('rong');if(/xương|xác|hầm mộ|bộ xương|nấm xương/.test(s))t.add('xac');if(/quỷ|hỏa ngục/.test(s)){t.add('quy');t.add('lua')}
   if(/sói|thú|quái|thủy quái|linh thú/.test(s))t.add('thu');if(/sát thủ|cướp|bọn|nhóm|toán|đoàn|tín đồ|tiều phu|đào/.test(s)){t.add('nguoi');t.add('dong')}
   if(/hiệp sĩ|thủ vệ|golem|giáp|người giữ bia/.test(s))t.add('giap');if(/pháp sư/.test(s))t.add('phep');if(/thách đấu|vượt qua|đấu thử|giữ/.test(s))t.add('nguoi');if(!t.size)t.add('nguoi');return[...t]}
-function cbChance(id,F){const base=.52-(F.d||0);if(!id)return base+((S.hid.sword||0)-50)/300+(S.st.health-50)/400+cbB()/200-.05;
+function cbChance(id,F){const base=.52-(F.d||0);if(!id)return base+((S.blade||0)-40)/300+(S.st.health-50)/400+cbB()/200-.05;
   const M=MV[id],lv=S.mv[id].lv;return base+M.pw+(lv-1)*.04+mvTal(id)+mvMatch(id,F.tags)+cbB()/250}
 function cbLabel(id,tags){const M=MV[id],P=S.mv[id],m=mvMatch(id,tags);return`${M.n} · cấp ${P?P.lv:1}${M.mp?` · ${M.mp} ma lực`:''}${M.hp?` · ${M.hp} sức khỏe`:''}${m>0?' · khắc chế':m<0?' · bị khắc':''}`}
 function cbHurt(F,mult){const dm=F.dm||[6,14];let d=Math.round(R(dm[0],dm[1])*(mult||1));if(F.soft===1)d=Math.round(d/2);mod({health:-d});
@@ -7782,8 +7785,8 @@ function vhAct(a,id){mnEnsure();if(!S.alive)return;let t='',tone='';
   else if(a==='tr'){if(!S.mv[id]||!vhLeft())return;S.done.vh=(S.done.vh||0)+1;const M=MV[id],P=S.mv[id];
     const tal=M.src==='kiem'?(S.hid.sword||0):M.src[0]==='m'?((S.hid.arcane||0)+S.st.magic)/2:60;let g=Math.round(R(8,14)*(.6+tal/125));
     if(ch(.08)){g*=2;t=`Đột phá! Bạn luyện ${M.n} cả đêm và bỗng hiểu ra một điều.`;tone='good'}
-    else if(M.src==='kiem'&&ch(.08)){mod({health:-R(4,9)});t=`Bạn luyện ${M.n} quá sức và bị trẹo tay.`;tone='bad'}
-    else if(M.src[0]==='m'&&ch(.07)){mod({health:-R(4,9),happy:-3});t=`Ma lực mất kiểm soát khi bạn luyện ${M.n}. Bạn làm cháy sém nửa bức tường.`;tone='bad'}
+    else if(M.src==='kiem'&&ch(.14-(S.tal?S.tal.sword:50)/800)){mod({health:-R(4,9)});t=`Bạn luyện ${M.n} quá sức và bị trẹo tay.`;tone='bad'}
+    else if(M.src[0]==='m'&&ch(.12-(S.tal?S.tal.arcane:50)/900)){mod({health:-R(4,9),happy:-3});t=`Ma lực mất kiểm soát khi bạn luyện ${M.n}. Bạn làm cháy sém nửa bức tường.`;tone='bad'}
     else{t=pick([`Bạn luyện ${M.n} suốt buổi sáng.`,`Bạn lặp lại ${M.n} hàng trăm lần cho đến khi cơ thể tự nhớ.`,`Bạn luyện ${M.n} với một hình nộm rơm.`])}
     if(P.lv<5){P.xp+=g;let up=false;while(P.lv<5&&P.xp>=MVXP[P.lv]){P.lv++;up=true}if(up){t+=` ${M.n} lên cấp ${P.lv}.`;tone='good'}else t+=` Thành thạo +${g}.`}else t+=' Chiêu này đã đạt cấp tối đa.';
     if(ch(.05)){const L=Object.keys(MV).filter(x=>!mvWhy(x));if(L.length){const n=pick(L);mvLearn(n);t+=` Một người qua đường dừng lại xem, rồi chỉ cho bạn chiêu ${MV[n].n}.`;tone='good'}}}
@@ -7800,7 +7803,7 @@ function vhRow(id,act){const M=MV[id],P=S.mv[id];return gRow(act,mvIc(M),`${M.n}
 const mvSrcN=M=>M.src==='kiem'?'Kiếm thuật':M.src[0]==='m'?`${MENH[M.src.slice(2)].n} mệnh`:M.src[0]==='r'?{hero:'Anh Hùng',saint:'Thánh Nữ',dark:'Ma Vương'}[M.src.slice(2)]:`Nghề ẩn ${HC[M.src.slice(2)].n}`;
 function vhView(v){mnEnsure();const id=v.split(':')[1];if(id&&MV[id])return vhMove(id);const dis=!S.alive,m=MENH[S.hid.menh];let b='';
   b+=mnOn()?gRow('',m.ic,`${m.n} mệnh`,m.d,'',false,true):gRow('','star','Mệnh ẩn: chưa thức tỉnh','Ai cũng mang một trong bảy mệnh: Hỏa, Mộc, Thủy, Thổ, Hắc, Quang, Huyết. Mệnh thường thức tỉnh khi ma lực đủ mạnh hoặc qua sách vở','',false,true);
-  b+=statGrid([['Thiên phú kiếm',S.flags.seenS?talentWord(S.hid.sword):'chưa rõ'],['Cảm nhận ma pháp',S.flags.seenA?talentWord(S.hid.arcane):'chưa rõ'],['Ma lực',S.st.magic+'/100'],['Chiêu đã học',mvList().length]]);
+  b+=statGrid([['Thiên phú kiếm thuật',S.flags.seenS?talentWord(S.hid.sword):'chưa rõ'],['Cảm nhận ma pháp',S.flags.seenA?talentWord(S.hid.arcane):'chưa rõ'],['Kiếm thuật',(S.blade||0)+'/100'],['Ma lực',S.st.magic+'/100']]);b+='<p class="note">Thiên phú là tài năng bẩm sinh, không đổi. Kiếm thuật và ma lực tăng khi luyện tập; thiên phú càng cao thì tăng càng nhanh và càng ít bị thương khi luyện hay khi giao chiến.</p>';
   b+=`<p class="sec">Mang vào trận · ${S.mvL.length}/4</p>`;b+=S.mvL.length?S.mvL.map(x=>vhRow(x,`data-open="vh:${x}"`)).join(''):'<p class="note">Chưa có chiêu nào. Khi gặp trận đánh, bạn sẽ chọn một trong những chiêu mang theo.</p>';
   const rest=mvList().filter(x=>!S.mvL.includes(x));if(rest.length)b+='<p class="sec">Chiêu khác đã học</p>'+rest.map(x=>vhRow(x,`data-open="vh:${x}"`)).join('');
   b+=`<p class="sec">Học chiêu mới · còn ${vhLeft()}/2 buổi luyện năm nay</p>`;
@@ -7811,7 +7814,7 @@ function vhView(v){mnEnsure();const id=v.split(':')[1];if(id&&MV[id])return vhMo
   b+='<p class="sec">Thư viện và tỉ thí</p>';
   b+=gRow('data-x="vh:lib"','book','Đọc sách ở thư viện',S.age<8?'Từ 8 tuổi':(S.done.lib||0)>=2?'Đã đọc đủ hai lần năm nay':S.money<3?'Cần 3 xu':'3 xu · có thể tìm thấy bí kíp, tăng trí tuệ, vui vẻ, hoặc chẳng hiểu gì','',dis||S.age<8||(S.done.lib||0)>=2||S.money<3);
   b+=gRow('data-x="vh:spar"','sword','Tỉ thí với võ sư',S.age<12?'Từ 12 tuổi':S.done.spar?'Đã tỉ thí năm nay':'Dùng chiêu thức thật, không nguy hiểm đến tính mạng','',dis||S.age<12||!!S.done.spar);
-  return['Võ học',b,'act']}
+  return['Võ học',b,'act:train']}
 function vhMove(id){const M=MV[id],P=S.mv[id],dis=!S.alive;let b='';
   b+=gRow('',mvIc(M),M.n,`${mvSrcN(M)} · ${MVTY[M.ty]}${M.u||M.src[0]==='h'?' · chiêu độc nhất':''}`,'',false,true);
   b+=`<p class="note">${M.d}.</p>`;
@@ -7822,7 +7825,7 @@ function vhMove(id){const M=MV[id],P=S.mv[id],dis=!S.alive;let b='';
   return[M.n,b,'vh']}
 {const d0=drawExt3;drawExt3=function(v){if(v==='vh'||v.startsWith('vh:'))return vhView(v);return d0(v)}}
 {const x0=extAct3;extAct3=function(x){const[a,b,c]=x.split(':');if(a==='vh')return vhAct(b,c);return x0(x)}}
-{const a0=actExtra3;actExtra3=function(){mnEnsure();const b=a0();const m=MENH[S.hid.menh];return'<p class="sec">Võ học</p>'+gRow('data-open="vh"','sword','Võ học, mệnh và thư viện',`${mnOn()?m.n+' mệnh':'Mệnh chưa thức tỉnh'} · ${mvList().length} chiêu · còn ${vhLeft()}/2 buổi luyện`,'',!S.alive)+b}}
+{const a0=actExtra3;actExtra3=function(){mnEnsure();return a0()}}
 
 /* thức tỉnh mệnh và lời gọi học chiêu độc nhất */
 const MN_EV=[
@@ -7843,7 +7846,7 @@ function mvYear(){mnEnsure();if(!S.alive)return;
   if(!mnOn()&&S.age>=12&&S.age<=45&&!(S.flags.mnNo&&S.year-S.flags.mnNo<5)&&!S.pend.includes('mn_wake')&&ch(.05+S.st.magic/800+((S.hid.arcane||0)>=60?.05:0)))S.pend.push('mn_wake');
   if(S.age>=16&&!S.pend.includes('mq_call')){if(!S.mqNo)S.mqNo={};const m=S.hid.menh,k='mq_'+m;
     if(mnOn()&&!(S.hq&&S.hq[k])&&!S.mqNo[k]&&!S.mv[MQ[m].mv]&&S.st.magic>=40&&['1','2','3','4'].filter(i=>S.mv[m+i]).length>=3&&ch(.15)){S.mqK=k;S.pend.push('mq_call')}
-    else if(!S.mv.kkt&&!(S.hq&&S.hq.mq_kiem)&&!S.mqNo.mq_kiem&&(S.hid.sword||0)>=60&&S.mv.chem&&S.mv.chem.lv>=3&&ch(.12)){S.mqK='mq_kiem';S.pend.push('mq_call')}}}
+    else if(!S.mv.kkt&&!(S.hq&&S.hq.mq_kiem)&&!S.mqNo.mq_kiem&&(S.blade||0)>=55&&S.mv.chem&&S.mv.chem.lv>=3&&ch(.12)){S.mqK='mq_kiem';S.pend.push('mq_call')}}}
 {const y0=extYear3;extYear3=function(){y0();try{mvYear()}catch(e){console.error(e)}}}
 {const n0=newLife;newLife=function(o){n0(o);if(S){S.mv={};S.mvL=[];S.bk=[];if(S.hid)S.hid.menh=mnPick(S.race);save()}}}
 function v23Inherit(old){const B=(old.bk||[]).filter(x=>MV[x]).slice(0,6);S.mv={};S.mvL=[];S.bk=B;S.mqK=null;S.mqNo={};S.cb=null;if(S.flags){S.flags.mnK=0;S.flags.mnNo=0}if(!S.hid)S.hid={};S.hid.menh=old.hid&&MENH[old.hid.menh]&&ch(.5)?old.hid.menh:mnPick(S.race);if(B.length)log(`Bạn thừa hưởng ${B.length} cuốn bí kíp gia truyền.`,'item')}
@@ -7891,7 +7894,7 @@ const HEROMV=['Thánh Kiếm Phá Ma','Ánh Sáng Tiên Tri','Ý Chí Bất Khu�
 
 /* Ma Kiếm Sư: nghề ẩn không cần nghề gốc */
 HC.mks={n:'Ma Kiếm Sư',ic:'sword',jobs:[],free:1,call:'',train:['Truyền phép vào kiếm',''],fx:{magic:1},perk:'Truyền phép vào kiếm: chiêu Hỏa Kiếm, Băng Kiếm, Lôi Kiếm làm mạnh mọi đòn kiếm thuật sau đó'};
-HCA.mks=[['wand','Truyền phép vào kiếm','Ma lực, thiên phú kiếm',0,()=>{mod({magic:2});S.hid.sword=Math.min(100,(S.hid.sword||0)+1);S.hid.arcane=Math.min(100,(S.hid.arcane||0)+1);return pick(['Bạn truyền ma lực vào lưỡi kiếm cho tới khi nó ngân lên như dây đàn.','Bạn tập giữ ngọn lửa trên lưỡi kiếm suốt một nén hương mà không để nó tắt.'])}],
+HCA.mks=[['wand','Truyền phép vào kiếm','Ma lực, kiếm thuật',0,()=>{mod({magic:2});S.hid.sword=Math.min(100,(S.hid.sword||0)+1);S.hid.arcane=Math.min(100,(S.hid.arcane||0)+1);return pick(['Bạn truyền ma lực vào lưỡi kiếm cho tới khi nó ngân lên như dây đàn.','Bạn tập giữ ngọn lửa trên lưỡi kiếm suốt một nén hương mà không để nó tắt.'])}],
   ['sword','Giao đấu với kiếm sĩ pháp sư lang thang','Tiền thưởng, danh dự · có thể bị thương',1,()=>{if(ch(.2)){mod({health:-R(6,14)});return['Đối thủ tung một câu thần chú ngay giữa đường kiếm. Bạn trúng đòn.','bad']}const g=R(20,50);S.money+=g;mod({honor:3});return[`Bạn thắng một kiếm sĩ pháp sư từ phương xa. Tiền cược ${g} xu.`,'good']}],
   ['flame','Luyện Nguyên Tố Kiếm Vũ','Ma lực lớn · có thể mất kiểm soát',2,()=>{if(ch(.12)){mod({health:-R(8,16)});return['Lửa, băng và sét cùng lúc vượt khỏi tầm tay bạn.','bad']}mod({magic:4,honor:1});return['Ba nguyên tố xoay quanh lưỡi kiếm theo đúng nhịp thở của bạn.','magic']}]];
 HCQ.mks=[['Người thầy hỏi: "Thứ gì có lưỡi mà không biết nói, có lửa mà không bị cháy, nằm trong tay ai thì mang linh hồn người ấy?"','Thanh ma kiếm','Ngọn đuốc','Con rồng'],['Người thầy hỏi: "Kiếm cắt được thứ gì mà phép không cắt được, và phép cắt được thứ gì mà kiếm không cắt được?"','Kiếm cắt thân, phép cắt hồn','Kiếm cắt sắt, phép cắt đá','Không thứ gì cả']];
@@ -7944,9 +7947,9 @@ hqReg('mks');Object.assign(EIMG,{hq_mks_0:'ruins'});
 const CTO={
   hunt:{n:'Hiệp hội Thợ săn',ic:'bow',roles:['Thợ săn hợp đồng','Thợ săn hạng cao','Đội trưởng săn','Thủ lĩnh Hiệp hội'],pay:[40,90,130,190],sc:s=>(s.cbw||0)*5+(isHn(s)?25:0)+mvList().length*3+s.st.health/4,duty:'diệt ít nhất một con quái vật mỗi năm',foe:{n:'Quái vật trong hợp đồng săn',tg:['thu','nhanh'],d:.08}},
   acad:{n:'Tháp Ma Pháp',ic:'tower',roles:['Nghiên cứu viên','Pháp sư chiến đấu','Cố vấn Tháp','Trưởng lão Tháp'],pay:[30,70,110,170],sc:s=>((s.hid.arcane||0)+s.st.magic)/2+mvList().filter(id=>MV[id].src[0]==='m').length*5,duty:'bảo vệ Học viện hoặc làm một nhiệm vụ nghiên cứu mỗi năm',foe:{n:'Pháp sư phản loạn',tg:['phep','nguoi'],d:.1}},
-  sword:{n:'Hội Kiếm Sĩ',ic:'sword',roles:['Đệ tử','Kiếm sư','Huấn luyện viên','Kiếm chủ'],pay:[25,60,100,160],sc:s=>(s.hid.sword||0)/2+mvList().filter(id=>MV[id].src==='kiem').reduce((a,id)=>a+s.mv[id].lv*3,0)+s.st.honor/4,duty:'tham gia ít nhất một trận đấu của hội mỗi năm',foe:{n:'Kiếm khách thách đấu hội',tg:['nguoi','nhanh'],d:.1}},
+  sword:{n:'Hội Kiếm Sĩ',ic:'sword',roles:['Đệ tử','Kiếm sư','Huấn luyện viên','Kiếm chủ'],pay:[25,60,100,160],sc:s=>(s.blade||0)/2+mvList().filter(id=>MV[id].src==='kiem').reduce((a,id)=>a+s.mv[id].lv*3,0)+s.st.honor/4,duty:'tham gia ít nhất một trận đấu của hội mỗi năm',foe:{n:'Kiếm khách thách đấu hội',tg:['nguoi','nhanh'],d:.1}},
   army:{n:'Quân đội Hoàng gia',ic:'banner',roles:['Sĩ quan','Đội trưởng','Chỉ huy','Đại tướng'],pay:[35,80,140,260],sc:s=>s.st.health/3+s.st.honor/3+(atWar()?20:0)+(s.cbw||0)*4,war:1,duty:'đi tuần hoặc đánh một trận mỗi năm',foe:{n:'Toán quân địch tuần biên',tg:['nguoi','dong','giap'],d:.12}},
-  merc:{n:'Đoàn lính đánh thuê Sói Sắt',ic:'wolf',roles:['Chiến binh','Đội trưởng','Chỉ huy đoàn','Thủ lĩnh đoàn'],pay:[35,95,160,250],sc:s=>(s.cbw||0)*7+s.st.health/4,war:1,duty:'nhận ít nhất một hợp đồng đánh thuê mỗi năm',foe:{n:'Đoàn hộ tống bị phục kích',tg:['nguoi','dong'],d:.08}},
+  merc:{n:'Bang Sói Sắt',ic:'wolf',roles:['Chiến binh','Đội trưởng','Chỉ huy đoàn','Thủ lĩnh đoàn'],pay:[35,95,160,250],sc:s=>(s.cbw||0)*7+s.st.health/4,war:1,duty:'nhận ít nhất một hợp đồng đánh thuê mỗi năm',foe:{n:'Đoàn hộ tống bị phục kích',tg:['nguoi','dong'],d:.08}},
   gold:{n:'Thương Hội Hoàng Kim',ic:'coins',roles:['Đại diện','Quản lý','Giám đốc chi nhánh','Hội trưởng'],pay:[30,65,110,180],sc:s=>Math.min(60,s.money/20)+s.st.smarts/3+(s.job&&s.job.id==='trade'?20:0),duty:'áp tải ít nhất một đoàn hàng mỗi năm',foe:{n:'Cướp chặn đoàn hàng',tg:['nguoi','dong'],d:.06}},
   shadow:{n:'Mạng Lưới Bóng Tối',ic:'hood',roles:['Mật vụ','Môi giới','Thủ lĩnh địa phương','Chủ Mạng Lưới'],pay:[30,70,120,200],sc:s=>(s.dm?s.dm.con*8:0)+(s.flags.suspect||0)*3+s.st.smarts/4+(s.hc&&s.hc.k==='trade'?25:0),duty:'làm một phi vụ bí mật mỗi năm',foe:{n:'Toán lính truy quét',tg:['truy','nguoi','dong'],d:.1}},
   red:{n:'Giáo hội Hồng Nguyệt',ic:'night',roles:['Giáo sĩ','Pháp quan','Chỉ huy dị giáo','Đại tư tế'],pay:[25,60,110,170],c:s=>!s.flags.saint,sc:s=>(s.flags.her||0)*20+(s.hid.menh==='hac'||s.hid.menh==='huyet'?20:0)+(s.st.piety<30?15:0)+(s.hid.arcane||0)/4,duty:'thực hiện một nghi lễ hoặc phi vụ mỗi năm',foe:{n:'Thẩm phán dị giáo',tg:['nguoi','phep'],d:.1}},
@@ -7967,9 +7970,9 @@ function ctYear(){if(!S.alive||S.age<16)return;const C=ctOf();
 function ctAct(a){const C=ctOf();if(!C||!S.alive)return;const D=CTO[C.o];let t='',tone='';
   if(a==='do'){if((S.done.cta||0)>=2)return;S.done.cta=(S.done.cta||0)+1;const F=D.foe;S.cb={ctx:'ct',n:F.n,tags:F.tg,d:F.d+C.rk*.03,dm:[6,14],ic:D.ic,intro:`${D.n} giao cho bạn nhiệm vụ: ${D.duty}. Đối thủ lần này: ${F.n.toLowerCase()}.`};S.pend.push('cb_fight');return afterSheetAction()}
   if(a==='raise'){if(S.year-C.ry<3)return;C.ry=S.year;if(ch(.3+ctScore(C.o)/400+C.dn*.02)){C.pay=Math.round(C.pay*1.2);t=`${D.n} đồng ý tăng lương cho bạn lên ${C.pay} xu mỗi năm.`;tone='good'}else{C.warn=Math.min(2,C.warn+1);t=`${D.n} từ chối, và bắt đầu nghi ngờ lòng trung thành của bạn.`;tone='bad'}}
-  if(a==='quit'){if(S.ctQuit!==S.year){S.ctQuit=S.year;note={t:'Nhấn "Rời tổ chức" lần nữa để xác nhận.',tone:'bad'};return drawSheet()}S.ct=null;S.ctQuit=0;t=`Bạn rời ${D.n}.`;view='act'}
+  if(a==='quit'){if(S.ctQuit!==S.year){S.ctQuit=S.year;note={t:'Nhấn "Rời tổ chức" lần nữa để xác nhận.',tone:'bad'};return drawSheet()}S.ct=null;S.ctQuit=0;t=`Bạn rời ${D.n}.`;view='org'}
   if(t){log(t,tone);note={t,tone}}afterSheetAction()}
-function ctView(){const C=ctOf();if(!C)return['Hợp đồng','<p class="note">Bạn chưa ký hợp đồng với tổ chức nào. Khi bạn đủ nổi tiếng về chiến đấu, ma pháp, kiếm thuật, buôn bán hay thế giới ngầm, các tổ chức sẽ tự gửi lời mời.</p>'+ctScan(),'act'];
+function ctView(){const C=ctOf();if(!C)return['Hợp đồng','<p class="note">Bạn chưa ký hợp đồng với tổ chức nào. Khi bạn đủ nổi tiếng về chiến đấu, ma pháp, kiếm thuật, buôn bán hay thế giới ngầm, các tổ chức sẽ tự gửi lời mời.</p>'+ctScan(),'org'];
   const D=CTO[C.o],dis=!S.alive;let b=imgBanner('guildinvite');
   b+=gRow('',D.ic,D.n,`${D.roles[C.rk]}${C.ally?' · đồng minh độc lập':''} · từ năm ${C.y}`,'',false,true);
   b+=statGrid([['Lương mỗi năm',`${Math.round(C.pay*(C.ally?.5:1))} xu`],['Nhiệm vụ đã làm',C.dn],['Thăng chức',C.rk>=D.roles.length-1?'đã cao nhất':`${C.dn}/${(C.rk+1)*3} nhiệm vụ`],['Cảnh cáo',`${C.warn}/3`]]);
@@ -7977,7 +7980,7 @@ function ctView(){const C=ctOf();if(!C)return['Hợp đồng','<p class="note">B
   b+=gRow('data-x="ct:do"','sword','Làm nhiệm vụ của tổ chức',(S.done.cta||0)>=2?'Đã làm đủ hai lần năm nay':`${D.foe.n} · chọn chiêu để giao chiến · thắng được thưởng thêm`,'',dis||(S.done.cta||0)>=2);
   b+=gRow('data-x="ct:raise"','coins','Đòi tăng lương',S.year-C.ry<3?`Lần sau từ năm ${C.ry+3}`:'Có thể được 20%, có thể bị nghi ngờ','',dis||S.year-C.ry<3);
   b+=gRow('data-x="ct:quit"','x','Rời tổ chức',S.ctQuit===S.year?'Nhấn lần nữa để xác nhận':'Chấm dứt hợp đồng','',dis);
-  return['Hợp đồng',b+ctScan(),'act']}
+  return['Hợp đồng',b+ctScan(),'org']}
 function ctScan(){return'<p class="sec">Các tổ chức để mắt tới bạn</p>'+Object.keys(CTO).map(k=>{const s=ctScore(k);return`<p class="note">${CTO[k].n}: ${s>=60?'đang muốn chiêu mộ bạn':s>=40?'đã nghe tên bạn':'chưa biết bạn là ai'}</p>`}).join('')}
 const ctTx=k=>{const D=CTO[k];return D?D:{n:'Tổ chức',roles:['Thành viên'],duty:'',ic:'flag'}};
 const CT_EV=[
@@ -8089,7 +8092,7 @@ function ncYear(){if(!isNc()||!S.alive||S.pend.some(x=>x.startsWith('nc_')))retu
   if(S.world.cat&&BOSST[S.world.cat.id]&&S.world.cat.id!=='plague'&&!S.flags.hero&&ch(.3))S.pend.push('nc_battle');
   else if(atWar()&&ch(.15))S.pend.push('nc_field');else if(UD().length>=2&&ch(.08))S.pend.push('nc_paladin')}
 {const y0=extYear3;extYear3=function(){y0();try{ncYear();ctYear()}catch(e){console.error(e)}}}
-{const a0=actExtra3;actExtra3=function(){let b=a0();const C=ctOf();b='<p class="sec">Hợp đồng</p>'+gRow('data-open="ct"',C?CTO[C.o].ic:'flag',C?`${CTO[C.o].roles[C.rk]} · ${CTO[C.o].n}`:'Hợp đồng với các tổ chức',C?`Lương ${Math.round(C.pay*(C.ally?.5:1))} xu/năm · ${C.ally||C.dy>=S.year?'đã xong nhiệm vụ năm nay':'chưa làm nhiệm vụ năm nay'}`:'Chưa có hợp đồng · xem tổ chức nào đang để mắt tới bạn','',!S.alive)+b;return b}}
+
 function v24Inherit(old){S.ct=null;S.ctOf=S.ctOf2=null;S.ud=[];S.imb=null;S.cbw=0}
 {const i0=inherit;inherit=function(id){const old=S;i0(id);if(S===old)return;try{v24Inherit(old)}catch(e){console.error(e)}save();render()}}
 function v24Norm(s){if(s.ct&&(typeof s.ct!=='object'||!CTO[s.ct.o]))s.ct=null;if(s.ct){for(const f of['rk','pay','y','dn','dy','warn','ry'])if(typeof s.ct[f]!=='number')s.ct[f]=0;s.ct.rk=Math.max(0,Math.min(CTO[s.ct.o].roles.length-1,s.ct.rk))}
@@ -8192,7 +8195,7 @@ for(const[k,D]of Object.entries(MQ2)){HQ[k]={...D,mv:true,mvId:D.mvIds[0],cc:()=
 {const y0=mvYear;mvYear=function(){y0();if(!S.alive||S.age<14||S.pend.includes('mq_call'))return;if(!S.mqNo)S.mqNo={};
   const want=k=>!(S.hq&&S.hq[k])&&!S.mqNo[k]&&HQ[k].mvIds.some(x=>!S.mv[x]);
   let k=null;if(S.flags.legend&&want('mq_hero'))k='mq_hero';else if(S.flags.saint&&want('mq_saint'))k='mq_saint';else if(S.flags.dark&&want('mq_dark'))k='mq_dark';
-  else if(S.hc&&S.hc.k==='mks'&&S.hc.rk>=3&&!S.hc.leg&&(S.hid.sword||0)>=75&&(S.hid.arcane||0)>=75&&S.mv.mk6&&S.mv.mk6.lv>=3&&want('mq_tmks'))k='mq_tmks';
+  else if(S.hc&&S.hc.k==='mks'&&S.hc.rk>=3&&!S.hc.leg&&(S.blade||0)>=75&&S.st.magic>=75&&S.mv.mk6&&S.mv.mk6.lv>=3&&want('mq_tmks'))k='mq_tmks';
   if(k&&ch(k==='mq_tmks'?.2:.35)){S.mqK=k;S.pend.push('mq_call')}}}
 
 /* mục Các tộc và quốc gia: thêm các vương quốc loài người */
@@ -8325,6 +8328,54 @@ flavorYear=function(){
   log(typeof f[2]==='function'?f[2](S):f[2],'');if(f[3])mod(f[3]);
 };
 
+
+
+/* ---------- V10: tài năng cố định, kiếm thuật và ma lực luyện được; bang hội mới ---------- */
+/* thiên phú kiếm thuật và cảm nhận ma pháp cố định từ lúc sinh; mọi mức tăng cũ chuyển thành kiếm thuật hoặc ma lực */
+const tgf=t=>.4+(t||0)/80;
+function tAdd(v,t){const x=Math.max(0,v)*tgf(t);return Math.floor(x)+(ch(x%1)?1:0)}
+function talSync(){if(!S||!S.hid)return;
+  if(!S.tal||typeof S.tal!=='object')S.tal={sword:S.hid.sword||0,arcane:S.hid.arcane||0};
+  if(typeof S.blade!=='number'||isNaN(S.blade))S.blade=S.age>=10?Math.round((S.hid.sword||0)*.6):0;
+  const dS=(S.hid.sword||0)-S.tal.sword;if(dS){if(dS>0)S.blade=Math.min(100,S.blade+tAdd(dS,S.tal.sword));S.hid.sword=S.tal.sword}
+  const dA=(S.hid.arcane||0)-S.tal.arcane;if(dA){if(dA>0&&S.st)S.st.magic=Math.min(100,S.st.magic+tAdd(dA,S.tal.arcane));S.hid.arcane=S.tal.arcane}}
+const bladeAdd=n=>{talSync();S.blade=Math.max(0,Math.min(100,S.blade+(n>0?tAdd(n,S.tal.sword):n)))};
+{const m0=mod;mod=function(c){if(c&&c.magic>0&&S){talSync();c={...c,magic:tAdd(c.magic,S.tal.arcane)}}return m0(c)}}
+/* tai nạn trong trận ít hay nhiều tùy thiên phú */
+const talMul=()=>{const t=S.tal?Math.max(S.tal.sword,S.tal.arcane):50;return 1.25-t/200};
+{const h0=cbHurt;cbHurt=function(F,m){return h0(F,(m||1)*talMul())}}
+{const r0=render;render=function(){talSync();r0();if(!S)return;const b=$('#sw'),t=$('#swt');if(b){b.style.width=(S.blade||0)+'%';t.textContent=`Kiếm thuật ${S.blade||0}/100`}}}
+{const n0=newLife;newLife=function(o){n0(o);if(S){S.tal=null;S.blade=0;talSync();save();render()}}}
+{const i0=inherit;inherit=function(id){const old=S;i0(id);if(S===old)return;S.tal=null;S.blade=0;talSync();if(S.age>=10)S.blade=Math.min(45,Math.round((S.age-9)*1.2*tgf(S.tal.sword)));save();render()}}
+/* luyện chiêu thức cũng rèn kiếm thuật và ma lực */
+{const v0=vhAct;vhAct=function(a,id){const M=a==='tr'&&MV[id],had=S.done.vh||0;const r=v0(a,id);if(M&&(S.done.vh||0)>had){if(M.src==='kiem'||M.src==='h:mks'||M.src==='r:hero')bladeAdd(1);if(M.src[0]==='m')mod({magic:1});save();render()}return r}}
+function v27Norm(s){if(typeof s.blade!=='number'||isNaN(s.blade))s.blade=undefined;if(s.tal&&typeof s.tal!=='object')s.tal=null}
+{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object')try{v27Norm(r)}catch(e){console.error(e)}return r}}
+
+/* ba bang mới */
+Object.assign(ORGS,{
+  shield:{n:'Bang Thiết Thuẫn',ic:'shield',join:1,fee:10,rk:['Khiên mới','Khiên thép','Đội trưởng khiên','Bang chủ Thiết Thuẫn'],pay:[5,12,24,45],d:'Hộ tống đoàn buôn, giữ cổng thành thuê',req:s=>s.age>=16&&s.st.health>=45,why:'Từ 16 tuổi, sức khỏe từ 45'},
+  flame:{n:'Bang Liệt Hỏa',ic:'flame',join:1,fee:15,rk:['Tân binh','Thám hiểm','Đội trưởng','Bang chủ Liệt Hỏa'],pay:[3,10,22,40],d:'Phiêu lưu, đào bới phế tích và hầm ngục',req:s=>s.age>=16,why:'Từ 16 tuổi'},
+  wind:{n:'Bang Thanh Phong',ic:'sword',join:1,fee:0,rk:['Đệ tử','Hiệp khách','Phó bang chủ','Bang chủ Thanh Phong'],pay:[2,8,18,35],d:'Kiếm khách du hiệp, bênh kẻ yếu, trọng danh dự',req:s=>s.age>=16&&s.st.honor>=40&&(s.blade||0)>=20,why:'Từ 16 tuổi, danh dự từ 40, kiếm thuật từ 20'}
+});
+RIVAL.push(['shield','merc','Tranh hợp đồng hộ tống đoàn buôn'],['flame','hunt','Tranh nhau một phế tích mới lộ ra'],['wind','spy','Thanh Phong vạch trần một vụ tống tiền của Mắt Quạ']);
+{const o0=ORG;ORG=function(){const O=o0();for(const k in ORGS)if(!O[k]){const sx=pick(['m','f']);O[k]={pow:R(30,55),lead:{first:pick(nameList(sx,'human')),sur:surFor('human',pick(['noble','merchant','craft'])),sx,age:R(35,60)}}}return O}}
+{const a0=orgAct;orgAct=function(a,k){const M=S.om;if(a!=='task'||!M||!['shield','flame','wind'].includes(M.k))return a0(a,k);if(S.done.om)return;S.done.om=1;const m=M.rk+1;let t,tone;
+  if(M.k==='shield'){if(ch(.55+S.st.health/300+(S.blade||0)/400+cbB()/300)){const g=R(10,28)*m;S.money+=g;M.c+=R(10,16);mod({honor:1});t=`${pick(['Bạn giữ hàng khiên trước đoàn xe len suốt một đèo núi.','Bạn đứng gác cổng thành thay cho đội cận vệ đang ốm.','Đoàn buôn muối qua rừng sói an toàn nhờ hàng khiên của bang.'])} Bang trả ${g} xu.`;tone='good'}else{mod({health:-R(8,18)});M.c+=3;t='Một mũi tên xuyên qua khe khiên của bạn. Đoàn xe vẫn qua được, nhưng bạn nằm ba tuần.';tone='bad'}}
+  else if(M.k==='flame'){if(ch(.01)){die('sập hầm khi thám hiểm phế tích');t='Trần hầm sập xuống.';tone='bad'}else if(ch(.5+S.st.smarts/400+cbB()/300)){const g=R(8,30)*m;S.money+=g;M.c+=R(10,16);t=`Bạn đào được một hũ tiền cổ trong phế tích, chia phần được ${g} xu.`;const bk=cbBook(.2,'Trong đống đổ nát còn một cuốn sách da.');if(bk)t+=' '+bk;tone='good'}else{mod({health:-R(6,14)});M.c+=3;t='Bạn rơi xuống một hố bẫy cổ. Chỉ gãy một ngón tay, may mắn lắm rồi.';tone='bad'}}
+  else{if(ch(.5+S.st.honor/300+(S.blade||0)/300)){M.c+=R(10,16);mod({honor:3});bladeAdd(2);t=pick(['Bạn đuổi một tên lãnh chúa nhỏ đang cưỡng thu lúa của dân làng.','Bạn đánh bại một tay anh chị bắt nạt người bán rong ngoài chợ.','Bạn hộ tống một bà góa về quê chồng qua đoạn đường có cướp.'])+' Dân làng mời bạn bữa cơm, và bang ghi công.';tone='good'}else{mod({health:-R(6,14)});M.c+=4;t='Bạn bênh một người yếu thế nhưng đối thủ đông hơn. Bạn về với mặt sưng vù.';tone='bad'}}
+  log(t,tone);note={t,tone};afterSheetAction()}}
+Object.assign(CTO,{
+  shield:{n:'Bang Thiết Thuẫn',ic:'shield',roles:['Khiên thuê','Đội trưởng khiên','Chỉ huy hộ tống','Bang chủ'],pay:[30,70,120,190],sc:s=>s.st.health/2+(s.cbw||0)*4+(s.blade||0)/4,duty:'hộ tống ít nhất một đoàn buôn mỗi năm',foe:{n:'Cướp chặn đoàn buôn',tg:['nguoi','dong'],d:.07}},
+  flame:{n:'Bang Liệt Hỏa',ic:'flame',roles:['Thám hiểm thuê','Đội trưởng thám hiểm','Thủ lĩnh đoàn','Bang chủ'],pay:[30,75,125,200],sc:s=>(s.cbw||0)*5+s.st.smarts/4+(s.bk?s.bk.length*6:0)+(s.gd?10:0),duty:'thám hiểm ít nhất một phế tích mỗi năm',foe:{n:'Thứ canh giữ phế tích',tg:['xac','giap'],d:.1}},
+  wind:{n:'Bang Thanh Phong',ic:'sword',roles:['Hiệp khách','Kiếm sư','Phó bang chủ','Bang chủ'],pay:[25,60,100,170],sc:s=>(s.blade||0)/2+s.st.honor/3+mvList().filter(id=>MV[id].src==='kiem').length*4,duty:'bênh vực người yếu ít nhất một lần mỗi năm',foe:{n:'Bọn ác bá trong vùng',tg:['nguoi','dong'],d:.08}}
+});
+/* hợp đồng nằm trong mục Bang hội; võ học nằm trong nhóm Luyện tập */
+{const o0=orgView;orgView=function(){const r=o0();const C=ctOf();const row='<p class="sec">Hợp đồng với các tổ chức</p>'+gRow('data-open="ct"',C?CTO[C.o].ic:'scroll',C?`${CTO[C.o].roles[C.rk]} · ${CTO[C.o].n}`:'Hợp đồng',C?`Lương ${Math.round(C.pay*(C.ally?.5:1))} xu/năm · ${C.ally||C.dy>=S.year?'đã xong nhiệm vụ năm nay':'chưa làm nhiệm vụ năm nay'}`:'Chưa có hợp đồng · xem tổ chức nào đang để mắt tới bạn','',!S.alive);r[1]=row+r[1];return r}}
+function actTrainExtra(){mnEnsure();const m=MENH[S.hid.menh];return gRow('data-open="vh"','sword','Võ học, mệnh và thư viện',`${mnOn()?m.n+' mệnh':'Mệnh chưa thức tỉnh'} · ${mvList().length} chiêu · còn ${vhLeft()}/2 buổi luyện`,'',!S.alive)}
+
+
+{const a=ACTS.find(x=>x.id==='sword');if(a){const f0=a.f;a.f=s=>{const r=arr(f0(s));if(s.alive){const b0=s.blade||0;bladeAdd(R(2,4));talSync();const g=(s.blade||0)-b0;if(g>0)r[0]+=` Kiếm thuật +${g}.`}return r}}}
 
 /* ---------- migration & events ---------- */
 function migrate(s){
