@@ -4976,7 +4976,7 @@ function mkView(){
 /* ---------- 2. Thế giới tự vận hành ---------- */
 const NPCRULERS=['Aldemar','Ysolde','Varek','Thrain','Seraphine','Lucan','Orsik','Elaria','Godwin','Rowena','Baldric','Isaura','Corvin','Melisande','Hadric','Liora'];
 const rTitle=(n,sx)=>NATIONS[n]?NATIONS[n].t[sx==='f'?1:0]:/Đế chế/.test(n)?(sx==='f'?'Nữ hoàng':'Hoàng đế'):/Thánh quốc/.test(n)?'Giáo hoàng-vua':/Liên minh/.test(n)?(sx==='f'?'Nữ thống lĩnh':'Thống lĩnh'):(sx==='f'?'Nữ vương':'Vua');
-function rulerName(n,sx){const N=NATIONS[n];return`${rTitle(n,sx)} ${N?pick(RN[N.race][sx==='f'?'f':'m']):pick(NPCRULERS)}`}
+function rulerName(n,sx){const N=NATIONS[n];return`${rTitle(n,sx)} ${N?pick(RN[N.race][sx==='f'?'f':'m']):pick(nameList(sx==='f'?'f':'m','human'))}`}
 function wdNew(n){const sx=ch(.35)?'f':'m',K=S.kd&&S.kd.realms&&S.kd.realms[n];return{ruler:K?K.ruler:rulerName(n,sx),ra:R(25,60)*(NATIONS[n]&&NATIONS[n].race==='elf'?3:1),stab:R(45,75),war:null,fam:0,pl:0,red:/Thánh quốc/.test(n)||NATIONS[n]?0:R(0,15)}}
 function WD(){const w=S.world;if(!w.wd){const rs={};for(const n of REALMS)rs[n]=wdNew(n);w.wd={rs,news:[],hist:[]}}const rs=w.wd.rs;for(const n of REALMS)if(!rs[n])rs[n]=wdNew(n);if(S.realm&&!rs[S.realm])rs[S.realm]=wdNew(S.realm);if(S.kd&&S.kd.realms)for(const n of REALMS)if(n!==S.realm&&!S.kd.realms[n])S.kd.realms[n]={ruler:rs[n].ruler,power:R(12,34),provs:R(3,5),def:R(1,3),rel:R(-30,40),st:'neutral',faith:'std'};return w.wd}
 const myRealm=()=>WD().rs[S.realm];
@@ -6054,7 +6054,7 @@ function hcDo(i){
   log(t,tone);note={t,tone};afterSheetAction();
 }
 function hcTrain(){}
-const hcName=()=>S.hc?hqTitle(S.hc):'';
+const hcName=()=>S.hc?(S.hc.leg?'Thánh Ma Kiếm Sư':hqTitle(S.hc)):'';
 function hcHTML(){
   const H=S.hc;if(!H)return'';const D=HC[H.k];
   return'<p class="sec">Nhánh nghề ẩn</p>'+gRow('data-open="hc"',D.ic,H.rk?hcName():'Đang tìm hiểu: '+D.n,`Bậc ${H.rk}/3 · ${HCA[H.k].length} hoạt động riêng trong mục Hoạt động`,'',false);
@@ -7866,7 +7866,7 @@ Object.assign(MV,{
   mk4:mv('Ma Kiếm Trảm','h:mks','atk',.18,{mp:6,hp:3,sv:['dong','phep','giap'],d:'Dồn cả thể lực lẫn ma lực vào một nhát chém phép',x:'một nhát chém mang ánh phép xé toạc không khí'}),
   mk5:mv('Phản Ma Trảm','h:mks','def',.16,{mp:4,sv:['phep','quy'],d:'Chém tan hoặc phản lại một câu thần chú đang thi triển',x:'lưỡi kiếm chém đôi câu thần chú, hất nó ngược về phía đối thủ'}),
   mk6:mv('Nguyên Tố Kiếm Vũ','h:mks','ult',.26,{mp:10,sv:['dong','giap','thu','lua'],d:'Liên hoàn kiếm mang cả lửa, băng và sét',x:'lửa, băng và sét thay nhau quấn quanh lưỡi kiếm trong một vũ điệu chết chóc'}),
-  mk7:mv('Thiên Kiếm Giáng Lâm','h:mks','ult',.34,{mp:14,hp:6,sv:['quy','rong','dong','giap'],d:'Tuyệt kỹ cuối của Ma Kiếm Sư, chỉ người làm chủ cả kiếm thuật lẫn ma pháp mới dùng được',x:'một thanh kiếm ánh sáng khổng lồ từ trời cắm xuống'}),
+  mk7:mv('Thiên Kiếm Giáng Lâm','h:mks','ult',.34,{mp:14,hp:6,sv:['quy','rong','dong','giap'],d:'Tuyệt kỹ cuối của Ma Kiếm Sư, chỉ học được qua hành trình Thánh Ma Kiếm',x:'một thanh kiếm ánh sáng khổng lồ từ trời cắm xuống'}),
   rh1:mv('Thánh Kiếm Phá Ma','r:hero','atk',.22,{sv:['quy','xac','phep'],d:'Chiêu riêng của Anh Hùng trong Lời Tiên Tri: thanh kiếm sáng lên trước bóng tối',x:'thanh kiếm của bạn sáng rực như mặt trời, chém xuyên qua bóng tối'}),
   rh2:mv('Ý Chí Bất Khuất','r:hero','heal',.12,{h:[15,25],d:'Anh Hùng đứng dậy dù đã ngã, sức lực hồi lại giữa trận',x:'bạn nghiến răng đứng dậy, như cả vương quốc đang đỡ lưng bạn'}),
   rs1:mv('Thánh Ca Chữa Lành','r:saint','heal',.1,{h:[20,32],d:'Chiêu riêng của Thánh Nữ: bài thánh ca chữa lành vết thương',x:'bạn cất tiếng hát, vết thương khép lại theo từng câu thánh ca'}),
@@ -7934,14 +7934,11 @@ hqReg('mks');Object.assign(EIMG,{hq_mks_0:'ruins'});
 
 /* chiêu theo vai trò và chiêu Ma Kiếm Sư theo bậc; lời gọi Ma Kiếm Sư */
 {const y0=mvYear;mvYear=function(){y0();if(!S.alive)return;
-  if(S.flags.hero||S.flags.legend){if(!S.mv.rh1)mvLearn('rh1',true);if(!S.mv.rh2)mvLearn('rh2',true)}
-  if(S.flags.saint){if(!S.mv.rs1)mvLearn('rs1',true);if(!S.mv.rs2)mvLearn('rs2',true)}
-  if(S.flags.dark){for(const x of['rd1','rd2','rd3'])if(!S.mv[x])mvLearn(x,true)}
-  const H=S.hc;if(H&&H.k==='mks'){if(H.rk>=2&&!S.mv.mk5)mvLearn('mk5',true);if(H.rk>=3&&!S.mv.mk7&&(S.hid.sword||0)>=80&&(S.hid.arcane||0)>=75)mvLearn('mk7',true)}
+  const H=S.hc;if(H&&H.k==='mks'){if(H.rk>=2&&!S.mv.mk5)mvLearn('mk5',true);}
   if(!S.hc&&!(S.hq&&S.hq.mks)&&!(S.hcNo&&S.hcNo.mks)&&S.age>=16&&(S.hid.sword||0)>=50&&(S.hid.arcane||0)>=50&&!S.pend.includes('hc_call')&&mvList().some(id=>MV[id].src==='kiem')&&mvList().some(id=>MV[id].src[0]==='m')&&ch(.12)){S.hcK='mks';S.pend.push('hc_call')}}}
 {const e=EVB.hc_call,c0=e.c;e.c=s=>s.hcK==='mks'?!!(s.alive&&!s.hc&&!(s.hq&&s.hq.mks)):c0(s)}
 /* sự kiện herocomes, callhero: chiêu của Anh Hùng ngay khi nhận định mệnh */
-{const e=EVB.callhero;if(e){const f0=e.ch[0].f;e.ch[0].f=s=>{const r=arr(f0(s));mvLearn('rh1');mvLearn('rh2');return[r[0]+' Bạn lĩnh hội hai chiêu của Anh Hùng: Thánh Kiếm Phá Ma và Ý Chí Bất Khuất.',r[1]]}}}
+
 
 /* ---------- tuyển dụng của các tổ chức ---------- */
 const CTO={
@@ -8121,6 +8118,94 @@ for(const id of['hq_fisher_0','hq_fisher_1','hq_fisher_4','hq_mq_thuy_0','hq_mq_
 const CBIMG={cuop:'rebels',soi:'wolfnight',xac:'undead',kysi:'fallenhero',phap:'abyss',wyv:'dragon',quy:'demon',truy:'inquisition',_pal:'inquisition'};
 for(const id of['cb_fight','cb_enc'])Object.defineProperty(EIMG,id,{get(){const F=S&&S.cb;if(!F)return null;if(F.ctx==='hq'&&HQ[F.k])return HQ[F.k].img||null;if(F.ctx==='spar')return'herotrain';if(F.ctx==='ct'||F.ctx==='ctr')return'guildinvite';return CBIMG[F.f]||'callarms'},set(v){},configurable:true,enumerable:true});
 Object.defineProperty(EIMG,'hc_trial',{get(){return S&&S.hc&&HQ[S.hc.k]?HQ[S.hc.k].img:null},set(v){},configurable:true,enumerable:true});
+
+
+
+/* ---------- V8: chiêu danh hiệu học qua nhiệm vụ, Thánh Ma Kiếm Sư, vương quốc loài người trong mục quốc gia ---------- */
+Object.assign(MV,{
+  rh3:mv('Ánh Sáng Tiên Tri','r:hero','ctl',.18,{mp:6,sv:['quy','phep','xac'],d:'Phép của Anh Hùng học ở Tháp Tinh Tú: ánh sao trói chặt bóng tối',x:'ánh sao từ tay bạn kết thành xích, trói chặt đối thủ'}),
+  mk8:mv('Thánh Ma Hợp Nhất','h:mks','ult',.38,{mp:14,hp:4,sv:['quy','rong','dong','giap','phep'],d:'Chiêu của Thánh Ma Kiếm Sư: kiếm khí và ma lực hòa làm một',x:'kiếm khí và ma lực hòa làm một, chém đôi cả bầu trời trước mặt'})
+});
+const mqNames=k=>(HQ[k].mvIds||[HQ[k].mvId]).map(x=>MV[x].n).join(', ');
+/* chuỗi học chiêu cho Anh Hùng, Thánh Nữ, Ma Vương và Thánh Ma Kiếm Sư */
+const MQ2={
+ mq_hero:{hn:'Anh Hùng',ic:'sword',mvIds:['rh1','rh2','rh3'],n:'Di Sản Anh Hùng',op:'Thanh Kiếm Nhớ Chủ',img:'herotrain',men:{t:'Kiếm Thánh trên núi Tuyết',race:'human',sx:'m'},riv:'một kẻ mạo danh Anh Hùng',art:'thanh kiếm từng hạ Thảm Họa',
+  x:q=>`Thanh kiếm của bạn ngân lên mỗi đêm, như nhớ những trận chiến cũ. ${QM(q)} gửi thư từ núi Tuyết: "Anh Hùng không chỉ là người thắng một trận. Lên núi đi, còn nhiều điều ngươi chưa học."`,
+  ch:[{n:'Trở Lại Núi Tuyết',d:'Luyện lại kiếm với Kiếm Thánh.',clue:'Kiếm Thánh chỉ dạy người còn biết cúi đầu.',
+       o:[oR('Chém thác nước băng','sword',.4,'Thác nước băng tách làm đôi trước lưỡi kiếm của bạn.','Nước băng quật bạn ngã.',{pen:{health:-6}}),oM('Nghe Kiếm Thánh giảng về ánh sáng trong lưỡi kiếm','"Kiếm của Anh Hùng sáng lên vì người phía sau, không vì kẻ phía trước."')],
+       ev:{img:'sword_stone',x:q=>'Thanh kiếm của bạn sáng lên lần đầu tiên kể từ trận chiến năm ấy.',c:[{t:'Tiếp tục',f:q=>['Kiếm Thánh gật đầu.','good']}]}},
+      {n:'Tháp Tinh Tú',d:'Học phép ánh sao ở Tháp Tinh Tú.',clue:'Ánh sao trói được cả những thứ không có thân thể.',
+       o:[oR('Học cách nghe tiếng các vì sao','magic',.4,'Bạn nghe thấy tiếng hát rất xa, rất lạnh.','Bạn chỉ thấy trời tối.'),oT('Thức canh sao mỗi năm',2,'Bạn vẽ lại bản đồ sao trên tường tháp.')],
+       ev:{img:'prophets',x:q=>'Các nhà tiên tri áo trắng trao cho bạn một mảnh sao băng còn ấm.',c:[{t:'Nhận lấy',f:q=>['Mảnh sao băng tan vào lòng bàn tay bạn.','magic']}]}},
+      {n:'Ngày Phán Quyết',d:'Đánh tan tàn quân của Thảm Họa cũ.',clue:'Tàn quân của bóng tối vẫn trốn trong những hầm mộ cũ.',
+       o:[oF('Đánh tan tàn quân của Thảm Họa cũ',.35,'Tàn quân tan thành tro dưới ánh kiếm của bạn.','Tàn quân đông hơn bạn tưởng.',{tg:['quy','dong']}),oQ('Được dân chúng tin cậy (danh dự từ 50)',s=>s.st.honor>=50,'Dân chúng tụ tập dọc đường bạn đi.','Cần danh dự từ 50')],
+       ev:{img:'herocomes',x:q=>'Dân chúng đứng chật hai bên đường, gọi tên bạn. Lần này bạn hiểu vì sao kiếm của mình sáng.',c:[{t:'Giơ cao thanh kiếm',f:q=>['Ánh kiếm của bạn soi sáng cả quảng trường.','good']}]}}]},
+ mq_saint:{hn:'Thánh Nữ',ic:'holy',mvIds:['rs1','rs2'],n:'Thánh Ca Mười Hai Tu Viện',op:'Tiếng Hát Không Lời',img:'saint',men:{t:'vị nữ tu già mù',race:'human',sx:'f'},riv:'một nữ tu ghen tị',art:'cuốn sách thánh ca cổ',
+  x:q=>`Mỗi sáng, bạn nghe một giai điệu không lời mà không ai khác nghe thấy. Vị nữ tu già mù ${QM(q)} nắm tay bạn: "Đó là Thánh Ca của mười hai tu viện. Chỉ Thánh Nữ mới nghe được. Ngươi phải tự đi tìm lời cho nó."`,
+  ch:[{n:'Hành Hương',d:'Hành hương qua các tu viện và chữa bệnh cho người nghèo.',clue:'Mỗi tu viện giữ một câu trong bài thánh ca.',
+       o:[oT('Hành hương qua các tu viện mỗi năm',2,'Bạn tới thêm sáu tu viện, chép thêm sáu câu thánh ca.'),oR('Chữa cho người bệnh phong','piety',.45,'Vết loét trên tay người bệnh khép lại.','Người bệnh vẫn ho ra máu. Bạn ở lại chăm suốt đêm.')],
+       ev:{img:'saint',x:q=>'Mười hai câu thánh ca ghép lại, nhưng vẫn còn thiếu một nốt cuối.',c:[{t:'Tiếp tục',f:q=>['Bạn biết nốt cuối nằm ở nơi tối nhất.','good']}]}},
+      {n:'Đêm Thử Thách',d:'Đẩy lui ác linh khỏi tu viện bị bỏ hoang.',clue:'Ác linh chỉ lùi trước người không sợ nó.',
+       o:[oF('Đẩy lui ác linh khỏi tu viện',.4,'Ác linh rít lên rồi tan biến.','Ác linh cào rách vai bạn.',{tg:['xac','quy']}),oP('Phân phát bánh mì cho người nghèo',30,'Hàng trăm người nghèo xếp hàng trước tu viện.')],
+       ev:{img:'ghost',x:q=>'Trong tu viện bỏ hoang, bạn nghe thấy nốt nhạc cuối cùng, vang lên từ chính bạn.',c:[{t:'Hát theo',f:q=>['Tu viện bỏ hoang sáng lên như có nắng.','good']}]}},
+      {n:'Thánh Ca',d:'Hát trọn bài thánh ca cổ.',clue:'Thánh ca chữa được những vết thương không nhìn thấy.',
+       o:[oR('Hát trọn bài thánh ca cổ','piety',.38,'Cả nhà thờ im lặng nghe bạn hát.','Giọng bạn vỡ giữa chừng.'),oM('Nghe vị nữ tu dạy giai điệu cuối','Vị nữ tu ngân nga giai điệu cuối rồi mỉm cười.')],
+       ev:{img:'saint',x:q=>'Bạn hát trọn bài thánh ca. Người bệnh trong nhà thờ đứng dậy, chuông tự rung, và một vòng sáng hiện lên quanh bạn.',c:[{t:'Đón nhận',f:q=>{fac(3,0);return['Từ nay bài thánh ca thuộc về bạn.','good']}}]}}]},
+ mq_dark:{hn:'Ma Vương',ic:'demon',mvIds:['rd1','rd2','rd3'],n:'Ngai Vàng Vực Sâu',op:'Tiếng Gọi Từ Ngai Đen',img:'demon',men:{t:'quỷ tướng già canh ngai Vực Sâu',race:'fiend',sx:'m'},riv:'một quỷ tướng muốn cướp ngai',art:'chiếc vương miện đen',
+  x:q=>`Đêm nào bạn cũng mơ thấy một chiếc ngai đen dưới đáy Vực Sâu. Quỷ tướng già ${QM(q)} quỳ trước giường bạn: "Ngai vàng đang chờ chủ nhân. Nhưng ba mươi ba quỷ tướng sẽ chỉ cúi đầu trước kẻ đủ mạnh."`,
+  ch:[{n:'Ba Mươi Ba Quỷ Tướng',d:'Bắt các quỷ tướng quy phục.',clue:'Quỷ tướng chỉ phục kẻ đánh bại chúng.',
+       o:[oF('Bắt quỷ tướng quy phục',.35,'Quỷ tướng quỳ xuống, dâng thanh kiếm của hắn.','Quỷ tướng cười khẩy và biến mất trong lửa.',{tg:['quy','lua']}),oR('Đọc thần chú cổ của Vực Sâu','magic',.4,'Ngôn ngữ của Vực Sâu tuôn ra từ miệng bạn.','Thần chú phản ngược làm bạn ho ra máu.',{pen:{health:-6}})],
+       ev:{img:'demon',x:q=>'Mười quỷ tướng đã quỳ. Hai mươi ba kẻ còn lại chờ xem bạn có xuống được Vực Sâu không.',c:[{t:'Tiếp tục',f:q=>['Bạn nhìn xuống đáy vực.','magic']}]}},
+      {n:'Lửa Đen',d:'Thắp lửa đen dưới đáy Vực Tro Tàn.',clue:'Lửa đen chỉ cháy trong lòng người đã từ bỏ ánh sáng.',
+       o:[oG('Xuống Vực Tro Tàn','ashrift','Đáy vực nóng như lò rèn và tối như mực.'),oR('Thắp lửa đen trong lòng vực','magic',.35,'Ngọn lửa đen bùng lên, không tỏa sáng mà nuốt ánh sáng.','Lửa đen tắt ngúm.',{at:'ashrift'})],
+       ev:{img:'abyss',x:q=>'Ngọn lửa đen soi lên chiếc ngai vàng làm bằng xương của những vị vua cũ.',c:[{t:'Bước tới ngai vàng',f:q=>{mod({piety:-4});return['Hai mươi ba quỷ tướng còn lại đồng loạt quỳ xuống.','magic']}}]}},
+      {n:'Đăng Quang Trong Bóng Tối',d:'Đánh bại kẻ thách thức ngai vàng.',clue:'Luôn có một kẻ cho rằng ngai vàng thuộc về hắn.',
+       o:[oF('Đánh bại kẻ thách thức ngai vàng',.32,'Kẻ thách thức gục dưới chân ngai.','Kẻ thách thức hất bạn khỏi bậc ngai.',{tg:['quy','giap']}),oM('Nghe lời khuyên của quỷ tướng già','"Đừng tin ai. Kể cả ta."')],
+       ev:{img:'throne',x:q=>'Bạn ngồi lên ngai vàng Vực Sâu. Quỷ binh gõ giáo xuống đất ba lần.',c:[{t:'Đón nhận',f:q=>['Sức mạnh của Vực Sâu chảy vào người bạn.','magic']}]}}]},
+ mq_tmks:{hn:'Thánh Ma Kiếm Sư',ic:'sword',mvIds:['mk7','mk8'],n:'Thánh Ma Kiếm',op:'Hai Dòng Chảy',img:'spellblade',men:{t:'người thầy cũ của trường phái Ma Kiếm',race:'human',sx:'m'},riv:'một Ma Kiếm Sư khác cũng muốn danh hiệu Thánh Ma',art:'lá thư của tổ sư trường phái Ma Kiếm',
+  x:q=>`${QM(q)} trao cho bạn lá thư cuối cùng của tổ sư trường phái Ma Kiếm: "Chỉ người làm chủ cả kiếm và phép đến tận cùng mới được gọi là Thánh Ma Kiếm Sư. Ba trăm năm nay chưa có ai." Danh hiệu này rất hiếm, và con đường tới nó rất dài.`,
+  ch:[{n:'Lời Thách Của Kiếm Thánh',d:'Được Kiếm Thánh công nhận kiếm thuật.',clue:'Kiếm Thánh chỉ công nhận người chém được thứ không có hình.',
+       o:[oF('Đấu với Kiếm Thánh',.3,'Kiếm Thánh hạ kiếm: "Ngươi thắng."','Kiếm Thánh đánh rơi kiếm của bạn chỉ sau ba chiêu.',{tg:['nguoi','nhanh']}),oR('Chém đứt ngọn gió bằng một nhát kiếm khí','sword',.32,'Ngọn gió đứt đôi, mây trên đỉnh núi tách làm hai.','Gió vẫn thổi.')],
+       ev:{img:'sword_stone',x:q=>'Kiếm Thánh cắm thanh kiếm của mình xuống tuyết: "Kiếm của ngươi đã đủ. Giờ hãy hỏi phép."',c:[{t:'Cúi chào',f:q=>['Bạn cúi chào và xuống núi.','good']}]}},
+      {n:'Đại Pháp Sư Tháp Tinh Tú',d:'Được Đại Pháp Sư công nhận ma pháp.',clue:'Đại Pháp Sư không cần nghe phép của bạn, mà cần thấy phép ấy phục vụ ai.',
+       o:[oR('Đối đáp phép thuật với Đại Pháp Sư','magic',.32,'Câu thần chú của bạn làm ánh sao trong tháp sáng thêm.','Câu thần chú của bạn tắt giữa chừng.'),oP('Dâng cổ thư Ma Kiếm cho Tháp',80,'Đại Pháp Sư đọc cổ thư suốt ba ngày không ngủ.')],
+       ev:{img:'prophets',x:q=>'Đại Pháp Sư đặt tay lên trán bạn: "Phép của ngươi đã đủ. Giờ hãy để chúng thành một."',c:[{t:'Cúi chào',f:q=>['Bạn rời Tháp Tinh Tú khi trời vừa sáng.','good']}]}},
+      {n:'Hai Dòng Chảy Một Lưỡi Kiếm',d:'Hợp nhất kiếm khí và ma lực.',y:2,clue:'Kiếm khí và ma lực là hai dòng sông. Phải đào một lòng sông chung cho chúng.',
+       o:[oT('Thiền định giữa kiếm ý và ma lực',2,'Bạn ngồi bất động giữa hai luồng sức mạnh đang giằng co trong người.'),oR('Hợp nhất ma lực vào kiếm khí','magic',.3,'Kiếm khí của bạn mang màu của ma lực.','Hai luồng sức mạnh xung đột, bạn thổ huyết.',{pen:{health:-12}})],
+       ev:{img:'spellblade',x:q=>'Lần đầu tiên, kiếm khí và ma lực chảy cùng một dòng. Thanh kiếm của bạn không còn ngân lên nữa, mà hát.',c:[{t:'Tiếp tục',f:q=>['Chỉ còn một bước.','magic']}]}},
+      {n:'Thánh Ma Giáng Thế',d:'Đánh bại cái bóng của chính mình.',clue:'Kẻ thù cuối cùng của Thánh Ma Kiếm Sư là chính người ấy.',
+       o:[oF('Đánh bại cái bóng của chính mình',.3,'Cái bóng hạ kiếm và hòa vào bạn.','Cái bóng biết mọi chiêu của bạn.',{tg:['phep','nguoi','nhanh']}),oM('Nhận lời chúc của người thầy cũ','"Ta đã chờ ngày này cả đời."')],
+       ev:{img:'spellblade',x:q=>'Một thanh kiếm ánh sáng khổng lồ cắm xuống trước mặt bạn rồi tan vào lưỡi kiếm của bạn. Ba trăm năm, cuối cùng đã có một Thánh Ma Kiếm Sư.',c:[{t:'Đón nhận danh hiệu',f:q=>['Bầu trời sáng rực trong một khắc.','good']}]}}]}
+};
+for(const[k,D]of Object.entries(MQ2)){HQ[k]={...D,mv:true,mvId:D.mvIds[0],cc:()=>true};HC[k]={n:D.hn,ic:D.ic,jobs:[]};hqReg(k)}
+{const w0=hqAwaken;hqAwaken=function(k){const D=HQ[k];if(!D||!D.mv||!D.mvIds)return w0(k);const q=S.hq[k];q.st='done';q.ye=S.year;q.ch=D.ch.length;const L=D.mvIds.filter(x=>!S.mv[x]);for(const x of L)mvLearn(x,true);
+  q.hist.push({y:S.year,t:`Lĩnh ngộ ${mqNames(k)}`});let t=`Bạn lĩnh ngộ ${L.length?L.map(x=>MV[x].n).join(', '):'trọn vẹn những chiêu đã biết'}.`;
+  if(k==='mq_tmks'&&S.hc&&S.hc.k==='mks'){S.hc.leg=1;mod({honor:10,happy:10});S.house.prestige+=120;S.hid.sword=Math.min(100,(S.hid.sword||0)+5);S.hid.arcane=Math.min(100,(S.hid.arcane||0)+5);
+    announce('Thánh Ma Kiếm Sư',`${S.first} ${S.surname} làm chủ cả kiếm thuật lẫn ma pháp và trở thành Thánh Ma Kiếm Sư đầu tiên sau ba trăm năm.`,'sword','spellblade');news(`${S.first} ${S.surname} trở thành Thánh Ma Kiếm Sư đầu tiên sau ba trăm năm.`,'good',true);t+=' Bạn nhận danh hiệu Thánh Ma Kiếm Sư.'}
+  else announce(`Lĩnh Ngộ: ${D.n}`,`${S.first} ${S.surname} hoàn tất "${D.n}" và học được ${mqNames(k)}.`,D.ic,D.img||'awaken');
+  mod({happy:6});return t}}
+{const e=EVB.mq_call;e.text=s=>`${HQ[s.mqK].x({npc:{m:s.hqPre&&s.hqPre.m}})} Hoàn thành hành trình "${HQ[s.mqK].n}", bạn sẽ học được: ${mqNames(s.mqK)}.`}
+/* Anh Hùng học chiêu trong hai năm huấn luyện */
+{const e=EVB.herotrain;if(e){const L=['rh1','rh3','rh2'];e.ch.forEach((c,i)=>{const f0=c.f;c.f=s=>{const r=arr(f0(s));const id=L[i];if(id&&!s.mv[id]){mvLearn(id);r[0]+=` Bạn học được chiêu ${MV[id].n}.`}return r}});
+  e.ch[0].t='Học kiếm với Kiếm Thánh trên núi Tuyết · học Thánh Kiếm Phá Ma';e.ch[1].t='Học phép ở Tháp Tinh Tú · học Ánh Sáng Tiên Tri';e.ch[2].t='Rèn thân thể với các chiến binh Orc · học Ý Chí Bất Khuất'}}
+/* lời gọi chuỗi học chiêu theo danh hiệu */
+{const y0=mvYear;mvYear=function(){y0();if(!S.alive||S.age<14||S.pend.includes('mq_call'))return;if(!S.mqNo)S.mqNo={};
+  const want=k=>!(S.hq&&S.hq[k])&&!S.mqNo[k]&&HQ[k].mvIds.some(x=>!S.mv[x]);
+  let k=null;if(S.flags.legend&&want('mq_hero'))k='mq_hero';else if(S.flags.saint&&want('mq_saint'))k='mq_saint';else if(S.flags.dark&&want('mq_dark'))k='mq_dark';
+  else if(S.hc&&S.hc.k==='mks'&&S.hc.rk>=3&&!S.hc.leg&&(S.hid.sword||0)>=75&&(S.hid.arcane||0)>=75&&S.mv.mk6&&S.mv.mk6.lv>=3&&want('mq_tmks'))k='mq_tmks';
+  if(k&&ch(k==='mq_tmks'?.2:.35)){S.mqK=k;S.pend.push('mq_call')}}}
+
+/* mục Các tộc và quốc gia: thêm các vương quốc loài người */
+function hkRow(n,i){const rs=WD().rs[n];if(!rs)return'';const st=rs.stab;return gRow(`data-open="rg:hk:${i}"`,'castle',n+(S.realm===n?' · quê bạn':''),`${esc(rs.ruler)}${rs.war?` · ${rs.war.vs==='nội chiến'?'nội chiến':'đánh nhau với '+String(rs.war.vs).replace(RPFX,'')}`:''} · ${st>=60?'yên ổn':st>=35?'bất an':'rối loạn'}${rs.fam?' · mất mùa':''}${rs.pl?' · có dịch':''}`,'',false)}
+function hkView(i){const n=HUMAN_REALMS[+i],rs=n&&WD().rs[n];if(!rs)return['Vương quốc','<p class="note">Không tìm thấy vương quốc này.</p>','rg'];
+  let b=imgBanner(/Thánh quốc/.test(n)?'saint':/Đế chế/.test(n)?'throne':'coronation');
+  b+=gRow('','castle',n,S.realm===n?'Quê hương của bạn':'Vương quốc của loài người','',false,true);
+  b+=statGrid([['Người cai trị',esc(rs.ruler)],['Tình hình',rs.stab>=60?'yên ổn':rs.stab>=35?'bất an':'rối loạn'],['Chiến tranh',rs.war?(rs.war.vs==='nội chiến'?'nội chiến':String(rs.war.vs).replace(RPFX,'')):'không'],['Mùa màng, dịch bệnh',[rs.fam?'mất mùa':'',rs.pl?'có dịch':''].filter(Boolean).join(', ')||'bình thường']]);
+  if(rs.red)b+=`<p class="note">Tín đồ Hồng Nguyệt trong nước: ${rs.red}.</p>`;
+  const R2=Object.keys(REG).filter(k=>!REG[k].nat&&REG[k].own===n&&rgSeen(k));if(R2.length)b+='<p class="sec">Vùng đất trong vương quốc</p>'+R2.map(k=>gRow(`data-open="rg:${k}"`,REG[k].ic,REG[k].n,REG[k].d,'',false)).join('');
+  const N=(WD().news||[]).filter(x=>x.t.includes(n)).slice(-6).reverse();if(N.length)b+='<p class="sec">Tin tức gần đây</p>'+N.map(x=>`<p class="note">Năm ${x.y} · ${esc(x.t)}</p>`).join('');
+  return[n,b,'rg']}
+{const v0=rgView;rgView=function(v){if(v.startsWith('rg:hk:'))return hkView(v.slice(6));const r=v0(v);if(v==='rg'){r[1]=r[1].replace(/^<p class="note">Sáu vương quốc cũ[\s\S]*?<\/p>/,'');r[1]='<p class="sec">Các vương quốc loài người</p>'+HUMAN_REALMS.map(hkRow).join('')+r[1]}return r}}
 
 
 /* ---------- migration & events ---------- */
