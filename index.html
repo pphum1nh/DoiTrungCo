@@ -8201,11 +8201,129 @@ function hkView(i){const n=HUMAN_REALMS[+i],rs=n&&WD().rs[n];if(!rs)return['Vư�
   let b=imgBanner(/Thánh quốc/.test(n)?'saint':/Đế chế/.test(n)?'throne':'coronation');
   b+=gRow('','castle',n,S.realm===n?'Quê hương của bạn':'Vương quốc của loài người','',false,true);
   b+=statGrid([['Người cai trị',esc(rs.ruler)],['Tình hình',rs.stab>=60?'yên ổn':rs.stab>=35?'bất an':'rối loạn'],['Chiến tranh',rs.war?(rs.war.vs==='nội chiến'?'nội chiến':String(rs.war.vs).replace(RPFX,'')):'không'],['Mùa màng, dịch bệnh',[rs.fam?'mất mùa':'',rs.pl?'có dịch':''].filter(Boolean).join(', ')||'bình thường']]);
-  if(rs.red)b+=`<p class="note">Tín đồ Hồng Nguyệt trong nước: ${rs.red}.</p>`;
+  if(rs.red&&(S.flags.her>=1||rmOn()||(S.ct&&S.ct.o==='red')))b+=`<p class="note">Tín đồ Hồng Nguyệt trong nước (chỉ người trong giáo phái mới biết): ${rs.red}.</p>`;
   const R2=Object.keys(REG).filter(k=>!REG[k].nat&&REG[k].own===n&&rgSeen(k));if(R2.length)b+='<p class="sec">Vùng đất trong vương quốc</p>'+R2.map(k=>gRow(`data-open="rg:${k}"`,REG[k].ic,REG[k].n,REG[k].d,'',false)).join('');
   const N=(WD().news||[]).filter(x=>x.t.includes(n)).slice(-6).reverse();if(N.length)b+='<p class="sec">Tin tức gần đây</p>'+N.map(x=>`<p class="note">Năm ${x.y} · ${esc(x.t)}</p>`).join('');
   return[n,b,'rg']}
 {const v0=rgView;rgView=function(v){if(v.startsWith('rg:hk:'))return hkView(v.slice(6));const r=v0(v);if(v==='rg'){r[1]=r[1].replace(/^<p class="note">Sáu vương quốc cũ[\s\S]*?<\/p>/,'');r[1]='<p class="sec">Các vương quốc loài người</p>'+HUMAN_REALMS.map(hkRow).join('')+r[1]}return r}}
+
+
+
+/* ---------- V9: dòng đời một câu theo thân phận và chức vị ---------- */
+const fnm=sx=>pick(nameList(sx,RN[S.race]?S.race:'human'));
+const fdad=()=>S.fam.find(p=>p.alive&&p.rel==='Cha');
+const KC=(c,a,b)=>s=>s.cls===c&&s.age>=a&&s.age<=b;
+const DAD=(c,a,b)=>s=>s.cls===c&&s.age>=a&&s.age<=b&&!!fdad();
+const JB=(L,f)=>s=>s.age>=14&&!!s.job&&L.includes(s.job.id)&&(!f||f(s));
+const TT=(n,f)=>s=>s.house&&s.house.title>=n&&(!f||f(s));
+const AD=f=>s=>s.age>=18&&f(s);
+FLAV.push(
+ /* con nhà quý tộc */
+ ['xn1',KC('noble',4,12),'Bà vú già kể chuyện ma trong hầm rượu lâu đài, đến khi bạn trốn tịt dưới chăn.'],
+ ['xn2',KC('noble',5,13),s=>`Cậu hầu nhỏ ${fnm('m')} bị phạt vì làm đổ sữa lên áo bạn. Bạn lén cho cậu ấy một miếng bánh mật.`],
+ ['xn3',KC('noble',6,14),'Thầy dạy chữ bắt bạn chép lại gia phả mười bảy đời của gia tộc.',{smarts:1}],
+ ['xn4',KC('noble',6,14),'Bạn trốn giờ học khiêu vũ, ra chuồng ngựa chơi với con trai người giữ ngựa.',{happy:2}],
+ ['xn5',KC('noble',4,12),s=>`Chị hầu ${fnm('f')} tết tóc cho bạn và kể chuyện tình của bà bếp.`],
+ ['xn6',KC('noble',5,12),'Cha mẹ cho bạn ngồi dự tiệc đón sứ giả. Bạn ngủ gục trước món tráng miệng.'],
+ ['xn7',KC('noble',7,15),'Bạn được tặng một con chim ưng non, và mất ba ngày mới nghĩ xong tên cho nó.',{happy:2}],
+ ['xn8',KC('noble',6,13),'Người quản gia dạy bạn cách cúi chào từng bậc khách: nam tước, bá tước, công tước.'],
+ ['xn9',KC('noble',5,12),'Bạn lẻn vào bếp ăn vụng và bị bà bếp đuổi bằng muôi gỗ.',{happy:2}],
+ ['xn10',KC('noble',6,13),s=>`Con gái người làm vườn, ${fnm('f')}, chỉ cho bạn một tổ chim giữa vườn hồng.`],
+ ['xn11',KC('noble',7,14),'Bạn mặc thử bộ giáp của ông nội và ngã chổng kềnh giữa đại sảnh.'],
+ ['xn12',KC('noble',8,15),'Một người hầu bị đuổi việc vì tội ăn cắp chiếc thìa bạc. Bạn biết thật ra không phải anh ta.'],
+ ['xn13',KC('noble',10,16),s=>`Người hầu già ${fnm('m')} dạy bạn cưỡi ngựa khi cha bạn bận việc triều chính.`],
+ /* con nhà buôn */
+ ['xm1',DAD('merchant',4,14),s=>`Cha bạn đi buôn xa về, mang cho bạn một chiếc vỏ ốc biển áp vào tai nghe được tiếng sóng.`,{happy:2}],
+ ['xm2',DAD('merchant',6,15),s=>`Cha bạn mang về một con dao cán khắc chữ lạ, bảo là mua của một thương nhân phương Nam.`],
+ ['xm3',DAD('merchant',4,14),s=>`Cha bạn mang về một hộp gia vị đỏ. Cả nhà nếm thử rồi ho sặc sụa suốt bữa tối.`],
+ ['xm4',DAD('merchant',7,15),s=>`Cha bạn mang về một tấm bản đồ vẽ những vùng đất không có trong sách nào.`,{smarts:1}],
+ ['xm5',DAD('merchant',4,13),s=>`Cha bạn mang về một con vẹt biết chửi thề bằng tiếng nước ngoài.`,{happy:2}],
+ ['xm6',DAD('merchant',5,14),s=>`Cha bạn mang về một chiếc gương nhỏ trong như nước. Mẹ bạn ngắm mình suốt buổi tối.`],
+ ['xm7',DAD('merchant',6,15),s=>`Cha bạn mang về một viên đá phát sáng trong bóng tối. Bạn đặt nó cạnh gối mỗi đêm.`],
+ ['xm8',KC('merchant',7,15),'Bạn giúp cha đếm tiền và phát hiện ra một đồng xu giả.',{smarts:1}],
+ ['xm9',KC('merchant',5,13),'Bạn ngồi trên xe hàng cả ngày, nghe người đánh xe hát những bài ca về biển.'],
+ ['xm10',KC('merchant',6,15),'Nhà bạn cho một thương nhân Người Lùn ngủ nhờ qua đêm. Ông ta ngáy như sấm.'],
+ ['xm11',KC('merchant',8,15),'Bà bán cá ngoài chợ dạy bạn mặc cả, và khen bạn có năng khiếu.'],
+ /* con nhà thợ */
+ ['xc1',KC('craft',4,12),'Bạn lén chạm vào thỏi sắt trong xưởng và bị bỏng ngón tay.'],
+ ['xc2',KC('craft',5,13),'Bạn giúp cha phân loại đinh theo cỡ, được thưởng một đồng xu.'],
+ ['xc3',KC('craft',6,14),'Người thợ học việc trong xưởng dạy bạn huýt sáo bằng hai ngón tay.'],
+ ['xc4',KC('craft',6,15),'Phường hội rước kiệu thánh bổn mạng. Bạn được cầm cờ đi đầu.',{happy:2}],
+ ['xc5',KC('craft',7,15),'Bạn khắc con ngựa gỗ đầu tiên. Trông nó giống con chó hơn.'],
+ /* con nhà nông nô */
+ ['xs1',KC('serf',4,12),'Viên quản lý của lãnh chúa đến đếm lợn. Mẹ giấu con lợn nhỏ nhất dưới gầm giường.'],
+ ['xs2',KC('serf',6,14),'Bạn theo cha ra đồng nhặt đá suốt cả mùa xuân.'],
+ ['xs3',KC('serf',4,13),'Bạn được ăn một miếng thịt vào ngày lễ Thánh Michael, và nhớ mùi vị ấy suốt cả năm.'],
+ ['xs4',KC('serf',5,14),'Bạn đứng xa nhìn con cái lãnh chúa cưỡi ngựa qua làng, áo choàng đỏ bay phấp phới.'],
+ ['xs5',KC('serf',4,12),'Mùa đông, cả nhà ngủ chung với con bò cho ấm.'],
+ /* con nhà vua */
+ ['xr1',s=>s.house.title>=6&&s.age>=5&&s.age<=15,'Bạn có ba người hầu riêng, nhưng không có người bạn nào cùng tuổi.'],
+ ['xr2',s=>s.house.title>=6&&s.age>=6&&s.age<=15,'Bạn học cách ngồi thẳng lưng suốt buổi chầu mà không ngáp.'],
+ ['xr3',s=>s.house.title>=6&&s.age>=4&&s.age<=12,'Một sứ giả nước ngoài quỳ xuống hôn tay bạn. Bạn bật cười, cả triều đình im phăng phắc.'],
+ ['xr4',s=>s.house.title>=6&&s.age>=8&&s.age<=16,'Thầy dạy kiếm hoàng gia để bạn thắng một trận. Bạn biết ông cố tình.'],
+ /* lãnh chúa, vua chúa */
+ ['xl1',AD(TT(2)),'Người quản gia trình sổ sách. Bạn phát hiện ông ta đã ghi khống ba bao lúa.'],
+ ['xl2',AD(TT(2)),s=>`Người hầu ${fnm(pick(['m','f']))} xin về quê cưới vợ. Bạn tặng họ một con dê làm quà cưới.`],
+ ['xl3',AD(TT(2)),'Bạn ngồi xử một vụ tranh chấp con lợn giữa hai nông dân suốt cả buổi sáng.'],
+ ['xl4',AD(TT(2)),'Tiệc săn mùa thu ở trang viên. Con chó săn yêu quý của bạn bắt được con nai đầu tiên.',{happy:2}],
+ ['xl5',AD(TT(2)),'Một nông nô quỳ trước cổng xin hoãn thuế vì con ông đang ốm. Bạn cho ông một bao lúa.',{honor:1}],
+ ['xl6',AD(TT(2)),'Bà bếp làm hỏng món thiên nga nướng trong tiệc. Khách vẫn khen ngon.'],
+ ['xk1',AD(TT(6)),'Ba phe trong triều cãi nhau suốt buổi chầu. Bạn giả vờ ngủ.'],
+ ['xk2',AD(TT(6)),'Bạn ăn tối một mình trong đại sảnh dài ba mươi bước chân.'],
+ ['xk3',AD(TT(6)),'Người thử độc của bạn đau bụng giữa bữa. Cả cung điện hoảng loạn, hóa ra chỉ tại món đậu.'],
+ ['xk4',AD(TT(6)),'Bạn cải trang ra chợ và nghe dân chúng chê vua keo kiệt.'],
+ /* theo nghề */
+ ['xt1',JB(['trade','blackmarket']),'Một lô vải từ phương Nam về trễ ba tháng. Bạn mất ngủ cả tuần.'],
+ ['xt2',JB(['trade']),'Bạn đổi được một hũ hạt tiêu lấy hai con ngựa.',{happy:1}],
+ ['xt3',JB(['trade']),'Một khách hàng trả bạn bằng đồng tiền in hình một ông vua chẳng ai biết.'],
+ ['xt4',JB(['trade']),'Bạn mua phải một bao muối độn cát.'],
+ ['xsm1',JB(['smith','runesmith']),'Bạn rèn một bộ móng ngựa đẹp đến mức chủ ngựa không nỡ đóng.'],
+ ['xsm2',JB(['smith','runesmith']),'Lò rèn tắt giữa mùa đông, cả xưởng run cầm cập.'],
+ ['xsm3',JB(['smith','runesmith']),'Một hiệp sĩ mang thanh kiếm sứt mẻ tới, kể chuyện trận đánh suốt buổi chiều.'],
+ ['xf1',JB(['farm','druid']),'Con bò cày nhà bạn đẻ được một cặp bê đôi.',{happy:2}],
+ ['xf2',JB(['farm']),'Mưa đá đập nát nửa luống đậu.'],
+ ['xf3',JB(['farm','shepherd']),'Bạn ngủ quên dưới gốc sồi giữa trưa hè.'],
+ ['xsh1',JB(['shepherd']),'Một con cừu lạc đàn tự tìm về nhà sau ba ngày.'],
+ ['xsh2',JB(['shepherd']),'Bạn thổi sáo cho đàn cừu nghe. Con đầu đàn ngoảnh mặt đi.'],
+ ['xw1',JB(['soldier','merc','shieldguard','orcwar']),'Bạn đứng gác suốt đêm mưa, kể chuyện ma với đồng đội cho đỡ buồn ngủ.'],
+ ['xw2',JB(['soldier','merc','shieldguard']),'Đội trưởng phạt cả đội chạy quanh doanh trại vì một người làm mất mũ sắt.'],
+ ['xw3',JB(['soldier','knight','shieldguard']),'Bạn lau giáp đến khi thấy rõ mặt mình trong đó.'],
+ ['xkn1',JB(['knight']),'Bạn hộ tống phu nhân của lãnh chúa đi lễ. Bà hỏi bạn đã có người thương chưa.'],
+ ['xkn2',JB(['knight']),'Ngựa chiến của bạn ăn mất bó hoa của một cô gái ngoài chợ.'],
+ ['xch1',JB(['church','mission']),'Bạn quét sân nhà thờ và nhặt được một đồng xu từ thời vua trước.'],
+ ['xch2',JB(['church','mission']),'Một bà cụ xưng tội đã ăn vụng bánh lễ từ năm mươi năm trước.'],
+ ['xch3',JB(['church']),'Bạn hát lạc giọng trong thánh lễ. Không ai nói gì, nhưng ai cũng nghe thấy.'],
+ ['xsc1',JB(['scribe']),'Bạn chép sai một chữ trong chiếu chỉ và phải chép lại cả ba trang.'],
+ ['xsc2',JB(['scribe']),'Một con mèo nằm ngủ ngay trên cuộn giấy da bạn vừa chép xong.'],
+ ['xsu1',JB(['surgeon']),'Bạn nhổ chiếc răng sâu cho ông thợ rèn. Ông khóc to hơn trẻ con.'],
+ ['xsu2',JB(['surgeon']),'Một bà mẹ mang con gà mái tới trả công chữa bệnh cho con bà.'],
+ ['xwz1',JB(['wizard']),'Một câu thần chú hỏng khiến tóc bạn dựng đứng suốt một tuần.'],
+ ['xal1',JB(['alch']),'Mẻ giả kim của bạn bốc mùi trứng thối khắp cả dãy phố.'],
+ ['xhu1',JB(['hunter','demonhunter','tracker']),'Bạn kể chuyện săn wyvern ở quán rượu. Mỗi lần kể, con wyvern lại to thêm một chút.'],
+ ['xco1',JB(['court']),'Bạn ngồi họp triều suốt sáu canh giờ chỉ để bàn chuyện sửa một cây cầu.'],
+ ['xco2',JB(['court']),'Một vị đại thần mời bạn uống trà. Bạn nhìn kỹ chén trà trước khi uống.'],
+ ['xfi1',JB(['fisher']),'Bạn câu được một con cá có đôi mắt giống mắt người, và thả nó đi.'],
+ ['xla1',JB(['lady']),'Phu nhân bá tước bắt bạn thử ba mươi chiếc váy trước buổi dạ hội.'],
+ /* thân phận đặc biệt */
+ ['xst1',s=>!!s.flags.saint,'Người bệnh đã xếp hàng trước cửa nhà bạn từ trước khi trời sáng.'],
+ ['xhr1',s=>s.flags.her>=1&&s.age>=14,'Bạn thấy một chiếc khăn đỏ buộc trên cổng nhà thờ: ám hiệu của giáo phái.'],
+ ['xsk1',s=>s.race==='skeleton','Một đứa trẻ hàng xóm hỏi sao bạn không bao giờ ăn. Bạn bảo là đang ăn kiêng.'],
+ ['xsk2',s=>s.race==='skeleton','Bạn rơi mất một đốt ngón tay út và tìm cả buổi sáng mới thấy nó dưới gầm bàn.'],
+ ['xgd1',s=>!!s.gd&&s.age>=16,s=>`Hai thành viên bang hội "${s.gd.n}" cãi nhau vì ai được ngồi gần lò sưởi.`],
+ ['xct1',s=>!!(s.ct&&CTO[s.ct.o]),s=>`Người đưa thư của ${CTO[s.ct.o].n} mang tới một lá thư niêm phong, chỉ để hỏi thăm sức khỏe bạn.`],
+ ['xdk1',s=>!!s.flags.dark,'Quỷ binh dâng lên một mâm trái cây. Bạn không dám hỏi chúng lấy từ đâu.'],
+ ['xhc1',s=>!!(s.hc&&s.hc.rk>=1),s=>`Người ta bắt đầu gọi bạn là ${hcName()} sau lưng.`],
+ ['xrich',s=>s.age>=18&&s.money>=1000,'Bạn đếm tiền suốt buổi tối mà vẫn chưa đếm xong.'],
+ ['xpoor',s=>s.age>=18&&s.money<5,'Bạn ăn bánh mì đen chấm nước muối ba bữa liền.',{happy:-2}]
+);
+/* ưu tiên dòng hợp thân phận và chức vị */
+flavorYear=function(){
+  if(!S.seenF)S.seenF=[];
+  if(S.age>3&&!ch(.75))return;
+  const pool=FLAV.filter(f=>!S.seenF.includes(f[0])&&f[1](S));if(!pool.length)return;
+  const own=pool.filter(f=>f[0][0]==='x');const f=pick(own.length&&ch(.65)?own:pool);S.seenF.push(f[0]);
+  log(typeof f[2]==='function'?f[2](S):f[2],'');if(f[3])mod(f[3]);
+};
 
 
 /* ---------- migration & events ---------- */
