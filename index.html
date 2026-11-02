@@ -8672,6 +8672,17 @@ function tmAct(a){if(!$('#sheet').hidden){$('#sheet').hidden=true;view=null;note
 /* Sổ đời: nút về màn hình chính; mục lưu trữ trỏ tới Kho đời */
 {const v0=svView;svView=function(v){const r=v0(v);if(r&&v==='saves'){r[1]=r[1].replace(/<p class="sec">Bản sao tự động trước khi xóa đời<\/p>.*?(?=<p class="sec">File lưu)/,'');r[1]=gRow('data-x="tm:vault"','clock','Kho đời','Mỗi năm một bản, cùng mọi đời đã cất khi bắt đầu lại','',false)+r[1]}return r}}
 
+
+/* ---------- V31: luyện với giảng viên tăng năng lực thật; giữ bản lưu qua các lần cập nhật ---------- */
+{const a0=acAct;acAct=function(k){if(k!=='sword'&&k!=='spell')return a0(k);talSync();const b0=S.blade||0,m0=S.st.magic,cl=S.ac&&S.ac.cls;
+  const _as=afterSheetAction;let held=false;afterSheetAction=function(){held=true};try{a0(k)}finally{afterSheetAction=_as}
+  const ok=note&&(note.tone==='good'||note.tone==='magic');
+  if(ok&&k==='sword')bladeAdd(R(3,5)+(cl==='sword'||cl==='mix'||cl==='guard'?1:0));
+  if(ok&&k==='spell')mod({magic:R(2,4)+(cl==='mage'||cl==='mix'?1:0)});
+  talSync();const gb=(S.blade||0)-b0,gm=S.st.magic-m0;const ex=[gb>0?`Kiếm thuật +${gb}.`:'',gm>0?`Ma lực +${gm}.`:''].filter(Boolean).join(' ');
+  if(ex&&note){note.t+=' '+ex;const it=S.log[S.log.length-1].items;if(it.length)it[it.length-1].t+=' '+ex}
+  if(held)afterSheetAction()}}
+const GV='31';
 for(const e of EV)if(/^cru_/.test(e.id)){const c0=e.c;e.c=s=>!!(s.world&&s.world.cat&&CATS[s.world.cat.id])&&(!c0||c0(s))}
 {let guard=0;const s0=showNext;showNext=function(){try{s0();guard=0}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null;try{save()}catch(e){}}if(++guard<20)showNext();else{guard=0;closeModal();render()}}}}
 {const c0=choose;choose=function(i){try{c0(i)}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null}try{save();render()}catch(e){}closeModal();showNext()}}}
@@ -8756,11 +8767,12 @@ $('#hgIcon').innerHTML=ic('hourglass',22);
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
-if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
+try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
 if(S&&S.own&&S.own.dragon&&!S.dragon){S.dragon=newDragon({hy:S.year-5,trust:40,bond:40,tr:{fly:30,obey:30,fire:30,hunt:20},q:2,name:pick(DRNAMES),flags:{named:1,fire:1,flight:1}});S.dragon.lastSt=drStage(S.dragon)}
 if(S&&S.alive&&S.flags.redpope&&!S.rm&&S.house.title>=6&&rules()&&S.log&&S.log.length)rmStart();
 if(S){if(!S.rel)S.rel=[];if(S.bag)S.bag=S.bag.filter(i=>ITEMS[i.k]);if(S.gd){S.gd.mem=S.gd.mem.filter(m=>m.alive);S.gd.hist=(S.gd.hist||[]).slice(-25)}ensureDom();const h=S.house;if(!h.div)h.div='plain';if(!h.c3)h.c3=pick(TINCT.filter(c=>c!==h.c1));if(h.charge==='moon')h.charge='night';}
-setTimeout(()=>{for(const k of ['dwarfrev','fallenhero','beastsiege','courtappt','marshal','skelcurse','necro','lich','elfforest','irondeep','orcsteppe','beastwood','ashrift','ennoble','slavemarket','plague','dragon','coronation','knighted','inquisition','saint','assassin','demon','undead','prophets','revolt','awaken','sword_stone','redmoon','chieftain','orcduel','royalwed','throne','owlletter','manatest','freshmen','dragonegg','swamphunt','cryptfight','callarms','witchtrial','fair','wolfnight','herotrain','destiny','abyss','herocomes','rebels','merit','crusade','eclipse','ghost','alchemy','ruins','meteor']){const i=new Image();i.src=`ev/${k}.webp`}},1500);
+setTimeout(()=>{for(const k of ['dwarfrev','fallenhero','beastsiege','courtappt','marshal','skelcurse','necro','lich','elfforest','irondeep','orcsteppe','beastwood','ashrift','ennoble','slavemarket','plague','dragon','coronation','knighted','inquisition','saint','assassin','demon','undead','prophets','revolt','awaken','sword_stone','redmoon','chieftain','orcduel','royalwed','throne','owlletter','manatest','freshmen','dragonegg','swamphunt','cryptfight','callarms','witchtrial','fair','wolfnight','herotrain','destiny','abyss','herocomes','rebels','merit','crusade','eclipse','ghost','alchemy','ruins','meteor']){const i=new Image();i.src=`ev/${k}.webp`}},1500);}catch(e){console.error(e)}
+if(S&&S.gv!==GV){vSnap('event',`trước khi cập nhật lên bản ${GV}`);S.gv=GV}
 if(S){try{save();render()}catch(e){console.error(e)}}showTitle();
 </script>
 
