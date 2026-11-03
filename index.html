@@ -1955,7 +1955,7 @@ function drawSheet(){
     if(S.flags.were)b+='<p class="note magic">Bạn mang lời nguyền người sói.</p>';
     b+='<p class="note">Phím tắt: 1–6 mở các bảng, phím cách để sang năm.</p>';
     b+='<p class="sec">Danh hiệu</p>'+gRow('data-open="hon"','trophy','Danh hiệu của bạn',(S.hon||[]).filter(h=>h.st!=='stripped').map(h=>HON[h.id].n).join(', ')||'Chưa có danh hiệu nào','',false);
-    {const w=rtWhy();if(kids().length)b+='<p class="sec">Truyền đời</p>'+gRow('data-open="retire"','crown','Lui về ở ẩn, chơi tiếp bằng đời con',w||`${rtKids().length} người con đã trưởng thành có thể kế tục`,'',false)}
+    {const w=rtWhy();if(kids().length)b+='<p class="sec">Truyền đời</p>'+gRow('data-open="retire"','crown','Lui về ở ẩn, chơi tiếp bằng đời con',w||`${rtKids().length} người con có thể kế tục`,'',false)}
     b+='<p class="sec">Lưu trữ</p>'+gRow('data-open="saves"','bookmark','Lưu trữ cuộc đời','Ô lưu, xuất file, mã lưu để chơi tiếp trên máy khác','',false);
     b+=gRow('data-x="tm:home"','castle','Màn hình chính','Tiếp tục, đời mới, Kho đời, file lưu','',false);b+=rowBtn('data-x="tm:new"','Bắt đầu một đời mới','Đời hiện tại được cất vào Kho đời','');
   }
@@ -5360,7 +5360,7 @@ function autoRotate(why){const pickS=ASLOTS.map(k=>[k,slotGet(k)]).sort((a,b)=>(
   else if(c.ev&&S.ann.length)autoRotate(S.ann[0].title)}}
 {const i0=inherit;inherit=function(id){const g=S&&S.gen;i0(id);if(S&&S.gen!==g&&acfg().ev)autoPut('gen',`đời thứ ${S.gen}`)}}
 /* ---------- 12. Truyền đời cho con khi còn sống ---------- */
-const rtKids=()=>kids().filter(k=>adultK(k));
+const rtKids=()=>kids();
 function rtWhy(){if(!S.alive)return'Bạn đã qua đời';if(S.pend.length||S.ann.length)return'Hãy xử lý sự kiện đang chờ trước';if(S.fight||(S.flags.hero&&S.world.cat&&S.flags.hero.cat===S.world.cat.y))return'Đang gánh sứ mệnh Anh Hùng, chưa thể lui về';if(S.flags.dark||S.flags.hcat)return'Thảm Họa không thể lui về ở ẩn';if(!kids().length)return'Bạn chưa có con';if(!rtKids().length)return'Chưa có người con nào trưởng thành';return''}
 {const g0=genRecord;genRecord=function(){const r=g0();if(S.flags.retiring){r.ret=1;r.cause=''}return r}}
 function rtView(v){
@@ -5368,7 +5368,6 @@ function rtView(v){
     const why=rtWhy();if(why)return['Truyền đời cho con',b+`<p class="note bad">${why}.</p>`,'menu'];
     const th=titleHeirOf(S);b+='<p class="sec">Chọn người kế tục</p>';
     for(const k of rtKids())b+=gRow(`data-open="retire:${k.id}"`,k.sex==='m'?'male':'female',esc(k.first),`${k.rel} · ${k.age} tuổi${k.race!==S.race?' · '+RACES[k.race].n:''} · tình cảm ${k.bond}${th&&th.id===k.id?' · kế thừa tước':''}${k.vow?' · đã khấn dòng':''}`,'',false);
-    const young=kids().filter(k=>!adultK(k));if(young.length)b+=`<p class="note">Chưa đủ tuổi kế tục: ${young.map(k=>esc(k.first)+' ('+k.age+')').join(', ')}.</p>`;
     return['Truyền đời cho con',b,'menu']}
   const id=v.slice(7),k=S.fam.find(x=>x.id===id&&x.alive);if(!k)return['Truyền đời cho con','<p class="note">Không tìm thấy người con này.</p>','retire'];
   const th=titleHeirOf(S),n=Math.max(1,heirPool().length);
@@ -5377,7 +5376,7 @@ function rtView(v){
   return['Lui về ở ẩn?',b,'retire'];
 }
 function rtGo(id){
-  if(rtWhy())return;const k=S.fam.find(x=>x.id===id&&x.alive);if(!k||!adultK(k))return;
+  if(rtWhy())return;const k=S.fam.find(x=>x.id===id&&x.alive);if(!k||!/^Con /.test(k.rel)||k.bast)return;
   try{if(acfg().ev)autoPut('gen',`trước khi ${S.first} lui về`)}catch(e){}
   const old=S,me={first:old.first,sur:old.surname,sex:old.sex,age:old.age,race:old.race,gen:old.gen,y:old.year};
   S.flags.retiring=1;S.cause='';
@@ -8798,7 +8797,7 @@ function heroesView(){const H=(S.world.heroes||[]).slice().reverse();let b='';
   return['Anh Hùng',b,'act']}
 {const d0=drawExt3;drawExt3=function(v){if(v==='heroes')return heroesView();return d0(v)}}
 {const a0=actExtra3;actExtra3=function(){let b=a0();const n=(S.world.heroes||[]).length;return b.replace('<p class="sec">Thiên hạ</p>','<p class="sec">Thiên hạ</p>'+gRow('data-open="heroes"','sword','Anh Hùng',S.flags.hero&&S.world.cat?'Bạn đang gánh sứ mệnh Anh Hùng':n?`${n} anh hùng được ghi danh`:'Chưa ai được ghi danh','',false))}}
-const GV='39';
+const GV='40';
 for(const e of EV)if(/^cru_/.test(e.id)){const c0=e.c;e.c=s=>!!(s.world&&s.world.cat&&CATS[s.world.cat.id])&&(!c0||c0(s))}
 {let guard=0;const s0=showNext;showNext=function(){try{s0();guard=0}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null;try{save()}catch(e){}}if(++guard<20)showNext();else{guard=0;closeModal();render()}}}}
 {const c0=choose;choose=function(i){try{c0(i)}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null}try{save();render()}catch(e){}closeModal();showNext()}}}
