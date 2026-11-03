@@ -14,6 +14,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <style>[hidden]{display:none!important}html,body{margin:0;background:#0b0807}.tmb{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:3px;width:100%;margin:0 0 8px}.tmb small{display:block;text-align:left;font-weight:400;opacity:.78;font-size:.82em;line-height:1.35}.tmsub{text-align:center;color:var(--muted);margin:0 0 14px}.tmn{margin-top:6px}.tmdel{width:100%;margin-top:10px;color:#b8473d}
 .cochip{display:block;width:100%;margin:0 0 8px;padding:7px 10px;border-radius:8px;border:1px solid #7a5518;background:#1d1612;color:#e8c98a;font:600 12.5px/1.3 var(--f-ui);text-align:center}.cochip svg{vertical-align:-3px}.cochat{max-height:190px;overflow:auto;border:1px solid rgba(232,201,138,.25);border-radius:8px;padding:6px 10px;margin-bottom:8px}.cochat p{margin:4px 0;font-size:.92em}.coprow small{display:block}
+.tname{background:none;border:0;padding:0;font:inherit;font-weight:700;color:inherit;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;display:block;text-align:left}.gchron p{margin:4px 0;line-height:1.45}.gchron .gy{margin-top:10px;font-weight:700;color:var(--gold,#e8c98a);font-size:.9em}.gchron .bad{color:#e08a7a}.gchron .good{color:#cfe0a6}.gchron .magic{color:#c7b2ff}
 </style>
 <title>Đời Trung Cổ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1961,7 +1962,7 @@ function treeHTML(){
   gens.forEach((g,i)=>{
     const cur=i===gens.length-1&&S.alive;
     const t=g.title>=2?titleName(g.title,g.sex)+' ':g.saint?'Thánh Nữ ':g.knight?(g.sex==='m'?'Ngài ':'Phu nhân '):'';
-    h+=`<div class="tnode ${cur?'cur':''}"><div class="tgen">Đời thứ ${g.gen}${cur?' · đang sống':''}</div><b>${esc(t+g.first)}</b>${g.hon&&g.hon.length||g.skel||g.office?`<small>${esc([g.office,g.skel,...(g.hon||[])].filter(Boolean).join(' · '))}</small>`:''}<small>${RACES[g.race].n} · ${g.by} – ${cur?'nay':g.dy}${g.ret&&!cur?(g.ry?` · lui về năm ${g.ry}`:' · đã lui về ở ẩn'):''}${!cur&&g.cause?' · mất vì '+esc(g.cause):''}${g.slayer?' · Kẻ Diệt Rồng':''}${g.legend?' · Anh Hùng':''}${g.dark?' · Thảm Họa Hắc Ám':''}</small>${g.spouses.length?`<small>Phối ngẫu: ${esc(g.spouses.join(', '))}</small>`:''}<div class="tkids">${g.kids.length?g.kids.map(k=>`<span class="kid ${g.heir===k.id?'heir':''} ${k.alive?'':'dead'}">${esc(k.first)}${g.heir===k.id?' · thừa kế':''}</span>`).join(''):'<span class="kid none">Chưa có con</span>'}</div></div>`;
+    h+=`<div class="tnode ${cur?'cur':''}"><div class="tgen">Đời thứ ${g.gen}${cur?' · đang sống':''}</div><button class="tname" data-open="gen:${i}">${esc(t+g.first)}</button>${g.hon&&g.hon.length||g.skel||g.office?`<small>${esc([g.office,g.skel,...(g.hon||[])].filter(Boolean).join(' · '))}</small>`:''}<small>${RACES[g.race].n} · ${g.by} – ${cur?'nay':g.dy}${g.ret&&!cur?(g.ry?` · lui về năm ${g.ry}`:' · đã lui về ở ẩn'):''}${!cur&&g.cause?' · mất vì '+esc(g.cause):''}${g.slayer?' · Kẻ Diệt Rồng':''}${g.legend?' · Anh Hùng':''}${g.dark?' · Thảm Họa Hắc Ám':''}</small>${g.spouses.length?`<small>Phối ngẫu: ${esc(g.spouses.join(', '))}</small>`:''}<div class="tkids">${g.kids.length?g.kids.map(k=>`<span class="kid ${g.heir===k.id?'heir':''} ${k.alive?'':'dead'}">${esc(k.first)}${g.heir===k.id?' · thừa kế':''}</span>`).join(''):'<span class="kid none">Chưa có con</span>'}</div></div>`;
   });
   return h+'</div>';
 }
@@ -7722,7 +7723,7 @@ function cbTags(n){const t=new Set();const s=n.toLowerCase();
   if(/hiệp sĩ|thủ vệ|golem|giáp|người giữ bia/.test(s))t.add('giap');if(/pháp sư/.test(s))t.add('phep');if(/thách đấu|vượt qua|đấu thử|giữ/.test(s))t.add('nguoi');if(!t.size)t.add('nguoi');return[...t]}
 function cbChance(id,F){const base=.52-(F.d||0);if(!id)return base+((S.blade||0)-40)/300+(S.st.health-50)/400+cbB()/200-.05;
   const M=MV[id],lv=S.mv[id].lv;return base+M.pw+(lv-1)*.04+mvTal(id)+mvMatch(id,F.tags)+cbB()/250}
-function cbLabel(id,tags){const M=MV[id],P=S.mv[id],m=mvMatch(id,tags);return`${M.n} · cấp ${P?P.lv:1}${M.mp?` · ${M.mp} ma lực`:''}${M.hp?` · ${M.hp} sức khỏe`:''}${m>0?' · khắc chế':m<0?' · bị khắc':''}`}
+function cbLabel(id,tags){const M=MV[id],P=S.mv[id],m=mvMatch(id,tags);return`${M.n} · cấp ${P?P.lv:1}${M.mp?` · ${M.mp} ma lực`:''}${M.hp?` · ${M.hp} sức khỏe`:''}${(()=>{const F=S.pf||S.fight;return F&&F.lm===id?' · vừa dùng':''})()}`}
 function cbHurt(F,mult){const dm=F.dm||[6,14];let d=Math.round(R(dm[0],dm[1])*(mult||1));if(F.soft===1)d=Math.round(d/2);mod({health:-d});
   if(F.soft===2&&S.st.health<10){S.st.health=10;return` Lửa phượng hoàng giữ bạn lại với sự sống.`}
   if(S.st.health<=0||(F.die&&ch(F.die)&&F.soft!==2)){die(`trong trận chiến với ${F.n.toLowerCase()}`);return' Bạn gục xuống, không đứng dậy được nữa.'}return` Bạn mất ${d} sức khỏe.`}
@@ -7768,12 +7769,12 @@ for(const e of CB_EV){EV.push(e);EVB[e.id]=e}
 /* trận Ma Vương và Thảm Họa: dùng chiêu thức */
 function fightMv(id){const F=S.fight,C=CATS[S.world.cat.id],M=MV[id],lv=(S.mv[id]||{lv:1}).lv;F.round++;
   let low=false;if(M.mp){if(S.st.magic>=M.mp)mod({magic:-M.mp});else low=true}if(M.hp)mod({health:-M.hp});if(M.pc)mod({piety:-M.pc});
-  if(M.ty==='heal'||M.ty==='esc'){let t='';if(M.ty==='heal'){const h=R(M.h[0],M.h[1]);mod({health:h});t=`Bạn dùng ${M.n}: ${M.x}, hồi ${h} sức khỏe.`}else t=`Bạn dùng ${M.n}: ${M.x}. Bạn lùi ra, tìm sơ hở.`;
+  if(M.ty==='heal'||M.ty==='esc'){mvRead(F,id);let t='';if(M.ty==='heal'){const h=R(M.h[0],M.h[1]);mod({health:h});t=`Bạn dùng ${M.n}: ${M.x}, hồi ${h} sức khỏe.`}else t=`Bạn dùng ${M.n}: ${M.x}. Bạn lùi ra, tìm sơ hở.`;
     F.bonus=(F.bonus||0)+.15;F.last='guard';t+=mvXP(id,true);if(ch(.35))t+=bossHit(3,8);if(S.alive&&S.fight)S.pend.push('herofight');return[t,'']}
-  const p=fightBase()+(F.bonus||0)+M.pw+(lv-1)*.04+mvTal(id)+mvMatch(id,BOSST[S.world.cat.id]||[])-(low?.15:0);F.bonus=0;
-  const win=ch(Math.max(.08,Math.min(.9,p)));let t;
+  const p=fightBase()+(F.bonus||0)+M.pw+(lv-1)*.04+mvTal(id)+mvMatch(id,BOSST[S.world.cat.id]||[])-(low?.15:0);F.bonus=0;const rd=mvRead(F,id);
+  const win=!rd&&ch(Math.max(.08,Math.min(.9,p)));let t;
   if(win){F.hp=Math.max(0,F.hp-(M.ty==='ult'&&ch(.3)?2:1));F.last='hit';t=`Bạn tung ${M.n}: ${M.x}.`+mvXP(id,true);if(F.hp<=0){S.fight=null;heroWin(false);return[t+` ${C.boss} gục ngã. Bóng tối tan đi như sương sớm.`,'good']}t+=` ${C.boss} còn ${F.hp}/${F.max} sinh lực.`;if(ch(.3))t+=bossHit(4,9)}
-  else{F.last='miss';t=`Bạn tung ${M.n}, nhưng ${C.boss} gạt đi.`+mvXP(id,false);t+=M.ty==='def'||id==='hl1'?bossHit(5,10):bossHit(10,20)}
+  else{F.last='miss';t=(rd?`${C.boss} đã đọc được ${M.n} sau ${F.rep+1} lần bạn dùng liên tiếp, né sang bên rồi phản đòn.`:`Bạn tung ${M.n}, nhưng ${C.boss} gạt đi.`)+mvXP(id,false);t+=M.ty==='def'||id==='hl1'?bossHit(5,10):bossHit(10,20)}
   if(S.alive&&S.fight)S.pend.push('herofight');return[t,win?'good':'bad']}
 {const e=EVB.herofight;e.ch=[0,1,2,3].map(i=>({t:s=>cbLabel(s.mvL[i],s.world.cat&&BOSST[s.world.cat.id]),hide:true,req:s=>!!(s.mvL&&s.mvL[i]&&MV[s.mvL[i]]&&s.mv[s.mvL[i]]),f:s=>fightMv(s.mvL[i])})).concat(e.ch)}
 
@@ -8518,15 +8519,15 @@ function popeWin(){const n=popeN();S.pf=null;const H=HUNT();H.done=1;H.lv=0;fac(
   return' Giáo Hoàng gục ngã. Thánh Quân vứt cờ bỏ chạy.'}
 function popeRound(kind,id){const F=S.pf;F.round++;let p=.05+((S.blade||0)+S.st.magic)/600+cbB()/300+((S.flags.her||0)>=2?.05:0)+(F.bonus||0);F.bonus=0;let t='',lab='';
   if(kind==='mv'){const M=MV[id],lv=(S.mv[id]||{lv:1}).lv;let low=false;if(M.mp){if(S.st.magic>=M.mp)mod({magic:-M.mp});else low=true}if(M.hp)mod({health:-M.hp});if(M.pc)mod({piety:-M.pc});
-    if(M.ty==='heal'||M.ty==='esc'){if(M.ty==='heal'){const h=R(M.h[0],M.h[1]);mod({health:h});t=`Bạn dùng ${M.n}: ${M.x}, hồi ${h} sức khỏe.`}else t=`Bạn dùng ${M.n}: ${M.x}. Bạn lùi ra tìm sơ hở.`;F.bonus=.15;F.last='guard';mvXP(id,true);if(ch(.4))t+=popeHit(4,10);if(S.alive)S.pend.push('pope_fight');return[t,'']}
+    if(M.ty==='heal'||M.ty==='esc'){mvRead(F,id);if(M.ty==='heal'){const h=R(M.h[0],M.h[1]);mod({health:h});t=`Bạn dùng ${M.n}: ${M.x}, hồi ${h} sức khỏe.`}else t=`Bạn dùng ${M.n}: ${M.x}. Bạn lùi ra tìm sơ hở.`;F.bonus=.15;F.last='guard';mvXP(id,true);if(ch(.4))t+=popeHit(4,10);if(S.alive)S.pend.push('pope_fight');return[t,'']}
     p+=M.pw+(lv-1)*.04+mvTal(id)+mvMatch(id,POPET)-(low?.15:0);lab=`Bạn tung ${M.n}: ${M.x}.`;mvXP(id,true)}
   else if(kind==='blade'){p+=(S.blade||0)/400;lab='Lưỡi kiếm của bạn chém vào giáp thánh.'}
   else if(kind==='spell'){mod({magic:-8});p+=S.st.magic/500+.03;lab='Ngọn lửa trăng đỏ trong tay bạn xé toạc kết giới.'}
   else if(kind==='ud'){const u=udBest();p+=u.pw+SKX().rk*.03;lab=`${u.n} lao vào Giáo Hoàng.`;if(!ch(p)&&ch(.35)){UD().splice(UD().indexOf(u),1);lab+=` ${u.n} tan thành tro dưới thánh quang.`}}
   else if(kind==='call'){F.call=1;p+=.2;lab='Hàng trăm tín đồ đeo khăn đỏ từ bốn phía lao vào Thánh Quân.'}
-  p=Math.max(.06,Math.min(.75,p));
-  if(ch(p)){F.hp=Math.max(0,F.hp-(kind==='mv'&&MV[id].ty==='ult'&&ch(.3)?2:1));F.last='hit';t=`${lab} Giáo Hoàng còn ${F.hp}/${F.max} sinh lực.`;if(F.hp<=0)return[lab+popeWin(),'good'];if(ch(.4))t+=popeHit(6,12)}
-  else{F.last='miss';t=`${lab.replace(/\.$/,'')}, nhưng Giáo Hoàng gạt đi.`+popeHit(13,26)}
+  p=Math.max(.06,Math.min(.75,p));const rd=mvRead(F,kind==='mv'?id:kind);
+  if(!rd&&ch(p)){F.hp=Math.max(0,F.hp-(kind==='mv'&&MV[id].ty==='ult'&&ch(.3)?2:1));F.last='hit';t=`${lab} Giáo Hoàng còn ${F.hp}/${F.max} sinh lực.`;if(F.hp<=0)return[lab+popeWin(),'good'];if(ch(.4))t+=popeHit(6,12)}
+  else{F.last='miss';t=rd?`${lab} Nhưng Giáo Hoàng đã đọc được đòn này sau ${F.rep+1} lần bạn dùng liên tiếp, né sang bên rồi phản đòn.`:`${lab.replace(/\.$/,'')}, nhưng Giáo Hoàng gạt đi.`+popeHit(13,26)}
   if(S.alive&&S.pf)S.pend.push('pope_fight');return[t,F.last==='hit'?'good':'bad']}
 HR_EV.push({id:'pope_fight',queued:true,big:true,art:'holy',img:'saint',c:s=>!!(s.alive&&s.pf),title:s=>`Giáo Hoàng ${popeN()} · Hiệp ${s.pf.round+1}`,
   text:s=>{const F=s.pf;return`${F.last==='miss'?'Bạn vừa trúng đòn và đang ở thế bất lợi. ':F.last==='hit'?'Bạn vừa giành được lợi thế. ':''}Giáo Hoàng: ${'■'.repeat(F.hp)+'□'.repeat(F.max-F.hp)} · Sức khỏe của bạn: ${s.st.health}/100 · Ma lực: ${s.st.magic}/100. Bạn làm gì tiếp theo?`},
@@ -8746,7 +8747,28 @@ const mvCount=re=>mvList().filter(id=>re.test(MV[id].src||'')).length;
 {const e=EVB.hn_snow;if(e)e.c=s=>s.age>=18&&s.age<=70&&s.flags.seenS&&(s.blade||0)>=75&&(s.hid.sword>=50||(s.blade||0)>=90)&&mvCount(/^kiem$/)>=3&&s.st.honor>=40&&!HONS().some(h=>h.id==='kiemthanh')}
 {const e=EVB.hn_council;if(e){const c0=e.c;e.c=s=>c0(s)&&mvCount(/^m:/)>=3}}
 {const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&r.job&&r.job.id==='knight'&&r.job.rank>2)r.job.rank=2;return r}}
-const GV='34';
+
+/* ---------- V35: chiêu dùng liên tiếp bị bắt bài; câu chuyện từng đời trong gia phả ---------- */
+function mvRead(F,key){if(!F)return false;if(F.lm===key)F.rep=(F.rep||0)+1;else F.rep=0;F.lm=key;return F.rep>0&&ch(Math.min(1,F.rep*.25))}
+function genChron(){const out=[];let prev='';for(const e of S.log||[]){let n=0;for(const it of e.items||[]){const tx=String(it.t).slice(0,240);if(tx===prev)continue;if(e===S.log[0]||(it.tone&&n<3)){out.push([e.year,e.age,tx,it.tone||'']);prev=tx;n++}}}return out.slice(-150)}
+{const g0=genRecord;genRecord=function(){const r=g0();try{r.sur=S.surname;r.house=S.house.name;r.money=Math.round(S.money||0);r.job=S.job?jt():(S.kn?knTitle():'');r.chron=genChron()}catch(e){console.error(e)}return r}}
+function genView(i){const gens=[...(S.tree||[]),genRecord()],g=gens[i];if(!g)return['Gia phả','<p class="note">Không tìm thấy người này.</p>','house'];
+  const cur=i===gens.length-1&&S.alive,t=g.title>=2?titleName(g.title,g.sex)+' ':g.saint?'Thánh Nữ ':g.knight?(g.sex==='m'?'Ngài ':'Phu nhân '):'';
+  const nm=`${t}${g.first}${g.sur?' '+g.sur:''}`;const age=(cur?S.year:g.dy)-g.by;
+  let sum=`${RACES[g.race].n}, đời thứ ${g.gen} của gia tộc ${esc(g.house||S.house.name)}, sinh năm ${g.by}. `;
+  sum+=cur?`Năm nay ${S.age} tuổi. `:g.ret&&!g.cause?`Lui về ở ẩn${g.ry?` năm ${g.ry}`:''}${g.dy?`, mất năm ${g.dy} ở tuổi ${age}`:''}. `:`Mất năm ${g.dy} ở tuổi ${age}${g.cause?' vì '+esc(g.cause):''}. `;
+  if(g.job)sum+=`Nghề nghiệp cuối đời: ${esc(g.job)}. `;if(g.office)sum+=`Chức vụ: ${esc(g.office)}. `;if(g.title>=2)sum+=`Tước vị: ${titleName(g.title,g.sex)}. `;
+  const tags=[...(g.hon||[]),g.skel,g.slayer&&'Kẻ Diệt Rồng',g.legend&&'Anh Hùng trong Lời Tiên Tri',g.dark&&'Thảm Họa Hắc Ám',g.saint&&'Thánh Nữ'].filter(Boolean);if(tags.length)sum+=`Danh hiệu: ${esc(tags.join(', '))}. `;
+  if(g.spouses&&g.spouses.length)sum+=`Phối ngẫu: ${esc(g.spouses.join(', '))}. `;
+  if(g.kids&&g.kids.length)sum+=`${g.kids.length} người con: ${esc(g.kids.map(k=>k.first).join(', '))}.${g.heir?` Người kế nghiệp: ${esc((g.kids.find(k=>k.id===g.heir)||{}).first||'')}.`:''} `;else sum+='Không có con. ';
+  if(g.money!=null&&!cur)sum+=`Gia sản để lại: ${fmt(g.money)}.`;
+  let b=`<p class="note">${sum}</p><p class="sec">Biên niên</p>`;
+  const rows=cur?S.log.flatMap(e=>(e.items||[]).map((it,k)=>[e.year,e.age,it.t,it.tone||'',k])):(g.chron||[]).map(x=>[...x,1]);
+  if(!rows.length)b+='<p class="note">Biên niên của đời này không còn lưu, vì người này mất trước khi game bắt đầu ghi lại câu chuyện từng đời.</p>';
+  else{let last=null;b+='<div class="gchron">'+rows.map(([y,a,tx,tn])=>{const hd=y!==last?`<p class="gy">${y} · ${a} tuổi</p>`:'';last=y;return hd+`<p class="${tn}">${esc(tx)}</p>`}).join('')+'</div>';if(!cur)b+='<p class="note">Chỉ giữ lại những sự kiện đáng nhớ của mỗi đời.</p>'}
+  return[esc(nm),b,'house']}
+{const d0=drawExt3;drawExt3=function(v){if(v&&v.startsWith('gen:'))return genView(+v.slice(4));return d0(v)}}
+const GV='35';
 for(const e of EV)if(/^cru_/.test(e.id)){const c0=e.c;e.c=s=>!!(s.world&&s.world.cat&&CATS[s.world.cat.id])&&(!c0||c0(s))}
 {let guard=0;const s0=showNext;showNext=function(){try{s0();guard=0}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null;try{save()}catch(e){}}if(++guard<20)showNext();else{guard=0;closeModal();render()}}}}
 {const c0=choose;choose=function(i){try{c0(i)}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null}try{save();render()}catch(e){}closeModal();showNext()}}}
