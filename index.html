@@ -13,6 +13,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-180.png">
 <style>[hidden]{display:none!important}html,body{margin:0;background:#0b0807}.tmb{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:3px;width:100%;margin:0 0 8px}.tmb small{display:block;text-align:left;font-weight:400;opacity:.78;font-size:.82em;line-height:1.35}.tmsub{text-align:center;color:var(--muted);margin:0 0 14px}.tmn{margin-top:6px}.tmdel{width:100%;margin-top:10px;color:#b8473d}
+.cochip{display:block;width:100%;margin:0 0 8px;padding:7px 10px;border-radius:8px;border:1px solid #7a5518;background:#1d1612;color:#e8c98a;font:600 12.5px/1.3 var(--f-ui);text-align:center}.cochip svg{vertical-align:-3px}.cochat{max-height:190px;overflow:auto;border:1px solid rgba(232,201,138,.25);border-radius:8px;padding:6px 10px;margin-bottom:8px}.cochat p{margin:4px 0;font-size:.92em}.coprow small{display:block}
 </style>
 <title>Đời Trung Cổ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -905,7 +906,7 @@ function newHouse(sur,year){const c1=pick(TINCT.slice(0,7));return{name:sur,c1,c
 
 /* ---------- new life ---------- */
 function newLife(o){
-  const cls=o.cls,sex=o.sex,race=o.race||'human',sur=(o.house||'').trim()||pick(SUR[cls]),by=R(612,690);
+  const cls=o.cls,sex=o.sex,race=o.race||'human',sur=(o.house||'').trim()||pick(SUR[cls]),by=(typeof COOP_BY!=='undefined'&&COOP_BY!=null)?COOP_BY:R(612,690);
   const st={};STATS.forEach(([k])=>st[k]=R(30,75));st.health=R(60,90);st.magic=R(5,40);
   for(const k in CLASSES[cls].st)st[k]=clamp(st[k]+CLASSES[cls].st[k]);
   for(const k in RACES[race].st)st[k]=clamp(st[k]+RACES[race].st[k]);
@@ -8745,7 +8746,7 @@ const mvCount=re=>mvList().filter(id=>re.test(MV[id].src||'')).length;
 {const e=EVB.hn_snow;if(e)e.c=s=>s.age>=18&&s.age<=70&&s.flags.seenS&&(s.blade||0)>=75&&(s.hid.sword>=50||(s.blade||0)>=90)&&mvCount(/^kiem$/)>=3&&s.st.honor>=40&&!HONS().some(h=>h.id==='kiemthanh')}
 {const e=EVB.hn_council;if(e){const c0=e.c;e.c=s=>c0(s)&&mvCount(/^m:/)>=3}}
 {const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&r.job&&r.job.id==='knight'&&r.job.rank>2)r.job.rank=2;return r}}
-const GV='33';
+const GV='34';
 for(const e of EV)if(/^cru_/.test(e.id)){const c0=e.c;e.c=s=>!!(s.world&&s.world.cat&&CATS[s.world.cat.id])&&(!c0||c0(s))}
 {let guard=0;const s0=showNext;showNext=function(){try{s0();guard=0}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null;try{save()}catch(e){}}if(++guard<20)showNext();else{guard=0;closeModal();render()}}}}
 {const c0=choose;choose=function(i){try{c0(i)}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null}try{save();render()}catch(e){}closeModal();showNext()}}}
@@ -8827,6 +8828,203 @@ $('#hot').innerHTML=HOT.map(([v,i,l,k])=>`<button class="hk" data-open="${v}"><k
 $('#coin').innerHTML='<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="#eaa93c" stroke="#7a4a12" stroke-width="1.5"/><circle cx="10" cy="10" r="4.5" fill="none" stroke="#7a4a12" stroke-width="1.2"/></svg>';
 $('#menuBtn').innerHTML=ic('menu',18);
 $('#hgIcon').innerHTML=ic('hourglass',22);
+
+
+/* ---------- Kết nối chơi chung: máy chủ phòng là trình duyệt của người tạo phòng (PeerJS/WebRTC) ---------- */
+const PEERJS_URL='https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
+let peerLoad=null;
+function loadPeer(){if(window.Peer)return Promise.resolve(true);if(peerLoad)return peerLoad;peerLoad=new Promise(res=>{const s=document.createElement('script');s.src=PEERJS_URL;s.async=true;s.onload=()=>res(!!window.Peer);s.onerror=()=>{peerLoad=null;res(false)};document.head.appendChild(s);setTimeout(()=>res(!!window.Peer),15000)});return peerLoad}
+const peerId=code=>'dtc-coop-'+code.toLowerCase();
+const hostKey=code=>`${KEY}-coophost-${code}`;
+function netDb(N){
+  const snap=(path,d)=>({id:path.split('/').pop(),exists:d!==undefined,data:()=>d,metadata:{fromCache:false,hasPendingWrites:false}});
+  const docRef=path=>({id:path.split('/').pop(),path,
+    get:async()=>snap(path,N.store[path]),
+    set:d=>N.op({op:'set',path,data:d}),update:d=>N.op({op:'update',path,data:d}),delete:()=>N.op({op:'delete',path}),
+    acquire:async()=>({acquired:!!N.host}),
+    onSnapshot:next=>{const f=()=>next(snap(path,N.store[path]));N.subs.add(f);setTimeout(f,0);return()=>N.subs.delete(f)},
+    collection:p=>coll(path+'/'+p)});
+  const coll=(path,flt=[],ord=null,lim=0)=>{const n=path.split('/').length+1;
+    const run=()=>{let L=Object.keys(N.store).filter(k=>k.startsWith(path+'/')&&k.split('/').length===n).map(k=>[k,N.store[k]]);
+      for(const[f,,v]of flt)L=L.filter(x=>x[1][f]===v);if(ord)L.sort((a,b)=>((a[1][ord[0]]||0)-(b[1][ord[0]]||0))*(ord[1]==='desc'?-1:1));if(lim)L=L.slice(0,lim);
+      const docs=L.map(([k,d])=>snap(k,d));return{docs,size:docs.length,empty:!docs.length,docChanges:()=>[],metadata:{fromCache:false}}};
+    return{path,where:(f,o,v)=>coll(path,[...flt,[f,o,v]],ord,lim),orderBy:(f,d)=>coll(path,flt,[f,d||'asc'],lim),limit:x=>coll(path,flt,ord,x),
+      get:async()=>run(),onSnapshot:next=>{const f=()=>next(run());N.subs.add(f);setTimeout(f,0);return()=>N.subs.delete(f)},
+      doc:id=>docRef(path+'/'+(id||uid()+uid())),add:async d=>{const r=docRef(path+'/'+Date.now().toString(36)+uid());await r.set(d);return r}}};
+  return{doc:docRef,collection:p=>coll(p)}}
+function netMerge(a,b){for(const k in b){const v=b[k];if(v&&typeof v==='object'&&!Array.isArray(v)&&a[k]&&typeof a[k]==='object'&&!Array.isArray(a[k]))netMerge(a[k],v);else a[k]=v}}
+/* chủ phòng */
+function netHost(code,myUid){return new Promise(res=>{
+  const N={host:true,code,store:{},subs:new Set(),conns:new Map(),online:()=>[myUid,...[...N.conns.values()].map(c=>c.uid).filter(Boolean)],onOnline:null,ok:true};
+  try{N.store=JSON.parse(localStorage.getItem(hostKey(code))||'{}')}catch(e){N.store={}}
+  let bt=null;const fire=()=>{for(const f of[...N.subs])try{f()}catch(e){console.error(e)}};
+  const persist=()=>{try{localStorage.setItem(hostKey(code),JSON.stringify(N.store))}catch(e){}};
+  const bcast=()=>{clearTimeout(bt);bt=setTimeout(()=>{const msg={t:'store',data:N.store,online:N.online()};for(const c of N.conns.keys())try{c.open&&c.send(msg)}catch(e){}},40)};
+  const apply=o=>{const S0=N.store,p=o.path;
+    if(o.op==='set')S0[p]=JSON.parse(JSON.stringify(o.data));
+    else if(o.op==='update'){if(!S0[p])throw{code:'invalid_argument'};netMerge(S0[p],JSON.parse(JSON.stringify(o.data)))}
+    else if(o.op==='delete')delete S0[p];
+    if(/\/chat\//.test(p)){const base=p.slice(0,p.lastIndexOf('/'));const L=Object.keys(S0).filter(k=>k.startsWith(base+'/')).sort((a,b)=>(S0[b].t||0)-(S0[a].t||0));for(const k of L.slice(40))delete S0[k]}
+    if(/\/tx\//.test(p)&&S0[p]&&S0[p].done)delete S0[p];
+    persist();fire();bcast()};
+  N.op=async o=>apply(o);
+  N.onlineChanged=()=>{if(N.onOnline)N.onOnline(N.online());bcast()};
+  N.close=()=>{N.ok=false;try{N.peer.destroy()}catch(e){}};
+  let tries=0;const start=()=>{const P=new Peer(peerId(code),window.__peerOpts||{});N.peer=P;
+    P.on('open',()=>{res(N)});
+    P.on('connection',c=>{N.conns.set(c,{uid:null});
+      c.on('data',m=>{if(!m||typeof m!=='object')return;
+        if(m.t==='hello'){N.conns.get(c).uid=String(m.uid||'');c.send({t:'store',data:N.store,online:N.online()});N.onlineChanged();return}
+        if(m.t==='op'){try{apply(m.o);c.send({t:'ack',id:m.id})}catch(e){c.send({t:'ack',id:m.id,err:(e&&e.code)||'error'})}}});
+      c.on('close',()=>{N.conns.delete(c);N.onlineChanged()});c.on('error',()=>{N.conns.delete(c);N.onlineChanged()})});
+    P.on('error',e=>{if(e&&e.type==='unavailable-id'&&tries++<8){try{P.destroy()}catch(x){}setTimeout(start,3000);return}if(!N.peer.open)res(null);console.error(e)});
+    P.on('disconnected',()=>{if(N.ok)setTimeout(()=>{try{P.reconnect()}catch(e){}},2000)})};
+  start();setTimeout(()=>res(null),30000)})}
+/* người vào phòng */
+function netJoin(code,myUid){return new Promise(res=>{
+  const N={host:false,code,store:{},subs:new Set(),wait:new Map(),onOnline:null,onConn:null,connected:false,ok:true};
+  const fire=()=>{for(const f of[...N.subs])try{f()}catch(e){console.error(e)}};
+  let first=true,c=null;
+  N.op=o=>new Promise((ok,bad)=>{if(!c||!c.open)return bad({code:'unavailable'});const id=uid()+uid();N.wait.set(id,[ok,bad]);c.send({t:'op',id,o});setTimeout(()=>{if(N.wait.has(id)){N.wait.delete(id);bad({code:'unavailable'})}},10000)});
+  N.close=()=>{N.ok=false;try{N.peer.destroy()}catch(e){}};
+  const P=new Peer(window.__peerOpts||{});N.peer=P;
+  const link=()=>{if(!N.ok)return;c=P.connect(peerId(code),{reliable:true});
+    c.on('open',()=>{c.send({t:'hello',uid:myUid})});
+    c.on('data',m=>{if(!m||typeof m!=='object')return;
+      if(m.t==='store'){N.store=m.data||{};if(!N.connected){N.connected=true;N.onConn&&N.onConn(true)}if(N.onOnline&&m.online)N.onOnline(m.online);fire();if(first){first=false;res(N)}}
+      if(m.t==='ack'){const w=N.wait.get(m.id);if(w){N.wait.delete(m.id);m.err?w[1]({code:m.err}):w[0]()}}});
+    c.on('close',()=>{if(N.connected){N.connected=false;N.onConn&&N.onConn(false)}if(N.ok)setTimeout(link,4000)});
+    c.on('error',()=>{})};
+  P.on('open',link);
+  P.on('error',e=>{if(e&&e.type==='peer-unavailable'){if(first){first=false;N.close();res(null)}else if(N.ok)setTimeout(link,4000);return}console.error(e)});
+  P.on('disconnected',()=>{if(N.ok)setTimeout(()=>{try{P.reconnect()}catch(e){}},2000)});
+  setTimeout(()=>{if(first){first=false;N.close();res(null)}},20000)})}
+/* ================= CHƠI CÙNG BẠN BÈ (thử nghiệm) =================
+   Mỗi người giữ nhân vật của mình trong máy. Trình duyệt của người tạo phòng giữ dữ liệu phòng (năm thế giới, người chơi,
+   trò chuyện, chuyển vàng, sự kiện chung) và nối thẳng với các máy khác qua PeerJS. Chủ phòng phải mở game thì phòng mới chạy. */
+var COOP_BY=null;
+const CO={code:null,uid:null,db:null,user:null,room:null,nr:null,rd:null,pl:{},online:null,chat:[],un:[],adv:0,q:Promise.resolve(),last:'',txq:[],txSeen:new Set(),msg:null,v:'home',ok:null};
+const cpKey=c=>`${KEY}-coop-${c}`;
+const CODECH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const cpGen=()=>Array.from({length:5},()=>CODECH[Math.floor(Math.random()*CODECH.length)]).join('');
+async function cpInit(){if(CO.ok)return true;try{CO.uid=localStorage.getItem(KEY+'-coop-uid');if(!CO.uid){CO.uid='p'+uid()+uid();localStorage.setItem(KEY+'-coop-uid',CO.uid)}}catch(e){CO.uid=CO.uid||'p'+uid()+uid()}
+  CO.ok=await loadPeer();return CO.ok}
+const cpIsHost=c=>{try{return localStorage.getItem(hostKey(c))!=null}catch(e){return false}};
+async function cpConnect(code,asHost){if(CO.net&&CO.net.code===code&&CO.net.ok)return true;if(CO.net){CO.net.close();CO.net=null}
+  CO.msg={t:asHost?'Đang mở phòng…':'Đang kết nối tới chủ phòng…',tone:''};cpDraw();
+  const N=asHost?await netHost(code,CO.uid):await netJoin(code,CO.uid);
+  if(!N){CO.msg={t:asHost?'Không mở được phòng. Kiểm tra mạng rồi thử lại.':`Không kết nối được phòng ${code}. Kiểm tra mã phòng, và nhờ chủ phòng mở game.`,tone:'bad'};return false}
+  CO.net=N;CO.db=netDb(N);CO.msg=null;
+  N.onOnline=ids=>{CO.online=new Set(ids);CO.online.add(CO.uid);render();cpCheck();cpPanelRefresh()};
+  N.onConn=on=>{toast(on?'Đã kết nối lại với chủ phòng':'Mất kết nối với chủ phòng, đang thử lại…');render();cpPanelRefresh()};return true}
+const cpRoom=c=>CO.db.doc('rooms/'+c);
+const cpPl=c=>CO.db.collection('rooms/'+c+'/players');
+const cpMe=()=>CO.pl[CO.uid];
+function cpW(fn){CO.q=CO.q.then(fn).catch(e=>{console.error(e);if(e&&e.code==='unavailable'){toast('Chưa gửi được: đang mất kết nối với chủ phòng')}else if(e&&e.code==='invalid_argument'){CO.msg={t:'Thao tác bị từ chối.',tone:'bad'}}});return CO.q}
+/* --- lưu riêng cho phòng, không đụng tới đời chơi đơn --- */
+{const m0=vMainNow;vMainNow=function(){if(CO.code)return;return m0()}}
+{const s0=save;save=function(){if(!CO.code)return s0();if(!S)return;try{localStorage.setItem(cpKey(CO.code),JSON.stringify(S));saveFailed=0}catch(e){saveFail()}cpPushSoon()}}
+{const w0=wipe;wipe=function(){if(!CO.code)return w0();try{localStorage.removeItem(cpKey(CO.code))}catch(e){}}}
+{const p0=slotPut;slotPut=function(n,s){if(CO.code)return true;return p0(n,s)}}
+{const r0=restart;restart=function(){if(CO.code&&CO.rd)COOP_BY=CO.rd.year;return r0()}}
+{const n0=newLife;newLife=function(o){n0(o);COOP_BY=null;if(CO.code&&S){S.coop=CO.code;save();cpPush()}}}
+{const l0=tmLoadObj;tmLoadObj=function(s,label){if(CO.code){TMS.msg={t:'Hãy rời phòng chơi chung trước khi mở bản lưu khác.',tone:'bad'};return tmDraw()}return l0(s,label)}}
+/* --- đồng bộ thông tin nhân vật lên phòng --- */
+let cpT=null;function cpPushSoon(){clearTimeout(cpT);cpT=setTimeout(cpPush,1200)}
+function cpSnap(){const s=S;return{uid:CO.uid,name:s.name,first:s.first,house:s.house.name,gen:s.gen||1,age:s.age,year:s.year,by:s.by,race:s.race,sex:s.sex,money:Math.round(s.money),health:Math.round(s.st.health),alive:!!s.alive,job:s.job?jt():(s.kn?knTitle():''),rdy:CO.myRdy||0,t:0}}
+function cpPush(){if(!CO.code||!S||!S.house||!CO.db)return;if(CO.rd&&CO.rd.away&&CO.rd.away[CO.uid]){CO.rd.away[CO.uid]=false;const c=CO.code;cpW(()=>cpRoom(c).update({away:{[CO.uid]:false}}))}const d=cpSnap();const k=JSON.stringify(d);if(k===CO.last)return;CO.last=k;d.t=Date.now();return cpW(()=>cpPl(CO.code).doc(CO.uid).set(d))}
+/* --- năm chung --- */
+function cpNeed(){const aw=(CO.rd&&CO.rd.away)||{};return Object.values(CO.pl).filter(p=>p.alive&&p.house&&(p.uid===CO.uid||(!aw[p.uid]&&(!CO.online||CO.online.has(p.uid)))))}
+function cpWaiting(){const y=CO.rd&&CO.rd.year;return cpNeed().filter(p=>!(p.rdy>=y&&p.year>=y))}
+function cpReady(){if(!S||!S.alive||S.pend.length||S.ann.length||!CO.rd)return;if(S.year<CO.rd.year)return;CO.myRdy=CO.rd.year;CO.last='';cpPush();render();cpCheck()}
+function cpCheck(){const R0=CO.rd;if(!R0||!CO.code)return;const need=cpNeed();if(!need.length||cpWaiting().length)return;if(CO.net&&CO.net.host)cpAdvance(R0.year)}
+let cpAdv=0;async function cpAdvance(y){if(cpAdv===y)return;cpAdv=y;try{const ref=cpRoom(CO.code);const L=await ref.acquire({holder:CO.uid,ttlMs:5000});if(!L.acquired)return;const g=await ref.get();if(!g.exists||g.data().year!==y)return;
+  const up={year:y+1};if(Math.random()<.35)up.wev={[y+1]:pick(Object.keys(COW))};await ref.update(up)}catch(e){console.error(e);cpAdv=0}}
+/* chạy năm cho nhân vật khi phòng đã sang năm (từng năm một, kể cả khi bạn vắng mặt nhiều năm) */
+setInterval(()=>{try{if(!CO.code||!S||!CO.rd)return;
+  while(CO.txq.length&&S.house){const x=CO.txq.shift();S.money+=x.amt;log(`${x.fn} gửi cho bạn ${x.amt} xu.`,'good');toast(`${x.fn} gửi cho bạn ${x.amt} xu`);save();render()}
+  if(S.alive&&S.year<CO.rd.year&&cpPanelOpen&&$('#modal .copanel')&&!S.pend.length&&!S.ann.length){cpPanelOpen=false;closeModal()}
+  if(S.alive&&S.year<CO.rd.year&&$('#modal').hidden&&$('#sheet').hidden&&!S.pend.length&&!S.ann.length){CO.adv=1;try{ageUp()}finally{CO.adv=0}cpPush()}}catch(e){console.error(e)}},700);
+{const a0=ageUp;ageUp=function(){if(!CO.code)return a0();if(!CO.adv){cpReady();return}const y=S.year;a0();if(S&&S.year!==y){toast(`Năm ${S.year}`);const w=CO.rd&&CO.rd.wev&&CO.rd.wev[S.year];if(w&&COW[w]&&S.alive){if(!S.cow)S.cow={};if(!S.cow[S.year]){S.cow[S.year]=1;S.pend.push('cow_'+w);save();if($('#modal').hidden)showNext()}}}}}
+/* --- sự kiện chung của cả phòng --- */
+const COW={
+ winter:{t:'Mùa đông khắc nghiệt',img:'wolfnight',x:'Tuyết phủ kín đường suốt ba tháng. Cả vùng chịu cảnh đói rét, những người cùng phòng với bạn cũng vậy.',
+   ch:[['Chia lương thực cho hàng xóm (10 xu)',s=>s.money>=10,s=>{s.money-=10;mod({honor:4,happy:2});return['Hàng xóm qua được mùa đông nhờ bạn.','good']}],['Đóng cửa giữ ấm cho nhà mình',null,s=>{mod({health:-R(2,6)});return'Nhà bạn qua mùa đông, ai cũng gầy rộc.'}]]},
+ fair:{t:'Hội chợ mùa thu',img:'fair',x:'Thương nhân khắp nơi đổ về thành. Dịp hiếm hoi mọi người trong phòng cùng có mặt ở một khu chợ.',
+   ch:[['Buôn bán ở hội chợ',s=>s.age>=12,s=>{const g=R(5,25);s.money+=g;return[`Bạn bán được hàng, lời ${g} xu.`,'good']}],['Đi xem hội',null,s=>{mod({happy:R(4,8)});return'Bạn xem múa rối và ăn bánh nướng mật ong.'}]]},
+ fever:{t:'Dịch sốt lan rộng',img:'plague',x:'Một cơn sốt quét qua cả vùng. Không nhà nào thoát, kể cả nhà những người cùng phòng.',
+   ch:[['Mời thầy thuốc (15 xu)',s=>s.money>=15,s=>{s.money-=15;mod({health:-R(0,3)});return['Thầy thuốc cho bạn uống nước sắc đắng ngắt. Một tuần sau bạn khỏi.','good']}],['Tự chịu đựng',null,s=>{mod({health:-R(6,14)});return['Bạn nằm liệt giường cả tháng.','bad']}]]},
+ beasts:{t:'Quái vật tràn về',img:'beastsiege',x:'Một bầy quái vật từ rừng sâu tràn xuống các làng. Những người cùng phòng với bạn cũng đang chống đỡ ở nơi khác.',
+   ch:[['Cầm vũ khí ra giữ làng',s=>s.age>=14,s=>{const n=Object.values(CO.pl).filter(p=>p.alive&&p.uid!==CO.uid&&p.age>=14).length;if(ch(.45+(s.blade||0)/250+n*.08)){mod({honor:5});return[`Bạn giữ được làng.${n?` Tin báo về: ${n} đồng đội của bạn cũng đẩy lùi được lũ quái.`:''}`,'good']}mod({health:-R(8,16)});return['Bạn bị thương nhưng làng vẫn đứng vững.','bad']}],['Trốn vào nhà thờ',null,s=>'Bạn nép trong nhà thờ đến khi lũ quái rút đi.']]}};
+for(const k in COW){const W0=COW[k],e={id:'cow_'+k,queued:true,big:true,art:'scroll',img:W0.img,c:s=>!!CO.code,title:'Cả phòng: '+W0.t,text:W0.x,ch:W0.ch.map(([t,rq,f])=>rq?{t,req:rq,f}:{t,f})};EV.push(e);EVB[e.id]=e;EIMG[e.id]=W0.img}
+/* --- vào / rời phòng --- */
+function cpSub(code){cpUnsub();
+  CO.un.push(cpRoom(code).onSnapshot(s=>{CO.rd=s.exists?s.data():null;cpAdv=0;render();cpCheck();cpPanelRefresh()},e=>console.error(e)));
+  CO.un.push(cpPl(code).onSnapshot(q=>{CO.pl={};q.docs.forEach(d=>{CO.pl[d.id]=d.data()});render();cpCheck();cpPanelRefresh()},e=>console.error(e)));
+  CO.un.push(CO.db.collection('rooms/'+code+'/chat').orderBy('t','desc').limit(30).onSnapshot(q=>{CO.chat=q.docs.map(d=>d.data()).reverse();cpPanelRefresh()},e=>console.error(e)));
+  CO.un.push(CO.db.collection('rooms/'+code+'/tx').where('to','==',CO.uid).where('done','==',false).onSnapshot(q=>{for(const d of q.docs){if(CO.txSeen.has(d.id))continue;CO.txSeen.add(d.id);const x=d.data();cpW(()=>CO.db.doc('rooms/'+code+'/tx/'+d.id).update({done:true})).then(()=>CO.txq.push(x))}},e=>console.error(e)));
+  CO.online=new Set([CO.uid,...(CO.net.host?CO.net.online():[])])}
+function cpUnsub(){for(const u of CO.un)try{u()}catch(e){}CO.un=[]}
+async function cpEnter(code){if(!await cpInit()){CO.msg={t:'Không tải được phần kết nối. Kiểm tra mạng rồi thử lại.',tone:'bad'};return cpDraw()}
+  if(!await cpConnect(code,cpIsHost(code)))return cpDraw();const g=await cpRoom(code).get();if(!g.exists){CO.msg={t:`Không tìm thấy phòng ${code}.`,tone:'bad'};return cpDraw()}
+  const rd=g.data();const ps=await cpPl(code).get();const others=ps.docs.filter(d=>d.id!==CO.uid).length;const mine=ps.docs.some(d=>d.id===CO.uid);
+  if(!mine&&others>=(rd.max||4)){CO.msg={t:'Phòng đã đủ 4 người.',tone:'bad'};return cpDraw()}
+  vMainNow();CO.code=code;CO.rd=rd;CO.myRdy=0;CO.last='';try{localStorage.setItem(KEY+'-coop-last',code)}catch(e){}
+  let s=null;try{const r=localStorage.getItem(cpKey(code));s=r?migrate(JSON.parse(r)):null}catch(e){s=null}
+  cpSub(code);closeModal();
+  if(s&&s.year<=rd.year){S=s;try{postLoad()}catch(e){}render();cpPush();if(!S.alive)showDeath();else if(S.ann.length||S.pend.length)showNext();toast(`Đã vào phòng ${code}`)}
+  else{S=null;COOP_BY=rd.year;showIntro()}}
+function cpLeave(){cpPush();cpUnsub();const N=CO.net;CO.net=null;CO.db=null;setTimeout(()=>{if(N)N.close()},800);CO.code=null;CO.rd=null;CO.pl={};CO.online=null;try{localStorage.removeItem(KEY+'-coop-last')}catch(e){}S=null;try{S=migrate(load())}catch(e){S=null}if(S){try{postLoad()}catch(e){}render()}showTitle()}
+/* --- màn hình chơi cùng --- */
+function cpDraw(){const v=CO.v;let h='',ttl='Chơi cùng bạn bè',back='home';const msg=CO.msg?`<p class="note ${CO.msg.tone||''}">${CO.msg.t}</p>`:'';
+  if(CO.ok===false)h+='<p class="note bad">Không tải được phần kết nối chơi chung. Kiểm tra mạng rồi mở lại.</p>';
+  else if(CO.ok==null)h+='<p class="note">Đang chuẩn bị…</p>';
+  else if(v==='home'){const last=(()=>{try{return localStorage.getItem(KEY+'-coop-last')}catch(e){return null}})();
+    h+='<p class="note">Mỗi người một nhân vật và gia tộc riêng, sống chung một thế giới. Năm chỉ trôi khi mọi người đang mở game đều bấm Sẵn sàng. Tối đa 4 người. Người tạo phòng phải mở game thì phòng mới chạy.</p>';
+    if(last)h+=tmB2('co:enter:'+last,`Tiếp tục phòng ${last}`,'Vào lại phòng gần nhất',1);
+    h+=tmB2('co:create','Tạo phòng mới','Nhận mã phòng để gửi cho bạn bè',!last)+tmB2('co:v:join','Nhập mã phòng','Vào phòng bạn bè đã tạo');
+    h+='<p class="note tmn">Đời chơi đơn của bạn được giữ nguyên. Nhân vật trong phòng lưu riêng.</p>'}
+  else if(v==='join'){ttl='Nhập mã phòng';h+='<input id="coCode" class="svta" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="VD: K7P2Q" style="text-transform:uppercase;font-size:22px;letter-spacing:4px;text-align:center">'+tmB2('co:join','Vào phòng','',1)}
+  modal(`<div class="shead tmh"><button class="bk" data-x="${v==='home'?'tm:home':'co:v:home'}" aria-label="Quay lại">${ic('back',18)}</button><div class="plate"><h2>${ttl}</h2></div></div><div class="cbody tmbody">${msg}${h}</div>`)}
+const tmB2=(x,t,s,pri)=>`<button class="btn tmb${pri?' pri':''}" data-x="${x}"><b>${t}</b>${s?`<small>${s}</small>`:''}</button>`;
+/* bảng đồng đội: trạng thái, trò chuyện, chuyển vàng */
+let cpPanelOpen=false;
+function cpPanelRefresh(){if(cpPanelOpen&&!$('#modal').hidden&&$('#modal .copanel')){const inp=$('#coMsg'),val=inp?inp.value:'',am=$('#coAmt'),av=am?am.value:'',foc=document.activeElement&&document.activeElement.id;cpPanel();if(val&&$('#coMsg'))$('#coMsg').value=val;if(av&&$('#coAmt'))$('#coAmt').value=av;if(foc&&$('#'+foc))$('#'+foc).focus()}}
+async function cpPanel(){cpPanelOpen=true;const y=CO.rd?CO.rd.year:'?';const L=Object.values(CO.pl).sort((a,b)=>(a.uid===CO.uid?-1:b.uid===CO.uid?1:0));let prof={};try{if(CO.user)prof=await CO.user.profiles(L.map(p=>p.uid))}catch(e){}
+  const st=p=>!p.alive?'Đã khuất':(CO.online&&!CO.online.has(p.uid)&&p.uid!==CO.uid)?'Vắng mặt':(CO.rd&&CO.rd.away&&CO.rd.away[p.uid])?'Không chờ':(p.rdy>=y&&p.year>=y)?'Sẵn sàng':p.year<y?'Đang bắt kịp':'Đang chơi';
+  let h=`<p class="note">Mã phòng <b style="letter-spacing:3px;font-size:1.15em">${CO.code}</b> · năm ${y}. Gửi mã này cho bạn bè để họ vào phòng.${CO.net&&CO.net.host?' Bạn là chủ phòng: giữ game mở để mọi người chơi được.':CO.net&&!CO.net.connected?' <b>Đang mất kết nối với chủ phòng.</b>':''}</p>`;
+  h+=L.map(p=>{const pn=(prof[p.uid]&&prof[p.uid].name)||'';return`<div class="row coprow"><div><b>${esc(p.name||'Đang tạo nhân vật')}</b>${p.uid===CO.uid?' <small>(bạn)</small>':''}<small>${pn?esc(pn)+' · ':''}${p.alive?p.age+' tuổi':'đã khuất'} · gia tộc ${esc(p.house||'')} đời ${p.gen||1}${p.job?' · '+esc(p.job):''}<br>${fmt(p.money||0)} · sức khỏe ${p.health}</small>${p.uid!==CO.uid&&p.alive&&!(p.rdy>=y&&p.year>=y)&&!(CO.rd&&CO.rd.away&&CO.rd.away[p.uid])?`<button class="btn sm" data-x="co:away:${p.uid}" style="margin-top:4px">Không chờ người này</button>`:''}</div><span class="cost">${st(p)}</span></div>`}).join('');
+  const others=L.filter(p=>p.uid!==CO.uid&&p.house);
+  if(others.length&&S&&S.alive){h+='<p class="sec">Gửi vàng</p><div class="nmrow"><input id="coAmt" inputmode="numeric" placeholder="Số xu" autocomplete="off"></div>'+others.map(p=>`<button class="btn sm" data-x="co:give:${p.uid}" style="margin:4px 6px 0 0">Gửi cho ${esc(p.first||p.name)}</button>`).join('')}
+  h+='<p class="sec">Trò chuyện</p><div class="cochat">'+(CO.chat.length?CO.chat.map(m=>`<p><b>${esc(m.n||'?')}:</b> ${esc(m.m||'')}</p>`).join(''):'<p class="note">Chưa có tin nhắn.</p>')+'</div><div class="nmrow"><input id="coMsg" maxlength="200" placeholder="Nhắn cả phòng" autocomplete="off"><button class="btn sm pri" data-x="co:send">Gửi</button></div>';
+  h+=`<button class="btn tmdel" data-x="co:leave">Rời phòng, về đời chơi đơn</button>`;
+  modal(`<div class="shead tmh copanel"><div class="plate"><h2>Phòng ${CO.code}</h2></div><button class="xbtn" data-x="co:close" aria-label="Đóng">${ic('x',18)}</button></div><div class="cbody tmbody">${CO.msg?`<p class="note ${CO.msg.tone||''}">${CO.msg.t}</p>`:''}${h}</div>`);const c=$('.cochat');if(c)c.scrollTop=c.scrollHeight}
+async function cpAct(a){const i=a.indexOf(':'),k=i<0?a:a.slice(0,i),arg=i<0?'':a.slice(i+1);CO.msg=null;
+  if(k==='open'){CO.v='home';cpDraw();await cpInit();return cpDraw()}
+  if(k==='v'){CO.v=arg;cpDraw();if(arg==='join'){const c=$('#coCode');c&&c.focus()}return}
+  if(k==='create'){if(!await cpInit())return cpDraw();const code=cpGen();try{localStorage.setItem(hostKey(code),'{}')}catch(e){}if(!await cpConnect(code,true))return cpDraw();await cpW(()=>cpRoom(code).set({code,year:R(640,690),host:CO.uid,created:Date.now(),max:4,wev:{}}));return cpEnter(code)}
+  if(k==='join'){const c=(($('#coCode')||{}).value||'').trim().toUpperCase();if(!/^[A-Z0-9]{5}$/.test(c)){CO.msg={t:'Mã phòng gồm 5 ký tự.',tone:'bad'};return cpDraw()}return cpEnter(c)}
+  if(k==='enter')return cpEnter(arg);
+  if(k==='panel')return cpPanel();
+  if(k==='away'){await cpW(()=>cpRoom(CO.code).update({away:{[arg]:true}}));return cpPanel()}
+  if(k==='close'){cpPanelOpen=false;closeModal();if(S&&!S.alive)showDeath();else if(S&&(S.ann.length||S.pend.length))showNext();return}
+  if(k==='leave'){cpPanelOpen=false;return cpLeave()}
+  if(k==='send'){const t=(($('#coMsg')||{}).value||'').trim();if(!t||!S)return;$('#coMsg').value='';return cpW(()=>CO.db.collection('rooms/'+CO.code+'/chat').add({u:CO.uid,n:S.first,m:t.slice(0,200),t:Date.now()}))}
+  if(k==='give'){const n=Math.floor(+(($('#coAmt')||{}).value||0));const p=CO.pl[arg];if(!p||!S||!S.alive)return;if(!(n>0)||n>S.money){CO.msg={t:n>0?'Bạn không đủ tiền.':'Nhập số xu muốn gửi.',tone:'bad'};return cpPanel()}
+    S.money-=n;log(`Bạn gửi ${n} xu cho ${p.first||p.name}.`);save();render();await cpW(()=>CO.db.collection('rooms/'+CO.code+'/tx').add({from:CO.uid,fn:S.first,to:arg,amt:n,t:Date.now(),done:false}));CO.msg={t:`Đã gửi ${n} xu cho ${p.first||p.name}.`,tone:'good'};return cpPanel()}}
+{const x0=extAct3;extAct3=function(x){if(x.startsWith('co:'))return cpAct(x.slice(3));if(x==='skip5'&&CO.code)return;return x0(x)}}
+/* màn hình chính: thêm nút Chơi cùng bạn bè; trong phòng thì hiện thông tin phòng */
+{const d0=tmDraw;tmDraw=function(){d0();if(TMS.v!=='home')return;const b=$('#modal .tmbody');if(!b)return;
+  const html=CO.code?tmB2('co:panel',`Phòng ${CO.code}`,'Đồng đội, trò chuyện, gửi vàng')+tmB2('co:leave','Rời phòng','Về lại đời chơi đơn'):tmB2('co:open','Chơi cùng bạn bè','Tạo phòng hoặc nhập mã, tối đa 4 người');
+  const first=b.querySelector('.tmb');if(first)first.insertAdjacentHTML('afterend',html);else b.insertAdjacentHTML('beforeend',html);
+  if(CO.code)b.querySelectorAll('[data-x="tm:vault"],[data-x="tm:file"]').forEach(x=>x.remove())}}
+/* thanh trạng thái phòng và nút Sang năm */
+$('#stats').insertAdjacentHTML('beforebegin','<button class="cochip" id="coChip" data-x="co:panel" hidden></button>');
+{const r0=render;render=function(){r0();const c=$('#coChip'),b=$('#ageBtn');if(!c)return;if(!CO.code||!S){c.hidden=true;if(b&&b.dataset.co){delete b.dataset.co;b.innerHTML=`<span id="hgIcon">${ic('hourglass',22)}</span>Sang năm<small>+1 tuổi</small>`}return}
+  const y=CO.rd?CO.rd.year:S.year,need=cpNeed(),wait=cpWaiting(),me=wait.some(p=>p.uid===CO.uid),on=CO.online?CO.online.size:Object.keys(CO.pl).length;
+  c.hidden=false;c.innerHTML=`${ic('user-group',16)} Phòng ${CO.code} · năm ${y} · ${need.length-wait.length}/${need.length} sẵn sàng · ${on} đang mở`;
+  const a5=$('#age5');if(a5)a5.hidden=true;
+  if(b){b.dataset.co=1;b.innerHTML=!S.alive?'Đã khuất<small>chọn người kế nghiệp</small>':S.year<y?'Đang sang năm…<small>xử lý sự kiện</small>':me?`<span id="hgIcon">${ic('hourglass',22)}</span>Sẵn sàng<small>sang năm ${y+1}</small>`:`Đang chờ<small>${wait.length} người chưa sẵn sàng</small>`}}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
