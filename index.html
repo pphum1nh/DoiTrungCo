@@ -960,7 +960,7 @@ function worldYear(){
   if(S.flags.hero&&S.flags.hero.cat===w.cat.y){S.fight=null;S.pend.push(S.flags.hero.train>0?'herotrain':'herobattle');return}
   if((yrs>=2&&ch(.22))||yrs>=8){endCat();return}
   if(w.cat.id==='heresy'&&S.flags.her>0){S.pend.push('heryear');return}
-  if(heroEligible()&&!S.flags['call'+w.cat.y])S.pend.push('callhero');
+  if(heroEligible2()&&!S.flags['call'+w.cat.y])S.pend.push(S.flags.legend?'herorecall':'callhero');
   else S.pend.push(w.cat.id==='plague'?'plague':'catyear');
 }
 function startCat(id){
@@ -968,7 +968,7 @@ function startCat(id){
   announce('Thảm Họa: '+C.n,C.start,C.art,CATIMG[id]);
   log(`THẢM HỌA · ${C.n}. ${C.start}`,'bad');
   if(id==='heresy'&&S.flags.her>0){S.pend.push('herreveal');return}
-  if(heroEligible())S.pend.push('callhero');
+  if(heroEligible2())S.pend.push(S.flags.legend?'herorecall':'callhero');
 }
 function endCat(){
   const C=CATS[S.world.cat.id],hero=pick(MN)+' '+pick(['Mắt Ưng','Tóc Bạc','xứ '+pick(VILL),'Người Mang Ánh Sáng']);
@@ -6572,7 +6572,7 @@ endCat=function(){
   let who,kind;
   if(res>=4){who=`${S.first} ${S.surname}`;kind='me'}
   else if(c.fw){who=c.fw;kind='new'}else{const L=[];if(S.gd&&gdAlive().length>=3)L.push([`bang hội "${S.gd.n}" của bạn`,'gd']);const fr=rels('friend').find(r=>r.ach==='glory'||r.ach==='title');if(fr)L.push([`${fr.name}, bạn cũ của bạn`,'fr']);if(W0.ks&&!W0.ks.me)L.push([`Kiếm Thánh ${W0.ks.name}`,'ks']);const nat=pick(Object.keys(NATIONS));const rs=WD().rs[nat];if(rs)L.push([`${rs.ruler} và quân đội ${nat}`,'nat']);L.push([`${pick(MN)} ${pick(HERO_EP)}`,'new']);[who,kind]=pick(L)}
-  if(kind==='new'){if(!W0.heroes)W0.heroes=[];W0.heroes.push({name:who,y:S.year,cat:c.id});W0.heroes=W0.heroes.slice(-6)}
+  if(kind==='new'){if(!W0.heroes)W0.heroes=[];W0.heroes.push({name:who,y:S.year,cat:c.id,k:'npc'});W0.heroes=W0.heroes.slice(-30)}
   if(kind==='gd'){S.gd.fame+=40;S.gd.hist.push({y:S.year,t:`Góp công đánh bại ${C.boss}.`})}
   if(kind==='fr'){const fr=rels('friend').find(r=>r.ach==='glory'||r.ach==='title');if(fr)fr.bond=clamp(fr.bond+10)}
   if(kind==='me'){mod({honor:15,happy:10});S.house.prestige+=150;rep('d',8);rep('n',5);if(!S.flags.legend){S.flags.cmerit=(S.flags.cmerit||0)+1}}
@@ -8076,7 +8076,7 @@ const NC_EV=[
   text:s=>{const C=CATS[s.world.cat.id];return`Tin truyền về: Anh Hùng ${s.ncH} sẽ đối đầu ${C.boss} ở cánh đồng phía Bắc vào đêm trăng tròn. Một trong hai sẽ không trở về. Bạn có thể ẩn mình nơi chiến trường, chờ kẻ gục ngã, rồi trói linh hồn người ấy làm tướng dưới trướng bạn.`},
   ch:[{t:'Ẩn mình nơi chiến trường chờ đợi',f:s=>{const c=s.world.cat,C=CATS[c.id],hero=s.ncH,hm=pick(HEROMV),bm=pick(BOSSNM[c.id]||['một đòn chí mạng']);let t=`Anh Hùng ${hero} tung ${hm}. ${C.boss} đáp trả bằng ${bm}. Trận chiến kéo dài đến rạng sáng. `;
      if(ch(.55)){t+=`Cuối cùng ${C.boss} gục xuống.`;c.fw=`Anh Hùng ${hero}`;endCat();const[ok,tt]=ncRaise({n:C.boss,t:`đại tướng xác sống, từng là ${C.boss}`,pw:.35,diff:.3,leg:20});return[`${t} Khi Anh Hùng rời đi, bạn bước ra giữa đám tro tàn. ${tt}`,ok?'magic':'bad']}
-     t+=`Cuối cùng Anh Hùng ${hero} ngã xuống. ${C.boss} gầm lên rồi rút về sào huyệt.`;c.res=Math.max(0,(c.res||0)-2);news(`Anh Hùng ${hero} tử trận trước ${C.boss}. Thi thể người biến mất khỏi chiến trường.`,'bad',true);
+     t+=`Cuối cùng Anh Hùng ${hero} ngã xuống. ${C.boss} gầm lên rồi rút về sào huyệt.`;c.res=Math.max(0,(c.res||0)-2);heroAdd(`Anh Hùng ${hero}`,c.id,'fallen');news(`Anh Hùng ${hero} tử trận trước ${C.boss}. Thi thể người biến mất khỏi chiến trường.`,'bad',true);
      const[ok,tt]=ncRaise({n:`Anh Hùng ${hero}`,t:'đại tướng xác sống, Anh Hùng sa ngã',pw:.3,diff:.25,leg:5});if(ok){mod({piety:-6});s.flags.suspect=(s.flags.suspect||0)+2}return[`${t} Bạn kéo thi thể người vào bóng tối. ${tt}`,ok?'magic':'bad']}},
       {t:'Gom xác quân lính hai bên sau trận',f:s=>{const K=SKX(),n=R(10,25);K.leg=(K.leg||0)+n;mod({piety:-3});return[`Bạn đứng dậy sau trận chiến và gọi ${n} xác lính đi theo mình.`,'magic']}},
       {t:'Không can dự',f:s=>'Bạn để người chết được yên. Lần này.'}]},
@@ -8724,7 +8724,7 @@ EV.push(HNPREP);EVB.hn_prep=HNPREP;
   let t=`Từ bóng tối, bạn nhìn Anh Hùng ${hero} dẫn đoàn hộ vệ vào cánh đồng. Anh Hùng mở đầu bằng ${hm}. ${C.boss} đáp trả bằng ${bm}, quét bay nửa đoàn hộ vệ. `;
   if(ch(p)){t+=`Trận chiến kéo dài đến rạng sáng, và ${C.boss} gục xuống.`;c.fw=`Anh Hùng ${hero}`;endCat();s.ncBody={n:C.boss,y:s.year};
     return[`${t} Bạn chưa kịp bước ra thì các tu sĩ Chính Giáo đã vây quanh thi thể, khiêng về giam trong hầm mộ thánh. Muốn trói linh hồn nó, bạn phải lấy được thi thể.`,'magic']}
-  t+=`Đến lúc trăng lặn, Anh Hùng ${hero} ngã xuống. ${C.boss} gầm lên rồi rút về sào huyệt.`;c.res=Math.max(0,(c.res||0)-2);news(`Anh Hùng ${hero} tử trận trước ${C.boss}. Thi thể người biến mất khỏi chiến trường.`,'bad',true);
+  t+=`Đến lúc trăng lặn, Anh Hùng ${hero} ngã xuống. ${C.boss} gầm lên rồi rút về sào huyệt.`;c.res=Math.max(0,(c.res||0)-2);heroAdd(`Anh Hùng ${hero}`,c.id,'fallen');news(`Anh Hùng ${hero} tử trận trước ${C.boss}. Thi thể người biến mất khỏi chiến trường.`,'bad',true);
   const[ok,tt]=ncRaise({n:`Anh Hùng ${hero}`,t:'đại tướng xác sống, Anh Hùng sa ngã',pw:.3,diff:.25,leg:5});if(ok){mod({piety:-6});s.flags.suspect=(s.flags.suspect||0)+2}
   return[`${t} Bạn kéo thi thể người vào bóng tối. ${tt}`,ok?'magic':'bad']}}}
 const NCB={id:'nc_corpse',queued:true,big:true,art:'skull',img:'necro',c:s=>!!(s.alive&&isNc()&&s.ncBody),title:s=>`Thi thể ${s.ncBody.n}`,
@@ -8768,7 +8768,29 @@ function genView(i){const gens=[...(S.tree||[]),genRecord()],g=gens[i];if(!g)ret
   else{let last=null;b+='<div class="gchron">'+rows.map(([y,a,tx,tn])=>{const hd=y!==last?`<p class="gy">${y} · ${a} tuổi</p>`:'';last=y;return hd+`<p class="${tn}">${esc(tx)}</p>`}).join('')+'</div>';if(!cur)b+='<p class="note">Chỉ giữ lại những sự kiện đáng nhớ của mỗi đời.</p>'}
   return[esc(nm),b,'house']}
 {const d0=drawExt3;drawExt3=function(v){if(v&&v.startsWith('gen:'))return genView(+v.slice(4));return d0(v)}}
-const GV='35';
+
+/* ---------- V36: Anh Hùng của thiên hạ; Anh Hùng cũ được mời ra trận lần nữa ---------- */
+const heroEligible2=()=>heroEligible()||!!(S.flags.legend&&!S.flags.dark&&!S.flags.her&&!S.flags.hcat&&S.alive&&S.age/lifeOf(S.race)<=60);
+function heroAdd(name,cat,k,extra){const W0=S.world;if(!W0.heroes)W0.heroes=[];W0.heroes.push({name,y:S.year,cat,k,...(extra||{})});W0.heroes=W0.heroes.slice(-30)}
+{const h0=heroWin;heroWin=function(sac){const id=S.world.cat&&S.world.cat.id,n=S.flags.legend?((S.flags.legN||1)+1):1;h0(sac);S.flags.legN=n;if(id)heroAdd(`${S.first} ${S.surname}`,id,sac?'sac':'me',{gen:S.gen,n})}}
+{const e0=endCat;endCat=function(){const c=S.world.cat,res=c?(c.res||0)+(isMil(S)&&S.co&&S.co.rk>=3?2:0):0;e0();if(c&&res>=4)heroAdd(`${S.first} ${S.surname}`,c.id,'lead',{gen:S.gen})}}
+const HRC={id:'herorecall',queued:true,big:true,art:'sword',img:'prophets',c:s=>!!(s.world.cat&&s.world.cat.id!=='player'&&s.flags.legend),title:'Lời cầu xin của các nhà tiên tri',
+  text:s=>{const C=CATS[s.world.cat.id];return`Những nhà tiên tri áo trắng năm xưa lại đứng trước cửa nhà bạn, tóc giờ đã bạc. ${C.n} đang tàn phá khắp nơi và chưa ai địch nổi ${C.boss}. Họ quỳ xuống: "Người đã cứu thế giới một lần. Xin hãy ra trận thêm một lần nữa."`},
+  ch:[{t:'Ra trận',f:s=>{s.flags['call'+s.world.cat.y]=1;s.flags.hero={cat:s.world.cat.y,train:0};mod({honor:6});if(s.job&&!JOBS[s.job.id].mobile)s.job=null;return[`Bạn lấy lại thanh kiếm cũ trên tường. Năm sau, bạn sẽ đối mặt ${CATS[s.world.cat.id].boss}.`,'magic']}},
+      {t:'Hãy để việc đó cho thế hệ trẻ',f:s=>{s.flags['call'+s.world.cat.y]=1;mod({happy:2});return'Bạn đặt tay lên vai nhà tiên tri già: "Thế giới cần những anh hùng mới." Các nhà tiên tri lặng lẽ ra về, đi tìm người khác.'}}]};
+EV.push(HRC);EVB.herorecall=HRC;EIMG.herorecall='prophets';
+const HKN={me:'Đánh bại',sac:'Hy sinh để phong ấn',lead:'Dẫn đầu kháng cự, hạ',npc:'Đánh bại',fallen:'Tử trận trước'};
+function heroesView(){const H=(S.world.heroes||[]).slice().reverse();let b='';
+  if(S.flags.hero&&S.world.cat&&S.flags.hero.cat===S.world.cat.y)b+=`<p class="note magic">${esc(S.first)} đang trên đường đối đầu ${CATS[S.world.cat.id].boss}.</p>`;
+  const fam=[];for(const g of(S.tree||[]))if(g.legend)fam.push(`<div class="row"><div><b>${esc(g.first)}${g.sur?' '+esc(g.sur):''}</b><small>Đời thứ ${g.gen} · ${g.by} – ${g.dy} · Anh Hùng trong Lời Tiên Tri</small></div></div>`);
+  if(S.flags.legend)fam.push(`<div class="row"><div><b>${esc(S.first)} ${esc(S.surname)}</b><small>Đời thứ ${S.gen} · đang sống · Anh Hùng trong Lời Tiên Tri${S.flags.legN>1?` · đã cứu thế giới ${S.flags.legN} lần`:''}</small></div></div>`);
+  b+='<p class="sec">Anh Hùng của gia tộc bạn</p>'+(fam.length?fam.join(''):'<p class="note">Gia tộc bạn chưa có ai trở thành Anh Hùng.</p>');
+  b+='<p class="sec">Biên niên Anh Hùng</p>';
+  b+=H.length?H.map(h=>{const C=CATS[h.cat]||{boss:'Thảm Họa',n:''};const mine=h.k==='me'||h.k==='sac'||h.k==='lead';return`<div class="row"><div><b>${esc(h.name)}</b>${mine?' <small>(gia tộc bạn)</small>':''}<small>Năm ${h.y} · ${HKN[h.k||'npc']} ${esc(C.boss)}${C.n?` · ${esc(C.n)}`:''}</small></div><span class="cost">${h.k==='fallen'?'Đã ngã xuống':h.k==='sac'?'Hy sinh':'Chiến thắng'}</span></div>`}).join(''):'<p class="note">Chưa có Anh Hùng nào được ghi danh trong thời của bạn.</p>';
+  return['Anh Hùng',b,'act']}
+{const d0=drawExt3;drawExt3=function(v){if(v==='heroes')return heroesView();return d0(v)}}
+{const a0=actExtra3;actExtra3=function(){let b=a0();const n=(S.world.heroes||[]).length;return b.replace('<p class="sec">Thiên hạ</p>','<p class="sec">Thiên hạ</p>'+gRow('data-open="heroes"','sword','Anh Hùng',S.flags.hero&&S.world.cat?'Bạn đang gánh sứ mệnh Anh Hùng':n?`${n} anh hùng được ghi danh`:'Chưa ai được ghi danh','',false))}}
+const GV='36';
 for(const e of EV)if(/^cru_/.test(e.id)){const c0=e.c;e.c=s=>!!(s.world&&s.world.cat&&CATS[s.world.cat.id])&&(!c0||c0(s))}
 {let guard=0;const s0=showNext;showNext=function(){try{s0();guard=0}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null;try{save()}catch(e){}}if(++guard<20)showNext();else{guard=0;closeModal();render()}}}}
 {const c0=choose;choose=function(i){try{c0(i)}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null}try{save();render()}catch(e){}closeModal();showNext()}}}
