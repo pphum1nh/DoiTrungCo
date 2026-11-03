@@ -1690,9 +1690,9 @@ function render(){
   $('#ageBtn').disabled=!S.alive;
 }
 function famIcon(p){return p.rel==='Cha'?'male':p.rel==='Mẹ'?'female':p.rel==='Vợ'||p.rel==='Chồng'?'rings':p.rel.startsWith('Con')&&p.age<6?'baby':p.sex==='f'?'female':'user'}
-function relIcon(r){return r.kind==='enemy'?(r.hate>=70?'skull':'rival'):r.kind==='lover'?'lover':'user'}
+function relIcon(r){return r.kind==='enemy'?(r.hate>=70?'skull':'rival'):r.kind==='lover'?'lover':r.sex==='f'?'female':r.sex==='m'?'male':'user'}
 function famRow(p){return`<button class="row" data-p="${p.id}"><span class="ri">${ic(famIcon(p),24)}</span><div><b>${esc(p.first)}</b><small>${p.rel} · ${p.age} tuổi${p.race&&p.race!==S.race?' · '+RACES[p.race].n:''}</small><div class="bond"><i style="width:${p.bond}%"></i></div></div><span class="tag">${p.bond}</span></button>`}
-function relRow(r){const E=r.kind==='enemy';return`<button class="row" data-r="${r.id}"><span class="ri${E?' foe':''}">${ic(relIcon(r),24)}</span><div><b>${esc(r.first)}</b><small>${r.age} tuổi · ${RACES[r.race].n}${E&&r.why?' · '+esc(r.why):''}</small><div class="bond${E?' hate':''}"><i style="width:${E?r.hate:r.bond}%"></i></div></div><span class="tag">${E?'Hận '+r.hate:r.bond}</span></button>`}
+function relRow(r){const E=r.kind==='enemy';return`<button class="row" data-r="${r.id}"><span class="ri${E?' foe':''}">${ic(relIcon(r),24)}</span><div><b>${esc(r.first)}</b><small>${r.age} tuổi · ${r.sex==='f'?'Nữ':r.sex==='m'?'Nam':''}${r.sex?' · ':''}${RACES[r.race].n}${E&&r.why?' · '+esc(r.why):''}</small><div class="bond${E?' hate':''}"><i style="width:${E?r.hate:r.bond}%"></i></div></div><span class="tag">${E?'Hận '+r.hate:r.bond}</span></button>`}
 function gRow(data,icn,title,sub,tag,dis,static_,rc){const inner=`<span class="ri ${rc||''}">${ic(icn,24)}</span><div><b>${title}</b>${sub?`<small>${sub}</small>`:''}</div>${tag?`<span class="tag">${tag}</span>`:''}`;return static_?`<div class="row">${inner}</div>`:`<button class="row" ${data} ${dis?'disabled':''}>${inner}</button>`}
 function rowBtn(data,title,sub,tag,dis){return`<button class="row" ${data} ${dis?'disabled':''}><div><b>${title}</b>${sub?`<small>${sub}</small>`:''}</div>${tag?`<span class="tag">${tag}</span>`:''}</button>`}
 const fxList=fx=>Object.entries(fx||{}).map(([k,v])=>`<li class="${v<0?'neg':''}">${v>0?'+':''}${v} ${SL[k]} mỗi năm</li>`).join('');
@@ -8798,7 +8798,7 @@ function heroesView(){const H=(S.world.heroes||[]).slice().reverse();let b='';
   return['Anh Hùng',b,'act']}
 {const d0=drawExt3;drawExt3=function(v){if(v==='heroes')return heroesView();return d0(v)}}
 {const a0=actExtra3;actExtra3=function(){let b=a0();const n=(S.world.heroes||[]).length;return b.replace('<p class="sec">Thiên hạ</p>','<p class="sec">Thiên hạ</p>'+gRow('data-open="heroes"','sword','Anh Hùng',S.flags.hero&&S.world.cat?'Bạn đang gánh sứ mệnh Anh Hùng':n?`${n} anh hùng được ghi danh`:'Chưa ai được ghi danh','',false))}}
-const GV='38';
+const GV='39';
 for(const e of EV)if(/^cru_/.test(e.id)){const c0=e.c;e.c=s=>!!(s.world&&s.world.cat&&CATS[s.world.cat.id])&&(!c0||c0(s))}
 {let guard=0;const s0=showNext;showNext=function(){try{s0();guard=0}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null;try{save()}catch(e){}}if(++guard<20)showNext();else{guard=0;closeModal();render()}}}}
 {const c0=choose;choose=function(i){try{c0(i)}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null}try{save();render()}catch(e){}closeModal();showNext()}}}
