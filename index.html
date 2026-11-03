@@ -1621,16 +1621,17 @@ function wed(i){
   if(ch(p)){t=marry(c);tone='good'}else{t=`Nhà ${c.sur} từ chối lời hỏi cưới.`;tone='bad';mod({happy:-4})}
   log(t,tone);note={t,tone};view='rel:love';afterSheetAction();
 }
-function baby(){
-  S.done.baby=1;const sp=spouse(),ma=S.sex==='f'?S.age/lifeOf(S.race):sp.age/lifeOf(sp.race);
+function baby(){S.done.baby=1;S.pend.push('sp_night');afterSheetAction()}
+function babyRoll(){
+  const sp=spouse(),ma=S.sex==='f'?S.age/lifeOf(S.race):sp.age/lifeOf(sp.race);
   const fert=ma<=35?.65:ma<=42?.35:.03;let t,tone;
   if(!ch(fert)){t='Năm nay vẫn chưa có tin vui.';tone=''}
   else{
     const s=pick(['m','f']);const k=person(s==='m'?'Con trai':'Con gái',s,0,S.surname,pick([S.race,sp.race||S.race]));k.bond=R(70,95);S.fam.push(k);
     mod({happy:R(8,14)});t=`${k.rel} ${k.first} chào đời${k.race!==S.race?`, mang dòng máu ${RACES[k.race].n}`:''}.`;tone='good';
-    if(ch(.03)){if(S.sex==='f'){log(t,tone);die('băng huyết khi sinh nở');afterSheetAction();return}sp.alive=false;mod({happy:-25});t+=` Nhưng ${sp.first} không qua khỏi sau khi sinh.`;tone='bad'}
+    if(ch(.03)){if(S.sex==='f'){die('băng huyết khi sinh nở');return[t+' Nhưng bạn không qua khỏi sau khi sinh.','bad']}sp.alive=false;mod({happy:-25});t+=` Nhưng ${sp.first} không qua khỏi sau khi sinh.`;tone='bad'}
   }
-  log(t,tone);note={t,tone};afterSheetAction();
+  return[t,tone];
 }
 function buyAsset(k){const A=ASSETS[k];S.money-=A.p;S.own[k]=(S.own[k]||0)+1;mod({honor:A.honor||0,happy:A.happy||0});const t=`Bạn mua ${A.n.toLowerCase()} với giá ${A.p} xu.`;log(t,'good');note={t,tone:'good'};afterSheetAction()}
 function sellAsset(k){const A=ASSETS[k],g=Math.round(A.p*.6);S.own[k]--;S.money+=g;const t=`Bạn bán ${A.n.toLowerCase()} được ${g} xu.`;log(t);note={t,tone:''};afterSheetAction()}
@@ -8797,7 +8798,7 @@ function heroesView(){const H=(S.world.heroes||[]).slice().reverse();let b='';
   return['Anh Hùng',b,'act']}
 {const d0=drawExt3;drawExt3=function(v){if(v==='heroes')return heroesView();return d0(v)}}
 {const a0=actExtra3;actExtra3=function(){let b=a0();const n=(S.world.heroes||[]).length;return b.replace('<p class="sec">Thiên hạ</p>','<p class="sec">Thiên hạ</p>'+gRow('data-open="heroes"','sword','Anh Hùng',S.flags.hero&&S.world.cat?'Bạn đang gánh sứ mệnh Anh Hùng':n?`${n} anh hùng được ghi danh`:'Chưa ai được ghi danh','',false))}}
-const GV='37';
+const GV='38';
 for(const e of EV)if(/^cru_/.test(e.id)){const c0=e.c;e.c=s=>!!(s.world&&s.world.cat&&CATS[s.world.cat.id])&&(!c0||c0(s))}
 {let guard=0;const s0=showNext;showNext=function(){try{s0();guard=0}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null;try{save()}catch(e){}}if(++guard<20)showNext();else{guard=0;closeModal();render()}}}}
 {const c0=choose;choose=function(i){try{c0(i)}catch(err){console.error(err);if(S&&S.pend&&S.pend.length){S.pend.shift();S.tmp=null}try{save();render()}catch(e){}closeModal();showNext()}}}
@@ -9089,29 +9090,75 @@ function vdYear(){const V=S.vd;if(!V||!VD[V.k])return;const D=VD[V.k];mod({healt
   if(ch(D.cure)){s.vd=null;return[`${t} Thầy lang bôi thuốc thủy ngân và bắt bạn kiêng khem suốt mùa đông. Bạn đã khỏi ${D.n}.`,'good']}return[`${t} Thầy lang chưa chữa được ${D.n} của bạn. Năm sau hãy thử lại.`,'bad']}}
 /* con rơi: không tính là con chính thức, không có quyền thừa kế */
 function rlBastard(mother){const sx=pick(['m','f']);const k=person('Con rơi',sx,0,pick(SUR.serf),pick([S.race,'human']));k.bast=1;k.mom=mother;k.bond=R(10,35);S.fam.push(k);return k}
-function rlCaught(){const sp=spouse();if(!sp||!ch(.2))return'';sp.bond=Math.max(0,sp.bond-25);mod({happy:-8});return` ${sp.rel} ${sp.first} đã biết chuyện bạn lui tới phố đèn đỏ.`}
-function rlNight(i){const g=S.tmp&&S.tmp[i];if(!g)return'Không còn ai đợi bạn.';S.money-=40;const who=S.sex==='m'?'cô':'anh';
-  mod({happy:Math.round((g.lk+g.sk)/20)+R(0,4),piety:-3});
-  let t=`Bạn qua đêm cùng ${who} ${g.n}. ${g.sk>=75?`Đúng là người lành nghề nhất nhà thổ, ${who} khiến bạn quên hết sự đời.`:g.lk>=75?`Dung nhan của ${who} làm bạn ngẩn ngơ, dù ${who} chẳng mấy mặn mà.`:'Một đêm bình thường, bạn trả tiền rồi về trước khi trời sáng.'}`,tone='good';
-  if(ch(.1-g.sk/2000)&&!S.vd){const k=pick(['lau','lau','giang','sui']);S.vd={k,y:S.year};t+=` Vài tuần sau, bạn phát hiện mình mắc ${VD[k].n}. Hãy đến gặp thầy lang.`;tone='bad'}
-  if(ch(.04)){const c=rlBastard(g.n);mod({honor:-4});t+=S.sex==='m'?` Một năm sau, ${g.n} bế đến trước cửa nhà bạn một đứa bé tên ${c.first}, nói đó là con của bạn.`:` Vài tháng sau, bạn biết mình có mang. ${c.first} chào đời, không ai biết cha là ai.`;t+=' Đứa bé được ghi vào mục Con rơi trong Quan hệ.';if(tone==='good')tone=''}
-  return[t+rlCaught(),tone]}
+const rlWho=()=>S.sex==='m'?'cô':'anh';
+function spLeave(sp){const old=sp.rel;sp.rel=old+' cũ';mod({happy:-15,honor:-5});log(`${old} ${sp.first} thu dọn đồ đạc và bỏ đi. Cuộc hôn nhân của bạn đã chấm dứt.`,'bad');return` ${sp.first} thu dọn đồ đạc và bỏ đi.`}
+function rlSus(p,why){const sp=spouse();if(sp&&ch(p)&&!S.pend.includes('rl_caught')){S.rlC=why;S.pend.push('rl_caught')}}
+function rlNight(g){S.money-=40;S.rlx={...g,adj:pick(['nồng thắm','ướt át','say đắm','cuồng nhiệt'])};S.rlN=(S.rlN||0)+1;S.rlLast=S.year;S.rlFav={...g};S.pend.push('rl_after');
+  return`${rlWho()[0].toUpperCase()+rlWho().slice(1)} ${g.n} nắm tay dắt bạn lên lầu.`}
+function rlConseq(stay){const g=S.rlx||{n:'?',lk:50,sk:50};let t='',tone='good';
+  mod({happy:Math.round((g.lk+g.sk)/20)+R(0,4)+(stay?3:0),piety:-3});
+  if(ch(.1-g.sk/2000)&&!S.vd){const k=pick(['lau','lau','giang','sui']);S.vd={k,y:S.year};S.pend.push('rl_sick')}
+  if(ch(.04)){const c=rlBastard(g.n);mod({honor:-4});t+=S.sex==='m'?` Một năm sau, ${g.n} bế đến trước cửa nhà bạn một đứa bé tên ${c.first}, nói đó là con của bạn.`:` Vài tháng sau, bạn biết mình có mang. ${c.first} chào đời, không ai biết cha là ai.`;t+=' Đứa bé được ghi vào mục Con rơi trong Quan hệ.';tone=''}
+  rlSus(stay?.25:.12,stay?'late':'perfume');return[t,tone]}
 function rlGirl(){const sx=S.sex==='m'?'f':'m';return{n:pick(nameList(sx,'human')),a:R(18,30),lk:R(30,95),sk:R(30,95)}}
+const rlDesc=g=>`${g.n}, ${g.a} tuổi · xinh đẹp ${g.lk} · điêu luyện ${g.sk}`;
 const RLEV=[
- {id:'rl_street',queued:true,art:'mug',c:s=>s.age>=18,title:'Phố đèn đỏ',text:'Đèn lồng đỏ treo dọc con hẻm sau bến cảng. Tiếng đàn và tiếng cười vọng ra từ những ô cửa khép hờ.',
-  ch:[{t:'Vào nhà thổ',f:s=>{s.pend.push('rl_house');return'Bà chủ nhà thổ tươi cười dẫn bạn vào phòng khách phủ nhung đỏ.'}},
-      {t:'Gọi đào uống rượu ở hàng rượu (15 xu)',cost:15,f:s=>{s.money-=15;const g=rlGirl(),w=s.sex==='m'?'cô đào':'anh kép';const r=Math.random();let t,tone='';
-        if(r<.6){mod({happy:R(5,10),health:-R(0,2)});t=`${w[0].toUpperCase()+w.slice(1)} ${g.n} rót rượu, gảy đàn và hát cho bạn nghe đến nửa đêm.`;tone='good'}
+ {id:'rl_street',queued:true,big:true,art:'mug',c:s=>s.age>=18,title:'Phố đèn đỏ',text:'Đèn lồng đỏ treo dọc con hẻm sau bến cảng. Tiếng đàn và tiếng cười vọng ra từ những ô cửa khép hờ.',
+  ch:[{t:'Vào nhà thổ',f:s=>{s.pend.push(s.rlFav&&ch(.6)?'rl_regular':'rl_house');return'Bạn đẩy cánh cửa gỗ sơn đỏ bước vào.'}},
+      {t:'Gọi đào uống rượu ở hàng rượu',f:s=>{s.pend.push('rl_bar');return'Bạn chọn một góc khuất trong hàng rượu và gọi người hầu bàn.'}},
+      {t:'Đổi ý, quay về nhà',f:()=>'Bạn đứng nhìn dãy đèn lồng một lúc rồi quay về.'}]},
+ {id:'rl_house',queued:true,big:true,art:'mug',c:s=>s.age>=18,prep:s=>{s.tmp=[rlGirl(),rlGirl(),rlGirl()]},title:'Nhà thổ',
+  text:s=>`Bà chủ phe phẩy chiếc quạt lông, vỗ tay hai cái. Ba ${s.sex==='m'?'cô đào':'anh kép'} bước ra. Giá một đêm là 40 xu.`,
+  ch:[0,1,2].map(i=>({t:s=>s.tmp&&s.tmp[i]?rlDesc(s.tmp[i])+' (40 xu)':'…',cost:40,f:s=>rlNight(s.tmp[i])})).concat([{t:'Thôi, để đêm khác',f:()=>'Bạn xin phép ra về. Bà chủ nhún vai.'}])},
+ {id:'rl_regular',queued:true,big:true,art:'mug',c:s=>s.age>=18&&!!s.rlFav,title:'Khách quen',
+  text:s=>`${s.rlFav.n} đang đứng đợi ở chân cầu thang, mỉm cười khi thấy bạn: "Lại là ${s.sex==='m'?'chàng':'nàng'} à? Đêm nay để ${s.sex==='m'?'thiếp':'ta'} hầu ${s.sex==='m'?'chàng':'nàng'} nhé."`,
+  ch:[{t:s=>`Đi cùng ${s.rlFav.n} (40 xu)`,cost:40,f:s=>rlNight(s.rlFav)},
+      {t:'Muốn gặp người khác',f:s=>{s.pend.push('rl_house');return`${s.rlFav.n} quay mặt đi, giận dỗi.`}},
+      {t:'Thôi, về',f:()=>'Bạn chỉ ghé chào rồi về.'}]},
+ {id:'rl_bar',queued:true,big:true,art:'mug',c:s=>s.age>=18,prep:s=>{s.tmp=rlGirl()},title:'Hàng rượu có đào',
+  text:s=>`${s.sex==='m'?'Cô đào':'Anh kép'} ${s.tmp.n} ngồi xuống cạnh bạn, rót đầy chén rượu.`,
+  ch:[{t:'Uống cùng nhau, nghe hát (15 xu)',cost:15,f:s=>{s.money-=15;const g=s.tmp,w=s.sex==='m'?'cô':'anh';const r=Math.random();let t,tone='';s.rlLast=s.year;
+        if(r<.6){mod({happy:R(5,10),health:-R(0,2)});t=`${g.n} rót rượu, gảy đàn và hát cho bạn nghe đến nửa đêm.`;tone='good'}
         else if(r<.75){const l=Math.min(Math.max(s.money,0),R(5,20));s.money-=l;t=`Bạn say mèm. Sáng ra mới biết ${w} ${g.n} đã lấy mất ${l} xu trong túi.`;tone='bad'}
         else if(r<.9){mod({health:-R(4,10)});t=`Một gã lính đánh thuê cũng muốn ${w} ${g.n} ngồi cùng. Hai bên lao vào nhau, bạn về nhà với cái mũi sưng vù.`;tone='bad'}
         else{mod({smarts:2,happy:4});t=`Ngà ngà say, ${w} ${g.n} kể cho bạn nghe chuyện thầm kín của mấy vị lãnh chúa hay lui tới đây.`;tone='good'}
-        return[t+rlCaught(),tone]}},
-      {t:'Đổi ý, quay về nhà',f:()=>'Bạn đứng nhìn dãy đèn lồng một lúc rồi quay về.'}]},
- {id:'rl_house',queued:true,art:'mug',c:s=>s.age>=18,prep:s=>{s.tmp=[rlGirl(),rlGirl(),rlGirl()]},title:'Nhà thổ',
-  text:s=>`Bà chủ vỗ tay. Ba ${s.sex==='m'?'cô đào':'anh kép'} bước ra. Giá một đêm là 40 xu.`,
-  ch:[0,1,2].map(i=>({t:s=>{const g=s.tmp&&s.tmp[i];return g?`${g.n}, ${g.a} tuổi · xinh đẹp ${g.lk} · điêu luyện ${g.sk} (40 xu)`:'…'},cost:40,f:()=>rlNight(i)})).concat([{t:'Thôi, để đêm khác',f:()=>'Bạn xin phép ra về. Bà chủ nhún vai.'}])}
+        rlSus(.1,'perfume');return[t,tone]}},
+      {t:s=>`Rủ ${s.tmp.n} lên lầu (40 xu)`,cost:40,f:s=>rlNight(s.tmp)},
+      {t:'Uống vài chén một mình rồi về',f:s=>{mod({happy:2});return'Bạn uống cạn chén rồi đứng dậy trả tiền.'}}]},
+ {id:'rl_after',queued:true,big:true,art:'heart-arrow',c:s=>!!s.rlx,title:s=>`Một đêm ${s.rlx.adj}`,
+  text:s=>{const g=s.rlx,w=rlWho();return`Bạn vừa trải qua một đêm ${g.adj} cùng ${w} ${g.n}. ${g.sk>=75?`Đúng là người lành nghề nhất nhà thổ, ${w} khiến bạn quên hết sự đời.`:g.lk>=75?`Dung nhan của ${w} làm bạn ngẩn ngơ suốt đêm.`:'Ngọn nến đã cháy gần hết.'}`},
+  ch:[{t:'Ở lại đến sáng',f:s=>{s.pend.push('rl_morning');const[t,tone]=rlConseq(true);return['Bạn kéo chăn, ngủ thiếp đi trong mùi hương trầm.'+t,tone]}},
+      {t:'Lặng lẽ rời đi trước bình minh',f:s=>{s.pend.push('rl_leave');const[t,tone]=rlConseq(false);s.rlx=null;return['Bạn mặc áo, để lại tiền trên bàn rồi khép cửa thật khẽ.'+t,tone]}}]},
+ {id:'rl_morning',queued:true,big:true,art:'heart-arrow',c:s=>!!s.rlx,title:'Sáng hôm sau',text:s=>`Nắng sớm lọt qua rèm cửa. ${s.rlx.n} vẫn còn ngủ say bên cạnh bạn.`,
+  ch:[{t:'Để lại tiền boa (5 xu)',cost:5,f:s=>{s.money-=5;mod({happy:2});const n=s.rlx.n;s.rlx=null;return`Bạn đặt năm đồng xu lên gối. Lần sau ${n} chắc sẽ nhớ bạn.`}},
+      {t:'Lặng lẽ ra về',f:s=>{s.rlx=null;return'Bạn ra về khi chợ sáng đã đông người. Hy vọng không ai nhận ra bạn.'}}]},
+ {id:'rl_leave',queued:true,big:true,art:'mug',c:s=>s.age>=18,title:'Rời phố lúc canh ba',text:'Bạn kéo mũ trùm che mặt, bước ra con phố vẫn còn sáng đèn lồng.',
+  ch:[{t:'Đi đường hẻm vắng',f:s=>{if(ch(.15)){const l=Math.min(Math.max(s.money,0),R(5,25));s.money-=l;return[`Hai gã bịt mặt chặn bạn trong hẻm tối, lấy mất ${l} xu.`,'bad']}return'Con hẻm vắng tanh. Bạn về đến nhà khi gà gáy.'}},
+      {t:'Đi đường chính cho nhanh',f:s=>{if(ch(.25)){s.rlSeen=s.year;return['Bạn đi ngang qua bà hàng xóm lắm điều đang ra giếng. Bà ta nhìn bạn từ đầu đến chân.','bad']}return'Bạn về nhà nhanh chóng, không gặp ai.'}}]},
+ {id:'rl_sick',queued:true,big:true,art:'medical-kit',c:s=>!!s.vd,title:'Căn bệnh khó nói',text:s=>`Vài tuần sau đêm ấy, bạn thấy trong người khác lạ. Thầy lang khám rồi lắc đầu: bạn mắc ${VD[s.vd.k].n}.`,
+  ch:[{t:'Chữa ngay (20 xu)',cost:20,f:s=>{s.money-=20;const D=VD[s.vd.k];if(ch(D.cure+.1)){s.vd=null;return[`Thầy lang bôi thuốc thủy ngân và bắt bạn kiêng khem. Bạn khỏi ${D.n}.`,'good']}return[`Thuốc chưa có tác dụng. ${D.n[0].toUpperCase()+D.n.slice(1)} vẫn còn đó.`,'bad']}},
+      {t:'Giấu đi, chắc tự khỏi',f:s=>{rlSus(.35,'sick');return['Bạn không nói với ai. Bệnh thì không tự khỏi.','bad']}}]},
+ {id:'rl_caught',queued:true,big:true,art:'rings',c:s=>!!spouse(),title:'Bị bắt quả tang',
+  text:s=>{const sp=spouse(),r=S.rlC;return r==='late'?`Bạn về nhà lúc mặt trời đã lên cao. ${sp.rel} ${sp.first} đứng chờ ở cửa, mắt đỏ hoe.`:r==='sick'?`${sp.rel} ${sp.first} thấy những vết lạ trên người bạn và hiểu ra mọi chuyện.`:r==='rumor'?`Lời đồn đã đến tai ${sp.rel.toLowerCase()} ${sp.first}. ${sp.first} chờ bạn trong phòng khách, không thắp nến.`:`${sp.rel} ${sp.first} cầm chiếc áo của bạn, vẫn còn thơm mùi nước hoa lạ: "Đêm qua ${S.sex==='m'?'chàng':'nàng'} ở đâu?"`},
+  ch:[{t:'Quỳ xuống xin lỗi, thề không tái phạm',f:s=>{const sp=spouse();sp.bond=Math.max(0,sp.bond-10);mod({honor:-2,happy:-4});return`${sp.first} khóc rất lâu rồi bảo bạn đứng dậy.`}},
+      {t:'Chối bay chối biến',f:s=>{const sp=spouse();if(ch(.35+s.st.smarts/300)){sp.bond=Math.max(0,sp.bond-5);return`${sp.first} nhìn bạn rất lâu, rồi quyết định tin.`}sp.bond=Math.max(0,sp.bond-30);let t=`${sp.first} không tin một lời nào.`;if(sp.bond<=5)t+=spLeave(sp);return[t,'bad']}},
+      {t:'Mua quà chuộc lỗi (50 xu)',cost:50,f:s=>{s.money-=50;const sp=spouse();sp.bond=Math.max(0,sp.bond-5);return`Chiếc vòng bạc làm ${sp.first} nguôi giận, nhưng không quên.`}},
+      {t:'Nổi giận: đó là chuyện của tôi',f:s=>{const sp=spouse();sp.bond=Math.max(0,sp.bond-35);let t=`${sp.first} đập vỡ bình hoa rồi bỏ vào phòng.`;if(sp.bond<20&&ch(.5))t+=spLeave(sp);return[t,'bad']}}]},
+ {id:'rl_rumor',big:true,art:'mug',w:W(4),c:s=>!!spouse()&&s.rlLast!=null&&s.year-s.rlLast<=3&&(s.rlSeen!=null||ch(.4)),title:'Lời đồn ngoài giếng làng',
+  text:'Bà hàng xóm lắm điều kể khắp xóm rằng thấy bạn bước ra từ cánh cửa sơn đỏ ở phố đèn lồng.',
+  ch:[{t:'Đút lót bà ta (10 xu)',cost:10,f:s=>{s.money-=10;s.rlSeen=null;if(ch(.7))return'Bà ta nhận tiền và đổi sang kể chuyện con dê nhà bên.';rlSus(1,'rumor');return['Bà ta nhận tiền, rồi vẫn kể tiếp.','bad']}},
+      {t:'Thú nhận trước khi chuyện vỡ lở',f:s=>{s.rlSeen=null;const sp=spouse();sp.bond=Math.max(0,sp.bond-15);mod({honor:2});return`${sp.first} im lặng cả tuần, nhưng cảm kích vì bạn đã thành thật.`}},
+      {t:'Mặc kệ',f:s=>{s.rlSeen=null;rlSus(.5,'rumor');return'Bạn coi như không nghe thấy.'}}]},
+ {id:'rl_balcony',big:true,art:'heart-arrow',w:W(3),c:s=>s.age>=18&&!!s.rlFav&&(s.rlN||0)>=2&&s.year-(s.rlLast||0)<=3,title:'Lá thư dưới trăng',
+  text:s=>`Một đứa trẻ chạy việc dúi vào tay bạn lá thư thơm mùi hoa nhài. ${s.rlFav.n} hẹn bạn trên ban công nhà thổ đêm trăng tròn, không lấy tiền.`,
+  ch:[{t:'Đến chỗ hẹn',f:s=>{mod({happy:R(6,10),piety:-2});s.rlLast=s.year;rlSus(.3,'perfume');return['Dưới trăng tròn, hai người đứng bên lan can rất lâu, chẳng ai nói gì.','good']}},
+      {t:'Đốt lá thư',f:s=>{const sp=spouse();if(sp)sp.bond=Math.min(100,sp.bond+3);return'Bạn thả lá thư vào lò sưởi.'}},
+      {t:'Giấu lá thư trong áo',f:s=>{rlSus(.4,'perfume');return'Bạn cất lá thư vào túi áo trong.'}}]},
+ {id:'sp_night',queued:true,big:true,art:'rings',c:s=>!!spouse(),title:'Một đêm bên nhau',
+  text:s=>{const sp=spouse();return`Bạn vừa trải qua một đêm ${pick(['nồng thắm','ướt át','say đắm'])} cùng ${sp.rel.toLowerCase()} ${sp.first}. Cả hai cùng mong một đứa con.`},
+  ch:[{t:'Chờ tin vui',f:s=>babyRoll()}]}
 ];
-for(const e of RLEV){EV.push(e);EVB[e.id]=e}
+for(const e of RLEV){EV.push(e);EVB[e.id]=e;EIMG[e.id]=({sp_night:'rl_spouse',rl_after:'rl_night'})[e.id]||e.id}
 ACTS.push({id:'redlight',n:'Dạo phố đèn đỏ',d:'Nhà thổ, hàng rượu có đào',min:18,req:s=>!s.flags.saint,why:'Thánh Nữ không thể bước vào phố đèn đỏ',f:s=>{s.pend.push('rl_street');return'Bạn khoác áo choàng có mũ trùm, lẻn ra con hẻm sau bến cảng.'}});
 AIC.redlight='torch';{const G=ACT_GROUPS.find(g=>g.id==='adv');G.acts.push('redlight');G.d+=', phố đèn đỏ'}
 
