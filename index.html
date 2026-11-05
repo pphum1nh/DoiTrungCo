@@ -3605,7 +3605,12 @@ const HJOBS=[
   [4,'Rồng đá phương Bắc','Một con rồng đá đòi cống nạp một thành phố.',320,250,.32]
 ];
 function hnBoard(){const H=HN();if(!H.board||H.by!==S.year){H.by=S.year;H.n=0;const g=hnG();const pool=HJOBS.map((j,i)=>i).filter(i=>HJOBS[i][0]<=g&&HJOBS[i][0]>=g-1);const b=pool.sort(()=>Math.random()-.5).slice(0,3);if(g>=1&&!(H.gob&&H.gob.done===S.year)&&!(H.gob&&H.gob.st))b.push('gob');if(g>=2)b.push('crypt');H.board=b}return H.board}
-function hnTake(x){const H=HN();if(x==='crypt'){view='hn:party';note=null;drawSheet();return}H.n++;H.board=H.board.filter(b=>String(b)!==String(x));if(x==='gob'){H.gob={st:1,var:(r=>r<.5?'raid':r<.75?'flee':r<.9?'aldric':'sorc')(Math.random()),clues:[],inv:2,reward:55,prep:0,milit:0,info:0,hp:3,host:2};S.pend.push('hg1')}else if(x==='crypt'){view='hn:party';note=null;drawSheet();return}else{H.cur=+x;S.pend.push(HJOBS[+x][0]>=3?'hn_prep':'hn_job')}afterSheetAction()}
+function hnTake(x){const H=HN();if(x==='crypt'){view='hn:party';note=null;drawSheet();return}H.n++;H.board=H.board.filter(b=>String(b)!==String(x));if(x==='gob'){H.gob={st:1,var:(r=>r<.5?'raid':r<.75?'flee':r<.9?'aldric':'sorc')(Math.random()),clues:[],inv:2,reward:55,prep:0,milit:0,info:0,hp:3,host:2};S.pend.push('hg1')}else if(x==='crypt'){view='hn:party';note=null;drawSheet();return}else if(x==='kk'){S.pend.push('kk_job')}else if(!hnQuiet(+x)){H.cur=+x;S.pend.push(HJOBS[+x][0]>=3?'hn_prep':'hn_job')}afterSheetAction()}
+/* ủy thác yên ổn: không pop up, chỉ một dòng tổng kết; hạng càng cao càng hiếm */
+function hnQuiet(i){const J=HJOBS[i],H=HN();if(!J||!ch([.6,.5,.35,.2,.1][J[0]]))return false;
+  S.money+=J[3];H.merit+=J[4];H.q++;mod({honor:2+J[0]});let it='';if(ch(J[0]>=2?.25:.15)){const k=pick(J[0]>=3?['scale','greatsword','plate','sc_crystal']:J[0]>=2?['halberd','kite_shield','greathelm','gem']:['gem']);if(ITEMS[k]){gainItem(k);it=` Dọc đường bạn nhặt được ${ITEMS[k].n.toLowerCase()}.`}}
+  const t=`${J[1]}: ${pick(['đường đi bình yên, không có gì xảy ra','mọi việc suôn sẻ hơn bạn nghĩ','con mồi không kịp trở tay','bạn xong việc trước khi trời tối'])}. Bạn nhận ${J[3]} xu và ${J[4]} công trạng (tổng ${H.merit}).${it}`;
+  log(t,'good');note={t,tone:'good'};if(J[0]>=2&&typeof hlCan==='function'&&hlCan()&&ch(.3))S.pend.push('hl_call');return true}
 function hnJobRes(kind){
   const H=HN(),J=HJOBS[H.cur],g=hnG();let p,mul=1;
   if(kind==='fight')p=.45+(S.blade||0)/250+cbB()/180+S.st.health/500-J[0]*.06+g*.05+(H.pb||0);
@@ -3875,6 +3880,7 @@ function drawExt2(v){
     for(const x of B){const full=H.n>=2||S.age<16;
       if(x==='gob')b+=gRow('data-x="hnt:gob"','hunter','Hạng C · Bóng xanh dưới chân đồi','Trưởng làng Aldric · 55 xu · 35 công trạng · nhiều giai đoạn, nhiều kết cục','',full||dis);
       else if(x==='crypt')b+=gRow('data-x="hnt:crypt"','crypt','Hạng B · Hầm Mộ Vua Không Ngai','Tổ đội 4 người · 5 tầng · 220 xu hợp đồng · 120 công trạng',(HN().comp.borin&&HN().comp.borin.alive===false)?'':'',full||dis);
+      else if(x==='kk')b+=gRow('data-x="hnt:kk"','hunter','Đặc biệt · Hẻm Vực Than','Treo thưởng chiếc sừng của con quái kéo ba đoàn vận chuyển xuống vực · 30–60 xu · 25 công trạng','',full||dis);
       else{const J=HJOBS[x];b+=gRow(`data-x="hnt:${x}"`,'hunter',`Hạng ${HG[J[0]]} · ${J[1]}`,`${J[2]} · ${J[3]} xu · ${J[4]} công trạng`,'',full||dis)}}
     if(!B.length)b+='<p class="note">Bảng ủy thác năm nay đã hết.</p>';
   }
@@ -10242,7 +10248,8 @@ Object.defineProperty(EIMG,'kk_sc',{get:()=>S&&S.kk&&KKS[S.kk.sc]?KKS[S.kk.sc].i
 EIMG.kk_job='abyss';
 for(const e of KK_EV){EV.push(e);EVB[e.id]=e}
 /* ủy thác Hẻm Vực Than xuất hiện với thợ săn Hiệp hội, cách nhau ít nhất 2 năm */
-{const y0=extYear3;extYear3=function(){y0();kkYear();if(S.alive&&isHn(S)&&!S.kk&&S.age>=16&&!(S.kkJob&&S.year-S.kkJob<2)&&!S.pend.includes('kk_job')&&ch(.3))S.pend.push('kk_job')}}
+{const y0=extYear3;extYear3=function(){y0();kkYear();}}
+{const b0=hnBoard;hnBoard=function(){const B=b0(),H=HN();if(H.kkY!==S.year){H.kkY=S.year;if(S.alive&&!S.kk&&S.age>=16&&!(S.kkJob&&S.year-S.kkJob<2)&&ch(.3))B.push('kk')}return B}}
 {const g0=rgAct;rgAct=function(a,k,i){const r=g0(a,k,i);if(a==='go'&&S.kk&&S.done.rgv===k&&!S.kk.vis.includes(k))S.kk.vis.push(k);return r}}
 {const d0=drawExt3;drawExt3=function(v){if(v==='kk')return kkView();return d0(v)}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('kk:')){const[,k,id]=x.split(':');return kkAct(k,id)}return x0(x)}}
@@ -10269,7 +10276,7 @@ const capEnd=()=>{const C=S.cap;if(!C)return;if(C.q&&C.q.length){C.sc=C.q.shift(
 const capQLeft=()=>Math.max(0,2-(S.done.capq||0));
 const capYrs=()=>S.year-S.cap.y0;
 function capStart(){
-  const C=S.cap={y0:S.year,loc:'cho',job:S.job||null,bag:S.bag||[],eq:S.eq||null,cl:{},j:[],tr:30,al:0,q:[],sc:null,fl:{},ar:{f:0}};
+  const C=S.cap={y0:S.year,loc:'cho',job:S.job||null,bag:S.bag||[],eq:S.eq||null,cl:{},j:[],tr:30,al:0,q:['buy'],sc:null,fl:{},ar:{f:0}};
   S.job=null;S.bag=[];S.eq=null;
   if(S.age<12&&(S.fam||[]).some(p=>p.alive&&/Cha|Mẹ/.test(p.rel)))C.fl.search=1;
   capJ('Bạn bị bắt cóc trên đường về. Trong sổ hàng hóa của cỗ xe, tên bạn bị thay bằng một con số.');
@@ -10296,7 +10303,7 @@ const CAPS={
   marks:{t:'Người hầu già đánh dấu lên cửa',img:'slavemarket',x:s=>`Bà ${s.cap.loc==='quan'?'Marl':'Ada'}, một người hầu già, mỗi tối lại vạch thêm một dấu lên khung cửa bếp. Có những vạch dài, có những vạch ngắn.`,
     c:s=>[['Hỏi bà ý nghĩa các vạch',()=>{capCl('time',`Bà già giải thích các vạch ghi ngày đổi gác và ngày cổng mở. ${capLoc().time}`);capEnd();return['Bà già nhìn quanh rồi thì thầm giải thích từng vạch.','magic']}],['Lờ đi',()=>{capEnd();return'Bạn không để tâm. Các vạch vẫn dài thêm mỗi tối.'}]]},
   letter:{t:'Bức thư gửi nhầm',img:'sealedletter',x:s=>`Một bức thư đóng dấu của ${capLoc().who} bị đặt nhầm lên khay của bạn.`,
-    c:s=>{const L=[];if(s.flags.literate)L.push(['Đọc thư rồi giấu đi',()=>{s.cap.al+=1;capCl('evid',`Bức thư của ${capLoc().who} gửi gã buôn người Skarr, đặt mua thêm trẻ con "không giấy tờ". Đó là chứng cứ về việc mua người bị bắt cóc, trái luật của vương quốc.`);capEnd();return['Bạn đọc thư, tim đập thình thịch, rồi giấu nó dưới nệm rơm.','magic']}]);
+    c:s=>{const L=[];if(s.flags.literate)L.push(['Đọc thư rồi giấu đi',()=>{s.cap.al+=1;capCl('evid',`Bức thư của ${capLoc().who} gửi gã buôn người Skarr, đặt mua thêm trẻ con "không giấy tờ". ${SLAVELAW()[S.realm]==='allow'?`Luật ${S.realm} cho phép mua bán nô lệ có giấy tờ, nhưng bắt cóc người tự do để bán vẫn là tội.`:`${S.realm} cấm buôn người. Đây là chứng cứ về việc mua người bị bắt cóc.`}`);capEnd();return['Bạn đọc thư, tim đập thình thịch, rồi giấu nó dưới nệm rơm.','magic']}]);
       L.push(['Mang thư trả lại cho người trông coi',()=>{s.cap.tr=Math.min(100,s.cap.tr+12);capEnd();return['Người trông coi gật đầu với bạn lần đầu tiên.','good']}]);
       if(!s.flags.literate)L.push(['Giấu thư đi dù không đọc được',()=>{s.cap.fl.unread=1;capJ('Bạn giữ một bức thư của chủ mà không đọc được chữ.');capEnd();return'Bạn giấu bức thư dưới nệm rơm. Bạn không biết trong đó viết gì.'}]);return L}},
   bell:{t:'Người lính gác sợ tiếng chuông',img:'slavemarket',x:'Có một người lính gác bỏ vị trí mỗi khi nhà nguyện đổ chuông, đi đâu không ai biết.',
@@ -10319,8 +10326,8 @@ const CAPS={
     c:s=>{const C=s.cap.cl,L=[];
       if(C.loc&&C.courier&&!s.cap.fl.sent)L.push(['Gửi thư cho người tìm kiếm',()=>{s.cap.fl.sent=S.year;capJ('Bạn đã gửi thư ra ngoài, ghi rõ nơi mình bị giam.');capEnd();return['Người khách giấu lá thư vào giày rồi đi. Giờ chỉ còn chờ.','magic']}]);
       if(C.exit&&C.time)L.push(['Tự trốn',()=>{capNext('esc1');return'Bạn chờ đúng thời điểm đã biết.'}]);
-      if(C.evid)L.push([`Đưa bức thư làm chứng cho ${capLoc().who}`,()=>{if(S.st.honor<15&&ch(.3)){s.cap.al+=2;delete s.cap.cl.evid;const h=R(5,10);mod({health:-h});capEnd();return[`Chủ giật lấy bức thư, đốt đi, rồi cho người đánh bạn. Bạn mất ${h} sức khỏe.`,'bad']}
-        return capFree('evid',`${capLoc().who[0].toUpperCase()+capLoc().who.slice(1)} đọc bức thư rồi tái mặt. Đêm ấy bạn được đưa ra cổng, kèm một tờ giấy tự do có đóng dấu, đổi lấy lời hứa im lặng. Có giấy, bạn không sợ bị bắt lại trên đường về.`)}]);
+      if(C.evid)L.push([`Đưa bức thư làm chứng cho ${capLoc().who}`,()=>{const lg=SLAVELAW()[S.realm]==='allow';if(ch((S.st.honor<15?.3:0)+(lg?.35:0))){s.cap.al+=2;delete s.cap.cl.evid;const h=R(5,10);mod({health:-h});capEnd();return[`${lg?`Ở ${S.realm}, mua bán nô lệ là chuyện hợp pháp, và chủ không sợ một bức thư. `:''}Chủ giật lấy bức thư, đốt đi, rồi cho người đánh bạn. Bạn mất ${h} sức khỏe.`,'bad']}
+        return capFree('evid',`${capLoc().who[0].toUpperCase()+capLoc().who.slice(1)} đọc bức thư rồi tái mặt${SLAVELAW()[S.realm]==='allow'?': luật cho mua nô lệ, nhưng không cho mua người bị bắt cóc':''}. Đêm ấy bạn được đưa ra cổng, kèm một tờ giấy tự do có đóng dấu, đổi lấy lời hứa im lặng. Có giấy, bạn không sợ bị bắt lại trên đường về.`)}]);
       if(s.cap.tr>=70)L.push(['Xin chủ trả tự do',()=>capFree('trust',`Người trông coi nói giúp bạn một câu. Chủ ký tờ giấy tự do. Bạn bước ra cổng với tờ giấy trong tay.`)]);
       L.push(['Chưa phải lúc',()=>{capEnd();return'Bạn quyết định chờ thêm.'}]);return L}},
   esc1:{t:'Vượt rào',img:'slavemarket',x:s=>`Đúng lúc bạn đã tính. ${capLoc().exit} Bạn vượt qua bằng cách nào?`,
@@ -10332,7 +10339,7 @@ const CAPS={
   rescue:{t:'Người tới giải cứu',img:'knighted',x:s=>`Một sáng sớm, cổng ${capLoc().n} bị đạp tung. ${(s.fam||[]).some(p=>p.alive&&/Cha|Mẹ|Anh|Chị/.test(p.rel))?'Người nhà của bạn':'Một nhóm thợ săn của Hội'} xông vào cùng lính của quan tòa, tay cầm lá thư bạn đã gửi.`,
     c:s=>[['Chạy ra',()=>capFree('rescue','Bạn được đưa ra khỏi nơi giam. Lá thư của bạn đã tới đúng người.')]]},
   /* Đấu trường */
-  arena:{t:'Bản danh sách đấu trường',img:'orcduel',x:'Bạn vừa tròn mười tám. Người giữ bạn bán bạn cho đoàn đấu trường Hố Cát, nơi những khách giàu trả tiền ngồi trên khán đài xem nô lệ đánh nhau và đặt cược vào kẻ thắng. Người xướng tên đọc danh sách các trận cho mùa này: ba trận, mỗi năm một trận, và không ai cam đoan người thua còn lành lặn. Trên tường phòng chờ, tên một đấu sĩ năm trước bị gạch đi. Bên dưới là nét chữ nhỏ: "Đừng tin trận cuối. Hãy tìm người giữ sổ cược."',
+  arena:{t:'Bản danh sách đấu trường',img:'orcduel',x:'Bạn đã đủ lớn để cầm vũ khí. Người giữ bạn bán bạn cho đoàn đấu trường Hố Cát, nơi những khách giàu trả tiền ngồi trên khán đài xem nô lệ đánh nhau và đặt cược vào kẻ thắng. Người xướng tên đọc danh sách các trận cho mùa này: ba trận, mỗi năm một trận, và không ai cam đoan người thua còn lành lặn. Trên tường phòng chờ, tên một đấu sĩ năm trước bị gạch đi. Bên dưới là nét chữ nhỏ: "Đừng tin trận cuối. Hãy tìm người giữ sổ cược."',
     c:s=>[['Ghi nhớ dòng chữ',()=>{s.cap.loc='arena';s.cap.al=0;capJ('Trên tường phòng chờ: "Đừng tin trận cuối. Hãy tìm người giữ sổ cược."');capEnd();return['Bạn khắc dòng chữ ấy vào trí nhớ.','bad']}]]},
   f1:{t:'Trận I · Sói Đen',img:'orcduel',x:'Đối thủ của bạn mang mặt nạ sói đen, cũng là một nô lệ bị ép ra sân. Khi hai người áp sát, bạn thấy tay hắn run. Các khách giàu trên khán đài đã đặt cược và gào thét đòi máu. Bạn làm gì?',
     c:s=>[['Đánh hạ đối thủ',()=>capFight(.35,()=>{s.cap.ar.f=1;capEnd();return['Bạn hạ gục người mang mặt nạ sói. Khán giả reo hò. Bạn không biết anh ta còn sống hay không.','']},'Người mang mặt nạ sói hạ bạn.')],
@@ -10360,8 +10367,8 @@ function capFight(p,win,loseT){const C=S.cap;if(ch(Math.min(.9,p+S.st.health/300
 /* mỗi năm 1–2 sự kiện riêng của nơi giam */
 function capYear(){
   const C=S.cap;if(!C||!S.alive)return;
-  if(S.age>=18&&C.loc!=='arena'){C.q=[];C.sc='arena';S.pend.unshift('cap_sc');return}
   if(C.fl.sent&&S.year>C.fl.sent&&ch(C.fl.search?.9:.7)){C.sc='rescue';S.pend.push('cap_sc');return}
+  if(S.age>=18&&capYrs()>=3&&C.loc!=='arena'){C.q=[];C.sc='arena';S.pend.unshift('cap_sc');return}
   if(C.loc==='arena')return;
   if(C.loc==='cho'){C.sc='buy';S.pend.push('cap_sc');return}
   /* ưu tiên sự kiện còn thiếu manh mối; việc tốt, tin tức, người mua mới chỉ chen vào khi còn chỗ */
@@ -10414,12 +10421,16 @@ Object.defineProperty(CAP_EV[0],'ch',{get:()=>{const D=S&&S.cap&&CAPS[S.cap.sc];
 Object.defineProperty(EIMG,'cap_sc',{get:()=>S&&S.cap&&CAPS[S.cap.sc]?CAPS[S.cap.sc].img:'slavemarket',enumerable:true,configurable:true});
 for(const e of CAP_EV){EV.push(e);EVB[e.id]=e}
 /* bắt cóc: dưới 17 tuổi, khi đi rừng, săn trộm, quán rượu, hành hương; xét một lần mỗi năm */
-{const d0=doAct;doAct=function(id){if(S&&S.alive&&!S.cap&&S.age<17&&['forest','poach','tavern','pilgrim','dungeon'].includes(id)&&!S.done.capChk){S.done.capChk=1;if(ch(.04)){capStart();S.cap.sc='kid';S.pend.push('cap_sc')}}return d0(id)}}
+{const d0=doAct;doAct=function(id){if(!(S&&S.alive&&!S.cap&&S.age<17&&['forest','poach','tavern','pilgrim','dungeon'].includes(id)&&!S.done.capChk))return d0(id);
+  const rl=S.realm,_as=afterSheetAction;afterSheetAction=function(){};try{d0(id)}finally{afterSheetAction=_as}
+  if(S.alive&&!S.pend.length&&!S.ann.length&&S.realm===rl&&!S.done.rgv){S.done.capChk=1;if(ch(.04)){capStart();S.cap.sc='kid';S.pend.push('cap_sc')}}
+  afterSheetAction()}}
 /* khi bị giam: chặn sự kiện cá nhân và dòng đời thường, thay bằng sự kiện của nơi giam */
+{const r0=rollEvents;rollEvents=function(){if(S&&S.cap)return;return r0()}}
 {const f0=flavorYear;flavorYear=function(){if(!S||!S.cap)return f0();S.pend=S.pend.filter(id=>id==='cap_sc');capYear()}}
 {const d0=drawExt3;drawExt3=function(v){if(v==='cap')return capView();if(v==='capjob')return['Nghề nghiệp',`<p class="note">Bạn đang bị giam. Nghề${S.cap&&S.cap.job?` ${esc(JOBS[S.cap.job.id]?JOBS[S.cap.job.id].n:'')}`:''} bị khóa: không thể xin, đổi hay thăng nghề cho tới khi được tự do.</p>`,''];return d0(v)}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('cap:')){const[,k,id]=x.split(':');return capAct(k,id)}return x0(x)}}
-{const s0=drawSheet;drawSheet=function(){if(S&&S.cap&&view){if(view==='act'||view.startsWith('act:')&&view!=='act:train')view='cap';else if(view==='job')view='capjob'}s0();
+{const s0=drawSheet;drawSheet=function(){if(S&&S.cap&&view){if(view==='act'||view.startsWith('act:'))view='cap';else if(view==='job')view='capjob'}s0();
   if(S&&S.cap&&view&&/^(rel|p:|r:)/.test(view)){const sb=$('#sheet .sbody');if(sb&&!sb.querySelector('.capnote'))sb.insertAdjacentHTML('afterbegin','<p class="note bad capnote">Bạn đang bị giam. Bạn không liên lạc được với gia đình, bạn bè hay người yêu.</p>')}}}
 {const r0=render;render=function(){r0();if(S&&S.cap){const e=$('#sub');if(e)e.textContent=`Bị giam tại ${capLoc().n} · ${capYrs()} năm · ${e.textContent}`}}}
 /* lớp chặn nút bấm khi bị giam */
