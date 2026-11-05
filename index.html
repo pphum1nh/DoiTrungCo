@@ -10343,15 +10343,14 @@ const CAPS={
       ['Chạy tới cần gạt dưới khán đài phía tây',()=>{if(!s.cap.cl.lever){const h=R(6,12);mod({health:-h});return capFightLose(`Bạn không biết cần gạt ở đâu. Một tấm ván sụp dưới chân bạn. Bạn mất ${h} sức khỏe. Trận này phải đánh lại vào năm sau.`)}
         s.cap.ar.f=2;capCl('trap','Bạn đã khóa cơ cấu bẫy và giữ lại một mảnh xích có dấu của ông bầu: chứng cứ rằng bẫy được đặt để làm hại người đóng vai dân.');capEnd();return['Bạn kéo cần gạt. Mọi tấm ván khóa chặt. Không ai bị thương. Bạn bẻ lấy một mảnh xích có khắc dấu của ông bầu.','good']}],
       ['Mặc kệ dân, chỉ lo đánh',()=>{mod({honor:-6});s.cap.ar.f=2;capEnd();return['Bạn thắng. Sau lưng bạn, ba người đóng vai dân bị bẫy làm gãy chân. Khán giả reo hò lớn nhất từ đầu mùa.','bad']}]]},
-  f3c:{t:'Bản hợp đồng giải phóng',img:'throne',x:s=>`Trước trận cuối, ông bầu Varro đưa bạn bản hợp đồng: thắng trận "${capCat()}" thì nhà vô địch được tự do. Bạn làm gì?`,
+  f3c:{t:'Bản hợp đồng giải phóng',img:'throne',x:s=>`Trước trận cuối, ông bầu Varro đưa bạn bản hợp đồng: hạ được nhà vô địch đấu trường Gorran Bất Bại thì người thắng được tự do. Bạn làm gì?`,
     c:s=>[['Ký như được đưa',()=>{s.cap.fl.clause=0;capNext('f3');return'Bạn ký tên.'}],
       ['Đòi sửa điều khoản trước mặt khán giả',()=>{const C=s.cap.cl;if(!C.contract)return capFightLose('Bạn đòi sửa, nhưng không chỉ ra được điều khoản nào sai. Ông bầu cười nhạo bạn trước cả khán đài. Trận cuối dời sang năm sau.');
         if(!(C.trap||C.script)){s.cap.fl.clause=0;capNext('f3');return['Bạn đọc to điều khoản bị giấu, nhưng không có gì chứng minh ông bầu gian lận. Khán giả chỉ cười. Bạn đành ký.','bad']}
         s.cap.fl.clause=1;capNext('f3');return['Bạn đọc to điều khoản bị giấu: "những người đấu cùng nhà vô địch thuộc về đoàn mãi mãi." Rồi bạn giơ lên chứng cứ về những trận dàn dựng. Khán giả gầm lên. Ông bầu buộc phải sửa: tất cả đấu sĩ của trận cuối đều được tự do.','good']}]]},
-  f3:{t:s=>`Trận III · ${capCat()}`,img:'herocomes',x:s=>`Trận cuối dựng lại "${capCat()}". Bạn mặc áo choàng Anh Hùng. Cửa sắt mở ra.${s.cap.cl.script?' Bạn biết trước cửa nào sẽ mở và vũ khí nào giấu dưới cát.':''}`,
-    c:s=>[['Tiến vào trận',()=>capFight(.3+(s.cap.cl.script?.25:0)+(s.cap.fl.ally?.1:0),()=>{const all=s.cap.fl.clause;return capFree('arena',all?'Bạn đứng giữa sân khi trận cuối kết thúc. Cùng lúc ấy, tất cả đấu sĩ của đoàn được tháo xích. Bran đứng cạnh bạn, khóc như một đứa trẻ.':'Bạn thắng trận cuối và được tháo xích. Khi bước ra cổng, bạn nghe tiếng xích vẫn khua trong phòng chờ phía sau.')},'Bạn ngã giữa sân. Ông bầu cho người kéo bạn ra, dặn năm sau diễn lại.')]]}
+  f3:{t:'Trận III · Nhà Vô Địch Đấu Trường',img:'herocomes',x:s=>`Trận cuối: bạn đối đầu Gorran Bất Bại, nhà vô địch bảy mùa liền của đoàn, người chưa từng thua một trận nào. Cửa sắt mở ra.${s.cap.cl.script?' Bạn biết trước cửa nào sẽ mở và vũ khí nào giấu dưới cát.':''}`,
+    c:s=>[['Tiến vào trận',()=>capFight(.3+(s.cap.cl.script?.25:0)+(s.cap.fl.ally?.1:0),()=>{const all=s.cap.fl.clause;return capFree('arena',all?'Gorran Bất Bại khuỵu xuống giữa sân, lần đầu tiên trong bảy mùa. Cùng lúc ấy, tất cả đấu sĩ của đoàn được tháo xích. Bran đứng cạnh bạn, khóc như một đứa trẻ.':'Gorran Bất Bại khuỵu xuống giữa sân. Bạn được tháo xích. Khi bước ra cổng, bạn nghe tiếng xích vẫn khua trong phòng chờ phía sau.')},'Gorran Bất Bại hạ bạn trước khán đài. Ông bầu cho người kéo bạn ra, dặn năm sau đấu lại.')]]}
 };
-function capCat(){const c=S.world.cat;if(c&&CATS[c.id])return CATS[c.id].n;return'Ma Vương giáng lâm'}
 function capCaught(t){const C=S.cap;C.al+=1;const h=R(4,10);mod({health:-h,happy:-5});capEnd();return[`${t||'Bạn bị bắt lại trước khi kịp đi xa.'} Bạn bị đưa về chỗ cũ, mất ${h} sức khỏe. Gác canh chặt hơn, nhưng bạn vẫn nhớ mọi điều đã học.`,'bad']}
 function capFightLose(t){S.cap.q=[];capEnd();return[t,'bad']}
 function capFight(p,win,loseT){const C=S.cap;if(ch(Math.min(.9,p+S.st.health/300+(S.hid.sword||0)/250+cbB()/300)))return win();const h=R(12,25);mod({health:-h});if(S.st.health<=0){die('trên đấu trường của Vở Diễn Anh Hùng');capEnd();return[loseT,'bad']}C.q=[];capEnd();return[`${loseT} Bạn mất ${h} sức khỏe. Bạn phải đánh lại trận này vào năm sau.`,'bad']}
@@ -10389,7 +10388,7 @@ function capView(){
       ['deal','scroll','Đọc bản hợp đồng giải phóng','contract','Bản hợp đồng có một điều khoản viết bằng mực nhạt ở mặt sau: "những người đấu cùng nhà vô địch thuộc về đoàn mãi mãi."']];
     b+=`<p class="sec">Phòng chờ · còn ${capQLeft()}/2 lượt năm nay</p>`;
     for(const[id,icn,nm,k]of A)if(!C.cl[k])b+=gRow(`data-x="cap:a:${id}"`,icn,nm,id==='deal'&&!S.flags.literate&&!C.cl.script?'Bạn không biết chữ, cần người đọc giúp':!capQLeft()?'Đã hết lượt năm nay':'','',dis||!capQLeft()||(id==='deal'&&!S.flags.literate&&!C.cl.script));
-    const nx=['Trận I · Anh Hùng gặp Sói Đen','Trận II · Thành Phố Trước Thảm Họa',`Trận III · ${capCat()}`][C.ar.f];
+    const nx=['Trận I · Anh Hùng gặp Sói Đen','Trận II · Thành Phố Trước Thảm Họa','Trận III · Nhà Vô Địch Đấu Trường'][C.ar.f];
     b+='<p class="sec">Sân đấu</p>'+gRow('data-x="cap:fight"','sword',nx,S.done.cap_f?'Năm nay đã ra sân rồi':'Mỗi năm một trận','',dis||!!S.done.cap_f);
   }
   if(C.j.length)b+='<p class="sec">Nhật ký bị giam</p>'+C.j.map(t=>`<p class="note">${esc(t)}</p>`).join('');
