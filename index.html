@@ -10339,8 +10339,8 @@ const CAPS={
       ['Giơ hai ngón tay chéo, ký hiệu xin dừng trận',()=>{if(!s.cap.cl.sign)return capFight(.2,()=>{s.cap.ar.f=1;capEnd();return'Không ai hiểu ký hiệu của bạn. Bạn phải đánh tới cùng và thắng sát nút.'},'Đối thủ không hiểu ký hiệu và đánh bạn gục.');
         s.cap.ar.f=1;s.cap.fl.ally=1;capEnd();return['Người mang mặt nạ sói khựng lại, rồi giơ tay đáp lại đúng ký hiệu ấy. Hai người cùng quỳ xuống. Đám đông la ó, nhưng ông bầu không dám làm trái luật cũ trước mặt khán giả. Cả hai cùng sống. Người mang mặt nạ sói tên là Bran.','good']}]]},
   f2:{t:'Trận II · Thành Phố Trước Thảm Họa',img:'orcduel',x:'Sân đấu dựng thành một con phố giả. Những người đóng vai dân chạy nạn bị dồn vào giữa. Bạn thấy những tấm ván sàn có thể sụp. Bạn làm gì?',
-    c:s=>[['Đứng chắn trước dân, đỡ bẫy bằng thân mình',()=>{const h=R(12,22);mod({health:-h,honor:4});s.cap.ar.f=2;capEnd();return[`Bạn đỡ được hai cái bẫy, mất ${h} sức khỏe. Những người đóng vai dân sống sót.`,'']}],
-      ['Chạy tới cần gạt dưới khán đài phía tây',()=>{if(!s.cap.cl.lever){const h=R(6,12);mod({health:-h});return capFightLose(`Bạn không biết cần gạt ở đâu. Một tấm ván sụp dưới chân bạn. Bạn mất ${h} sức khỏe. Trận này phải đánh lại vào năm sau.`)}
+    c:s=>[['Đứng chắn trước dân, đỡ bẫy bằng thân mình',()=>{const h=R(12,22);mod({health:-h,honor:4});const rk=capRisk(.5,1);if(!S.alive)return[`Bạn đỡ được hai cái bẫy, mất ${h} sức khỏe.${rk}`,'bad'];s.cap.ar.f=2;capEnd();return[`Bạn đỡ được hai cái bẫy, mất ${h} sức khỏe.${rk} Những người đóng vai dân sống sót.`,'']}],
+      ['Chạy tới cần gạt dưới khán đài phía tây',()=>{if(!s.cap.cl.lever){const h=R(6,12);mod({health:-h});const rk=capRisk(1,1);if(!S.alive)return[`Bạn không biết cần gạt ở đâu. Một tấm ván sụp dưới chân bạn.${rk}`,'bad'];return capFightLose(`Bạn không biết cần gạt ở đâu. Một tấm ván sụp dưới chân bạn. Bạn mất ${h} sức khỏe.${rk} Trận này phải đánh lại vào năm sau.`)}
         s.cap.ar.f=2;capCl('trap','Bạn đã khóa cơ cấu bẫy và giữ lại một mảnh xích có dấu của ông bầu: chứng cứ rằng bẫy được đặt để làm hại người đóng vai dân.');capEnd();return['Bạn kéo cần gạt. Mọi tấm ván khóa chặt. Không ai bị thương. Bạn bẻ lấy một mảnh xích có khắc dấu của ông bầu.','good']}],
       ['Mặc kệ dân, chỉ lo đánh',()=>{mod({honor:-6});s.cap.ar.f=2;capEnd();return['Bạn thắng. Sau lưng bạn, ba người đóng vai dân bị bẫy làm gãy chân. Khán giả reo hò lớn nhất từ đầu mùa.','bad']}]]},
   f3c:{t:'Bản hợp đồng giải phóng',img:'throne',x:s=>`Trước trận cuối, ông bầu Varro đưa bạn bản hợp đồng: hạ được nhà vô địch đấu trường Gorran Bất Bại thì người thắng được tự do. Bạn làm gì?`,
@@ -10353,7 +10353,10 @@ const CAPS={
 };
 function capCaught(t){const C=S.cap;C.al+=1;const h=R(4,10);mod({health:-h,happy:-5});capEnd();return[`${t||'Bạn bị bắt lại trước khi kịp đi xa.'} Bạn bị đưa về chỗ cũ, mất ${h} sức khỏe. Gác canh chặt hơn, nhưng bạn vẫn nhớ mọi điều đã học.`,'bad']}
 function capFightLose(t){S.cap.q=[];capEnd();return[t,'bad']}
-function capFight(p,win,loseT){const C=S.cap;if(ch(Math.min(.9,p+S.st.health/300+(S.hid.sword||0)/250+cbB()/300)))return win();const h=R(12,25);mod({health:-h});if(S.st.health<=0){die('trên đấu trường của Vở Diễn Anh Hùng');capEnd();return[loseT,'bad']}C.q=[];capEnd();return[`${loseT} Bạn mất ${h} sức khỏe. Bạn phải đánh lại trận này vào năm sau.`,'bad']}
+/* rủi ro trận đấu trường: trận càng về sau càng dễ trọng thương / tử trận */
+function capRisk(dieP,hurtP){const f=S.cap.ar.f;if(ch([.04,.1,.2][f]*dieP)||S.st.health<=0){mod({health:-S.st.health});die('trên đấu trường của Vở Diễn Anh Hùng');if(S.alive){S.st.health=Math.max(S.st.health,5);return' Bạn ngã xuống tưởng đã chết, nhưng rồi vẫn gượng dậy được.'}capEnd();return' Đòn cuối không ai đỡ nổi. Bạn không đứng dậy được nữa.'}
+  if(ch([.25,.4,.55][f]*hurtP)){const h=R(25,40);mod({health:-h});if(S.st.health<=0){die('vì trọng thương trên đấu trường');if(S.alive){S.st.health=Math.max(S.st.health,5);return' Bạn bị thương nặng, suýt chết.'}capEnd();return` Bạn bị thương nặng và không qua khỏi.`}return` Bạn bị thương nặng, mất thêm ${h} sức khỏe.`}return''}
+function capFight(p,win,loseT){const C=S.cap;if(ch(Math.min(.9,p+S.st.health/300+(S.hid.sword||0)/250+cbB()/300)))return win();const h=R(12,25);mod({health:-h});const rk=capRisk(1,1);if(!S.alive)return[loseT+rk,'bad'];C.q=[];capEnd();return[`${loseT} Bạn mất ${h} sức khỏe.${rk} Bạn phải đánh lại trận này vào năm sau.`,'bad']}
 /* mỗi năm 1–2 sự kiện riêng của nơi giam */
 function capYear(){
   const C=S.cap;if(!C||!S.alive)return;
