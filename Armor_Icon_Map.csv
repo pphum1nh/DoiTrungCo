@@ -1,0 +1,25 @@
+﻿item_id,name_vi,asset_path
+mail,Giáp lưới,assets/armor/mail.png
+plate,Giáp tấm,assets/armor/plate.png
+arm_holy,Giáp Thánh Quang,assets/armor/arm_holy.png
+arm_dark,Giáp Hắc Diệm,assets/armor/arm_dark.png
+arm_dragon,Giáp Vảy Rồng,assets/armor/arm_dragon.png
+arm_frost,Giáp Băng Sương,assets/armor/arm_frost.png
+arm_phoenix,Giáp Phượng Hoàng,assets/armor/arm_phoenix.png
+arm_necro,Giáp Tử Linh,assets/armor/arm_necro.png
+cloak_shadow,Áo choàng Bóng Đêm,assets/armor/cloak_shadow.png
+mw_armor,Giáp Tấm Kiệt Tác,assets/armor/mw_armor.png
+ra_robe,Áo Choàng Tư Tế Đỏ,assets/armor/ra_robe.png
+ra_plate,Giáp Huyết Nguyệt,assets/armor/ra_plate.png
+helm,Mũ sắt,assets/headgear/helm.png
+kettle,Mũ vành,assets/headgear/kettle.png
+hornhelm,Mũ sừng phương Bắc,assets/headgear/hornhelm.png
+barbute,Mũ chữ T,assets/headgear/barbute.png
+greathelm,Mũ giáp kín,assets/headgear/greathelm.png
+h_winged,Mũ Cánh Thánh,assets/headgear/h_winged.png
+h_demon,Mũ Sừng Quỷ,assets/headgear/h_demon.png
+h_raven,Mũ Quạ Đen,assets/headgear/h_raven.png
+h_dragon,Mũ Sọ Rồng,assets/headgear/h_dragon.png
+h_crown,Mũ Gai Bạc,assets/headgear/h_crown.png
+rh_mask,Mặt Nạ Trăng Máu,assets/headgear/rh_mask.png
+rh_crown,Vương Miện Gai Đỏ,assets/headgear/rh_crown.png

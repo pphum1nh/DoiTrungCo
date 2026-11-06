@@ -1,0 +1,1 @@
+Bản game với 72 icon tích hợp: 30 vũ khí/khiên, 18 phụ kiện, 12 giáp/áo choàng và 12 mũ/mặt nạ. Các ảnh 256×256 PNG nền tối nằm trong assets/weapons, assets/accessories, assets/armor, assets/headgear. Theo mã item_id, ảnh hiện trong túi đồ, ô trang bị và chợ. Món chưa có ảnh dùng biểu tượng SVG gốc. Preview_Armor_Icons.png là tổng hợp asset để xem trước.
