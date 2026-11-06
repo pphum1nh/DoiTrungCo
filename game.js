@@ -10630,6 +10630,74 @@ const HCE_EV3=[
 ];
 for(const e of HCE_EV3){HCE_EV.push(e);EV.push(e);EVB[e.id]=e;if(e.img)EIMG[e.id]=e.img}
 
+/* ===== Sự kiện nhỏ cho từng class ẩn: hai lựa chọn, hệ quả nhẹ. Mỗi sự kiện một lần mỗi đời, cách nhau ít nhất 3 năm ===== */
+const CE_K=['tt','vj','rn','bt','kg','hl','xk','kk','mt'];
+const ceRes=(k,v)=>({tt:ttRes,vj:vjCl,rn:rnRes,bt:btRes,kg:kgRes,hl:hlRes,xk:xkRes,kk:kkRes,mt:mtRes})[k](v);
+const CE_DEF={
+ tt:[['Tổ Chim Trên Cây Non','Cây non bạn trồng năm ngoái giờ có một tổ chim sẻ. Gã tiều phu trong làng lại muốn chặt nó làm cán rìu.',
+     [['Đổi cho gã một bó củi khác (10 xu)',s=>{s.money-=10;ceRes('tt',4);mod({happy:2});return['Gã tiều phu vác bó củi đi. Mùa xuân, ba con chim non tập bay từ cành cây ấy.','good']},10],
+      ['Để gã chặt cây',s=>{s.money+=5;ceRes('tt',-3);return['Gã chia cho bạn 5 xu tiền gỗ. Đêm ấy bạn nghe rễ cây dưới đất rung lên rất khẽ.','bad']}]]],
+     ['Hạt Giống Phát Sáng','Trong túi áo, bạn thấy một hạt giống tỏa ánh xanh mờ. Bạn không nhớ đã nhặt nó ở đâu.',
+     [['Gieo nó ở bìa rừng',s=>{ceRes('tt',3);mod({magic:1});return['Sáng hôm sau, chỗ bạn gieo hạt đã nhú một mầm cây cao ngang gối.','magic']}],
+      ['Bán cho nhà giả kim',s=>{s.money+=20;ceRes('tt',-2);return['Nhà giả kim trả 20 xu, đem hạt giống nghiền thành bột.','']}]]]],
+ vj:[['Giấc Mơ Về Con Bò Lạc','Nhà hàng xóm mất con bò. Đêm qua bạn mơ thấy nó đứng dưới gốc sồi bên khe suối, rõ như ban ngày.',
+     [['Chỉ cho họ chỗ trong mơ',s=>{ceRes('vj',3);rep('d',1);return['Họ tìm thấy con bò đúng dưới gốc sồi ấy. Cả xóm nhìn bạn bằng ánh mắt khác.','good']}],
+      ['Im lặng',s=>{mod({happy:-1});return['Hai ngày sau họ tự tìm thấy con bò, đúng chỗ bạn đã mơ.','']}]]],
+     ['Kẻ Mạo Danh Tiên Tri','Ngoài chợ, một gã áo choàng sao bán "lời tiên tri" cho những bà mẹ lo con đi lính, mỗi lời năm xu.',
+     [['Vạch trần hắn',s=>{ceRes('vj',2);mod({honor:2});if(ch(.3))addEnemy('kẻ mạo danh tiên tri bị bạn vạch trần',{hate:R(40,55)});return['Bạn hỏi hắn ba câu, hắn không trả lời nổi câu nào. Đám đông đòi lại tiền.','good']}],
+      ['Mặc kệ',s=>{ceRes('vj',-1);return['Bạn đi qua. Phía sau, một bà mẹ vừa trả năm xu để nghe rằng con mình sẽ trở về.','']}]]]],
+ rn:[['Lưỡi Cày Gãy','Một nông dân mang tới lưỡi cày gãy đôi. Ông chỉ cần nó dùng được qua mùa gặt.',
+     [['Khắc một chữ Rune bền vào lưỡi cày',s=>{ceRes('rn',3);rep('d',1);return['Chữ Rune sáng lên một lần rồi tắt. Lưỡi cày ấy dùng được tới đời cháu ông.','magic']}],
+      ['Rèn bình thường, lấy đủ tiền công',s=>{s.money+=12;return['Ông nông dân trả 12 xu. Lưỡi cày dùng được qua mùa gặt.','']}]]],
+     ['Chữ Lạ Trên Cột Mốc','Trên cột mốc đá ở ngã ba đường có một chữ Rune cổ, mòn gần hết.',
+     [['Chép lại vào sổ',s=>{ceRes('rn',4);mod({smarts:1});return['Bạn ngồi chép tới tối. Chữ ấy có nghĩa là "đừng quên đường về".','good']}],
+      ['Đục mang về bán',s=>{s.money+=18;ceRes('rn',-3);return['Một thương nhân trả 18 xu cho phiến đá. Ngã ba ấy mất cột mốc từ đó.','bad']}]]]],
+ bt:[['Con Cáo Mắc Bẫy','Một con cáo đỏ mắc bẫy thú của ai đó, chân rướm máu. Nó nhìn bạn, không kêu.',
+     [['Gỡ bẫy, thả nó đi',s=>{ceRes('bt',4);return['Con cáo khập khiễng vào rừng. Mấy đêm sau, bạn thấy nó ngồi ở bìa rừng nhìn về phía nhà bạn.','good']}],
+      ['Lột da đem bán',s=>{s.money+=15;ceRes('bt',-4);return['Bộ da bán được 15 xu. Từ đó lũ thú trong rừng tránh xa bạn hơn.','bad']}]]],
+     ['Đàn Quạ Theo Chân','Đã ba ngày, một đàn quạ bay theo bạn từ nhà ra đồng rồi lại về.',
+     [['Cho chúng ăn',s=>{ceRes('bt',2);mod({happy:2});return['Bạn rải vụn bánh. Hôm sau trên bậc cửa có một chiếc khuy đồng sáng bóng.','good']}],
+      ['Đuổi chúng đi',s=>{return['Đàn quạ bay lên rồi đậu lại trên mái nhà, im lặng nhìn bạn.','']}]]]],
+ kg:[['Hàng Rào Đổ Trước Bão','Hàng rào chắn gió của làng đổ một khúc ngay trước đêm bão. Gỗ mới phải sáng mai mới tới.',
+     [['Đứng giữ khúc rào suốt đêm',s=>{mod({health:-4});ceRes('kg',4);rep('d',1);return['Bạn tì vai giữ tấm ván đến sáng. Gió không lọt được vào làng.','good']}],
+      ['Về nhà ngủ',s=>{mod({happy:1});ceRes('kg',-2);return['Sáng ra, hai mái nhà bị tốc. Không ai trách bạn, nhưng bạn biết.','']}]]],
+     ['Lời Thách Của Gã Say','Một gã say trong quán cá rằng hắn đẩy được bạn lùi một bước.',
+     [['Đứng yên cho hắn đẩy',s=>{ceRes('kg',3);mod({honor:1});return['Gã đẩy đến đỏ mặt. Bạn không nhúc nhích. Cả quán vỗ tay.','good']}],
+      ['Đấm hắn ngã',s=>{mod({happy:2,honor:-1});return['Gã nằm dài trên sàn. Chủ quán bắt bạn đền cái ghế.','']}]]]],
+ hl:[['Cơn Sốt Máu Rồng','Nửa đêm, máu trong người bạn nóng như than. Da bạn bốc hơi khi chạm vào nước.',
+     [['Ngâm mình dưới suối lạnh, ép cơn sốt xuống',s=>{mod({health:-3});ceRes('hl',2);return['Bạn ngâm mình đến sáng. Lần đầu tiên bạn bắt được nhịp của dòng máu ấy.','good']}],
+      ['Để cơn sốt cháy hết',s=>{mod({health:-8,magic:2});ceRes('hl',5);return['Bạn nằm mê man hai ngày. Khi tỉnh dậy, bạn nghe được tiếng tim mình như tiếng trống xa.','magic']}]]],
+     ['Chiếc Vảy Trên Cổ Tay','Sáng ra bạn thấy một chiếc vảy đỏ sẫm mọc trên cổ tay, cứng như sắt.',
+     [['Giấu dưới găng tay',s=>{ceRes('hl',1);mod({happy:-1});return['Bạn đeo găng cả mùa hè. Không ai hỏi gì.','']}],
+      ['Gỡ ra bán cho thợ kim hoàn',s=>{s.money+=20;s.flags.suspect=(s.flags.suspect||0)+1;return['Thợ kim hoàn trả 20 xu và hỏi bạn lấy vảy ở đâu. Bạn không trả lời.','bad']}]]]],
+ xk:[['Hợp Đồng Thuê Nhà Có Bẫy','Bà góa nhà bên nhờ bạn đọc giùm hợp đồng thuê nhà. Ở dòng chữ nhỏ cuối trang, chủ nhà được quyền lấy nửa vụ mùa.',
+     [['Chỉ ra kẽ hở cho bà',s=>{ceRes('xk',3);rep('d',1);return['Bà góa mang hợp đồng ra tòa trang viên. Dòng chữ nhỏ bị gạch bỏ.','good']}],
+      ['Bảo rằng hợp đồng ổn',s=>{mod({honor:-2});return['Bà góa ký. Mùa thu năm ấy bà mất nửa vụ lúa.','bad']}]]],
+     ['Con Quỷ Nhỏ Bán Lời Hứa','Một con quỷ nhỏ bằng bàn tay ngồi trên bậu cửa sổ, chìa ra tờ khế ước: một năm may mắn đổi lấy "một thứ bạn sẽ không nhớ".',
+     [['Đọc kỹ rồi từ chối',s=>{ceRes('xk',3);mod({smarts:1});return['Thứ bạn sẽ không nhớ là tên mẹ bạn. Bạn xé tờ khế ước, con quỷ nhỏ bĩu môi bỏ đi.','good']}],
+      ['Ký',s=>{s.money+=30;mod({happy:-3});ceRes('xk',-3);return['Tháng ấy bạn nhặt được 30 xu dọc đường. Có một cái tên bạn cứ cố nhớ mà không ra.','bad']}]]]],
+ kk:[['Cánh Tủ Không Đóng Được','Cánh tủ trong nhà cứ tự mở ra mỗi đêm. Từ khe tủ có luồng gió lạnh thổi ra, dù bên trong chỉ có quần áo.',
+     [['Khâu khe hở lại',s=>{ceRes('kk',3);return['Bạn khâu khe hở bằng chỉ bạc. Cánh tủ đóng lại và không mở nữa.','good']}],
+      ['Nhìn vào khe',s=>{mod({magic:2,happy:-2});ceRes('kk',-3);return['Trong khe tối, có ai đó gọi tên bạn bằng giọng của chính bạn.','bad']}]]],
+     ['Đứa Trẻ Lạc Trong Sương','Sương xuống dày. Một đứa trẻ đứng giữa đường, nói nó đã đi vòng quanh cái giếng này từ sáng mà không ra được.',
+     [['Nắm tay dẫn nó về',s=>{ceRes('kk',2);mod({honor:2});return['Bạn dẫn đứa trẻ đi thẳng, không nhìn lại cái giếng. Mười bước sau sương tan, nhà nó ở ngay đầu ngõ.','good']}],
+      ['Chỉ đường rồi đi tiếp',s=>{return['Sáng hôm sau người ta nói đứa trẻ đã về, kể rằng có một ngọn đèn dẫn đường cho nó.','']}]]]],
+ mt:[['Bài Thơ Bị Chép Trộm','Ở quán rượu, một gã hát rong đang hát bài thơ của bạn và nhận là của mình.',
+     [['Để yên, về viết bài mới',s=>{ceRes('mt',3);return['Bạn về viết suốt đêm. Bài mới hay hơn bài cũ.','good']}],
+      ['Đòi lại tên tác giả',s=>{s.money+=10;mod({honor:1});return['Chủ quán bắt gã hát rong xin lỗi, rồi trả bạn 10 xu tiền thơ.','']}]]],
+     ['Lá Thư Tình Nhờ Viết','Một cậu trai chăn ngựa nhờ bạn viết thư tỏ tình với cô gái bán hoa. Cậu không biết chữ, chỉ biết mình thương cô.',
+     [['Viết bằng chính lời của cậu',s=>{ceRes('mt',4);mod({happy:2});return['Lá thư vụng về và ngắn. Cô gái bán hoa đọc xong thì khóc.','good']}],
+      ['Viết thật hoa mỹ, lấy 10 xu',s=>{s.money+=10;ceRes('mt',-1);return['Lá thư đẹp như thơ cung đình. Cô gái đọc xong hỏi: "Ai viết hộ anh vậy?"','']}]]]]
+};
+const CE_EV=[];
+for(const k of CE_K)CE_DEF[k].forEach(([title,text,chs],i)=>{const id=`ce_${k}${i+1}`;
+  CE_EV.push({id,queued:true,big:true,art:CD_CLASSES[k][1],img:CD_CLASSES[k][2],c:s=>!!(s.alive&&s[k]&&!s.cap),title,text,
+    ch:chs.map(([t,f,cost])=>cost?{t,cost,f}:{t,f})})});
+for(const e of CE_EV){EV.push(e);EVB[e.id]=e;EIMG[e.id]=e.img}
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||S.cap||S.age<14)return;const k=CE_K.find(x=>S[x]);if(!k)return;
+  if(!S.ceD)S.ceD={};if(S.ceY&&S.year-S.ceY<3)return;if(S.pend.includes(k+'_sc'))return;
+  const L=CE_EV.filter(e=>e.id.startsWith('ce_'+k)&&!S.ceD[e.id]);if(L.length&&ch(.35)){const e=pick(L);S.ceD[e.id]=1;S.ceY=S.year;S.pend.push(e.id)}}}
+
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
