@@ -10565,6 +10565,71 @@ EV.push(EVB.hc_call_mem); EIMG.hc_call_mem='ghost';
 {const e=EVB.hc_call,c0=e.c;e.c=s=>s.hcK!=='mem'&&c0(s)}
 CD_CLASSES.mem=['Người Buôn Ký Ức','crystal-ball','ghost','một ký ức lạ tràn vào đầu bạn'];
 
+/* ===== Sự kiện nhỏ cho từng nghề ẩn: hai lựa chọn, hệ quả nhẹ ===== */
+const HCE_EV3=[
+  /* --- Thương Gia Bóng Tối --- */
+  {id:'hce_trade5',queued:true,big:true,art:'hood',img:'slavemarket',c:hcR('trade',1),
+   title:'Đồng Xu Giả',
+   text:'Đếm tiền cuối ngày, bạn thấy ba đồng xu nhẹ hơn hẳn. Chúng là xu giả, đúc khéo đến mức chính bạn cũng suýt nhận nhầm.',
+   ch:[
+     {t:'Tiêu chúng cho chuyến hàng sau',f:s=>{s.money+=15;DMK().heat+=4;return['Ba đồng xu trôi qua tay một gã lái đò. Bạn đỡ được 15 xu, nhưng gã sẽ nhớ mặt bạn.','']}},
+     {t:'Lần ra kẻ đúc xu, bán tin cho chợ đen',f:s=>{s.money+=10;rep('u',2);hcXP(8);return['Kẻ đúc xu là thợ bạc ở phố dưới. Chợ đen trả bạn 10 xu cho cái tên ấy.','good']}}
+   ]},
+  {id:'hce_trade6',queued:true,big:true,art:'hood',img:'slavemarket',c:hcR('trade',1),
+   title:'Con Mèo Ở Kho Hàng',
+   text:'Một con mèo mướp ngủ trên đống rương hàng lậu của bạn ba đêm liền. Bọn khuân vác bảo mèo nằm trên rương nào thì lính gác không thèm lục rương đó.',
+   ch:[
+     {t:'Giữ nó lại, cho ăn đều',f:s=>{mod({happy:4});DMK().heat=Math.max(0,DMK().heat-3);return['Con mèo béo dần. Tháng ấy lính gác đi qua kho mà không mở rương nào.','good']}},
+     {t:'Đuổi nó đi',f:s=>{mod({happy:-1});return['Con mèo bỏ đi. Bọn khuân vác lắc đầu, lẩm bẩm rằng bạn vừa đuổi vận may.','']}}
+   ]},
+  /* --- Y Sư Bất Tử --- */
+  {id:'hce_surg5',queued:true,big:true,art:'medical-kit',img:'plague',c:hcR('surgeon',1),
+   title:'Cái Răng Sâu Của Lính Gác',
+   text:'Nửa đêm, một lính gác thành đập cửa nhà bạn, má sưng vù. Anh ta đau đến mức không đứng gác nổi, và trong túi chỉ có vài đồng.',
+   ch:[
+     {t:'Nhổ răng, không lấy tiền',f:s=>{rep('d',2);mod({honor:1});hcXP(5);return['Chiếc răng ra sau một cú giật. Từ hôm ấy, anh lính gác gật đầu chào bạn mỗi lần đi qua cổng thành.','good']}},
+     {t:'Nhổ răng, lấy đủ tiền công',f:s=>{s.money+=12;return['Anh lính trả bạn 12 xu, vét sạch túi.','']}}
+   ]},
+  {id:'hce_surg6',queued:true,big:true,art:'medical-kit',img:'plague',c:hcR('surgeon',1),
+   title:'Hộp Dụng Cụ Bị Trộm',
+   text:'Một đứa trẻ đường phố giật hộp dụng cụ của bạn rồi chạy. Mấy ngày sau, bạn thấy nó đang dùng con dao mổ của bạn để rạch mủ cho một đứa nhỏ hơn, tay run nhưng đường rạch khá gọn.',
+   ch:[
+     {t:'Đòi lại hộp dụng cụ',f:s=>{return['Đứa trẻ trả lại hộp rồi chạy biến. Bạn kiểm lại thì thiếu một cuộn chỉ khâu.','']}},
+     {t:'Để nó giữ, dạy nó cách băng bó',f:s=>{s.money=Math.max(0,s.money-10);mod({honor:2,happy:3});hcXP(10);return['Bạn mua bộ dụng cụ mới hết 10 xu. Đứa trẻ theo bạn học suốt mùa đông, và khu ổ chuột có thêm một người biết băng vết thương.','good']}}
+   ]},
+  /* --- Ma Kiếm Sư --- */
+  {id:'hce_mks3',queued:true,big:true,art:'sword',img:'spellblade',c:hcR('mks',1),
+   title:'Vết Cháy Trên Vỏ Kiếm',
+   text:'Sáng ra, vỏ kiếm của bạn cháy sém một vệt dài. Ma lực rò ra từ lưỡi kiếm trong lúc bạn ngủ.',
+   ch:[
+     {t:'Mua vỏ kiếm mới (15 xu)',cost:15,f:s=>{s.money-=15;mod({magic:2});return['Thợ da làm cho bạn chiếc vỏ lót bạc. Ma lực không rò ra nữa.','']}},
+     {t:'Tự khắc một vòng phép hãm',f:s=>{if(ch(.4+s.st.smarts/250)){mod({magic:3});hcXP(10);return['Vòng phép giữ ma lực trong lưỡi kiếm. Bạn hiểu thêm một chút về cách ma lực chảy qua thép.','magic']}mod({magic:-3});return['Vòng phép khắc lệch. Lưỡi kiếm hút cạn một ít ma lực của bạn trước khi bạn kịp tháo nó ra.','bad']}}
+   ]},
+  {id:'hce_mks4',queued:true,big:true,art:'sword',img:'spellblade',c:hcR('mks',1),
+   title:'Lũ Trẻ Múa Kiếm Gỗ',
+   text:'Lũ trẻ trong xóm cầm kiếm gỗ, vừa vung vừa hét tên những chiêu chúng nghe kể về bạn. Thấy bạn đi qua, chúng đứng im thin thít.',
+   ch:[
+     {t:'Chỉ cho chúng vài thế',f:s=>{mod({happy:4});rep('d',1);return['Bạn chỉ chúng cách đứng cho vững. Chiều hôm ấy cả xóm nghe tiếng kiếm gỗ gõ vào nhau tới tối.','good']}},
+     {t:'Bảo chúng về nhà',f:s=>{mod({happy:-1});return['Lũ trẻ tản đi. Riêng một đứa vẫn đứng nhìn theo bạn rất lâu.','']}}
+   ]},
+  /* --- Người Buôn Ký Ức --- */
+  {id:'hce_mem1',queued:true,big:true,art:'crystal-ball',img:'ghost',c:hcR('mem',1),
+   title:'Ký Ức Bị Trả Lại',
+   text:'Một khách mang viên pha lê quay lại: "Ký ức này không phải của cha tôi. Cha tôi chưa bao giờ thấy biển." Ông ta đòi lại 20 xu.',
+   ch:[
+     {t:'Hoàn tiền (20 xu)',cost:20,f:s=>{s.money-=20;mod({honor:2});rep('u',1);return['Bạn trả lại tiền. Người khách đi rồi, bạn vẫn nghe tiếng sóng vỗ trong viên pha lê.','']}},
+     {t:'Đọc lại xem ký ức là của ai',f:s=>{if(ch(.45+s.st.smarts/300)){hcXP(10);mod({smarts:1});return['Ký ức là của người lái thuyền nằm mộ bên cạnh. Bạn nhận ra mình đã gắn nhầm nhãn, và từ đó ghi chép cẩn thận hơn.','good']}mod({happy:-2});rep('u',-1);return['Bạn không tìm ra chủ nhân ký ức. Người khách bỏ đi, kể với cả phố rằng bạn bán đồ giả.','bad']}}
+   ]},
+  {id:'hce_mem2',queued:true,big:true,art:'crystal-ball',img:'ghost',c:hcR('mem',1),
+   title:'Giọng Ru Trong Pha Lê',
+   text:'Một viên pha lê cũ bỗng ngân lên một bài hát ru. Bà cụ hàng xóm đứng sững ngoài cửa sổ: đó là giọng mẹ bà, người mất từ khi bà còn nhỏ.',
+   ch:[
+     {t:'Tặng viên pha lê cho bà',f:s=>{mod({happy:3,honor:2});rep('d',2);return['Bà cụ ôm viên pha lê ngủ thiếp đi trên ghế. Bạn để bà ngồi đó tới sáng.','good']}},
+     {t:'Bán cho nhà sưu tầm',f:s=>{s.money+=25;return['Một nhà sưu tầm trả 25 xu cho "giọng hát của một người vô danh". Bà cụ không đến bên cửa sổ nữa.','']}}
+   ]}
+];
+for(const e of HCE_EV3){HCE_EV.push(e);EV.push(e);EVB[e.id]=e;if(e.img)EIMG[e.id]=e.img}
+
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
