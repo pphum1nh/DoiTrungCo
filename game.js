@@ -12171,7 +12171,7 @@ const ppT=(P,rk)=>PP[P.k].t[rk-1];
 const ppRoot=k=>(PP[k]&&PP[k].root)||k;
 const PPBR={hoa:'loi',thuy:'bang',tho:'kim'};
 const ppArc=()=>{talSync();return S.hid.arcane||0};
-const ppCan=()=>S.pp.k==='vm'||ppArc()>=30;
+const ppCan=()=>S.pp.k==='vm'||ppArc()>=70;
 const ppName=()=>S.pp?`${PP[S.pp.k].n} · ${ppT(S.pp,S.pp.rk)}`:'';
 const ppNeed=()=>{const r=S.pp.rk+1;if(r>5)return null;if(r===5&&isRed(S))return'p_hong';return PPNEED[r]};
 const ppJ=t=>{const j=S.pp.j;j.push(t);if(j.length>12)j.shift()};
@@ -12191,7 +12191,7 @@ function ppDrink(){if(!ppOn())return;if(S.pp.k==='vm'||!ppCan())return;const P=S
   if(X&&X.tox&&S.potX>=3&&ch((S.potX-2)*.18))t+=potBack();
   if(S.st.health<=0)die('phản phệ ma dược');return[t,tone]}
 function ppYear(){if(!S||!S.alive||S.cap)return;
-  if(!S.pp&&mnOn()&&!clsHas(S)&&S.hid&&PP[S.hid.menh]&&!S.hid.vm&&ppArc()>=30)ppStart(S.hid.menh);
+  if(!S.pp&&mnOn()&&!clsHas(S)&&S.hid&&PP[S.hid.menh]&&!S.hid.vm)ppStart(S.hid.menh);
   const P=S.pp;if(!P)return;const D=PP[P.k];
   if(!P.off&&clsHas(S)){P.off=S.year;ppJ(`${S.year}: Con đường ${D.n} lùi lại nhường chỗ cho con đường class ẩn. Chỉ còn dư âm ở bậc ${P.rk}.`);log(`Con Đường ${D.n} lùi lại, nhường chỗ cho con đường mới. Bạn vẫn giữ dư âm của nó ở bậc ${P.rk}.`,'magic')}
   D.pas(P.rk);
@@ -12202,10 +12202,10 @@ function ppYear(){if(!S||!S.alive||S.cap)return;
 {const y0=extYear3;extYear3=function(){y0();ppYear()}}
 function ppView(){const P=S.pp;if(!P)return['Con Đường Phi Phàm','<p class="note">Bạn chưa bước lên con đường nào.</p>','act'];const D=PP[P.k],dis=!S.alive||!!S.cap;
   let b=imgBanner('manatest')+gRow('',D.ic,ppT(P,P.rk),`${D.n} · Bậc ${P.rk}/5${P.off?' · chỉ còn dư âm':''}`,'',false,true)+`<p class="note">${D.d}</p>`;
-  if(P.k!=='vm')b+=`<p class="note">Cảm nhận ma pháp: ${ppArc()}/100 · càng cao thì luyện chiêu Mệnh càng nhanh</p>`;
+  if(P.k!=='vm')b+=`<p class="note">Cảm nhận ma pháp: ${ppArc()}/100${ppArc()<70?' · cần 70 để đi tiếp con đường':''} · càng cao thì luyện chiêu Mệnh càng nhanh</p>`;
   const bar=(n,v,d,i)=>`<div class="row"><span class="ri">${ic(i,24)}</span><div><b>${n}: ${v}/100</b><small>${d}</small><div class="bond"><i style="width:${v}%"></i></div></div></div>`;
   if(P.off){b+=`<p class="note magic">Bạn đã chuyển sang con đường của class ẩn. Con đường ${D.n} chỉ còn dư âm: các năng lực bị động ở bậc ${P.rk} vẫn theo bạn, nhưng không đi tiếp được nữa.</p>`}
-  else if(!ppCan()){b+='<p class="note">Cảm nhận ma pháp của bạn quá yếu (dưới 30). Bạn mang Mệnh trong người, nhưng không bước được lên con đường nào. Bạn là một người thường.</p>'}
+  else if(!ppCan()){b+='<p class="note">Bạn đã thức tỉnh Mệnh, nhưng cảm nhận ma pháp của bạn chưa đủ để đi xa hơn. Như phần lớn người thức tỉnh khác, bạn mang Mệnh trong người và sống một đời bình thường. Các class ẩn của Mệnh này vẫn có thể tìm đến bạn.</p>'}
   else{b+=bar('Tiêu hóa',Math.min(100,P.dg),'Làm việc hợp vai để tiêu hóa sức mạnh của bậc hiện tại','star');
     if(P.k==='vm')b+=bar('Hiện diện',P.pr,'Thế giới còn nhớ bạn tới đâu. Về 0, bạn biến mất khỏi ký ức của mọi người','user');
     const k=ppNeed();if(P.k==='vm'&&P.rk<5){const ready=P.dg>=100;b+=`<p class="sec">Bước lên bậc ${P.rk+1}: ${ppT({...P,rk:P.rk+1},P.rk+1)}</p>`+gRow('data-x="pp:vm"','scroll','Đi tìm một khoảnh khắc ngoài số phận',ready?'Đã tiêu hóa xong · một sự kiện đặc biệt đang chờ bạn':`Cần tiêu hóa xong (${P.dg}/100). Người không mang mệnh không lên bậc bằng dược`,ready?'Sẵn sàng':'',dis||!ready||S.pend.includes('pp_vm'))}
@@ -12227,7 +12227,7 @@ function ppDo(x){if(!S.pp||!S.alive||S.cap)return;const P=S.pp,D=PP[P.k];const p
 {const d0=drawExt3;drawExt3=function(v){if(v==='pp')return ppView();return d0(v)}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('pp:'))return ppDo(x);return x0(x)}}
 {const a0=actExtra3;actExtra3=function(){const b=a0();if(!S.pp)return b;const P=S.pp,D=PP[P.k];
-  return`<p class="sec">Con Đường Phi Phàm</p>`+gRow('data-open="pp"',D.ic,ppT(P,P.rk),P.off?`${D.n} · dư âm bậc ${P.rk}`:!ppCan()?`${D.n} · người thường`:`${D.n} · Bậc ${P.rk}/5 · Tiêu hóa ${Math.min(100,P.dg)}/100`,'',!S.alive)+b}}
+  return`<p class="sec">Con Đường Phi Phàm</p>`+gRow('data-open="pp"',D.ic,ppT(P,P.rk),P.off?`${D.n} · dư âm bậc ${P.rk}`:!ppCan()?`${D.n} · Bậc 1 · người thường thức tỉnh`:`${D.n} · Bậc ${P.rk}/5 · Tiêu hóa ${Math.min(100,P.dg)}/100`,'',!S.alive)+b}}
 const PPVM={
  2:{t:'Lời Tiên Tri Bị Bỏ Lỡ',x:'Một bà tiên tri mù ngồi ở cổng chợ, nói cho từng người qua đường biết số phận của họ. Tới lượt bạn, bà sờ lên mặt bạn rất lâu rồi bật khóc: "Ta không thấy gì cả. Như chưa ai từng viết ngươi." Mọi người xung quanh đã quay đi, như thể bạn không đứng đó.',
   a:'Bước qua bà ấy, đi tiếp',ax:'Bạn bước qua lời tiên tri như bước qua một vũng nước. Từ hôm đó, những điềm báo không còn chạm được vào bạn.',b:'Ngồi lại an ủi bà',bx:'Bạn ngồi lại với bà tới khi chợ tan. Bà kể cho bạn nghe về những số phận bà đã thấy. Bạn chưa đi tiếp được.'},
