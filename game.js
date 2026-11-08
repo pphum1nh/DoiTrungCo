@@ -1428,6 +1428,11 @@ function rowBtn(data,title,sub,tag,dis){return`<button class="row" ${data} ${dis
 const fxList=fx=>Object.entries(fx||{}).map(([k,v])=>`<li class="${v<0?'neg':''}">${v>0?'+':''}${v} ${SL[k]} mỗi năm</li>`).join('');
 function openSheet(v){if(!S)return;if(v!==view)note=null;view=v;drawSheet();$('#sheet').hidden=false;const f=$('#sheet .xbtn');f&&f.focus()}
 function closeSheet(){$('#sheet').hidden=true;view=null;note=null;if(S&&!S.alive&&$('#modal').hidden)showDeath()}
+const JGRP=[['lao','Lao động và thủ công',['shepherd','farm','smith','fisher','miner','brewer','runesmith']],
+ ['vo','Võ nghiệp',['soldier','knight','hunter','orcwar','pitfighter','merc','shieldguard','shadowblade','demonhunter','ranger','tracker','assassin']],
+ ['tri','Chữ nghĩa, buôn bán và triều đình',['trade','blackmarket','scribe','court','teacher','lady','bard','surgeon']],
+ ['phep','Phép thuật và tín ngưỡng',['church','mission','wizard','alch','orcshaman','druid','enchanter','beastspeak','warlock']],
+ ['khac','Nghề khác',[]]];
 function drawSheet(){
   if(!view)return;
   let title='',b='',back='';
@@ -1440,13 +1445,18 @@ function drawSheet(){
     const okR=J=>!J.races||J.races.includes(S.race);
     const own=Object.entries(JOBS).filter(([id,J])=>okR(J)&&J.races&&J.races.length<=3&&!['shepherd','farm','smith','scribe','surgeon','wizard','alch'].includes(id)&&(S.race!=='human'||['church','mission','knight','lady','bard'].includes(id)));
     const rest=Object.entries(JOBS).filter(([id,J])=>okR(J)&&!own.some(o=>o[0]===id));
-    const jl=[...own.map(x=>[...x,1]),...rest.map(x=>[...x,0])];let jsec='';
+    const jl=[...own.map(x=>[...x,1]),...rest.map(x=>[...x,0])],lock=[];
+    const grp={};for(const g of JGRP)grp[g[0]]=[];
     for(const[id,J,isOwn]of jl){
       if(S.job&&S.job.id===id)continue;
-      const sc=isOwn?`Nghề riêng của ${RACES[S.race].n}`:'Nghề phổ thông';if(sc!==jsec){b+=`<p class="sec">${sc}</p>`;jsec=sc}
       const why=isStu(S)?'Đang theo học tại Học viện':S.age<J.min?`Từ ${J.min} tuổi`:!J.req(S)?J.why:'';
-      b+=gRow(`data-job="${id}"`,JIC[id]||'anvil',J.n,why||`Khởi đầu: ${(S.sex==='f'&&J.tf?J.tf:J.t)[0]} · ${J.t.length} bậc${J.risk?' · nguy hiểm':''}`,`${J.pay[0]} xu/năm`,!!why||!S.alive);
+      const row=gRow(`data-job="${id}"`,JIC[id]||'anvil',J.n,why||`Khởi đầu: ${(S.sex==='f'&&J.tf?J.tf:J.t)[0]} · ${J.t.length} bậc${J.risk?' · nguy hiểm':''}${isOwn?' · riêng '+RACES[S.race].n:''}`,`${J.pay[0]} xu/năm`,!!why||!S.alive);
+      if(why){lock.push([J.min,row]);continue}
+      const g=JGRP.find(x=>x[2].includes(id));grp[g?g[0]:'khac'].push(row);
     }
+    for(const[k,n]of JGRP)if(grp[k].length)b+=`<p class="sec">${n}</p>`+grp[k].join('');
+    if(!JGRP.some(g=>grp[g[0]].length))b+='<p class="note">Hiện chưa có nghề nào bạn làm được.</p>';
+    if(lock.length)b+='<p class="sec">Chưa đủ điều kiện</p>'+lock.sort((x,y)=>x[0]-y[0]).map(x=>x[1]).join('');
   }
   if(view==='act'||(view.startsWith('act:')&&view!=='act:job')){
     const avail=a=>!(S.age<a.min||(a.req&&!a.req(S))||S.done[a.id]||(a.cost&&S.money<a.cost));
@@ -4765,10 +4775,6 @@ function wdYear(){
 }
 function wdView(){
   const W0=WD();let b='';
-  const ents=Object.entries(W0.rs);let lastSec='';
-  for(const[n,r]of [...ents.filter(([n])=>!NATIONS[n]),...ents.filter(([n])=>NATIONS[n])]){const sec=NATIONS[n]?'Quốc gia của các tộc':'Các vương quốc loài người';if(sec!==lastSec){b+=`<p class="sec">${sec}</p>`;lastSec=sec}const mine=n===S.realm;const st=r.stab>=65?'vững vàng':r.stab>=45?'tạm ổn':r.stab>=25?'bất ổn':'hỗn loạn';
-    const tags=[r.war?(r.war.vs==='nội chiến'?'nội chiến':'đánh nhau với '+r.war.vs.replace(RPFX,'')):'',r.fam?'mất mùa':'',r.pl?'dịch bệnh':'',r.faith==='red'?'theo Hồng Nguyệt':''].filter(Boolean);
-    b+=gRow('',r.faith==='red'?'night':NATIONS[n]?REG[NATIONS[n].reg].ic:/Thánh quốc/.test(n)?'church':'castle',`${esc(n)}${mine?' · quê bạn':''}`,`${mine&&kingMe()&&rules()?'Bạn trị vì':esc(r.ruler)} · ${st}${tags.length?' · '+tags.join(', '):''}`,'',false,true,r.faith==='red'?'foe':'')}
   b+='<p class="sec">Bản tin gần đây</p>';
   const N=W0.news.slice(-12).reverse();b+=N.length?N.map(x=>`<p class="note ${x.tone}">Năm ${x.y}: ${esc(x.t)}</p>`).join(''):'<p class="note">Thiên hạ năm nay yên ả, chưa có tin gì đáng kể.</p>';
   if(W0.hist.length){b+='<p class="sec">Sử biên niên thiên hạ · ghi qua nhiều đời</p>';b+=W0.hist.slice(-15).reverse().map(x=>`<p class="note">Năm ${x.y}: ${esc(x.t)}</p>`).join('')}
@@ -7079,7 +7085,7 @@ function vhAct(a,id){mnEnsure();if(!S.alive)return;let t='',tone='';
 function vhRow(id,act){const M=MV[id],P=S.mv[id];return gRow(act,mvIc(M),`${M.n}${P?` · cấp ${P.lv}/5`:''}`,`${MVTY[M.ty]}${M.sv.length?' · khắc '+M.sv.map(t=>CBTN[t]).join(', '):''}${M.mp?` · ${M.mp} ma lực`:''}${M.hp?` · ${M.hp} sức khỏe`:''}`,S.mvL.includes(id)?'Đang mang':'',!S.alive)}
 const mvSrcN=M=>M.src==='kiem'?'Kiếm thuật':M.src[0]==='m'?`${MENH[M.src.slice(2)].n} mệnh`:M.src[0]==='r'?{hero:'Anh Hùng',saint:'Thánh Nữ',dark:'Ma Vương'}[M.src.slice(2)]:`Nghề ẩn ${HC[M.src.slice(2)].n}`;
 function vhView(v){mnEnsure();const id=v.split(':')[1];if(id&&MV[id])return vhMove(id);const dis=!S.alive,m=MENH[S.hid.menh];let b='';
-  b+=mnOn()?gRow('',m.ic,`${m.n} mệnh`,m.d,'',false,true):gRow('','star','Mệnh ẩn: chưa thức tỉnh','','',false,true);
+  b+=mnOn()?gRow('',m.ic,`${m.n} mệnh`,m.d,'',false,true):S.hid&&S.hid.vm?gRow('','star','Vô Mệnh','Không mang mệnh nào, ma lực không thể tăng. Chỉ học được chiêu kiếm','',false,true):gRow('','star','Mệnh ẩn: chưa thức tỉnh','','',false,true);
   b+=statGrid([['Kiếm thuật',`${S.blade||0}/100`],['Ma lực',`${S.st.magic}/100`]]);if(S.flags.seenS||S.flags.seenA)b+=`<p class="note">Thiên phú: ${[S.flags.seenS?'kiếm '+talentWord(S.hid.sword):'',S.flags.seenA?'phép '+talentWord(S.hid.arcane):''].filter(Boolean).join(', ')}.</p>`;
   b+=`<p class="sec">Mang vào trận · ${S.mvL.length}/4</p>`;b+=S.mvL.length?S.mvL.map(x=>vhRow(x,`data-open="vh:${x}"`)).join(''):'<p class="note">Chưa có chiêu nào.</p>';
   const rest=mvList().filter(x=>!S.mvL.includes(x));if(rest.length)b+='<p class="sec">Chiêu khác đã học</p>'+rest.map(x=>vhRow(x,`data-open="vh:${x}"`)).join('');
@@ -7496,6 +7502,7 @@ function hkView(i){const n=HUMAN_REALMS[+i],rs=n&&WD().rs[n];if(!rs)return['Vư�
   b+=gRow('','castle',n,S.realm===n?'Quê hương của bạn':'Vương quốc của loài người','',false,true);
   b+=statGrid([['Người cai trị',esc(rs.ruler)],['Tình hình',rs.stab>=60?'yên ổn':rs.stab>=35?'bất an':'rối loạn'],['Chiến tranh',rs.war?(rs.war.vs==='nội chiến'?'nội chiến':String(rs.war.vs).replace(RPFX,'')):'không'],['Mùa màng, dịch bệnh',[rs.fam?'mất mùa':'',rs.pl?'có dịch':''].filter(Boolean).join(', ')||'bình thường']]);
   if(rs.red&&(S.flags.her>=1||rmOn()||(S.ct&&S.ct.o==='red')))b+=`<p class="note">Tín đồ Hồng Nguyệt trong nước (chỉ người trong giáo phái mới biết): ${rs.red}.</p>`;
+  {const sc=(S.world.scars||[]).filter(x=>x.rl===n);if(sc.length)b+='<p class="sec">Vết sẹo thảm họa</p>'+sc.map(x=>`<p class="note bad">${esc(DHSCAR[x.k]||x.k)} (từ năm ${x.y})</p>`).join('')}
   const R2=Object.keys(REG).filter(k=>!REG[k].nat&&REG[k].own===n&&rgSeen(k));if(R2.length)b+='<p class="sec">Vùng đất trong vương quốc</p>'+R2.map(k=>gRow(`data-open="rg:${k}"`,REG[k].ic,REG[k].n,REG[k].d,'',false)).join('');
   const N=(WD().news||[]).filter(x=>x.t.includes(n)).slice(-6).reverse();if(N.length)b+='<p class="sec">Tin tức gần đây</p>'+N.map(x=>`<p class="note">Năm ${x.y} · ${esc(x.t)}</p>`).join('');
   return[n,b,'rg']}
@@ -7663,7 +7670,7 @@ Object.assign(CTO,{
 });
 /* hợp đồng nằm trong mục Bang hội; võ học nằm trong nhóm Luyện tập */
 {const o0=orgView;orgView=function(){const r=o0();const C=ctOf();const row='<p class="sec">Hợp đồng với các tổ chức</p>'+gRow('data-open="ct"',C?CTO[C.o].ic:'scroll',C?`${CTO[C.o].roles[C.rk]} · ${CTO[C.o].n}`:'Hợp đồng',C?`Lương ${Math.round(C.pay*(C.ally?.5:1))} xu/năm · ${C.ally||C.dy>=S.year?'đã xong nhiệm vụ năm nay':'chưa làm nhiệm vụ năm nay'}`:'Chưa có hợp đồng · xem tổ chức nào đang để mắt tới bạn','',!S.alive);r[1]=row+r[1];return r}}
-function actTrainExtra(){mnEnsure();const m=MENH[S.hid.menh];return gRow('data-open="vh"','sword','Võ học, mệnh và thư viện',`${mnOn()?m.n+' mệnh':'Mệnh chưa thức tỉnh'} · ${mvList().length} chiêu · còn ${vhLeft()}/2 buổi luyện`,'',!S.alive)}
+function actTrainExtra(){mnEnsure();const m=MENH[S.hid.menh];return gRow('data-open="vh"','sword','Võ học, mệnh và thư viện',`${mnOn()?m.n+' mệnh':S.hid&&S.hid.vm?'Vô Mệnh':'Mệnh chưa thức tỉnh'} · ${mvList().length} chiêu · còn ${vhLeft()}/2 buổi luyện`,'',!S.alive)}
 
 
 {const a=ACTS.find(x=>x.id==='sword');if(a){const f0=a.f;a.f=s=>{const r=arr(f0(s));if(s.alive){const b0=s.blade||0;bladeAdd(R(2,4));talSync();const g=(s.blade||0)-b0;if(g>0)r[0]+=` Kiếm thuật +${g}.`}return r}}}
@@ -11552,16 +11559,102 @@ const RLINFO={
  'Vương quốc Ironmark':{img:'rl_ironmark',em:'Búa và đe trên nền xám than',d:'Thành trì giữa núi tuyết. Lò rèn cháy suốt đêm, cối xay nước bên thác và những đoàn xe chở đồng xuống núi.'},
  'Thánh quốc Lumaris':{img:'rl_lumaris',em:'Mặt trời vàng trên nền trắng ngà',d:'Đất thánh của Giáo hội Thánh Quang. Thánh đường trắng trên đồi, đài phun nước và những đoàn hành hương bước lên bậc đá.'}
 };
-function wrView(n){const I=RLINFO[n],r=WD().rs[n];if(!I||!r)return['Vương quốc','','wd'];const mine=n===S.realm;
-  let b=imgBanner(I.img)+`<p class="note">${I.d}</p>`;
-  b+=statGrid([['Huy hiệu',I.em],['Trị vì',esc(mine&&kingMe()&&rules()?'Bạn':r.ruler)],['Ổn định',r.stab+'/100'],['Tình hình',r.war?(r.war.vs==='nội chiến'?'Nội chiến':'Chiến tranh'):r.fam?'Mất mùa':r.pl?'Dịch bệnh':'Yên ổn']]);
-  const sc=(S.world.scars||[]).filter(x=>x.rl===n);if(sc.length)b+='<p class="sec">Vết sẹo thảm họa</p>'+sc.map(x=>`<p class="note bad">${esc(DHSCAR[x.k]||x.k)} (từ năm ${x.y})</p>`).join('');
-  if(mine)b+='<p class="note">Bạn đang sống ở đây.</p>';return[n,b,'wd']}
-{const w0=wdView;wdView=function(){const r=w0();let b=r[1];const RI=RLINFO[S.realm];if(RI)b=imgBanner(RI.img)+b;
-  for(const n of Object.keys(RLINFO)){const re=new RegExp(`<div class="row">(<span class="ri[^"]*">[\\s\\S]*?</span><div><b>${esc(n).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}[\\s\\S]*?</div>)</div>`);b=b.replace(re,(m,inner)=>`<button class="row" data-open="wr:${REALMS.indexOf(n)}">${inner}</button>`)}
-  const sc=S.world.scars||[];if(sc.length)b+='<p class="sec">Vùng nguy hiểm sau thảm họa</p>'+sc.map(x=>`<p class="note bad">${esc(DHSCAR[x.k]||x.k)} ở ${esc(x.rl)} · từ năm ${x.y}</p>`).join('');
-  r[1]=b;return r}}
-{const d0=drawExt3;drawExt3=function(v){if(v&&v.startsWith('wr:'))return wrView(REALMS[+v.slice(3)]);return d0(v)}}
+
+/* ===== Chuyện tình: phản bội, cám dỗ, tình địch ===== */
+function divorce(p){p.rel=p.sex==='m'?'Chồng cũ':'Vợ cũ';p.ex=1;p.bond=Math.min(p.bond,20)}
+const lvFight=()=>ch(.35+S.st.health/300+(S.blade||0)/300);
+const LOVE_EV=[
+ {id:'lv_cheat',w:W(3),c:s=>!!lover()&&s.age>=16,prep:s=>{s.tmp=npc('enemy',{age:Math.max(16,lover().age+R(-4,4))})},title:'Sau kho thóc',
+  text:s=>`Bạn đến chỗ hẹn sớm hơn mọi khi. Sau kho thóc, ${lover().first} đang ôm hôn ${s.tmp.name}. Hai người giật mình buông nhau ra khi thấy bạn.`,
+  ch:[{t:'Tha thứ một lần',f:s=>{const L=lover();L.bond=clamp(L.bond-15);mod({happy:-6});return[`${L.first} khóc, thề sẽ không bao giờ có lần sau. Bạn gật đầu, nhưng mỗi lần đi ngang kho thóc lại thấy nhói trong lòng.`,'bad']}},
+      {t:'Chia tay ngay',f:s=>{const L=lover();L.alive=false;L.gone=1;mod({happy:-10,honor:2});return[`Bạn quay lưng bỏ đi, không nói một lời. Từ hôm đó bạn không bao giờ nhìn mặt ${L.first} nữa.`,'bad']}},
+      {t:'Đánh kẻ thứ ba',f:s=>{const L=lover();addEnemy('Kẻ thứ ba bị bạn đánh giữa làng',{...s.tmp,hate:R(50,70)});L.alive=false;L.gone=1;
+        if(lvFight()){mod({happy:-4,honor:-2});return[`Bạn đấm ${s.tmp.first} ngã lăn ra đống rơm. ${L.first} chạy theo kẻ kia, và bạn biết mình vừa mất người yêu.`,'bad']}
+        mod({health:-10,happy:-10});return[`${s.tmp.first} khỏe hơn bạn tưởng. Bạn về nhà với con mắt sưng tím và trái tim tan nát.`,'bad']}}]},
+ {id:'sp_cheat',w:s=>spouse()&&spouse().bond<50?4:1.5,c:s=>!!spouse()&&s.age>=20,prep:s=>{s.tmp=npc('enemy',{sex:spouse().sex==='m'?'f':'m',age:Math.max(18,spouse().age+R(-8,5))})},title:'Lá thư giấu dưới gối',
+  text:s=>`Khi thay áo gối, bạn tìm thấy một lá thư tình. Người viết là ${s.tmp.name}, còn người nhận là ${spouse().first}. Cả làng hình như đã biết từ lâu, chỉ có bạn là không.`,
+  ch:[{t:'Tha thứ, giữ gia đình',f:s=>{const p=spouse();p.bond=clamp(p.bond+8);mod({happy:-8});return[`Bạn đặt lá thư lên bàn và không nói gì. ${p.first} quỳ xuống xin lỗi. Hai người cố bắt đầu lại, vì con cái và vì những năm đã qua.`,'']}},
+      {t:'Ly hôn',f:s=>{const p=spouse();divorce(p);mod({happy:-12});return[`Bạn ra trước cha xứ đòi ly hôn. ${p.first} dọn đồ đi trong một buổi chiều mưa. Căn nhà bỗng rộng ra một cách lạ lùng.`,'bad']}},
+      {t:'Thách đấu kẻ quyến rũ',f:s=>{const p=spouse();addEnemy('Kẻ quyến rũ vợ/chồng bạn',{...s.tmp,hate:R(55,75)});
+        if(lvFight()){p.bond=clamp(p.bond+5);mod({honor:5,happy:2});return[`Trước cả làng, bạn hạ ${s.tmp.first} chỉ sau vài hiệp. Hắn cuốn gói khỏi làng ngay đêm đó.`,'good']}
+        mod({health:-15,honor:-3,happy:-6});p.bond=clamp(p.bond-10);return[`Bạn thua trận tay đôi. ${s.tmp.first} cười nhạt rồi bỏ đi, còn bạn nằm liệt giường nửa tháng.`,'bad']}},
+      {t:'Giả vờ không biết',f:s=>{spouse().bond=clamp(spouse().bond-5);mod({happy:-5});return'Bạn đặt lá thư về chỗ cũ. Bữa tối hôm ấy vẫn có món hầm, vẫn có tiếng cười, chỉ là bạn không cười.'}}]},
+ {id:'lv_tempt',w:W(2.5),c:s=>!!spouse()&&s.age>=18&&s.age/lifeOf(s.race)<=60&&!s.lvAff,prep:s=>{s.tmp=npc('lover',{sex:spouse().sex,age:Math.max(18,s.age+R(-6,4))})},title:'Ánh mắt ở quán trọ',
+  text:s=>`Ở quán trọ trên đường đi chợ, ${s.tmp.name} rót rượu cho bạn rồi ngồi xuống bên cạnh. Người ấy biết đùa, biết lắng nghe, và không hề nhắc tới chuyện bạn đã có ${spouse().sex==='m'?'chồng':'vợ'}.`,
+  ch:[{t:'Đứng dậy ra về',f:s=>{spouse().bond=clamp(spouse().bond+3);mod({honor:3});return'Bạn đặt tiền lên bàn và về nhà sớm. Tối đó bạn ôm người bạn đời lâu hơn mọi ngày.'}},
+      {t:'Lén lút qua lại',f:s=>{s.lvAff={n:s.tmp.name,first:s.tmp.first,sex:s.tmp.sex,race:s.tmp.race,cls:s.tmp.cls,age:s.tmp.age,sur:s.tmp.sur,y:s.year};mod({happy:8,honor:-3});return[`Từ đó, mỗi phiên chợ bạn lại ghé quán trọ. Những buổi gặp ${s.tmp.first} vui đến mức bạn quên mất mình đang đùa với lửa.`,'magic']}}]},
+ {id:'sp_found',queued:true,big:true,art:'heart-break',c:s=>!!(s.lvAff&&spouse()),title:'Bị phát hiện',
+  text:s=>`${spouse().first} đứng chờ bạn ở cửa, tay cầm chiếc khăn thêu tên ${s.lvAff.first}. "Bao lâu nay, mỗi phiên chợ, đây là thứ ngươi đi mua sao?"`,
+  ch:[{t:'Quỳ xuống xin tha thứ',f:s=>{const p=spouse();s.lvAff=null;if(ch(p.bond/120)){p.bond=clamp(p.bond-20);mod({happy:-8,honor:-3});return[`${p.first} khóc suốt đêm, rồi sáng hôm sau vẫn nấu cháo cho bạn. Vết nứt vẫn còn đó, nhưng nhà chưa tan.`,'']}
+        divorce(p);mod({happy:-14,honor:-6});return[`${p.first} không nghe. Hôm sau cả làng biết chuyện, và người ấy dọn về nhà cha mẹ.`,'bad']}},
+      {t:'Chối đây đẩy',f:s=>{const p=spouse();s.lvAff=null;if(ch(.35+s.st.smarts/300)){p.bond=clamp(p.bond-10);return'Bạn bịa ra một câu chuyện về bà cô ở chợ. Người bạn đời nửa tin nửa ngờ, nhưng thôi không hỏi nữa.'}
+        p.bond=clamp(p.bond-30);mod({honor:-6});return['Lời nói dối vụng về chỉ làm mọi chuyện tệ hơn. Từ đó trong nhà chẳng ai nói với ai quá ba câu.','bad']}},
+      {t:'Bỏ đi theo người tình',f:s=>{const p=spouse(),A=s.lvAff;s.lvAff=null;divorce(p);mod({happy:4,honor:-10});
+        if(rels('lover').length===0)s.rel.push(npc('lover',{sex:A.sex,race:A.race,cls:A.cls,age:A.age,sur:A.sur,first:A.first,bond:R(65,80)}));
+        return[`Bạn gói ghém vài bộ quần áo và ra đi ngay trong đêm. ${A.first} chờ bạn ở ngã ba đường. Sau lưng, cả làng đã có chuyện để bàn suốt mười năm.`,'bad']}}]},
+ {id:'lv_rival',w:W(3),c:s=>!!lover()&&s.age>=15,prep:s=>{s.tmp=npc('enemy',{sex:s.sex,age:Math.max(15,s.age+R(-3,5))})},title:'Tình địch',
+  text:s=>`${s.tmp.name} bắt đầu ngày ngày mang hoa tới nhà ${lover().first}. Người ta bảo hắn giàu hơn bạn, và đẹp mã hơn bạn.`,
+  ch:[{t:'Thách đấu tay đôi',f:s=>{const L=lover();if(lvFight()){L.bond=clamp(L.bond+15);mod({honor:3,happy:5});return[`Bạn đánh bại ${s.tmp.first} ngay giữa hội làng. ${L.first} chạy tới băng vết xước cho bạn và không nhìn kẻ kia thêm lần nào.`,'good']}
+        L.bond=clamp(L.bond-10);mod({health:-10});addEnemy('Tình địch',{...s.tmp,hate:R(40,55)});return[`Bạn thua. ${s.tmp.first} còn cười vào mặt bạn trước mặt ${L.first}.`,'bad']}},
+      {t:'Hát dưới cửa sổ',f:s=>{const L=lover();if(ch(.3+s.st.looks/250+s.st.smarts/400)){L.bond=clamp(L.bond+12);mod({happy:6});return[`Giọng bạn chẳng hay, nhưng lời bài hát là thật lòng. ${L.first} mở cửa sổ, và tình địch hiểu mình đã thua.`,'good']}
+        mod({happy:-3});return'Chó nhà hàng xóm sủa át cả tiếng hát. Ít ra thì cả làng được một trận cười.'}},
+      {t:'Để người ấy tự chọn',f:s=>{const L=lover();if(ch(L.bond/100)){L.bond=clamp(L.bond+8);return[`${L.first} trả lại bó hoa cho ${s.tmp.first}: "Tôi đã có người của tôi rồi."`,'good']}
+        L.alive=false;L.gone=1;mod({happy:-10});return[`${L.first} đã chọn ${s.tmp.first}. Đám cưới của họ tổ chức vào mùa thu năm sau.`,'bad']}}]},
+ {id:'lv_scam',w:W(1.5),c:s=>!!lover()&&s.money>=60&&s.age>=18,title:'Món tiền cứu mẹ',
+  text:s=>`${lover().first} nắm tay bạn, nước mắt lưng tròng: mẹ người ấy ốm nặng ở làng bên, cần 50 xu tiền thuốc. "Ngoài người ra, tôi chẳng còn biết nhờ ai."`,
+  ch:[{t:'Đưa tiền ngay',f:s=>{const L=lover();s.money=Math.max(0,s.money-50);if(ch(.55)){L.bond=clamp(L.bond+15);mod({happy:3});return[`Ba tuần sau, ${L.first} dắt bà mẹ đã khỏe tới cảm ơn bạn. Bà gọi bạn là "con rể tương lai".`,'good']}
+        L.alive=false;L.gone=1;mod({happy:-10});return[`${L.first} cầm tiền đi và không bao giờ quay lại. Ở làng bên chẳng ai biết bà mẹ nào ốm cả. Hóa ra đó là một kẻ lừa tình.`,'bad']}},
+      {t:'Đi cùng xem bệnh tình',f:s=>{const L=lover();if(ch(.55)){s.money=Math.max(0,s.money-50);L.bond=clamp(L.bond+10);return['Bà mẹ ốm thật. Bạn trả tiền thuốc tận tay thầy lang, và cả nhà người ấy quý bạn từ hôm đó.','good']}
+        L.alive=false;L.gone=1;mod({happy:-6,smarts:2});return[`Đi được nửa đường, ${L.first} viện cớ quay về rồi biến mất. Bạn giữ được tiền, nhưng mất người mình tưởng là thật lòng.`,'bad']}},
+      {t:'Từ chối',f:s=>{lover().bond=clamp(lover().bond-12);return'Người ấy lau nước mắt, không nói gì thêm. Mấy tuần sau, hai người gặp nhau vẫn còn ngượng.'}}]},
+ {id:'lv_family',w:W(2),c:s=>{const L=lover();return!!L&&canLove()&&Math.abs((CLASSES[L.cls]||{rk:0}).rk-CLASSES[s.cls].rk)>=2},title:'Hai nhà không môn đăng hộ đối',
+  text:s=>`Gia đình ${lover().first} biết chuyện hai người. Họ nói thẳng: con nhà ${CLASSES[lover().cls].n.toLowerCase()} không thể lấy người nhà ${CLASSES[s.cls].n.toLowerCase()}.`,
+  ch:[{t:'Bỏ trốn cùng nhau',f:s=>{const L=lover();L.alive=false;L.gone=1;mod({honor:-8});return[marry({...L})+' Hai người làm lễ vội trong một nhà nguyện nhỏ ở làng xa, không có ai trong họ hàng tới dự.','good']}},
+      {t:'Tới tận nhà thuyết phục',f:s=>{const L=lover();if(ch(.25+s.st.smarts/300+s.st.honor/400)){L.bond=clamp(L.bond+10);mod({honor:3});return['Ông bà già hỏi bạn đúng một buổi chiều. Lúc bạn về, họ tiễn ra tận cổng.','good']}
+        L.bond=clamp(L.bond-10);mod({happy:-5});return'Bạn bị đuổi ra khỏi cổng. Người ấy chỉ kịp nhìn theo qua khe cửa.'}},
+      {t:'Buông tay',f:s=>{const L=lover();L.alive=false;L.gone=1;mod({happy:-10});return['Bạn viết lá thư cuối cùng. Một năm sau, người ấy cưới người khác theo ý cha mẹ.','bad']}}]}
+];
+for(const e of LOVE_EV){EV.push(e);EVB[e.id]=e}
+{const y0=extYear3;extYear3=function(){y0();if(S.alive&&S.lvAff){if(!spouse())S.lvAff=null;else if(S.year>S.lvAff.y&&!S.pend.includes('sp_found')&&ch(.3))S.pend.push('sp_found')}}}
+
+/* ===== Thêm lời tiên tri ===== */
+PROPH.push('Hai mặt trăng sẽ cùng soi lên ngày cưới của ngươi.','Kẻ ngươi cứu hôm nay sẽ đứng sau lưng ngươi với con dao.','Thứ ngươi đánh mất dưới nước sẽ trở về trong lửa.','Đứa con thứ ba của ngươi sẽ hiểu được tiếng rồng.',
+ 'Một bức thư không ký tên sẽ đổi cả cuộc đời ngươi.','Hãy coi chừng người tặng ngươi hoa giữa mùa đông.','Trái tim ngươi sẽ vỡ hai lần, và lần thứ hai làm ngươi mạnh hơn.','Có một cánh cửa dưới hầm mộ chỉ mở cho máu của ngươi.',
+ 'Ngươi sẽ chết ở nơi ngươi sinh ra, nhưng không phải trên giường.','Kẻ không mang mệnh sẽ là người đứng cuối cùng.','Ba con quạ sẽ đậu trên mái nhà trước ngày ngươi gặp lại người cũ.','Đừng bao giờ ký vào thứ gì dưới ánh trăng đỏ.',
+ 'Người đời sẽ nhớ ngươi vì một việc ngươi chưa từng làm.','Một thanh kiếm gãy sẽ cứu mạng ngươi hai lần.','Con cháu ngươi sẽ ngồi chung bàn với kẻ thù của ngươi.','Ngươi sẽ giàu nhất vào năm ngươi nghèo nhất.');
+
+/* ===== Vô Mệnh: không thức tỉnh mệnh nào, ma lực không tăng ===== */
+const vmOn=()=>!!(S&&S.hid&&S.hid.vm);
+function vmRoll(){if(!S||!S.hid||S.race==='skeleton')return;S.hid.vm=ch(.08)?1:0;if(S.hid.vm){S.st.magic=Math.min(S.st.magic,R(0,4));S.hid.vmM=S.st.magic}}
+{const n0=newLife;newLife=function(o){n0(o);if(S){vmRoll();save()}}}
+{const i0=inherit;inherit=function(id){const r=i0(id);if(S&&S.alive){vmRoll();save()}return r}}
+{const m0=mod;mod=function(c){if(vmOn()&&c&&c.magic>0)c={...c,magic:0};return m0(c)}}
+{const y0=extYear3;extYear3=function(){y0();if(vmOn()&&S.st.magic>(S.hid.vmM||0))S.st.magic=S.hid.vmM||0;
+  if(vmOn()&&S.alive&&S.age>=10&&!S.flags.vmR&&!S.pend.includes('vm_rev')&&ch(.4)){S.flags.vmR=1;S.pend.push('vm_rev')}}}
+{const c0=EVB.mn_wake.c;EVB.mn_wake.c=s=>!vmOn()&&c0(s)}
+EV.push(EVB.vm_rev={id:'vm_rev',queued:true,big:true,art:'star',img:'manatest',c:s=>vmOn(),title:'Viên đá không sáng',
+  text:'Thầy pháp của giáo xứ đặt tay bạn lên viên đá thử mệnh. Với mọi đứa trẻ khác, đá sáng lên màu đỏ, xanh hay vàng. Với bạn, đá vẫn xám như đá ven đường. Thầy lắc đầu: "Vô Mệnh. Không mang mệnh nào, ma lực sẽ không bao giờ lớn lên."',
+  ch:[{t:'Cầm kiếm lên thay cho phép thuật',f:s=>{s.blade=Math.min(100,(s.blade||0)+5);mod({health:2});return['Nếu trời không cho phép thuật, bạn sẽ tự rèn lấy sức mạnh bằng hai bàn tay. Kiếm thuật +5.','good']}},
+      {t:'Vùi đầu vào sách vở',f:s=>{mod({smarts:5});return['Bạn không thắp được lửa bằng tay, nhưng có thể hiểu ngọn lửa hơn bất kỳ ai. Trí tuệ +5.','good']}},
+      {t:'Lặng lẽ chấp nhận',f:s=>{mod({happy:-3});return'Bạn về nhà, ngồi nhìn ngọn nến rất lâu. Nó vẫn chỉ là một ngọn nến.'}}]});
+EIMG.vm_rev='manatest';
+
+/* ===== Hoạt động: gom mọi mục của nghề về một chỗ ===== */
+const JSEC=['Nghề nghiệp','Học viện','Hiệp sĩ','Thợ săn','Nghề ẩn','Triều đình','Thế giới ngầm','Class ẩn','Hội Vô Diện'];
+let JOBH='';
+function jobPull(body){const out=[];let cur=null,anchor=null,first=true;
+  for(const el of [...body.children]){if(el.matches('p.sec')){cur=JSEC.includes(el.textContent.trim())?el:null;if(cur){if(first){anchor=el.previousElementSibling;first=false}el.remove()}continue}
+    if(cur){out.push(el);el.remove()}}
+  return{out,anchor}}
+{const d0=drawSheet;drawSheet=function(){
+  if(view==='jobs'){if(S&&S.cap){view='act';return d0()}view='act';d0();const r=jobPull($('#sheet .sbody'));JOBH=r.out.map(x=>x.outerHTML).join('');view='jobs';return d0()}
+  const res=d0();
+  if(view==='act'&&S){const body=$('#sheet .sbody');if(!body)return res;const{out,anchor}=jobPull(body);if(!out.length)return res;
+    const rows=out.filter(x=>x.matches('.row'));
+    const h='<p class="sec">Nghề nghiệp</p>'+(rows.length<=1?out.map(x=>x.outerHTML).join(''):gRow('data-open="jobs"',S.job?JIC[S.job.id]||'anvil':'anvil','Công việc của bạn',rows.map(x=>{const b=x.querySelector('b');return b?b.textContent:''}).filter(Boolean).join(' · '),`${rows.length} mục`,!S.alive));
+    if(anchor)anchor.insertAdjacentHTML('afterend',h);else body.insertAdjacentHTML('afterbegin',h)}
+  return res}}
+{const d0=drawExt3;drawExt3=function(v){if(v==='jobs')return['Nghề nghiệp',JOBH||'<p class="note">Bạn chưa làm nghề nào.</p>','act'];return d0(v)}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
