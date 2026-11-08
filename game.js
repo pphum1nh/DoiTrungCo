@@ -10176,14 +10176,14 @@ for(const e of CAP_EV){EV.push(e);EVB[e.id]=e}
 {const f0=flavorYear;flavorYear=function(){if(!S||!S.cap)return f0();S.pend=S.pend.filter(id=>id==='cap_sc');capYear()}}
 {const d0=drawExt3;drawExt3=function(v){if(v==='cap')return capView();if(v==='capjob')return['Nghề nghiệp',`<p class="note">Bạn đang bị giam. Nghề${S.cap&&S.cap.job?` ${esc(JOBS[S.cap.job.id]?JOBS[S.cap.job.id].n:'')}`:''} bị khóa: không thể xin, đổi hay thăng nghề cho tới khi được tự do.</p>`,''];return d0(v)}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('cap:')){const[,k,id]=x.split(':');return capAct(k,id)}return x0(x)}}
-{const s0=drawSheet;drawSheet=function(){if(S&&S.cap&&view){if(view==='act'||view.startsWith('act:')||/^(hq|hon|sea|mk|org|dragon|retire|vo|nb)(:|$)/.test(view))view='cap';else if(view==='job')view='capjob'}s0();
+{const s0=drawSheet;drawSheet=function(){if(S&&S.cap&&view){if(view==='act'||view.startsWith('act:')||/^(hq|hon|sea|mk|org|dragon|retire|vo|nb|dh)(:|$)/.test(view))view='cap';else if(view==='job')view='capjob'}s0();
   if(S&&S.cap&&view&&/^(rel|p:|r:)/.test(view)){const sb=$('#sheet .sbody');if(sb&&!sb.querySelector('.capnote'))sb.insertAdjacentHTML('afterbegin','<p class="note bad capnote">Bạn đang bị giam. Bạn không liên lạc được với gia đình, bạn bè hay người yêu.</p>')}}}
 {const r0=render;render=function(){r0();if(S&&S.cap){const e=$('#sub');if(e)e.textContent=`Bị giam tại ${capLoc().n} · ${capYrs()} năm · ${e.textContent}`}}}
 /* lớp chặn nút bấm khi bị giam */
 document.addEventListener('click',e=>{
   if(!S||!S.cap)return;const b=e.target.closest('button');if(!b||b.disabled)return;const d=b.dataset;let why='';
-  if(d.open&&(/^(shop|owned|dom|kd|gd|flirt|match|rg|tt|vj|rn|bt|kg|hl|xk|kk|mt|nb|vo|hc|hq|hon|sea|mk|org|dragon|retire|co|dm|acad|kn|hn|rm|cult|mv)(:|$)/.test(d.open)))why='Bạn đang bị giam, không thể làm việc này.';
-  else if(d.x&&!d.x.startsWith('cap:')&&(['allrel','skip5'].includes(d.x)||/^(kc|tt|vj|rn|bt|kg|hl|xk|kk|mt|nb|vo|hc|hq|rg|co|dm|kn|hn|gd|kd|pv|ptgo)(:|$)/.test(d.x)||/^(rel|p:|r:)/.test(view||'')))why=d.x==='allrel'?'Bạn không thể gặp người thân khi đang bị giam.':'Bạn đang bị giam, không thể làm việc này.';
+  if(d.open&&(/^(shop|owned|dom|kd|gd|flirt|match|rg|tt|vj|rn|bt|kg|hl|xk|kk|mt|nb|vo|dh|hc|hq|hon|sea|mk|org|dragon|retire|co|dm|acad|kn|hn|rm|cult|mv)(:|$)/.test(d.open)))why='Bạn đang bị giam, không thể làm việc này.';
+  else if(d.x&&!d.x.startsWith('cap:')&&(['allrel','skip5'].includes(d.x)||/^(kc|tt|vj|rn|bt|kg|hl|xk|kk|mt|nb|vo|dh|hc|hq|rg|co|dm|kn|hn|gd|kd|pv|ptgo)(:|$)/.test(d.x)||/^(rel|p:|r:)/.test(view||'')))why=d.x==='allrel'?'Bạn không thể gặp người thân khi đang bị giam.':'Bạn đang bị giam, không thể làm việc này.';
   else if(d.act&&!['sword','spell'].includes(d.act))why='Khi bị giam, bạn chỉ có thể luyện tập.';
   else if(d.job!==undefined||'quit'in d)why='Nghề nghiệp bị khóa khi bạn đang bị giam.';
   else if(d.pa||d.ra||'match'in d||d.wed!==undefined||'baby'in d||d.flirt!==undefined||'findf'in d)why='Bạn không liên lạc được với gia đình, bạn bè hay người yêu khi đang bị giam.';
@@ -11244,7 +11244,7 @@ function nbYear(){const T=S&&S.nb;if(!T||!S.alive||S.cap)return;if(T.sc&&!S.pend
   if(T.keep&&!nbKeep()&&!T.lost){T.lost=1;S.pend.push('nb_lost')}
   if(T.debt&&T.rk>=2&&!T.debtCalled&&voAlive(T.debt)&&ch(.3)){T.debtCalled=1;S.pend.push('nb_debt')}}
 /* đợt Hai Mặt Trăng và lời gọi */
-function twinYear(){const W=S.world;if(!W.tm||S.year-W.tm.y>=3){if(ch(.12)){W.tm={y:S.year};news('Hai mặt trăng cùng mọc trên bầu trời. Mọi vật đổ hai bóng.','',true);log('Tin thiên hạ: đêm nay có hai mặt trăng trên trời. Mọi người đều có hai cái bóng.','magic')}}
+function twinYear(){const W=S.world;if(!W.tmN)W.tmN=(W.tm?W.tm.y:S.year-R(0,20))+R(24,36);if(S.year>=W.tmN){W.tmN=S.year+R(24,36);{W.tm={y:S.year};news('Hai mặt trăng cùng mọc trên bầu trời. Mọi vật đổ hai bóng.','',true);log('Tin thiên hạ: đêm nay có hai mặt trăng trên trời. Mọi người đều có hai cái bóng.','magic')}}
   if(!twinNow()||!S.alive||S.cap)return;
   const V=S.vo;if(!V||V.st!=='sworn'||S.age<16||clsHas(S)||S.nb||S.nbChk===W.tm.y||S.pend.length>4)return;S.nbChk=W.tm.y;
   if(ch(hasMoonDagger()?.35:.15))S.pend.push('nb_call')}
@@ -11321,6 +11321,247 @@ DA.nb={img:'eclipse',art:'moon',t:'Cái Tên Bị Xóa Khỏi Sổ Hoàng Gia',
   else if(E.k==='pact'){mod({magic:3});log(`Đôi khi bóng của bạn đứng lại một nhịp, như chờ ai đó. Người trong nhà bảo đó là bóng của ${E.who} vẫn đi theo dòng họ.`,'magic')}
   else{mod({magic:4,happy:-2});log(`Không ai trong nhà nhớ rõ mặt ${E.who}, chỉ nhớ có một người từng mạnh hơn tất cả. Đêm trăng, bạn thấy mình có hai cái bóng.`,'magic')}save();render()}}}
 {const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.nb){const T=r.nb;T.j=T.j||[];T.st=T.st||{};T.lv=T.lv||{};if(T.sc&&!NBS[T.sc])T.sc=null}return r}}
+
+/* ===================== BA THẢM HỌA MỚI =====================
+   Đêm Không Người Thức · Mùa Hoa Thủy Tinh · Đoàn Rước Những Người Trở Về.
+   Mỗi thảm họa có 4 giai đoạn (mỗi giai đoạn khoảng 2 năm), cơ chế riêng, việc cho mọi nhân vật,
+   lựa chọn riêng cho class ẩn, cao trào nhiều cách giải và hậu quả lâu dài khi thất bại. */
+Object.assign(CATS,{
+ sleep:{n:'Đêm Không Người Thức',boss:'Kẻ Ru Ngủ',art:'moon',start:'Chuông nhà thờ đã đánh mười hai tiếng. Người thợ bánh vẫn ngủ bên lò, người lính vẫn ngủ bên cổng. Trong giấc mơ, tất cả đều nhìn thấy cùng một thành phố, nơi mặt trời đang mọc.',yr:'Thêm nhiều người ngủ mà không tỉnh. Ai cũng kể về cùng một thành phố trong mơ.'},
+ crystal:{n:'Mùa Hoa Thủy Tinh',boss:'Nữ Vương Thủy Tinh',art:'snowflake',start:'Những bông hoa trong vườn không héo nữa. Chúng trong suốt, sắc cạnh và ngân lên khi gió thổi. Đêm ấy, người làm vườn phát hiện ngón tay mình cũng bắt đầu phát sáng.',yr:'Pha lê mọc thêm trên ruộng và mái nhà. Tiếng ngân vang từ những khu rừng trong suốt.'},
+ returned:{n:'Đoàn Rước Những Người Trở Về',boss:'Người Giữ Sổ Tang',art:'ghost',start:'Cổng thành mở lúc chạng vạng. Người đầu tiên bước vào là vị vua đã chết hai mươi năm trước. Sau ông là những người lính, người mẹ, người chồng mà dân thành đã chôn cất. Họ không xin được sống lại. Họ nói mình chưa từng chết.',yr:'Thêm nhiều người đã khuất gõ cửa nhà cũ. Hai người cùng đòi một cái tên.'}});
+Object.assign(CATIMG,{sleep:'cat_sleep',crystal:'cat_crystal',returned:'cat_returned'});
+Object.assign(BOSSHP,{sleep:3,crystal:4,returned:3});
+Object.assign(BOSSMOVE,{sleep:['hát một khúc ru khiến mí mắt bạn nặng trĩu','mở ra hình ảnh người thân đã khuất','kéo bạn chìm sâu hơn vào giấc mơ'],crystal:['phóng ra một cơn mưa mảnh pha lê','làm mặt đất dưới chân bạn hóa thủy tinh','ngân lên một tiếng làm xương bạn rung'],returned:['đọc tên bạn trong sổ tang','gọi những người đã khuất đứng chắn trước mặt','vung cây bút lông làm mờ cái bóng của bạn']});
+Object.assign(BOSST,{sleep:['phep'],crystal:['giap','phep'],returned:['xac','phep']});
+Object.assign(BOSSNM,{sleep:['Khúc Ru Vĩnh Hằng','Thành Phố Mặt Trời Mọc'],crystal:['Mưa Pha Lê','Tiếng Ngân Hóa Đá'],returned:['Trang Sổ Tang','Đoàn Rước Bất Tận']});
+const DHSCAR={sleep:'Miền Ngủ: cả vùng chìm trong giấc mơ của Kẻ Ru Ngủ',crystal:'Vương Quốc Thủy Tinh: rừng và làng hóa pha lê, không ai sống nổi',returned:'Triều Đình Người Chết: người đã khuất trị vì người sống'};
+const isDH=id=>id==='sleep'||id==='crystal'||id==='returned';
+const DHST={
+ sleep:['Điềm báo','Giấc ngủ lan rộng','Thành phố trong mơ','Đêm cuối'],
+ crystal:['Hoa đầu mùa','Rừng ngân tiếng','Người hóa tượng','Trái tim dưới đất'],
+ returned:['Tiếng gõ cửa','Người trở về đòi quyền','Hai triều đình','Đoàn rước qua cổng']};
+const DHSTX={
+ sleep:['Nhiều người kể cùng một giấc mơ. Vài người ngủ mà không tỉnh.','Cửa hàng đóng vì chủ ngủ say, ruộng không người gặt. Người thân có thể mắc bệnh ngủ.','Khi nhắm mắt, người tỉnh cũng nghe lời mời bước vào thành phố trong mơ.','Kẻ Ru Ngủ muốn giữ cả vùng trong giấc mơ vĩnh viễn.'],
+ crystal:['Pha lê mọc trên ruộng vườn, bán được giá rất cao.','Mùa màng giảm, thú rời nơi ở, đường đi bị pha lê lấp kín.','Người nhiễm pha lê dần không cử động được.','Mạch pha lê kết lại thành Nữ Vương Thủy Tinh.'],
+ returned:['Vài gia đình gặp lại người đã mất.','Người trở về đòi lại vợ chồng, nhà cửa, chức vị.','Một vị vua cũ trở lại, thu hút những người trung thành.','Người Giữ Sổ Tang muốn đổi chỗ người sống và người chết.']};
+const DHFIN={sleep:'Đêm Cuối',crystal:'Trái Tim Dưới Đất',returned:'Đoàn Rước Qua Cổng'};
+const dhOn=()=>!!(S&&S.world&&S.world.cat&&isDH(S.world.cat.id));
+const dhC=()=>S.world.cat;
+function DHP(){const W=dhC();if(!S.dh||S.dh.y!==W.y)S.dh={y:W.y,id:W.id,rs:0,aw:50,li:0,mem:0,sv:0,lk:0,cl:0,res:0,path:0,xk:0,part:0,stuck:0};return S.dh}
+const dhFree=s=>!!(s.alive&&!s.cap&&!s.voF&&!s.fight&&!s.clDuel);
+const dhRel=f=>[...(S.fam||[]),...(S.rel||[]).filter(r=>r.kind==='friend'||r.kind==='spouse')].filter(p=>p.alive&&f(p));
+const dhLeft=()=>Math.max(0,2-(S.done.dhn||0));
+const dhCls=()=>({mt:!!S.mt,surgeon:!!(S.hc&&S.hc.k==='surgeon'),kk:!!S.kk,rn:!!S.rn,tt:!!S.tt,bt:!!S.bt,xk:!!S.xk});
+/* ---------- giai đoạn và vòng năm ---------- */
+function dhStage(){const W=dhC(),yrs=S.year-W.y;return Math.min(3,Math.floor((yrs+Math.floor((W.sp||0)/35))/2))}
+function dhYear(){const W=dhC();W.sp=W.sp||0;W.wp=W.wp||0;W.pw=W.pw||0;const st=dhStage();
+  if(st>(W.st||0)||W.st==null){W.st=st;if(st===3)W.s3=S.year;news(`${CATS[W.id].n}: ${DHST[W.id][st]}. ${DHSTX[W.id][st]}`,'bad',true);if(dhFree(S)&&S.age>=8)S.pend.push('dh_stage')}
+  {const st=W.st||0;
+  W.wp+=R(2,5);const R0=myRealm();
+  if(W.id==='sleep'){if(st>=1&&R0)R0.stab=Math.max(5,R0.stab-1);if(st>=1&&ch(.35)){const L=dhRel(p=>!p.dz&&p.age>=6);if(L.length){const p=pick(L);p.dz='sleep';log(`${p.first} ngủ thiếp đi và không tỉnh lại. Hơi thở vẫn đều, môi vẫn mỉm cười.`,'bad')}}}
+  if(W.id==='crystal'){if(st>=1&&R0&&ch(.45))R0.fam=Math.max(R0.fam||0,1);if(st>=2){for(const p of dhRel(p=>p.dz==='crys'))if(ch(.4))p.cz=Math.min(3,(p.cz||1)+1);if(ch(.35)){const L=dhRel(p=>!p.dz&&p.age>=10);if(L.length){const p=pick(L);p.dz='crys';p.cz=1;log(`Cổ tay ${p.first} bắt đầu trong suốt như thủy tinh.`,'bad')}}}
+    const D=S.dh;if(D&&D.y===W.y&&hasCrGear()){D.res=Math.min(100,D.res+R(8,14));if(D.res>=80){mod({health:-R(4,8)});log('Trang bị pha lê ngân lên không dứt. Xương bạn đau nhức theo từng nhịp.','bad')}else if(D.res>=50&&!D.w50){D.w50=1;log('Trang bị pha lê bắt đầu ngân theo tiếng ngân của rừng. Cộng hưởng đang tăng.','magic')}}}
+  if(W.id==='returned'){if(st>=2&&!W.oldk){const hr=Object.keys(RLINFO).filter(n=>WD().rs[n]);const rl=pick(hr);W.oldk={rl,n:`${pick(['Vua','Nữ vương'])} ${pick(NPCRULERS)} Đệ Nhất`};const r=WD().rs[rl];r.stab=Math.max(5,r.stab-8);news(`${W.oldk.n}, người đã chết từ lâu, trở về ${rl} đòi lại ngai vàng. Triều đình chia làm hai.`,'bad',true)}
+    if(st>=0&&!S.flags.dhRet&&dhFree(S)&&S.age>=8&&ch(.6)){S.flags.dhRet=1;S.pend.push('dh_ret')}}
+  if(dhFree(S)&&S.age>=8&&!S.pend.some(x=>/^dh_/.test(x))&&ch(.45)){const L=DHPOP[W.id].filter(e=>e.st<=st&&!(S.dhSeen||[]).includes(e.id)&&(!e.cond||e.cond()));if(L.length){const e=pick(L);(S.dhSeen=S.dhSeen||[]).push(e.id);S.dhPop=e.id;S.pend.push('dh_pop')}}
+  if(st===3&&!W.done&&S.year-(W.s3||S.year)>=2&&!S.pend.includes('dh_final')){dhEnd(ch(Math.min(.85,.4+W.wp/250-W.sp/200-W.pw/250))?'world':'fail')}}}
+/* ---------- hành động ---------- */
+function dhActs(){const W=dhC(),st=W.st||0,D=DHP(),C=dhCls(),L=[];const A=(id,ic,n,d,f,dis)=>L.push({id,ic,n,d,f,dis});
+ if(W.id==='sleep'){
+  if(st<=1)A('research','book','Tìm hiểu giấc mơ chung','Hiểu nguồn gốc Kẻ Ru Ngủ',()=>{D.rs++;mod({smarts:1});return[pick(['Mười người kể về cùng một đài phun nước và một bức tượng người phụ nữ cầm vòng nguyệt quế.','Trong thư viện tu viện, bạn tìm thấy tên một vị thần giấc ngủ bị xóa khỏi kinh sách từ ba trăm năm trước.','Người ngủ lâu nhất thì thầm cùng một câu: "Ở đây không ai phải chết."']),'magic']});
+  A('care','heart','Chăm sóc người ngủ','Danh dự · giúp cả vùng',()=>{mod({honor:2});rep('d',1);W.wp+=3;for(const p of dhRel(p=>p.dz==='sleep'))p.bond=Math.min(100,p.bond+3);return['Bạn lau mặt, đút nước cho những người ngủ say trong nhà thờ. Họ vẫn mỉm cười.','good']});
+  if(st>=1){A('shelter','house','Hỗ trợ nơi trú (20 xu)','Giúp nhà có người ngủ',()=>{S.money-=20;W.wp+=5;rep('d',3);return['Bạn góp tiền dựng nơi trú cho những gia đình phải canh người ngủ suốt ngày đêm.','good']},S.money<20);
+   const sl=dhRel(p=>p.dz==='sleep');if(sl.length)A('wake','bell',`Đánh thức ${sl[0].first}`,'Gọi tên, nhắc kỷ niệm',()=>{const p=sl[0];if(ch(.3+D.aw/300+(C.mt?.15:0)+(D.mem*.05))){p.dz=null;p.bond=Math.min(100,p.bond+8);return[`Bạn kể cho ${p.first} nghe chuyện hai người từng làm. Đến câu thứ ba, ${p.first} mở mắt.`,'good']}return[`${p.first} cau mày như nghe thấy gì đó, rồi lại mỉm cười trong giấc ngủ.`,'']});
+   A('survey','visible','Tham gia đoàn khảo sát','Hiểu thêm · có thể mệt mỏi',()=>{D.rs++;mod({health:-4});W.wp+=3;return['Đoàn khảo sát đi qua ba làng ngủ say. Bạn thấy mọi người ngủ cùng một tư thế, quay mặt về phía đông.','']})}
+  if(st>=2)A('dream','moon','Bước vào mộng cảnh','Tìm người mất tích trong mơ',()=>{D.part=1;S.dhSc='d1';S.pend.push('dh_dream');return null});
+  if(C.mt)A('mtpoem','moon','Đọc bài thơ viết từ chuyện có thật','Thi Sĩ Ánh Trăng · gọi người tỉnh',()=>{D.aw=Math.min(100,D.aw+8);W.wp+=8;const sl=dhRel(p=>p.dz==='sleep');if(sl[0]&&ch(.6))sl[0].dz=null;return['Bạn đọc bài thơ về một ngày bình thường có thật. Vài người ngủ say khóc trong mơ, rồi mở mắt.','magic']});
+  if(C.surgeon)A('body','heart','Chăm sóc cơ thể người ngủ','Y Sư Bất Tử · giữ họ sống tới khi tỉnh',()=>{W.wp+=8;D.body=1;return['Bạn dạy người nhà cách xoay người, đút cháo và giữ ấm cho người ngủ. Không ai trong vùng chết vì đói trong giấc ngủ nữa.','good']});
+  if(C.kk)A('path','night','Giữ lối trở về','Khư Không · lối ra khỏi mộng cảnh an toàn',()=>{D.path=1;return['Bạn khâu một đường chỉ bạc từ giường mình tới rìa giấc mơ. Ai bước vào cũng có đường về.','magic']});
+ }
+ if(W.id==='crystal'){
+  if(st<=2&&!W.done)A('mine','gem','Khai thác pha lê','Tiền lớn · làm mạch pha lê lan nhanh hơn',()=>{const g=R(20,40)*(1+st*.5)|0;S.money+=g;W.sp+=8;return[`Bạn đập được một giỏ pha lê, bán được ${g} xu. Dưới chân, mặt đất ngân lên một tiếng rất khẽ.`,'']});
+  A('study','book','Nghiên cứu pha lê','Chuẩn bị cho trận cuối',()=>{D.rs++;mod({smarts:1});return[pick(['Pha lê lớn nhanh nhất ở nơi có tiếng ồn. Nó lớn lên theo tiếng ngân.','Nước muối làm pha lê ngừng lớn trong ba ngày.','Mọi mạch pha lê đều chảy về một điểm dưới lòng đất.']),'magic']});
+  if(st<=1)A('warn','bell','Cảnh báo dân làng','Ít người bị nhiễm hơn',()=>{W.wp+=4;mod({honor:1});W.sp=Math.max(0,W.sp-3);return['Bạn đi từng nhà, bảo họ đừng chạm vào hoa pha lê. Nhiều người cười, vài người nghe.','good']});
+  if(st>=1){A('escort','user-group','Hộ tống dân sơ tán','Cứu một khu dân cư · có thể bị thương',()=>{D.sv++;mod({health:-3});W.wp+=4;return['Bạn dẫn ba mươi gia đình đi vòng qua khu rừng ngân tiếng, tới vùng đất còn sống.','good']});
+   A('guard','tree','Bảo vệ vùng đất còn sống','Giữ đất · làm chậm pha lê',()=>{D.lk++;W.sp=Math.max(0,W.sp-4);return['Bạn rắc muối và tro quanh cánh đồng cuối cùng. Pha lê dừng lại ở bờ ruộng.','good']})}
+  if(st>=2){const inf=dhRel(p=>p.dz==='crys'&&(p.cz||1)<3);if(inf.length)A('cure','medical-kit',`Ổn định bệnh cho ${inf[0].first} (30 xu)`,'Có cơ hội giữ lại một người quen',()=>{S.money-=30;const p=inf[0];if(ch(.45+D.rs*.08)){p.cz=Math.max(0,(p.cz||1)-1);if(!p.cz)p.dz=null;return[`Bạn ngâm tay ${p.first} trong nước muối ấm suốt ba ngày. Lớp pha lê lùi lại.`,'good']}return[`Pha lê trên người ${p.first} vẫn lan, chỉ chậm hơn.`,'']},S.money<30);
+   A('aid','house','Hỗ trợ gia đình người hóa tượng (15 xu)','Cứu một khu dân cư',()=>{S.money-=15;D.sv++;rep('d',2);return['Bạn mang lúa và củi tới những nhà có người hóa tượng. Họ đặt hoa bên cạnh những bức tượng biết thở.','good']},S.money<15)}
+  if(!W.done&&!hasCrGear())A('forge','w-sword','Rèn trang bị pha lê (60 xu)','Rất mạnh · tích Cộng hưởng khi thảm họa còn',()=>{S.money-=60;gainItem('cr_blade');return['Thợ rèn đúc cho bạn một lưỡi kiếm pha lê. Nó sắc hơn thép và ngân lên mỗi khi bạn rút ra.','magic']},S.money<60);
+  if(C.rn&&hasCrGear())A('rnfix','anvil','Khắc Rune ổn định trang bị pha lê','Rune · Cộng hưởng về 0',()=>{D.res=0;D.rs++;return['Bạn khắc một chữ Rune "Im lặng" lên chuôi kiếm. Tiếng ngân tắt hẳn.','magic']});
+  if(C.tt)A('ttland','tree','Giữ vùng đất sống bằng rễ Thần Thụ','Thần Thụ · pha lê chậm lại nhiều',()=>{D.lk+=2;W.sp=Math.max(0,W.sp-8);return['Rễ cây quanh làng siết lại thành một vòng. Pha lê không vượt qua được.','magic']});
+  if(C.bt)A('btherd','animal','Dẫn các đàn thú tránh vùng nhiễm','Thần Thú · cứu thú, giữ đất',()=>{D.lk++;W.sp=Math.max(0,W.sp-5);rgAdd('beastwood',3);return['Bầy hươu, đàn sói và lũ quạ theo bạn rời khu rừng ngân tiếng.','good']});
+ }
+ if(W.id==='returned'){
+  A('listen','ghost','Lắng nghe những người trở về','Hiểu Người Giữ Sổ Tang',()=>{D.rs++;return[pick(['Một người trở về nói: "Có một người đàn ông cầm sổ đọc tên chúng tôi ở cổng."','Người trở về nhớ mọi thứ trừ ngày mình chết.','Những người trở về không đổ bóng khi đứng dưới ánh nến.']),'magic']});
+  A('help','heart','Giúp các gia đình có người trở về','Giảm hỗn loạn',()=>{W.wp+=4;rep('d',2);return['Bạn ngồi giữa hai người vợ cùng nhận một người chồng, và giúp họ nói chuyện mà không ai phải khóc.','good']});
+  if(st>=1){A('mediate','scroll','Hòa giải tranh chấp tài sản','Trí tuệ · giảm sức mạnh đoàn rước',()=>{if(ch(.4+S.st.smarts/200)){W.pw=Math.max(0,W.pw-4);rep('d',2);return['Hai bên chia lại ruộng đất. Người trở về chấp nhận mình là khách trong nhà cũ.','good']}return['Cuộc hòa giải đổ vỡ. Người trở về đóng cửa, không nói chuyện với ai.','bad']});
+   A('side','user','Công nhận một người trở về','Đoàn rước mạnh thêm · được lòng người trở về',()=>{W.pw+=5;mod({happy:2});return['Bạn đứng ra làm chứng rằng một người lính trở về đúng là người ấy. Cả xóm nhìn bạn khác đi.','']})}
+  if(st>=2&&W.oldk){A('order','castle','Bảo vệ trật tự hiện tại','Đoàn rước yếu đi · có thể nguy hiểm',()=>{W.pw=Math.max(0,W.pw-6);if(ch(.3))mod({health:-8});rep('n',3);return[`Bạn cùng lính canh giữ cổng điện, không cho người của ${W.oldk.n} vào.`,'']});
+   A('support','crown',`Ủng hộ ${W.oldk.n}`,'Đoàn rước mạnh thêm',()=>{W.pw+=8;rep('n',-4);return[`Bạn quỳ trước ${W.oldk.n}. Ông nhớ tên cha ông bạn.`,'']})}
+  const R1=S.dhRet&&S.fam.find(p=>p.id===S.dhRet.id&&p.alive);
+  if(R1){if(D.cl<4){A('witness','visible','Tìm người từng chứng kiến cái chết','Thêm manh mối về người trở về',()=>{D.cl++;return[S.dhRet.soul?'Người thầy tu từng làm lễ tang nhớ ông đã đặt một đồng xu vào tay người chết. Người trở về có đúng vết hằn đồng xu ấy.':'Người thầy tu nhớ đã chôn người ấy cùng chiếc nhẫn cưới. Người trở về không đeo nhẫn, cũng không hỏi tới nó.','']});
+    A('watch','eye','Quan sát hành vi','Thêm manh mối',()=>{D.cl++;return[S.dhRet.soul?'Ông vẫn gõ ngón tay lên bàn ba lần trước khi ăn, thói quen không ai dạy được.':'Ông làm mọi thứ đúng như bạn nhớ, đúng đến mức kỳ lạ, như đang diễn lại ký ức của bạn.','']})}
+   if(C.surgeon)A('exam','medical-kit','Khám cơ thể người trở về','Y Sư Bất Tử · thấy điều người thường không thấy',()=>{D.cl=4;S.dhRet.known=1;return[S.dhRet.soul?'Mạch đập chậm, nhưng là mạch của một người. Linh hồn thật đã trở về.':'Không có mạch. Cơ thể này được nặn từ ký ức của những người còn sống.','magic']});
+   if(C.mt)A('testimony','book','Ghi lại lời chứng và ký ức','Thi Sĩ Ánh Trăng · giữ ký ức thật',()=>{D.cl+=2;return['Bạn chép lại lời của mọi người từng biết ông. Những chỗ không khớp hiện ra trên trang giấy.','magic']})}
+  if(C.xk)A('limit','scroll','Thương lượng giới hạn giữa hai thế giới','Kẻ Xé Khế Ước · mở giao ước có lợi hơn',()=>{D.xk=1;return['Bạn đọc kỹ từng điều khoản trong sổ tang. Có một kẽ hở: người trở về chỉ ở lại được nếu có người sống nhớ tên họ.','magic']});
+ }
+ if((W.st||0)===3&&!W.done)A('final','crossed',DHFIN[W.id],S.done.dhf?'Năm nay đã thử rồi':'Cao trào của thảm họa · mỗi năm một lần',()=>{S.done.dhf=1;S.pend.push('dh_final');return null},!!S.done.dhf);
+ return L}
+const hasCrGear=()=>(S.bag||[]).some(x=>x.k==='cr_blade');
+function dhView(){if(!dhOn())return['Thảm họa','<p class="note">Thảm họa đã qua.</p>','act'];const W=dhC(),D=DHP(),st=W.st||0,dis=!S.alive||!!S.cap||S.pend.some(x=>/^dh_/.test(x));
+ let b=imgBanner(CATIMG[W.id]);b+=gRow('',CATS[W.id].art,CATS[W.id].n,`Giai đoạn ${st+1}/4: ${DHST[W.id][st]} · từ năm ${W.y}`,'',false,true);
+ b+=`<p class="note">${DHSTX[W.id][st]}</p>`;
+ const bar=(n,v,s)=>`<div class="row"><div><b>${n}: ${Math.round(v)}/100</b>${s?`<small>${s}</small>`:''}<div class="bond"><i style="width:${Math.max(0,Math.min(100,v))}%"></i></div></div></div>`;
+ b+=bar('Nỗ lực của thiên hạ',Math.min(100,W.wp),'Những người khác cũng đang chống lại thảm họa');
+ if(W.id==='sleep'){b+=bar('Tỉnh táo',D.aw,'Khả năng nhận ra đâu là thật trong mộng cảnh')+bar('Lưu luyến',D.li,'Mức muốn ở lại với những điều giấc mơ ban tặng');const sl=dhRel(p=>p.dz==='sleep');b+=`<p class="note">Người thân đang ngủ say: ${sl.length?sl.map(p=>p.first).join(', '):'không ai'} · hiểu biết về Kẻ Ru Ngủ: ${D.rs} · ký ức tìm được: ${D.mem}</p>`}
+ if(W.id==='crystal'){b+=bar('Mạch pha lê lan rộng',Math.min(100,W.sp),'Khai thác càng nhiều, mạch càng thức tỉnh nhanh');if(hasCrGear())b+=bar('Cộng hưởng',D.res,D.res>=80?'Nguy hiểm: mất sức khỏe mỗi năm':D.res>=50?'Đang tăng, nên ổn định lại':'Trang bị pha lê còn yên');const inf=dhRel(p=>p.dz==='crys');b+=`<p class="note">Người quen nhiễm pha lê: ${inf.length?inf.map(p=>`${p.first} (${['','mới nhiễm','nặng','hóa tượng'][p.cz||1]})`).join(', '):'không ai'} · khu dân cư đã cứu: ${D.sv} · đất đã giữ: ${D.lk} · nghiên cứu: ${D.rs}</p>`}
+ if(W.id==='returned'){b+=bar('Sức mạnh đoàn rước',Math.min(100,W.pw),'Càng nhiều người trở về được công nhận, đoàn rước càng mạnh');const R1=S.dhRet&&S.fam.find(p=>p.id===S.dhRet.id&&p.alive);b+=`<p class="note">${R1?`${R1.first} đang ở trong nhà bạn · manh mối: ${D.cl}/4${S.dhRet.known?' · đã biết sự thật':''}`:'Không có người trở về nào trong nhà bạn.'}${W.oldk?` · ${W.oldk.n} đang đòi ngai ở ${W.oldk.rl}`:''}</p>`}
+ b+=`<p class="sec">Việc có thể làm · còn ${dhLeft()}/2 lượt năm nay</p>`;
+ for(const a of dhActs())b+=gRow(`data-x="dh:${a.id}"`,a.ic,a.n,a.d,'',dis||!!a.dis||(a.id!=='final'&&!dhLeft()));
+ return[CATS[W.id].n,b,'act']}
+function dhAct(id){if(!dhOn()||!S.alive||S.cap||S.pend.some(x=>/^dh_/.test(x)))return;const a=dhActs().find(x=>x.id===id);if(!a||a.dis)return;
+ if(id!=='final'){if(!dhLeft())return;S.done.dhn=(S.done.dhn||0)+1}DHP().part=1;const r=a.f();if(r){const[t,tone]=arr(r);log(t,tone);note={t,tone}}afterSheetAction()}
+/* ---------- mộng cảnh (Đêm Không Người Thức) ---------- */
+const DHDREAM={
+ d1:()=>{const dead=(S.fam||[]).find(p=>!p.alive&&p.rel);return{t:'Bữa Cơm Chưa Từng Có',x:dead?`Trong mơ có một căn bếp ấm. ${dead.first}, người đã mất, đang ngồi ở đầu bàn. ${dead.sex==='f'?'Bà':'Ông'} kéo chiếc ghế bên cạnh ra: "Lần này con không phải đi đâu nữa."`:'Trong mơ có một căn bếp ấm. Một người giống hệt bạn hồi nhỏ đang ngồi ở đầu bàn, kéo chiếc ghế bên cạnh ra: "Ở lại đi. Ở đây không ai phải lớn lên."',
+  c:[['Ngồi lại một lát',D=>{D.li+=20;mod({happy:8});return'Món canh đúng vị bạn nhớ. Bạn thấy nhẹ nhõm, và không muốn đứng dậy.'}],
+     ['Nhắc về những người đang chờ ngoài đời',D=>{D.aw+=12;D.mem++;return'Bạn kể về người thân còn sống, về lời hứa chưa giữ. Căn bếp mờ đi một chút. Bạn nhớ ra mình là ai.'}],
+     ['Mời họ cùng bước ra cửa',D=>{if(D.mem>=1&&ch(.5+D.aw/250)){D.aw+=8;D.rs++;return'Người ấy nhìn bạn rất lâu, rồi đứng dậy đi cùng bạn tới cửa. Ở ngưỡng cửa, họ dừng lại: "Ta không ra được. Nhưng con thì ra được." Họ kể cho bạn tên thật của Kẻ Ru Ngủ.'}D.li+=10;return'Cánh cửa dẫn về lại căn bếp. Bạn cần nhớ thêm điều gì đó có thật thì mới mở được nó.'}]]}},
+ d2:()=>{const sl=dhRel(p=>p.dz==='sleep');const p=sl[0];return{t:'Thành Phố Mặt Trời Mọc',x:`Bạn đi qua quảng trường có đài phun nước và bức tượng người phụ nữ cầm vòng nguyệt quế. Ở đây không ai già, không ai ốm.${p?` ${p.first} ngồi bên đài phun nước, cười với bạn như chưa từng có chuyện gì.`:' Một người lạ hỏi bạn có muốn ở lại không.'}`,
+  c:[['Gọi tên thật của người ấy',D=>{if(p&&ch(.35+D.aw/200)){p.dz=null;p.bond=Math.min(100,p.bond+10);D.mem++;return`${p.first} khựng lại, rồi òa khóc. Khi bạn tỉnh dậy, ${p.first} cũng đang mở mắt.`}D.aw-=5;return'Người ấy nhìn bạn như nhìn một người lạ.'}],
+     ['Nhận lời chữa lành vết thương cũ',D=>{D.li+=15;mod({health:12});return'Mọi vết sẹo trên người bạn biến mất. Một phần trong bạn muốn ở lại đây mãi.'}],
+     ['Tìm đường ra rìa thành phố',D=>{D.rs++;D.aw+=5;return'Ở rìa thành phố không có tường, chỉ có một người đàn bà khổng lồ đang ngủ. Thành phố này là giấc mơ của bà.'}]]}}
+};
+function dhDreamEnd(){const D=DHP();D.aw=Math.max(0,Math.min(100,D.aw));D.li=Math.max(0,Math.min(100,D.li));const bell=(S.bag||[]).find(x=>x.k==='bell_dawn');
+ if(D.li>D.aw+(D.path?40:25)){if(bell&&(bell.n==null||bell.n>0)){bell.n=(bell.n==null?3:bell.n)-1;D.li=Math.max(0,D.li-20);log('Chuông Gọi Bình Minh tự rung trong túi áo. Bạn tỉnh dậy.','magic');return}
+   mod({happy:-6,health:-6});S.done.dhn=2;D.stuck=(D.stuck||0)+1;log('Bạn mắc kẹt trong mơ suốt nhiều ngày. Người nhà phải lay mãi bạn mới tỉnh. Năm nay bạn không làm thêm được gì.','bad')}}
+/* ---------- người trở về trong nhà (Đoàn Rước) ---------- */
+function dhRetSetup(){const dead=(S.fam||[]).find(p=>!p.alive&&/^(Cha|Mẹ)$/.test(p.rel))||(S.fam||[]).find(p=>!p.alive&&p.rel);if(!dead)return null;return dead}
+/* ---------- cao trào ---------- */
+function dhFinalCh(){const W=dhC(),D=DHP(),hp=heroPower(),hero=heroEligible();const L=[];
+ if(W.id==='sleep'){
+  L.push({t:'Phá giấc mộng',f:()=>ch(Math.min(.9,.35+D.aw/250+D.rs*.04+W.wp/400))?dhEnd('break'):dhRetry('Giấc mộng nứt ra một khe rồi liền lại. Kẻ Ru Ngủ hát to hơn.')});
+  if(D.rs>=3&&D.mem>=2)L.push({t:'Thuyết phục Kẻ Ru Ngủ buông bỏ',f:()=>ch(.45+D.aw/200)?dhEnd('release'):dhRetry('Bà lắng nghe, rồi lắc đầu: "Họ sẽ đau khổ khi tỉnh dậy."')});
+  L.push({t:hero?'Đối đầu Kẻ Ru Ngủ bằng sức mạnh của Anh Hùng':'Đối đầu Kẻ Ru Ngủ',f:()=>ch(Math.min(.85,.25+hp/400+(hero?.2:0)))?dhEnd('break'):(mod({health:-R(12,20)}),dhRetry('Khúc ru kéo bạn ngã xuống.'))})}
+ if(W.id==='crystal'){const pow=.2+hp/450+D.sv*.05+(hasCrGear()?.1:0)+(hero?.2:0);
+  L.push({t:'Phá hủy trái tim pha lê',f:()=>ch(Math.min(.88,pow))?dhEnd('break'):(mod({health:-R(12,22)}),dhRetry('Tiếng ngân của Nữ Vương hất bạn văng khỏi hang.'))});
+  if(D.rs>=2)L.push({t:'Phong ấn mạch pha lê',f:()=>ch(.45+D.rs*.08)?dhEnd('seal'):dhRetry('Vòng phong ấn rạn ở góc cuối.')});
+  if(D.lk>=3)L.push({t:'Chuyển hướng mạch pha lê ra vùng đá trống',f:()=>ch(.5+D.lk*.06)?dhEnd('redirect'):dhRetry('Mạch pha lê không chịu rẽ hướng. Bạn cần giữ thêm đất.')})}
+ if(W.id==='returned'){
+  L.push({t:'Đóng cổng hoàn toàn',f:()=>ch(Math.min(.9,.4+W.wp/250-W.pw/300+D.rs*.04))?dhEnd('close'):dhRetry('Đoàn rước đẩy cánh cổng mở ra trở lại.')});
+  if(D.cl>=3||D.xk)L.push({t:'Lập giao ước với Người Giữ Sổ Tang',f:()=>ch(.45+(D.xk?.25:0)+D.cl*.05)?dhEnd('pact'):dhRetry('Người Giữ Sổ Tang gạch bỏ điều khoản của bạn.')});
+  L.push({t:hero?'Chiến đấu với Người Giữ Sổ Tang bằng sức mạnh của Anh Hùng':'Chiến đấu với Người Giữ Sổ Tang',f:()=>ch(Math.min(.85,.25+hp/400+(hero?.2:0)))?dhEnd('close'):(mod({health:-R(12,20)}),dhRetry('Ngòi bút của hắn làm mờ cái bóng của bạn.'))})}
+ L.push({t:'Lùi lại, để người khác lo',f:()=>['Bạn quay về. Thảm họa vẫn còn đó, và những người khác vẫn đang chống lại nó.','']});return L}
+function dhRetry(t){if(S.st.health<=0){die(`trong ${CATS[dhC().id].n}`);return[t,'bad']}return[t+' Bạn có thể thử lại vào năm sau.','bad']}
+function dhEnd(k){const W=dhC(),id=W.id,C=CATS[id],D=S.dh&&S.dh.y===W.y?S.dh:null,me=k!=='world'&&k!=='fail';W.done=1;
+ let t='',tone='good';const real=S.realm;
+ if(id==='sleep'){const sl=dhRel(p=>p.dz==='sleep');
+  if(k==='fail'){for(const p of sl)p.dz='sleep';(S.world.scars=S.world.scars||[]).push({k:'sleep',rl:real,y:S.year});t='Kẻ Ru Ngủ khép giấc mơ lại. Một vùng của vương quốc chìm vào Miền Ngủ, và những người ngủ say ở đó không tỉnh lại nữa.';tone='bad'}
+  else{for(const p of sl){p.dz=null;if(k==='break'&&ch(.4))p.bond=Math.max(0,p.bond-12)}
+   t=k==='release'?'Kẻ Ru Ngủ buông tay. Bà hát khúc ru cuối cùng, lần này để đánh thức. Cả vùng mở mắt cùng lúc, và không ai oán trách ai.':k==='break'?'Giấc mộng vỡ ra như mặt kính. Hàng nghìn người tỉnh dậy. Vài người từng tự nguyện ở lại nhìn bạn đầy oán trách.':'Những người khác đã phá được giấc mộng. Mọi người tỉnh dậy.'}}
+ if(id==='crystal'){const inf=dhRel(p=>p.dz==='crys');
+  if(k==='fail'){for(const p of inf)if((p.cz||1)>=2){p.alive=false;p.cause='hóa tượng pha lê'}else p.dz=null;(S.world.scars=S.world.scars||[]).push({k:'crystal',rl:real,y:S.year});const r=myRealm();if(r)r.stab=Math.max(5,r.stab-10);t='Nữ Vương Thủy Tinh mở mắt. Một vùng rừng và làng hóa thành Vương Quốc Thủy Tinh, sáng lấp lánh và không ai sống nổi ở đó.';tone='bad'}
+  else{for(const p of inf){p.dz=null;p.cz=0}if(k==='seal')S.world.crSeal={y:S.year};
+   t=k==='break'?'Trái tim pha lê vỡ tan. Mọi bông hoa thủy tinh hóa thành cát. Không còn ai đào được pha lê nữa.':k==='seal'?'Vòng phong ấn khép lại quanh trái tim. Mạch pha lê ngừng lan, nhưng vẫn còn sống dưới đất. Phong ấn cần được giữ gìn về sau.':k==='redirect'?'Mạch pha lê rẽ về vùng đá trống phía tây, mọc thành một khu rừng pha lê vô hại. Đất đai còn sống được giữ nguyên.':'Những người khác đã chặn được mạch pha lê. Pha lê ngừng lan.'}}
+ if(id==='returned'){const R1=S.dhRet&&S.fam.find(p=>p.id===S.dhRet.id&&p.alive);
+  if(k==='fail'){const rl=W.oldk?W.oldk.rl:real,r=WD().rs[rl];if(r){r.ruler=W.oldk?W.oldk.n:`${pick(['Vua','Nữ vương'])} ${pick(NPCRULERS)} Đệ Nhất`;r.dead=1;r.stab=Math.max(5,r.stab-10)}(S.world.scars=S.world.scars||[]).push({k:'returned',rl,y:S.year});t=`Đoàn rước đi qua cổng. ${rl} trở thành Triều Đình Người Chết, nơi người đã khuất ngồi trên ngai và người sống phải cúi đầu.`;tone='bad'}
+  else{if(R1&&!(k==='pact'&&(S.dhRet.soul||S.dhRet.known))){R1.alive=false;R1.cause='trở về với người đã khuất'}
+   if(W.oldk){const r=WD().rs[W.oldk.rl];if(r)r.stab=Math.min(95,r.stab+5)}
+   t=k==='close'?'Cánh cổng đóng lại. Những người trở về quay đi, từng người một, không ngoảnh lại. Nhiều gia đình lại phải chia tay lần thứ hai.':k==='pact'?'Giao ước được ký: người trở về nào còn người sống nhớ tên thì được ở lại, nhưng mỗi năm họ phải về cổng một đêm. Đổi lại, Người Giữ Sổ Tang được giữ cuốn sổ.':'Những người khác đã đóng được cổng. Những người trở về rời đi.';
+   if(k==='pact'&&R1)t+=` ${R1.first} được ở lại với gia đình bạn.`;if(k==='pact')S.world.retPact={y:S.year}}}
+ if(me){S.house.prestige+=60;mod({honor:8,happy:6});const it={sleep:'bell_dawn',crystal:'cr_seed',returned:'wait_lamp'}[id];if(!hasItem(it)){gainItem(it);const x=S.bag.find(b=>b.k===it&&b.n==null);if(x&&it!=='cr_seed')x.n=3;t+=` Bạn nhận được ${ITEMS[it].n}.`}
+  announce(`${C.n} chấm dứt`,`${S.first} ${S.surname} đã chấm dứt ${C.n}.`,C.art,CATIMG[id])}
+ else announce(`${C.n} ${k==='fail'?'để lại vết sẹo':'chấm dứt'}`,t,C.art,CATIMG[id]);
+ news(t,tone,true);log(t,tone);S.world.cat=null;S.world.last=S.year;S.flags.hero=null;if(S.dh)S.dh.end=k;return[t,tone]}
+/* ---------- popup giữa thảm họa ---------- */
+const DHPOP={
+ sleep:[{id:'sl_hug',st:0,t:'Người Bán Bánh Ngủ Gật',x:'Người bán bánh ở đầu ngõ ngủ gục trên quầy, tay vẫn nắm đồng xu của khách. Lò bánh sắp cháy.',c:[['Tắt lò, đỡ ông vào trong',()=>{mod({honor:2});rep('d',1);return['Bạn dập lửa kịp lúc. Ông vẫn ngủ, môi mỉm cười.','good']}],['Lấy vài ổ bánh rồi đi',()=>{S.money+=3;mod({honor:-2});return['Bạn cầm ba ổ bánh. Lò bánh cháy âm ỉ suốt đêm.','bad']}]]},
+  {id:'sl_vote',st:1,t:'Người Muốn Được Ngủ',x:'Một người mẹ mất con năm ngoái xin thầy thuốc cho bà uống thuốc ngủ: "Trong mơ, tôi được ôm con. Đừng đánh thức tôi."',c:[['Thuyết phục bà ở lại với người sống',()=>{if(ch(.5)){mod({honor:2});return['Bà khóc, rồi đổ lọ thuốc đi.','good']}return['Bà nhìn bạn như nhìn kẻ thù.','bad']}],['Tôn trọng lựa chọn của bà',()=>{DHP().li+=5;return['Bà ngủ thiếp đi, gương mặt bình yên. Bạn không biết mình làm đúng hay sai.','']}]]},
+  {id:'sl_call',st:2,t:'Lời Mời Khi Nhắm Mắt',x:'Mỗi lần chớp mắt, bạn nghe một giọng nói dịu dàng: "Mệt rồi phải không? Vào đây nghỉ một lát."',c:[['Cắn môi, mở to mắt',()=>{const D=DHP();D.aw+=8;mod({health:-2});return['Bạn thức trắng đêm. Giọng nói nhỏ dần.','good']}],['Nghỉ một lát thôi',()=>{const D=DHP();D.li+=12;mod({happy:5});return['Bạn ngủ một giấc dài, đẹp nhất đời. Tỉnh dậy, bạn thấy tiếc.','']}]]}],
+ crystal:[{id:'cr_arm',st:1,t:'Cánh Tay Không Còn Đau',x:'Một người thợ khoe cánh tay đã hóa pha lê. Ông nâng được chiếc đe mà trước kia cần hai người khiêng. "Nếu đây là bệnh, sao tôi lại khỏe hơn?"',c:[['Giúp ông tìm cách chữa (20 xu)',()=>{if(S.money<20)return['Bạn không đủ tiền mua muối và thảo dược.',''];S.money-=20;DHP().sv++;if(ch(.55))return['Sau một tháng ngâm nước muối, cánh tay ông có màu da trở lại. Ông vừa mừng vừa tiếc.','good'];return['Pha lê vẫn lan, nhưng chậm hơn. Ông cảm ơn bạn.','']}],['Nhờ ông giúp việc nặng',()=>{S.money+=25;dhC().sp+=4;return['Ông khiêng hết đống gỗ của bạn trong một buổi sáng. Tuần sau, pha lê đã lên tới vai ông.','bad']}],['Nói rõ hậu quả rồi để ông tự quyết',()=>{mod({honor:2});return[ch(.5)?'Ông im lặng rất lâu, rồi nhờ bạn đưa tới thầy thuốc.':'Ông cười: "Thà làm tượng còn hơn làm kẻ yếu." Rồi ông về lò rèn.','']}]]},
+  {id:'cr_buyer',st:0,t:'Lái Buôn Pha Lê',x:'Một lái buôn phương xa trả giá gấp ba cho mọi bông hoa thủy tinh. Ông ta không hỏi chúng mọc ra từ đâu.',c:[['Bán cho ông ta một giỏ',()=>{const g=R(30,50);S.money+=g;dhC().sp+=6;return[`Bạn nhận ${g} xu. Đêm ấy, vườn nhà bạn mọc thêm hai bông.`,'']}],['Từ chối và báo cho làng',()=>{dhC().wp+=3;mod({honor:1});return['Lái buôn bỏ đi. Làng bạn họp, quyết định không ai bán pha lê nữa.','good']}]]},
+  {id:'cr_herd',st:2,t:'Đàn Cừu Trong Suốt',x:'Đàn cừu của hàng xóm đứng im trên đồi, lông đã hóa pha lê. Một con non vẫn còn kêu.',c:[['Bế con cừu non đi',()=>{mod({happy:3});return['Con cừu non sống. Nó theo bạn khắp nơi.','good']}],['Đập lấy pha lê',()=>{S.money+=20;mod({happy:-3});return['Bạn bán được 20 xu. Con cừu non vẫn kêu sau lưng bạn.','bad']}]]}],
+ returned:[{id:'rt_wife',st:1,t:'Hai Người Vợ',x:'Người lính trở về đứng trước cửa nhà cũ. Vợ anh đã tái giá. Người chồng mới cầm gậy, người chồng cũ không mang vũ khí.',c:[['Đứng giữa hai người, xin họ nói chuyện',()=>{dhC().wp+=3;rep('d',2);return['Họ ngồi lại bên bếp lửa tới sáng. Người lính trở về chọn ở nhà kho, gần đứa con anh chưa từng gặp.','good']}],['Giúp người lính đòi lại nhà',()=>{dhC().pw+=4;return['Người chồng mới bỏ đi. Người vợ khóc suốt mùa đông.','']}]]},
+  {id:'rt_grave',st:0,t:'Ngôi Mộ Trống',x:'Người gác nghĩa địa gọi bạn tới: một ngôi mộ trống trơn, đất không bị đào. Bia ghi tên một người hàng xóm mất năm ngoái.',c:[['Báo cho gia đình họ',()=>{mod({honor:1});return['Gia đình ấy đã biết. Người đã mất đang ngồi ăn tối với họ.','']}],['Ghi lại mọi ngôi mộ trống',()=>{DHP().rs++;return['Bạn đếm được mười bảy ngôi mộ trống. Tất cả đều là người chết chưa đầy hai mươi năm.','magic']}]]},
+  {id:'rt_king',st:2,t:'Lời Triệu Tập Của Vua Cũ',cond:()=>!!dhC().oldk,x:'Sứ giả của vị vua cũ mang tới cuộn giấy mời bạn về phe ông, hứa trả lại đất đai cho dòng họ bạn.',c:[['Nhận lời',()=>{dhC().pw+=6;S.money+=30;rep('n',-3);return['Bạn nhận 30 xu tiền thưởng. Triều đình hiện tại ghi tên bạn vào sổ phản nghịch.','']}],['Từ chối',()=>{rep('n',3);return['Sứ giả cúi đầu rồi tan vào bóng chạng vạng.','']}]]}]
+};
+const DH_EV=[
+ {id:'dh_stage',queued:true,big:true,art:s=>dhOn()?CATS[dhC().id].art:'skull',c:s=>dhFree(s)&&dhOn(),title:s=>`${CATS[dhC().id].n} · ${DHST[dhC().id][dhC().st||0]}`,text:s=>`${DHSTX[dhC().id][dhC().st||0]} Mở mục Hoạt động để xem bạn có thể làm gì.`,ch:[{t:'Tiếp tục',f:s=>['Bạn chuẩn bị tinh thần cho những gì sắp tới.','']}]},
+ {id:'dh_pop',queued:true,big:true,art:s=>dhOn()?CATS[dhC().id].art:'skull',c:s=>dhFree(s)&&dhOn()&&!!s.dhPop,title:s=>dhPopE().t,text:s=>dhPopE().x},
+ {id:'dh_dream',queued:true,big:true,art:'moon',c:s=>dhFree(s)&&dhOn()&&!!s.dhSc,title:s=>DHDREAM[s.dhSc]().t,text:s=>DHDREAM[s.dhSc]().x},
+ {id:'dh_ret',queued:true,big:true,art:'ghost',c:s=>dhFree(s)&&dhOn()&&dhC().id==='returned'&&!!dhRetSetup(),title:'Người Ngồi Ở Chỗ Của Cha',
+  text:s=>{const d=dhRetSetup();return`Chạng vạng, có tiếng gõ cửa. ${d.first}, ${d.rel.toLowerCase()} của bạn, người đã mất, đứng ở ngưỡng cửa. ${d.sex==='f'?'Bà':'Ông'} nhớ đúng bài hát ru và vết sẹo trên tay bạn. Nhưng ${d.sex==='f'?'bà':'ông'} không nhớ người con út, đứa trẻ sinh ra sau ngày ${d.sex==='f'?'bà':'ông'} qua đời.`},
+  ch:[{t:'Cho người ấy ở lại',f:s=>{const d=dhRetSetup();const p={...npc('fam',{age:d.age||50,sex:d.sex,race:d.race}),first:d.first,name:d.name||d.first,rel:`${d.rel} (người trở về)`,bond:70};s.fam.push(p);s.dhRet={id:p.id,soul:ch(.5)};mod({happy:6});return[`${d.first} ngồi vào chỗ cũ bên bếp lửa. Cả nhà vừa vui mừng vừa bối rối. Bạn có thể tìm hiểu thêm trong mục Hoạt động.`,'']}},
+      {t:'Tìm người từng chứng kiến cái chết trước đã',f:s=>{DHP().rs++;s.flags.dhRet=0;return['Bạn bảo người ấy chờ ngoài sân. Người thầy tu từng làm lễ tang nói sẽ kể cho bạn nghe. Người trở về vẫn đứng chờ ở cổng.','']}},
+      {t:'Yêu cầu người ấy rời đi',f:s=>{for(const p of s.fam.filter(p=>p.alive&&p.age>=12))p.bond=Math.max(0,p.bond-6);return['Người ấy cúi đầu đi ra. Mẹ bạn khóc suốt đêm và không nói chuyện với bạn nhiều ngày.','bad']}}]},
+ {id:'dh_final',queued:true,big:true,art:'crossed',c:s=>dhFree(s)&&dhOn()&&!dhC().done,title:s=>DHFIN[dhC().id],
+  text:s=>{const W=dhC(),D=DHP();return W.id==='sleep'?`Đêm cuối. Kẻ Ru Ngủ hiện ra trên bầu trời như một người đàn bà khổng lồ đang ngủ, ôm cả thành phố vào lòng. Tỉnh táo của bạn: ${D.aw}, Lưu luyến: ${D.li}, hiểu biết về bà: ${D.rs}, ký ức đã tìm được: ${D.mem}.`
+   :W.id==='crystal'?`Dưới lòng đất, mạch pha lê kết thành Nữ Vương Thủy Tinh cao như tháp chuông. Khu dân cư bạn đã cứu: ${D.sv}, vùng đất đã giữ: ${D.lk}, nghiên cứu: ${D.rs}. Những điều đó quyết định bạn có thể làm gì.`
+   :`Chạng vạng, cổng thành mở rộng. Người Giữ Sổ Tang đứng đầu đoàn rước, cuốn sổ mở trên tay. Sức mạnh đoàn rước: ${W.pw}. Manh mối bạn có: ${D.cl}${D.xk?', và một kẽ hở trong sổ tang':''}.`}}
+];
+const dhPopE=()=>{const W=dhC();return DHPOP[W.id].find(e=>e.id===S.dhPop)||DHPOP[W.id][0]};
+Object.defineProperty(DH_EV[1],'ch',{get:()=>{if(!dhOn()||!S.dhPop)return[];const e=dhPopE();return e.c.map(([t,f])=>({t,f:()=>{S.dhPop=null;return f()}}))}});
+Object.defineProperty(DH_EV[2],'ch',{get:()=>{if(!S||!S.dhSc||!dhOn())return[];const sc=S.dhSc,E=DHDREAM[sc]();return E.c.map(([t,f])=>({t,f:()=>{const D=DHP();const r=f(D);if(sc==='d1'){S.dhSc='d2';S.pend.push('dh_dream')}else{S.dhSc=null;dhDreamEnd()}return[r,'magic']}}))}});
+Object.defineProperty(DH_EV[4],'ch',{get:()=>dhOn()?dhFinalCh():[]});
+for(const e of DH_EV){EV.push(e);EVB[e.id]=e}
+for(const k of ['dh_stage','dh_pop','dh_final'])Object.defineProperty(EIMG,k,{get:()=>dhOn()?CATIMG[dhC().id]:'prophets',enumerable:true,configurable:true});
+Object.assign(EIMG,{dh_dream:'cat_sleep',dh_ret:'cat_returned'});
+/* phần thưởng */
+Object.assign(ITEMS,{
+ bell_dawn:{n:'Chuông Gọi Bình Minh',r:3,ic:'holy',use:1,v:0,ev:1,d:'Rung lên thì người say ngủ tỉnh lại, người mê muội nhớ ra mình là ai. Dùng được 3 lần.'},
+ cr_seed:{n:'Hạt Giống Thủy Tinh',r:3,ic:'gem',use:1,v:0,ev:1,d:'Gieo xuống, nó mọc thành một món đồ pha lê theo ý bạn. Chỉ chọn được một lần.'},
+ wait_lamp:{n:'Đèn Của Người Đợi',r:3,ic:'night',use:1,v:0,ev:1,d:'Thắp lên để gặp lại một người đã khuất trong chốc lát. Không hồi sinh được ai. Dùng được 3 lần.'},
+ cr_blade:{n:'Kiếm Pha Lê',r:2,ic:'w-sword',cb:14,sl:'weapon',v:60,d:'Sắc hơn thép, ngân lên mỗi khi rút ra. Tích Cộng hưởng trong thời gian thảm họa pha lê còn.'},
+ cr_true:{n:'Kiếm Pha Lê Thuần',r:3,ic:'w-sword',cb:16,sl:'weapon',v:0,ev:1,d:'Mọc từ Hạt Giống Thủy Tinh. Không còn ngân, không còn cộng hưởng.'},
+ cr_mail:{n:'Giáp Pha Lê Thuần',r:3,ic:'w-mail',fx:{health:2},cb:6,sl:'armor',v:0,ev:1,d:'Mọc từ Hạt Giống Thủy Tinh. Nhẹ như vải, cứng như đá.'},
+ cr_ring:{n:'Nhẫn Pha Lê Thuần',r:3,ic:'X-ring3',fx:{magic:2,smarts:1},acc:1,sl:'acc',v:0,ev:1,d:'Mọc từ Hạt Giống Thủy Tinh. Ngân rất khẽ khi bạn suy nghĩ.'}});
+{const u0=useItem;useItem=function(id){const i=S.bag.findIndex(x=>x.id===id),it=S.bag[i];if(!it||!['bell_dawn','cr_seed','wait_lamp'].includes(it.k))return u0(id);let t,tone='magic';
+ if(it.k==='cr_seed'){S.bag.splice(i,1);S.pend.push('dh_seed');sel=null;afterSheetAction();return}
+ if(it.n==null)it.n=3;
+ if(it.k==='bell_dawn'){const sl=dhRel(p=>p.dz==='sleep');if(sl.length){sl[0].dz=null;t=`Tiếng chuông vang khắp nhà. ${sl[0].first} mở mắt.`}else{mod({happy:6});if(S.nb)nbFd(-10);t='Tiếng chuông trong trẻo. Đầu óc bạn sáng ra như buổi sớm.'}}
+ if(it.k==='wait_lamp'){const d=(S.fam||[]).filter(p=>!p.alive&&p.rel);if(!d.length){t='Ngọn đèn cháy suốt đêm. Không ai tới, vì chưa ai trong nhà bạn ra đi.';tone=''}else{const p=pick(d);mod({happy:8});t=`Ngọn đèn vừa sáng, ${p.first} đã ngồi ở mép giường như chưa từng đi xa. Hai người nói chuyện tới khi bấc đèn tàn. Sáng ra, chỉ còn mùi khói.`}}
+ it.n--;if(it.n<=0)S.bag.splice(i,1);sel=null;log(t,tone);note={t,tone};afterSheetAction()}}
+EV.push({id:'dh_seed',queued:true,big:true,art:'gem',img:'cat_crystal',c:s=>s.alive,title:'Hạt Giống Thủy Tinh',text:'Bạn gieo hạt giống xuống đất. Nó nảy mầm trong một đêm, và chờ bạn chọn hình dạng cho nó.',
+ ch:[{t:'Một thanh kiếm',f:s=>{gainItem('cr_true');return['Mầm pha lê mọc thành một thanh kiếm trong suốt.','magic']}},{t:'Một bộ giáp',f:s=>{gainItem('cr_mail');return['Mầm pha lê mọc thành một bộ giáp nhẹ như vải.','magic']}},{t:'Một chiếc nhẫn',f:s=>{gainItem('cr_ring');return['Mầm pha lê cuộn lại thành một chiếc nhẫn nhỏ.','magic']}}]});EVB.dh_seed=EV[EV.length-1];
+/* nối vào vòng năm của thế giới */
+{const w0=worldYear;worldYear=function(){const W=S.world;if(W.cat&&isDH(W.cat.id)){dhYear();return}return w0()}}
+{const s0=startCat;startCat=function(id){if(!isDH(id))return s0(id);S.world.cat={id,y:S.year,st:0,sp:0,wp:0,pw:0};const C=CATS[id];announce('Thảm Họa: '+C.n,C.start,C.art,CATIMG[id]);log(`THẢM HỌA · ${C.n}. ${C.start}`,'bad');S.flags.dhRet=0}}
+{const d0=drawExt3;drawExt3=function(v){if(v==='dh')return dhView();return d0(v)}}
+{const x0=extAct3;extAct3=function(x){if(x.startsWith('dh:'))return dhAct(x.slice(3));return x0(x)}}
+{const a0=actExtra3;actExtra3=function(){const b=a0();if(!dhOn())return b;const W=dhC();return'<p class="sec">Thảm họa</p>'+gRow('data-open="dh"',CATS[W.id].art,CATS[W.id].n,`Giai đoạn ${(W.st||0)+1}/4: ${DHST[W.id][W.st||0]} · còn ${dhLeft()}/2 lượt`,'',!S.alive||!!S.cap,false,'foe')+b}}
+/* người đang ngủ say hoặc hóa tượng không trò chuyện được */
+document.addEventListener('click',e=>{if(!S)return;const b=e.target.closest('button');if(!b||b.disabled)return;const pa=b.dataset.pa;if(!pa)return;const p=(S.fam||[]).find(x=>x.id===pa.split('|')[0]);if(!p||!p.dz||!p.alive)return;
+ const why=p.dz==='sleep'?`${p.first} đang ngủ say và không tỉnh lại.`:(p.cz||1)>=3?`${p.first} đã hóa tượng pha lê, không cử động được.`:'';if(!why)return;e.stopImmediatePropagation();e.preventDefault();note={t:why,tone:'bad'};drawSheet()},true);
+/* vết sẹo thảm họa: cứu Miền Ngủ về sau, giữ phong ấn pha lê */
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||S.cap)return;const sc=S.world.scars||[];
+ if(S.world.crSeal&&S.year-S.world.crSeal.y>=10&&S.age>=16&&ch(.3)&&!S.pend.includes('dh_seal')){S.pend.push('dh_seal')}
+ const sl=sc.find(x=>x.k==='sleep'&&x.rl===S.realm);if(sl&&S.age>=16&&!S.flags.dhRescue&&ch(.15)){S.flags.dhRescue=1;S.dhScar=sl;S.pend.push('dh_rescue')}}}
+EV.push({id:'dh_seal',queued:true,big:true,art:'gem',img:'cat_crystal',c:s=>s.alive&&!!s.world.crSeal,title:'Phong Ấn Dưới Đất Rạn Nứt',text:'Mười năm sau ngày phong ấn, người ta lại nghe tiếng ngân dưới lòng đất. Vòng phong ấn quanh mạch pha lê đã rạn một góc.',
+ ch:[{t:'Góp tiền gia cố phong ấn (40 xu)',cost:40,f:s=>{s.money-=40;s.world.crSeal.y=s.year;mod({honor:3});return['Thợ đá và pháp sư khắc lại vòng phong ấn. Tiếng ngân tắt.','good']}},{t:'Đào lấy một ít pha lê trước khi gia cố',f:s=>{s.money+=40;s.world.crSeal.y=s.year-6;return['Bạn bán được 40 xu pha lê. Vòng phong ấn được vá tạm, nhưng sẽ rạn lại sớm hơn.','']}},{t:'Mặc kệ',f:s=>{if(ch(.4)){(s.world.scars=s.world.scars||[]).push({k:'crystal',rl:s.realm,y:s.year});s.world.crSeal=null;return['Phong ấn vỡ. Một vùng nhỏ hóa thành Vương Quốc Thủy Tinh.','bad']}s.world.crSeal.y=s.year-5;return['Không có gì xảy ra. Năm nay.','']}}]});EVB.dh_seal=EV[EV.length-1];
+EV.push({id:'dh_rescue',queued:true,big:true,art:'moon',img:'cat_sleep',c:s=>s.alive&&!!s.dhScar,title:'Miền Ngủ',text:s=>`Ở rìa Miền Ngủ của ${s.realm}, những người ngủ say từ năm ${s.dhScar.y} vẫn nằm yên dưới lớp lá khô. Một ông lão nói có thể dẫn bạn vào nếu bạn muốn thử đánh thức họ.`,
+ ch:[{t:'Đi vào Miền Ngủ',f:s=>{const sc=s.dhScar;s.dhScar=null;if(ch(.35+s.st.smarts/300+(hasItem('bell_dawn')?.25:0))){s.world.scars=(s.world.scars||[]).filter(x=>x!==sc);for(const p of dhRel(p=>p.dz==='sleep'))p.dz=null;mod({honor:10});s.house.prestige+=40;news(`Miền Ngủ ở ${s.realm} đã được đánh thức sau nhiều năm.`,'good',true);return['Bạn đi giữa những người ngủ, gọi tên từng người. Người đầu tiên mở mắt, rồi người thứ hai. Miền Ngủ thức dậy.','good']}mod({health:-8,happy:-4});return['Bạn ngủ thiếp đi ngay ở bìa rừng. Ông lão phải kéo bạn ra.','bad']}},{t:'Chưa phải lúc',f:s=>{s.dhScar=null;s.flags.dhRescue=0;return['Bạn quay về. Miền Ngủ vẫn chờ.','']}}]});EVB.dh_rescue=EV[EV.length-1];
+{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'){if(r.world&&r.world.scars&&!Array.isArray(r.world.scars))r.world.scars=[];if(r.dhSc&&!DHDREAM[r.dhSc])r.dhSc=null;if(r.dhScar&&!(r.world.scars||[]).some(x=>x.y===r.dhScar.y&&x.k===r.dhScar.k))r.dhScar=null}return r}}
+
+/* ===== Ảnh và giới thiệu sáu vương quốc loài người ===== */
+const RLINFO={
+ 'Vương quốc Aldoria':{img:'rl_aldoria',em:'Sư tử vàng trên nền xanh lam',d:'Đồng bằng sông lớn, những lâu đài tháp xanh, chợ phiên ven sông và thuyền buôn xuôi ngược. Người Aldoria tự hào về các hiệp sĩ của mình.'},
+ 'Đế chế Valtheris':{img:'rl_valtheris',em:'Đại bàng bạc trên nền đỏ tía',d:'Đế chế của nghi lễ và quân đoàn. Thánh đường đá xám, thảm đỏ trải dài trong ngày đăng quang, và những cận vệ đội mũ chóp đỏ.'},
+ 'Vương quốc Kharvon':{img:'rl_kharvon',em:'Bọ cạp đen trên nền vàng đất',d:'Vương quốc sa mạc duy nhất của loài người. Thành mái vòm vàng bên ốc đảo, cổng đá kẻ sọc và những đoàn lạc đà chở thảm.'},
+ 'Liên minh Sương Mù Elandor':{img:'rl_elandor',em:'Chim diệc trắng trên nền xanh ngọc',d:'Liên minh các thành cảng trong sương. Cầu đá vòm nối những hòn đảo, thuyền buồm trắng và chợ cá dưới mưa.'},
+ 'Vương quốc Ironmark':{img:'rl_ironmark',em:'Búa và đe trên nền xám than',d:'Thành trì giữa núi tuyết. Lò rèn cháy suốt đêm, cối xay nước bên thác và những đoàn xe chở đồng xuống núi.'},
+ 'Thánh quốc Lumaris':{img:'rl_lumaris',em:'Mặt trời vàng trên nền trắng ngà',d:'Đất thánh của Giáo hội Thánh Quang. Thánh đường trắng trên đồi, đài phun nước và những đoàn hành hương bước lên bậc đá.'}
+};
+function wrView(n){const I=RLINFO[n],r=WD().rs[n];if(!I||!r)return['Vương quốc','','wd'];const mine=n===S.realm;
+  let b=imgBanner(I.img)+`<p class="note">${I.d}</p>`;
+  b+=statGrid([['Huy hiệu',I.em],['Trị vì',esc(mine&&kingMe()&&rules()?'Bạn':r.ruler)],['Ổn định',r.stab+'/100'],['Tình hình',r.war?(r.war.vs==='nội chiến'?'Nội chiến':'Chiến tranh'):r.fam?'Mất mùa':r.pl?'Dịch bệnh':'Yên ổn']]);
+  const sc=(S.world.scars||[]).filter(x=>x.rl===n);if(sc.length)b+='<p class="sec">Vết sẹo thảm họa</p>'+sc.map(x=>`<p class="note bad">${esc(DHSCAR[x.k]||x.k)} (từ năm ${x.y})</p>`).join('');
+  if(mine)b+='<p class="note">Bạn đang sống ở đây.</p>';return[n,b,'wd']}
+{const w0=wdView;wdView=function(){const r=w0();let b=r[1];const RI=RLINFO[S.realm];if(RI)b=imgBanner(RI.img)+b;
+  for(const n of Object.keys(RLINFO)){const re=new RegExp(`<div class="row">(<span class="ri[^"]*">[\\s\\S]*?</span><div><b>${esc(n).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}[\\s\\S]*?</div>)</div>`);b=b.replace(re,(m,inner)=>`<button class="row" data-open="wr:${REALMS.indexOf(n)}">${inner}</button>`)}
+  const sc=S.world.scars||[];if(sc.length)b+='<p class="sec">Vùng nguy hiểm sau thảm họa</p>'+sc.map(x=>`<p class="note bad">${esc(DHSCAR[x.k]||x.k)} ở ${esc(x.rl)} · từ năm ${x.y}</p>`).join('');
+  r[1]=b;return r}}
+{const d0=drawExt3;drawExt3=function(v){if(v&&v.startsWith('wr:'))return wrView(REALMS[+v.slice(3)]);return d0(v)}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
