@@ -6985,7 +6985,8 @@ function mvLearn(id,auto){mnEnsure();if(!MV[id])return'';if(S.mv[id])return'';S.
 function mvPass(){if(!S||!S.mv)return 0;let v=0;for(const id in S.mv){const M=MV[id];if(M&&M.ty!=='heal'&&M.ty!=='esc')v+=S.mv[id].lv||1}return Math.min(15,v)}
 function mvTal(id){const M=MV[id];if(M.src==='kiem')return((S.blade||0)-40)/250;if(M.src[0]==='m')return(((S.hid.arcane||0)+S.st.magic)/2-50)/250;return((S.hc&&S.hc.rk||1)-1)*.03}
 function mvMatch(id,tags){const M=MV[id];if(!M||!tags)return 0;const a=M.sv.filter(t=>tags.includes(t)).length,b=M.wk.filter(t=>tags.includes(t)).length;return Math.min(.24,a*.12)-Math.min(.2,b*.1)}
-function mvXP(id,win){const P=S.mv[id];if(!P||P.lv>=5)return'';P.xp+=win?R(5,9):R(2,4);if(P.xp>=MVXP[P.lv]){P.lv++;const t=` ${MV[id].n} lên cấp ${P.lv}.`;log(`Chiêu ${MV[id].n} lên cấp ${P.lv}.`,'good');return t}return''}
+const mvArcF=id=>MV[id]&&MV[id].src[0]==='m'?.35+((S.hid&&S.hid.arcane)||0)/100:1;
+function mvXP(id,win){const P=S.mv[id];if(!P||P.lv>=5)return'';P.xp+=Math.max(1,Math.round((win?R(5,9):R(2,4))*mvArcF(id)));if(P.xp>=MVXP[P.lv]){P.lv++;const t=` ${MV[id].n} lên cấp ${P.lv}.`;log(`Chiêu ${MV[id].n} lên cấp ${P.lv}.`,'good');return t}return''}
 function mvWhy(id,book){const M=MV[id];if(!M)return'Không có';if(S.mv&&S.mv[id])return'Đã học';if(S.age<10)return'Từ 10 tuổi';
   if(M.src[0]==='h')return'Chiêu độc nhất của nghề ẩn';
   if(M.src[0]==='m'){if(!mnOn())return'Chưa thức tỉnh mệnh';if(M.src.slice(2)!==S.hid.menh)return`Chỉ người mang ${MENH[M.src.slice(2)].n} mệnh mới học được`;if(S.st.magic<(M.mg||0))return`Cần ma lực ${M.mg}`}
@@ -7070,7 +7071,7 @@ function vhAct(a,id){mnEnsure();if(!S.alive)return;let t='',tone='';
     else if(r<.72){if(!mnOn()&&S.age>=10&&!S.pend.includes('mn_wake')&&ch(.5)){S.pend.push('mn_wake');t='Bạn đọc một cuốn sách về các mệnh ẩn. Đọc tới đâu, tay bạn ngứa ran tới đó.'}else{mod({magic:2});t='Bạn đọc về các trường phái ma pháp. Ma lực +2.'}tone='magic'}
     else{t=pick(LIBNO);if(ch(.3))mod({smarts:1})}}
   else if(a==='tr'){if(!S.mv[id]||!vhLeft())return;S.done.vh=(S.done.vh||0)+1;const M=MV[id],P=S.mv[id];
-    const tal=M.src==='kiem'?(S.hid.sword||0):M.src[0]==='m'?((S.hid.arcane||0)+S.st.magic)/2:60;let g=Math.round(R(8,14)*(.6+tal/125));
+    const tal=M.src==='kiem'?(S.hid.sword||0):M.src[0]==='m'?((S.hid.arcane||0)+S.st.magic)/2:60;let g=Math.round(R(8,14)*(.6+tal/125));if(M.src[0]==='m')g=Math.max(1,Math.round(g*mvArcF(id)));
     if(ch(.08)){g*=2;t=`Đột phá! Bạn luyện ${M.n} cả đêm và bỗng hiểu ra một điều.`;tone='good'}
     else if(M.src==='kiem'&&ch(.14-(S.tal?S.tal.sword:50)/800)){mod({health:-R(4,9)});t=`Bạn luyện ${M.n} quá sức và bị trẹo tay.`;tone='bad'}
     else if(M.src[0]==='m'&&ch(.12-(S.tal?S.tal.arcane:50)/900)){mod({health:-R(4,9),happy:-3});t=`Ma lực mất kiểm soát khi bạn luyện ${M.n}. Bạn làm cháy sém nửa bức tường.`;tone='bad'}
@@ -12170,7 +12171,7 @@ const ppT=(P,rk)=>PP[P.k].t[rk-1];
 const ppRoot=k=>(PP[k]&&PP[k].root)||k;
 const PPBR={hoa:'loi',thuy:'bang',tho:'kim'};
 const ppArc=()=>{talSync();return S.hid.arcane||0};
-const ppCan=()=>S.pp.k==='vm'||ppArc()>=70;
+const ppCan=()=>S.pp.k==='vm'||ppArc()>=30;
 const ppName=()=>S.pp?`${PP[S.pp.k].n} · ${ppT(S.pp,S.pp.rk)}`:'';
 const ppNeed=()=>{const r=S.pp.rk+1;if(r>5)return null;if(r===5&&isRed(S))return'p_hong';return PPNEED[r]};
 const ppJ=t=>{const j=S.pp.j;j.push(t);if(j.length>12)j.shift()};
@@ -12190,7 +12191,7 @@ function ppDrink(){if(!ppOn())return;if(S.pp.k==='vm'||!ppCan())return;const P=S
   if(X&&X.tox&&S.potX>=3&&ch((S.potX-2)*.18))t+=potBack();
   if(S.st.health<=0)die('phản phệ ma dược');return[t,tone]}
 function ppYear(){if(!S||!S.alive||S.cap)return;
-  if(!S.pp&&mnOn()&&!clsHas(S)&&S.hid&&PP[S.hid.menh]&&!S.hid.vm)ppStart(S.hid.menh);
+  if(!S.pp&&mnOn()&&!clsHas(S)&&S.hid&&PP[S.hid.menh]&&!S.hid.vm&&ppArc()>=30)ppStart(S.hid.menh);
   const P=S.pp;if(!P)return;const D=PP[P.k];
   if(!P.off&&clsHas(S)){P.off=S.year;ppJ(`${S.year}: Con đường ${D.n} lùi lại nhường chỗ cho con đường class ẩn. Chỉ còn dư âm ở bậc ${P.rk}.`);log(`Con Đường ${D.n} lùi lại, nhường chỗ cho con đường mới. Bạn vẫn giữ dư âm của nó ở bậc ${P.rk}.`,'magic')}
   D.pas(P.rk);
@@ -12201,10 +12202,10 @@ function ppYear(){if(!S||!S.alive||S.cap)return;
 {const y0=extYear3;extYear3=function(){y0();ppYear()}}
 function ppView(){const P=S.pp;if(!P)return['Con Đường Phi Phàm','<p class="note">Bạn chưa bước lên con đường nào.</p>','act'];const D=PP[P.k],dis=!S.alive||!!S.cap;
   let b=imgBanner('manatest')+gRow('',D.ic,ppT(P,P.rk),`${D.n} · Bậc ${P.rk}/5${P.off?' · chỉ còn dư âm':''}`,'',false,true)+`<p class="note">${D.d}</p>`;
-  if(P.k!=='vm')b+=`<p class="note">Cảm nhận ma pháp: ${ppArc()}/100${ppArc()<70?' · cần 70 để đi tiếp con đường':''}</p>`;
+  if(P.k!=='vm')b+=`<p class="note">Cảm nhận ma pháp: ${ppArc()}/100 · càng cao thì luyện chiêu Mệnh càng nhanh</p>`;
   const bar=(n,v,d,i)=>`<div class="row"><span class="ri">${ic(i,24)}</span><div><b>${n}: ${v}/100</b><small>${d}</small><div class="bond"><i style="width:${v}%"></i></div></div></div>`;
   if(P.off){b+=`<p class="note magic">Bạn đã chuyển sang con đường của class ẩn. Con đường ${D.n} chỉ còn dư âm: các năng lực bị động ở bậc ${P.rk} vẫn theo bạn, nhưng không đi tiếp được nữa.</p>`}
-  else if(!ppCan()){b+='<p class="note">Bạn đã thức tỉnh Mệnh, nhưng cảm nhận ma pháp của bạn chưa đủ để đi xa hơn. Như phần lớn người thức tỉnh khác, bạn mang Mệnh trong người và sống một đời bình thường. Các class ẩn của Mệnh này vẫn có thể tìm đến bạn.</p>'}
+  else if(!ppCan()){b+='<p class="note">Cảm nhận ma pháp của bạn quá yếu (dưới 30). Bạn mang Mệnh trong người, nhưng không bước được lên con đường nào. Bạn là một người thường.</p>'}
   else{b+=bar('Tiêu hóa',Math.min(100,P.dg),'Làm việc hợp vai để tiêu hóa sức mạnh của bậc hiện tại','star');
     if(P.k==='vm')b+=bar('Hiện diện',P.pr,'Thế giới còn nhớ bạn tới đâu. Về 0, bạn biến mất khỏi ký ức của mọi người','user');
     const k=ppNeed();if(P.k==='vm'&&P.rk<5){const ready=P.dg>=100;b+=`<p class="sec">Bước lên bậc ${P.rk+1}: ${ppT({...P,rk:P.rk+1},P.rk+1)}</p>`+gRow('data-x="pp:vm"','scroll','Đi tìm một khoảnh khắc ngoài số phận',ready?'Đã tiêu hóa xong · một sự kiện đặc biệt đang chờ bạn':`Cần tiêu hóa xong (${P.dg}/100). Người không mang mệnh không lên bậc bằng dược`,ready?'Sẵn sàng':'',dis||!ready||S.pend.includes('pp_vm'))}
@@ -12226,7 +12227,7 @@ function ppDo(x){if(!S.pp||!S.alive||S.cap)return;const P=S.pp,D=PP[P.k];const p
 {const d0=drawExt3;drawExt3=function(v){if(v==='pp')return ppView();return d0(v)}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('pp:'))return ppDo(x);return x0(x)}}
 {const a0=actExtra3;actExtra3=function(){const b=a0();if(!S.pp)return b;const P=S.pp,D=PP[P.k];
-  return`<p class="sec">Con Đường Phi Phàm</p>`+gRow('data-open="pp"',D.ic,ppT(P,P.rk),P.off?`${D.n} · dư âm bậc ${P.rk}`:!ppCan()?`${D.n} · Bậc 1 · người thường thức tỉnh`:`${D.n} · Bậc ${P.rk}/5 · Tiêu hóa ${Math.min(100,P.dg)}/100`,'',!S.alive)+b}}
+  return`<p class="sec">Con Đường Phi Phàm</p>`+gRow('data-open="pp"',D.ic,ppT(P,P.rk),P.off?`${D.n} · dư âm bậc ${P.rk}`:!ppCan()?`${D.n} · người thường`:`${D.n} · Bậc ${P.rk}/5 · Tiêu hóa ${Math.min(100,P.dg)}/100`,'',!S.alive)+b}}
 const PPVM={
  2:{t:'Lời Tiên Tri Bị Bỏ Lỡ',x:'Một bà tiên tri mù ngồi ở cổng chợ, nói cho từng người qua đường biết số phận của họ. Tới lượt bạn, bà sờ lên mặt bạn rất lâu rồi bật khóc: "Ta không thấy gì cả. Như chưa ai từng viết ngươi." Mọi người xung quanh đã quay đi, như thể bạn không đứng đó.',
   a:'Bước qua bà ấy, đi tiếp',ax:'Bạn bước qua lời tiên tri như bước qua một vũng nước. Từ hôm đó, những điềm báo không còn chạm được vào bạn.',b:'Ngồi lại an ủi bà',bx:'Bạn ngồi lại với bà tới khi chợ tan. Bà kể cho bạn nghe về những số phận bà đã thấy. Bạn chưa đi tiếp được.'},
@@ -12265,7 +12266,6 @@ for(const[id,k]of [['tt_call','moc'],['vj_call','quang'],['rn_call','hoa'],['bt_
 {const g0=genRecord;genRecord=function(){const r=g0();if(!r.cls&&S.pp)r.cls=`${PP[S.pp.k].n} · ${ppT(S.pp,S.pp.rk)}`;return r}}
 {const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.pp){r.pp.j=r.pp.j||[];r.pp.d=r.pp.d||{};if(r.pp.pr==null)r.pp.pr=100;if(r.pp.br==='loi'||r.pp.br==='bang'){r.pp.k=r.pp.br;r.pp.br=r.pp.k==='loi'?'hoa':'thuy'}if(!PP[r.pp.k])r.pp=null}return r}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('lta:')&&S&&S.pp&&S.pp.k==='vm'&&!S.done.lta)S.pp.pr=Math.min(100,S.pp.pr+5);return x0(x)}}
-{const w0=mvWhy;mvWhy=function(id,book){const r=w0(id,book);if(r||!MV[id]||MV[id].src[0]!=='m')return r;const t=id.slice(-1),need={'2':40,'3':55,'4':65,U:80}[t];if(need&&S.hid&&(S.hid.arcane||0)<need)return`Cần cảm nhận ma pháp ${need}`;return r}}
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
