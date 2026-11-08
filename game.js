@@ -10698,6 +10698,180 @@ for(const e of CE_EV){EV.push(e);EVB[e.id]=e;EIMG[e.id]=e.img}
   if(!S.ceD)S.ceD={};if(S.ceY&&S.year-S.ceY<3)return;if(S.pend.includes(k+'_sc'))return;
   const L=CE_EV.filter(e=>e.id.startsWith('ce_'+k)&&!S.ceD[e.id]);if(L.length&&ch(.35)){const e=pick(L);S.ceD[e.id]=1;S.ceY=S.year;S.pend.push(e.id)}}}
 
+/* ===== Dấu Ấn Của Con Đường Ẩn =====
+   Mỗi class ẩn có một khoảnh khắc lựa chọn lớn từ Bậc 3. Lựa chọn thay đổi thế giới ngay (vương quốc, vùng đất, phe phái),
+   để lại hiệu ứng kéo dài nhiều năm, và con cháu đời sau sẽ gặp lại dấu vết của nó. */
+const daR=m=>WD().rs[m.rl];
+const daW=(t,tone)=>news(t,tone||'',true);
+const DA={
+ tt:{img:'elfforest',art:'tree',t:'Lưỡi Rìu Của Nhà Vua',
+  x:s=>`Sắc lệnh từ kinh thành ${s.realm}: đốn khu rừng cổ phía bắc để đóng chiến thuyền. Thợ đốn gỗ đã dựng lều ở bìa rừng. Đêm ấy, rễ cây dưới chân bạn rung lên như tiếng tim đập.`,
+  c:[{t:'Đứng giữa rừng cùng dân làng, không cho đốn',
+      f:(s,R,m)=>{R.stab=Math.max(5,R.stab-4);rep('n',-4);rep('d',3);rgAdd('elfwood',6);ttRes(5);daW(`Dân làng ở ${m.rl} đứng giữa rừng cổ cùng ${m.who}. Lính đốn gỗ phải quay về tay không.`);
+        return['Ba ngày ba đêm, không ai lùi. Sáng thứ tư, thợ đốn nhổ lều. Nhà vua ghi tên bạn vào sổ những kẻ bất tuân. Rừng nhớ bạn.','good']},
+      yrs:30,p:(R)=>{if(R.fam>0&&ch(.35))R.fam--},
+      h:{t:'Khu Rừng Tổ Tiên Đã Giữ',x:m=>`Bạn đi qua khu rừng cổ ở ${m.rl}. Một cụ già chỉ gốc sồi lớn nhất: "Năm ấy ${m.who} đứng ở đây, lính nhà vua phải quay về." Năm nào mất mùa, dân trong vùng lại vào rừng hái hạt dẻ mà sống qua mùa đói.`,
+        c:[['Trồng thêm một cây non',s=>{mod({happy:3});rgAdd('elfwood',3);return['Bạn trồng cây non cạnh gốc sồi. Cụ già gật đầu: "Giống hệt ông bà con."','good']}],
+           ['Ngồi nghe cụ kể hết chuyện',s=>{mod({smarts:2});S.house.prestige+=10;return['Cụ kể tới tối. Bạn về nhà, biết thêm một điều về dòng họ mình.','']}]]}},
+     {t:'Chọn cây già cho thợ đốn, giữ lại cây non',
+      f:(s,R,m)=>{rep('n',3);s.money+=40;ttRes(-4);R.stab=Math.min(95,R.stab+2);daW(`Hạm đội mới của ${m.rl} hạ thủy bằng gỗ rừng cổ do ${m.who} chọn từng cây.`);
+        return['Bạn đi cùng thợ đốn, đánh dấu những cây đã sống đủ. Rừng còn lại một nửa. Nhà vua thưởng 40 xu.','']},
+      yrs:15,p:(R)=>{R.stab=Math.min(95,R.stab+1)},
+      h:{t:'Con Tàu Đóng Từ Gỗ Rừng Xưa',x:m=>`Ở bến cảng ${m.rl}, một chiến thuyền cũ vẫn mang tên ${m.who}, người đã chọn cây cho thợ đóng tàu năm xưa. Thủy thủ già kể thân tàu chưa từng mục.`,
+        c:[['Xin làm việc trên tàu một mùa',s=>{S.money+=25;mod({health:-2});return['Bạn kéo dây buồm suốt mùa hè, về nhà với 25 xu và đôi tay chai sạn.','good']}],
+           ['Mua một mẩu gỗ làm kỷ vật (10 xu)',s=>{S.money-=10;mod({happy:4});return['Mẩu gỗ vẫn thơm mùi rừng. Bạn đặt nó lên bàn thờ tổ tiên.','']},10]]}}]},
+ vj:{img:'prophets',art:'holy',t:'Khải Tượng Về Năm Đói',
+  x:s=>`Bạn thấy rõ như ban ngày: ba năm nữa, ruộng lúa ở ${s.realm} sẽ thối đen, và người ta sẽ chôn nhau không kịp. Khải tượng không nói ai sẽ tin bạn.`,
+  c:[{t:'Công bố trước quảng trường, xin nhà vua mở kho tích lúa',
+      f:(s,R,m)=>{rep('d',4);rep('n',-3);vjCl(4);mkPush('grain',15);daW(`Theo lời tiên tri của ${m.who}, ${m.rl} bắt đầu tích lúa trong kho hoàng gia.`);
+        return['Quý tộc cười nhạo, nhưng nhà vua cho xây kho. Giá lúa lên một chút. Dân gọi bạn là "người thấy trước".','good']},
+      yrs:15,p:(R)=>{if(R.fam>0)R.fam--},
+      h:{t:'Kho Thóc Lời Tiên Tri',x:m=>`Ở ${m.rl}, người ta vẫn gọi kho thóc hoàng gia là "kho của ${m.who}". Năm nào mất mùa, kho lại mở, và dân lại kể lời tiên tri năm ấy.`,
+        c:[['Góp một bao lúa vào kho (10 xu)',s=>{S.money-=10;mod({honor:3});rep('d',2);return['Người giữ kho ghi tên bạn ngay dưới tên tổ tiên.','good']},10],
+           ['Hỏi người giữ kho về lời tiên tri gốc',s=>{mod({smarts:2,magic:1});return['Ông đọc cho bạn nghe bản chép tay đã ố vàng. Có một câu cuối mà sử sách bỏ quên.','magic']}]]}},
+     {t:'Giữ kín, chỉ bảo người nhà tích lúa',
+      f:(s,R,m)=>{vjCl(-3);s.money=Math.max(0,s.money-20);return['Bạn tiêu 20 xu mua lúa, đào hầm dưới nền nhà. Không ai ngoài gia đình biết.','']},
+      yrs:15,p:(R,m)=>{if(R.fam>0&&S.realm===m.rl){S.money+=8}},
+      h:{t:'Hầm Lúa Dưới Nhà',x:m=>`Dưới nền nhà cũ, bạn tìm thấy căn hầm ${m.who} đào năm xưa, kèm mảnh giấy: "Chỉ cho người nhà." Ngoài kia, sổ giáo xứ ghi hàng trăm người chết đói năm ấy.`,
+        c:[['Mở hầm, phát cho người nghèo',s=>{mod({honor:4});rep('d',3);return['Lúa cũ đã mốc một nửa, nhưng nửa còn lại đủ cho mười nhà qua tháng giêng.','good']}],
+           ['Bán lúa cũ lấy tiền',s=>{S.money+=30;mod({honor:-2});return['Bạn bán được 30 xu. Người mua không hỏi lúa từ đâu ra.','']}]]}}]},
+ rn:{img:'runeforge',art:'anvil',t:'Cổng Thành Xin Chữ',
+  x:s=>`Sứ giả của nhà vua ${s.realm} mang tới bản vẽ cổng thành mới: "Bệ hạ muốn một chữ Rune che chở trên cổng, để không đạo quân nào phá nổi." Ông đặt túi vàng lên đe của bạn.`,
+  c:[{t:'Khắc chữ Che Chở lên cổng thành',
+      f:(s,R,m)=>{R.stab=Math.min(95,R.stab+5);rnRes(3);S.house.prestige+=20;daW(`Cổng thành ${m.rl} mang chữ Rune Che Chở do ${m.who} khắc.`);
+        return['Bạn khắc suốt bảy ngày. Khi chữ cuối khép lại, cả cổng thành ấm lên như có hơi thở.','magic']},
+      yrs:40,p:(R)=>{if(R.war)R.stab=Math.min(95,R.stab+2)},
+      h:{t:'Chữ Trên Cổng Thành',x:m=>`Qua cổng thành ${m.rl}, bạn chạm tay vào chữ Rune ${m.who} khắc năm xưa. Đá vẫn ấm. Lính gác kể: những năm có chiến tranh, cổng này chưa từng bị phá.`,
+        c:[['Đặt tay đọc chữ',s=>{mod({magic:2,smarts:1});return['Bạn hiểu ra chữ ấy không viết "che chở". Nó viết tên những người thợ đã xây cổng.','magic']}],
+           ['Khắc tên mình bên cạnh',s=>{S.house.prestige+=15;mod({happy:2,honor:-1});return['Lính gác nhìn bạn khó chịu, nhưng không ngăn. Tên bạn nằm dưới tên tổ tiên, nhỏ hơn một chút.','']}]]}},
+     {t:'Từ chối: chữ Rune không dùng cho tường của vua',
+      f:(s,R,m)=>{rep('d',2);rep('n',-4);rnRes(4);mod({honor:2});daW(`${m.who} trả lại túi vàng, từ chối khắc chữ lên cổng thành ${m.rl}.`);
+        return['Sứ giả mang túi vàng về. Thợ rèn khắp vùng truyền nhau câu bạn nói: "Chữ Rune không giữ tường. Nó giữ người."','good']},
+      yrs:0,
+      h:{t:'Món Nợ Của Người Lùn Già',x:m=>`Một người lùn già tìm tới: "Năm ấy ${m.who} từ chối khắc chữ cho vua, nên ta mới dám từ chối rèn gươm cho kẻ đi cướp đất. Ta nợ dòng họ ngươi một lần."`,
+        c:[['Nhận chiếc nhẫn ông mang tới',s=>{gainItem('rg_arcane');return['Chiếc nhẫn khắc một chữ Rune nhỏ, ấm như hơi thở.','good']}],
+           ['Nhờ ông dạy vài chữ',s=>{mod({smarts:2,magic:2});return['Ông ở lại ba ngày. Bạn học được những chữ không có trong sách nào.','magic']}]]}}]},
+ bt:{img:'beastwood',art:'animal',t:'Cuộc Săn Của Hoàng Tử',
+  x:s=>`Hoàng tử ${s.realm} mở cuộc săn lớn nhất mười năm: mục tiêu là đàn hươu trắng trong rừng sâu. Đêm trước cuộc săn, con hươu đầu đàn đứng ngoài cửa sổ nhà bạn, nhìn vào.`,
+  c:[{t:'Dẫn đàn hươu trắng lẩn vào rừng sâu',
+      f:(s,R,m)=>{rep('n',-4);btRes(5);rgAdd('beastwood',5);daW(`Cuộc săn hoàng gia ở ${m.rl} trở về tay trắng. Dân làng đồn ${m.who} nói được tiếng thú.`);
+        return['Bạn đi trước đoàn săn một ngày, xóa từng dấu chân. Hoàng tử về tay không và nhớ mặt bạn.','good']},
+      yrs:20,p:()=>{rgAdd('beastwood',1)},
+      h:{t:'Đàn Hươu Trắng',x:m=>`Ở bìa rừng, một con hươu trắng đứng nhìn bạn rồi không bỏ chạy. Người đi săn trong vùng nói từ thời ${m.who}, đàn hươu không sợ người của dòng họ ấy.`,
+        c:[['Đưa tay ra',s=>{mod({happy:4,magic:1});return['Con hươu ngửi tay bạn rồi thong thả đi vào rừng.','good']}],
+           ['Theo nó vào rừng',s=>{S.money+=15;return['Nó dẫn bạn tới một bãi nấm quý. Bạn hái mang về bán được 15 xu.','good']}]]}},
+     {t:'Dẫn hoàng tử tới con hươu đầu đàn đã già',
+      f:(s,R,m)=>{rep('n',4);s.money+=50;btRes(-3);S.house.prestige+=20;daW(`Hoàng tử ${m.rl} hạ được hươu trắng đầu đàn, do ${m.who} dẫn đường.`);
+        return['Con hươu già không chạy. Nó để mũi tên tới. Hoàng tử thưởng bạn 50 xu, còn đàn hươu non thì được tha.','']},
+      yrs:0,
+      h:{t:'Chiếc Sừng Trong Đại Sảnh',x:m=>`Trong đại sảnh ${m.rl}, chiếc sừng hươu trắng vẫn treo với tấm bảng: "Do ${m.who} dẫn đường." Quản gia cung điện nhận ra họ của bạn.`,
+        c:[['Xin một việc nhỏ trong cung',s=>{rep('n',3);S.money+=20;return['Quản gia cho bạn chép sổ một mùa, trả 20 xu.','']}],
+           ['Xin chiếc sừng đem về chôn ở rừng',s=>{mod({honor:3});rgAdd('beastwood',4);return['Quản gia ngạc nhiên nhưng đồng ý. Bạn chôn chiếc sừng dưới gốc cây nơi đàn hươu hay về.','good']}]]}}]},
+ kg:{img:'fallenhero',art:'shield',t:'Cây Cầu Đá',
+  x:s=>`Một toán quân đào ngũ kéo về phía làng bên sông ở ${s.realm}, cướp tới đâu đốt tới đó. Chỉ có một cây cầu đá dẫn sang làng. Trưởng làng hỏi bạn: giữ cầu, hay phá cầu?`,
+  c:[{t:'Đứng giữ đầu cầu một mình',
+      f:(s,R,m)=>{mod({health:-12,honor:5});kgRes(5);R.stab=Math.min(95,R.stab+3);daW(`Ở ${m.rl}, ${m.who} giữ đầu cầu đá suốt một đêm trước toán quân đào ngũ.`);
+        return['Bạn đứng ở đầu cầu từ chạng vạng tới sáng. Toán quân rút đi. Bạn không nhớ mình đã đỡ bao nhiêu nhát.','good']},
+      yrs:30,p:(R)=>{if(R.stab<40)R.stab++},
+      h:{t:'Cây Cầu Mang Tên Người',x:m=>`Cây cầu đá giờ được gọi là cầu ${m.who}. Trẻ con trong làng thi nhau đứng ở đầu cầu, giả vờ không lùi bước. Năm nào loạn lạc, dân làng lại ra cầu thắp đèn.`,
+        c:[['Đứng ở đầu cầu một lúc',s=>{mod({happy:3,honor:2});return['Bạn đứng ở đúng chỗ ấy. Gió sông thổi lạnh, nhưng chân bạn không muốn lùi.','good']}],
+           ['Sửa lại lan can cầu (15 xu)',s=>{S.money-=15;rep('d',3);S.house.prestige+=10;return['Thợ đá khắc thêm một dòng nhỏ: "Con cháu sửa lại."','good']},15]]}},
+     {t:'Phá cầu, đưa dân lên núi',
+      f:(s,R,m)=>{rep('d',2);kgRes(1);R.fam=Math.max(R.fam||0,1);daW(`Dân ${m.rl} phá cầu đá, chạy lên núi theo lời ${m.who}. Không ai chết, nhưng ruộng bên kia sông bỏ hoang một mùa.`);
+        return['Cầu đổ xuống sông. Toán quân đứng bên kia chửi rủa rồi bỏ đi. Mùa ấy làng mất một vụ, nhưng không mất người nào.','']},
+      yrs:0,
+      h:{t:'Bãi Đá Dưới Sông',x:m=>`Dưới lòng sông vẫn còn những tảng đá của cây cầu năm xưa. Người già kể chính ${m.who} đã ra lệnh phá cầu, và đêm ấy không ai chết.`,
+        c:[['Góp tiền xây lại cầu (25 xu)',s=>{S.money-=25;rep('d',4);S.house.prestige+=15;return['Cây cầu mới xây đúng chỗ cũ. Người ta gọi nó là cầu Con Cháu.','good']},25],
+           ['Nhặt một hòn đá mang về',s=>{mod({happy:2});return['Hòn đá nhẵn như được ai mài. Bạn để nó ở bậu cửa.','']}]]}}]},
+ hl:{img:'dragon',art:'flame',t:'Con Rồng Cuối Cùng Của Núi Tro',
+  x:s=>`Trong hang núi tro ở ${s.realm}, một con rồng già nằm thở dốc, cánh rách bởi giáo của hiệp sĩ. Nó ngửi thấy máu trong người bạn: "Một giọt của ngươi, và ta bay được lần nữa."`,
+  c:[{t:'Cho rồng máu của mình',
+      f:(s,R,m)=>{mod({health:-15,magic:3});hlRes(6);daW(`Người ta thấy một con rồng bay khỏi núi tro ở ${m.rl}, cánh đã lành.`);
+        return['Bạn rạch tay. Con rồng uống, rồi đứng dậy. Trước khi bay đi, nó cúi đầu thật thấp trước bạn.','magic']},
+      yrs:40,p:(R)=>{if(R.stab<20)R.stab=20},
+      h:{t:'Bóng Rồng Mùa Thu',x:m=>`Mỗi mùa thu, một bóng rồng bay vòng qua mái nhà bạn ba lần rồi đi. Bà nội kể đó là con rồng ${m.who} từng cứu. Những năm loạn lạc, không toán cướp nào dám vào vùng này.`,
+        c:[['Ra sân giơ tay chào',s=>{mod({magic:2,happy:3});return['Bóng rồng hạ thấp một chút, như gật đầu, rồi bay về phía núi.','magic']}],
+           ['Lên núi tìm nó',s=>{mod({health:-5});if(ch(.35)){gainItem('scale');return['Bạn không gặp nó, nhưng ở cửa hang có một chiếc vảy đỏ để sẵn.','good']}return['Hang trống. Chỉ có hơi ấm còn sót lại trên đá.','']}]]}},
+     {t:'Chỉ chỗ rồng ẩn cho hiệp sĩ',
+      f:(s,R,m)=>{s.money+=80;rep('n',4);hlRes(-5);mod({honor:-3});daW(`Các hiệp sĩ ${m.rl} mang đầu rồng núi tro về kinh thành.`);
+        return['Hiệp sĩ trả 80 xu. Đêm ấy máu trong người bạn sôi lên rồi lặng hẳn, như vừa mất một người thân.','bad']},
+      yrs:0,
+      h:{t:'Đầu Rồng Trên Cổng Kinh Thành',x:m=>`Đầu rồng núi tro vẫn treo trên cổng kinh thành ${m.rl}, kèm tên những hiệp sĩ đã giết nó. Cuối danh sách có tên ${m.who}, người chỉ đường. Đêm nào bạn đi qua, máu cũng nóng lên.`,
+        c:[['Lén gỡ đầu rồng xuống chôn',s=>{mod({honor:3,health:-4});if(S.hl)hlRes(4);return['Bạn chôn nó dưới chân núi tro. Đêm ấy bạn ngủ yên lần đầu sau nhiều năm.','good']}],
+           ['Bước nhanh qua',s=>{mod({happy:-2});return['Bạn không ngẩng lên. Nhưng tiếng gọi vẫn theo bạn tới tận nhà.','']}]]}}]},
+ xk:{img:'abyss',art:'scroll',t:'Khế Ước Trăm Năm Của Thành',
+  x:s=>`Bạn đọc được trong kho lưu trữ ${s.realm}: người lập thành đã ký với một con quỷ, cứ trăm năm thành phải trao một đứa trẻ. Năm nay là năm thứ một trăm. Người ta đang bốc thăm.`,
+  c:[{t:'Xé khế ước của cả thành',
+      f:(s,R,m)=>{mod({health:-10});xkRes(6);R.stab=Math.min(95,R.stab+4);ten(-5);daW(`Khế ước trăm năm của ${m.rl} bị ${m.who} xé bỏ. Năm ấy không đứa trẻ nào phải rời thành.`);
+        return['Tờ khế ước cháy xanh trong tay bạn, rồi để lại vết bỏng hình chữ ký. Con quỷ không bao giờ tới.','good']},
+      yrs:30,p:()=>{if(W2().ten>10)ten(-1)},
+      h:{t:'Những Đứa Trẻ Năm Ấy',x:m=>`Một bà cụ chống gậy tìm tới, nói bà là đứa trẻ bị bốc thăm năm ấy và được ở lại nhờ ${m.who}. Năm nào bà cũng mang bánh tới mộ tổ tiên bạn.`,
+        c:[['Mời bà vào nhà',s=>{mod({happy:5});return['Bà kể về năm ấy tới khuya. Bạn mới biết vết bỏng trên tay tổ tiên từ đâu mà có.','good']}],
+           ['Hỏi bà về tờ khế ước',s=>{mod({smarts:2});if(S.xk)xkRes(3);return['Bà còn giữ một mẩu tro. Trên đó vẫn đọc được một chữ: "trăm".','magic']}]]}},
+     {t:'Sửa điều khoản: thành trả bằng vàng thay vì trẻ con',
+      f:(s,R,m)=>{R.stab=Math.max(5,R.stab-3);rep('n',-3);rep('d',3);xkRes(3);daW(`${m.rl} tăng thuế để trả một khoản nợ không ai được nói tên.`);
+        return['Con quỷ nhận vàng thay người. Thành phải đặt ra một khoản thuế mới, và chỉ bạn biết vì sao.','']},
+      yrs:25,p:(R,m)=>{if(S.realm===m.rl)S.money=Math.max(0,S.money-3)},
+      h:{t:'Thuế Không Tên',x:m=>`Trong sổ thuế ${m.rl} có một khoản "thuế không tên" mà nhà nào cũng nộp. Người thu thuế thì thầm: đó là món nợ ${m.who} đã đổi từ trẻ con sang vàng.`,
+        c:[['Nộp đủ, không hỏi gì',s=>{S.money=Math.max(0,S.money-5);mod({honor:1});return['Bạn nộp 5 xu. Người thu thuế nhìn bạn rất lâu.','']}],
+           ['Lần tìm điều khoản kết thúc khế ước',s=>{mod({smarts:2});if(ch(.4+S.st.smarts/300)){S.daCur.yrs=0;daW(`Thuế không tên của ${S.daCur.rl} được bãi bỏ.`);return['Bạn tìm ra điều khoản cuối: món nợ đã trả đủ từ mười năm trước. Thuế không tên bị bãi bỏ.','good']}return['Kho lưu trữ khóa cửa với bạn. Bạn chỉ tìm được tên con quỷ.','']}]]}}]},
+ kk:{img:'abyss',art:'night',t:'Ngôi Làng Đang Mờ Dần',
+  x:s=>`Làng Sương Thấp ở ${s.realm} đang mờ dần vào Khư Không. Mái nhà trong suốt như sương, trẻ con quên tên cha mẹ. Rìa thế giới quanh làng đã sờn, bạn thấy rõ từng sợi.`,
+  c:[{t:'Khâu rìa, kéo cả làng về',
+      f:(s,R,m)=>{mod({health:-12,honor:4});kkRes(6);daW(`Làng Sương Thấp ở ${m.rl} từng mờ đi một nửa, rồi hiện rõ trở lại sau một đêm.`);
+        return['Bạn khâu tới khi ngón tay bật máu. Sáng ra, làng hiện rõ, và cả làng đếm đủ người.','good']},
+      yrs:0,
+      h:{t:'Ngôi Làng Đếm Người',x:m=>`Ở làng Sương Thấp, mỗi đêm trăng non người ta vẫn đếm đủ đầu người, rồi đọc tên ${m.who} sau cùng. Họ mời bạn ngồi vào chỗ của tổ tiên.`,
+        c:[['Ngồi vào, đọc tên cùng họ',s=>{mod({happy:4,honor:2});return['Khi bạn đọc tên tổ tiên, ngọn đèn giữa làng sáng thêm một chút.','good']}],
+           ['Hỏi họ về những người năm ấy không về',s=>{mod({magic:2});if(S.kk)kkRes(3);return['Có ba cái tên. Bạn ghi lại, biết đâu sau này còn tìm được.','magic']}]]}},
+     {t:'Dẫn những ai còn thấy rõ ra ngoài, để làng đi',
+      f:(s,R,m)=>{mod({health:-4,happy:-4});kkRes(2);R.stab=Math.max(5,R.stab-2);daW(`Làng Sương Thấp ở ${m.rl} biến mất khỏi bản đồ. Một nửa dân làng kịp ra ngoài theo ${m.who}.`);
+        return['Bạn dẫn ra được bốn mươi người. Khi ngoảnh lại, chỗ làng chỉ còn bãi cỏ.','bad']},
+      yrs:0,
+      h:{t:'Ngọn Đèn Ở Chỗ Làng Cũ',x:m=>`Chỗ làng Sương Thấp giờ chỉ còn bãi cỏ. Nhưng có ai đó vẫn thắp một ngọn đèn mỗi đêm, kèm tấm bảng: "Để người của ${m.who} biết đường về."`,
+        c:[['Thắp thêm một ngọn',s=>{mod({magic:1,happy:2});return['Hai ngọn đèn cháy cạnh nhau tới sáng.','']}],
+           ['Đứng chờ đến sáng',s=>{if(ch(.3)){mod({honor:3});return['Gần sáng, một người lạ bước ra từ sương, cúi đầu cảm ơn bạn rồi đi về phía làng bên.','good']}return['Sương tan. Không ai bước ra.','']}]]}}]},
+ mt:{img:'mt_river',art:'moon',t:'Bài Hát Bị Cấm',
+  x:s=>`Triều đình ${s.realm} cấm hát bài ca về vụ thảm sát ở làng Bờ Sậy, nơi lính nhà vua đã đốt cả làng chỉ vì nợ thuế. Ai hát, người đó vào ngục. Bạn là người duy nhất còn nhớ trọn lời.`,
+  c:[{t:'Hát bài ấy giữa quảng trường',
+      f:(s,R,m)=>{rep('d',5);rep('n',-6);mtRes(6);R.stab=Math.max(5,R.stab-3);let t='Bạn hát hết bài. Không ai ngắt lời.';if(ch(.3)){mod({health:-10});t+=' Đêm ấy lính tới đánh bạn một trận.'}
+        daW(`Bài hát bị cấm vang lên ở quảng trường ${m.rl}. Sáng hôm sau, cả thành đều thuộc.`);return[t+' Sáng hôm sau, cả thành đều thuộc.','good']},
+      yrs:0,
+      h:{t:'Bài Hát Ai Cũng Thuộc',x:m=>`Ở ${m.rl}, trẻ con nhảy dây vẫn hát bài ${m.who} hát năm xưa, dù không đứa nào biết nó từng bị cấm.`,
+        c:[['Hát cùng chúng',s=>{mod({happy:4});return['Bạn hát sai một câu. Lũ trẻ cười, sửa lại cho bạn đúng lời gốc.','good']}],
+           ['Chép lại lời gốc cho đời sau',s=>{mod({smarts:2});S.house.prestige+=10;return['Bạn chép lại cả những câu đã bị quên. Bài hát giờ có hai người giữ.','']}]]}},
+     {t:'Chép bài thơ vào sổ, khâu kín trang giấy',
+      f:(s,R,m)=>{mtRes(3);return['Bạn chép lại từng câu, khâu trang giấy bằng chỉ bạc, ghi bên ngoài: "Mở khi không còn ai phải sợ."','']},
+      yrs:0,
+      h:{t:'Trang Sổ Khâu Kín',x:m=>`Trong rương của ${m.who} có một trang sổ khâu kín bằng chỉ bạc, ghi: "Mở khi không còn ai phải sợ." Bên trong là bài thơ về vụ thảm sát ở làng Bờ Sậy mà sử sách không ghi.`,
+        c:[['Công bố bài thơ',s=>{rep('d',4);rep('n',-4);S.house.prestige+=15;daW(`Bài thơ của ${S.daCur.who} về làng Bờ Sậy được con cháu công bố.`);return['Bài thơ được chép ra khắp nơi. Ở làng Bờ Sậy cũ, người ta dựng một tấm bia.','good']}],
+           ['Khâu lại, để cho đời sau nữa',s=>{S.daCur.done=0;S.daCur.gen=S.gen;mod({happy:-1});return['Bạn khâu trang sổ lại. Có lẽ đời sau sẽ ít phải sợ hơn.','']}]]}}]}
+};
+const DA_EV=[
+ {id:'da_now',queued:true,big:true,art:s=>DA[s.daK]?DA[s.daK].art:'star',c:s=>!!(s.alive&&!s.cap&&s.daK&&s[s.daK]&&DA[s.daK]),
+  title:s=>DA[s.daK].t,text:s=>DA[s.daK].x(s)},
+ {id:'da_heir',queued:true,big:true,art:'scroll',c:s=>!!(s.alive&&!s.cap&&s.daCur&&DA[s.daCur.k]),
+  title:s=>DA[s.daCur.k].c[s.daCur.i].h.t,text:s=>DA[s.daCur.k].c[s.daCur.i].h.x(s.daCur)}
+];
+Object.defineProperty(DA_EV[0],'ch',{get:()=>{const D=S&&DA[S.daK];if(!D)return[];return D.c.map((C,i)=>({t:C.t,f:s=>{
+  const W=s.world;if(!W.da)W.da=[];const m={k:s.daK,i,who:`${s.first} ${s.surname}`,rl:s.realm,y:s.year,gen:s.gen,yrs:C.yrs||0,done:0};W.da.push(m);s.flags.daDone=1;s.daK=null;
+  return C.f(s,daR(m),m)}}))}});
+Object.defineProperty(DA_EV[1],'ch',{get:()=>{const m=S&&S.daCur,D=m&&DA[m.k];if(!D)return[];return D.c[m.i].h.c.map(([t,f,cost])=>({t,cost,f:s=>{m.done=1;const r=f(s);s.daCur=null;return r}}))}});
+Object.defineProperty(EIMG,'da_now',{get:()=>S&&DA[S.daK]?DA[S.daK].img:'destiny',enumerable:true,configurable:true});
+Object.defineProperty(EIMG,'da_heir',{get:()=>S&&S.daCur&&DA[S.daCur.k]?DA[S.daCur.k].img:'destiny',enumerable:true,configurable:true});
+for(const e of DA_EV){EV.push(e);EVB[e.id]=e}
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive)return;const W=S.world;
+  /* hiệu ứng kéo dài của những dấu ấn đã để lại */
+  for(const m of W.da||[]){if(m.yrs>0){const R=daR(m),p=DA[m.k]&&DA[m.k].c[m.i].p;if(R&&p)try{p(R,m)}catch(e){console.error(e)}m.yrs--}}
+  if(S.cap)return;
+  /* khoảnh khắc dấu ấn của đời này: từ Bậc 3, mỗi đời một lần */
+  const k=CE_K.find(x=>S[x]);
+  if(k&&DA[k]&&!S.flags.daDone&&!S.daK&&(S[k].rk||0)>=3&&!S.pend.includes(k+'_sc')&&!S.pend.includes('da_now')&&ch(.5)){S.daK=k;S.pend.push('da_now');return}
+  /* con cháu gặp lại dấu vết của tổ tiên */
+  if(S.age>=16&&!S.daCur&&!S.pend.includes('da_heir')&&ch(.3)){const m=(W.da||[]).find(x=>!x.done&&x.gen<S.gen&&DA[x.k]);if(m){S.daCur=m;S.pend.push('da_heir')}}}}
+{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'){if(r.world&&r.world.da&&!Array.isArray(r.world.da))r.world.da=[];if(r.daK&&!DA[r.daK])r.daK=null;
+  if(r.daCur){const m=r.world&&r.world.da&&r.world.da.find(x=>x.k===r.daCur.k&&x.y===r.daCur.y&&x.i===r.daCur.i);r.daCur=m||null}}return r}}
+
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
