@@ -11661,6 +11661,14 @@ function jobPull(body){const out=[];let cur=null,anchor=null,first=true;
 {const d0=drawExt3;drawExt3=function(v){if(v==='jobs')return['Nghề nghiệp',JOBH||'<p class="note">Bạn chưa làm nghề nào.</p>','act'];return d0(v)}}
 
 {const j0=joinJob;joinJob=function(id){if(view&&view.startsWith('job:'))view='job';return j0(id)}}
+/* ===== Chết lãng xẹt (~1% mỗi năm) ===== */
+const SILLY_DEATH=['hóc xương cá trong bữa tối','vấp phải hòn đá trước cửa nhà, đập đầu xuống bậc thềm','bị con ngỗng nhà hàng xóm đuổi rồi trượt chân xuống ao',
+ 'cười quá nhiều trong lúc xem gánh hát rong','bị thùng bia lăn từ trên dốc xuống đè trúng','ngã khỏi ghế khi đang cố bắt con ruồi','bị con dê húc rơi xuống giếng',
+ 'ăn nhầm nấm độc vì tưởng là nấm hương','hắt hơi quá mạnh làm sái cổ rồi ngã cầu thang','bị bánh xe pho mát lăn trong hội làng đè qua','nghẹn bánh mì trong tiệc cưới của người khác',
+ 'bị con gà trống mổ vào đầu khi đang ngủ trưa dưới gốc cây','trượt vỏ chuối ở chợ phiên','ngồi lên cái chĩa ba ai đó bỏ quên trong đống rơm','bị chậu hoa trên ban công rơi trúng đầu',
+ 'thua cược nên phải nhảy xuống sông giữa mùa đông','đứng dưới gốc cây giữa trời giông để khoe mình không sợ sét','bị con lừa đá trúng ngực khi đang tết đuôi cho nó',
+ 'say rượu ngủ quên trong chuồng lợn','uống nhầm lọ thuốc nhuộm vải tưởng là rượu vang'];
+{const y0=extYear3;extYear3=function(){y0();if(S.alive&&S.age>=4&&!S.cap&&ch(.01))die(pick(SILLY_DEATH))}}
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
