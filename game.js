@@ -1428,35 +1428,39 @@ function rowBtn(data,title,sub,tag,dis){return`<button class="row" ${data} ${dis
 const fxList=fx=>Object.entries(fx||{}).map(([k,v])=>`<li class="${v<0?'neg':''}">${v>0?'+':''}${v} ${SL[k]} mỗi năm</li>`).join('');
 function openSheet(v){if(!S)return;if(v!==view)note=null;view=v;drawSheet();$('#sheet').hidden=false;const f=$('#sheet .xbtn');f&&f.focus()}
 function closeSheet(){$('#sheet').hidden=true;view=null;note=null;if(S&&!S.alive&&$('#modal').hidden)showDeath()}
-const JGRP=[['lao','Lao động và thủ công',['shepherd','farm','smith','fisher','miner','brewer','runesmith']],
- ['vo','Võ nghiệp',['soldier','knight','hunter','orcwar','pitfighter','merc','shieldguard','shadowblade','demonhunter','ranger','tracker','assassin']],
- ['tri','Chữ nghĩa, buôn bán và triều đình',['trade','blackmarket','scribe','court','teacher','lady','bard','surgeon']],
- ['phep','Phép thuật và tín ngưỡng',['church','mission','wizard','alch','orcshaman','druid','enchanter','beastspeak','warlock']],
- ['khac','Nghề khác',[]]];
+const JGRP=[['lao','Lao động và thủ công',['shepherd','farm','smith','fisher','miner','brewer','runesmith'],'anvil','Chăn nuôi, ruộng đồng, rèn, đánh cá, mỏ'],
+ ['vo','Võ nghiệp',['soldier','knight','hunter','orcwar','pitfighter','merc','shieldguard','shadowblade','demonhunter','ranger','tracker','assassin'],'crossed','Lính, hiệp sĩ, thợ săn, đấu sĩ'],
+ ['tri','Buôn bán và chữ nghĩa',['trade','blackmarket','scribe','court','teacher','lady','bard','surgeon'],'scroll','Buôn bán, thư lại, thầy lang, quan trường'],
+ ['phep','Phép thuật và tín ngưỡng',['church','mission','wizard','alch','orcshaman','druid','enchanter','beastspeak','warlock'],'church','Tu viện, pháp sư, giả kim, shaman'],
+ ['khac','Nghề khác',[],'anvil','Những nghề còn lại']];
 function drawSheet(){
   if(!view)return;
   let title='',b='',back='';
   const nt=note?`<p class="note ${note.tone}">${esc(note.t)}</p>`:'';
-  if(view==='job'){
+  if(view==='job'||view.startsWith('job:')){
+    const gk=view.startsWith('job:')?view.slice(4):'';
+    if(gk){back='job';title=(JGRP.find(g=>g[0]===gk)||[,'Nghề nghiệp'])[1]}else{
     title='Nghề nghiệp';
     if(S.flags.saint)b+=`<div class="row"><div><b>Thánh Nữ</b><small>Giáo hội cấp bổng lộc 60 xu mỗi năm · có thể ban phước chữa lành</small></div></div>`;
     if(S.job){const J=JOBS[S.job.id];b+=`<p class="sec">Đang làm</p><div class="row"><div><b>${jt()}</b><small>${S.job.yr} năm trong nghề · ${J.pay[S.job.rank]} xu mỗi năm${S.job.rank<J.t.length-1&&J.need[S.job.rank]<99?' · bậc kế: '+(S.sex==='f'&&J.tf?J.tf:J.t)[S.job.rank+1]:''}</small></div></div>`+rowBtn('data-quit','Bỏ việc','','')}
     b+=hcHTML();
+    }
     const okR=J=>!J.races||J.races.includes(S.race);
     const own=Object.entries(JOBS).filter(([id,J])=>okR(J)&&J.races&&J.races.length<=3&&!['shepherd','farm','smith','scribe','surgeon','wizard','alch'].includes(id)&&(S.race!=='human'||['church','mission','knight','lady','bard'].includes(id)));
-    const rest=Object.entries(JOBS).filter(([id,J])=>okR(J)&&!own.some(o=>o[0]===id));
-    const jl=[...own.map(x=>[...x,1]),...rest.map(x=>[...x,0])],lock=[];
     const grp={};for(const g of JGRP)grp[g[0]]=[];
-    for(const[id,J,isOwn]of jl){
-      if(S.job&&S.job.id===id)continue;
+    for(const[id,J]of Object.entries(JOBS)){
+      if(!okR(J)||(S.job&&S.job.id===id))continue;
+      const isOwn=own.some(o=>o[0]===id);
       const why=isStu(S)?'Đang theo học tại Học viện':S.age<J.min?`Từ ${J.min} tuổi`:!J.req(S)?J.why:'';
-      const row=gRow(`data-job="${id}"`,JIC[id]||'anvil',J.n,why||`Khởi đầu: ${(S.sex==='f'&&J.tf?J.tf:J.t)[0]} · ${J.t.length} bậc${J.risk?' · nguy hiểm':''}${isOwn?' · riêng '+RACES[S.race].n:''}`,`${J.pay[0]} xu/năm`,!!why||!S.alive);
-      if(why){lock.push([J.min,row]);continue}
-      const g=JGRP.find(x=>x[2].includes(id));grp[g?g[0]:'khac'].push(row);
+      const g=JGRP.find(x=>x[2].includes(id));grp[g?g[0]:'khac'].push({id,J,isOwn,why});
     }
-    for(const[k,n]of JGRP)if(grp[k].length)b+=`<p class="sec">${n}</p>`+grp[k].join('');
-    if(!JGRP.some(g=>grp[g[0]].length))b+='<p class="note">Hiện chưa có nghề nào bạn làm được.</p>';
-    if(lock.length)b+='<p class="sec">Chưa đủ điều kiện</p>'+lock.sort((x,y)=>x[0]-y[0]).map(x=>x[1]).join('');
+    if(!gk){b+='<p class="sec">Chọn một nhóm nghề</p>';
+      for(const[k,n,,ic,d]of JGRP){const L=grp[k];if(!L.length)continue;const ok=L.filter(x=>!x.why).length;
+        b+=gRow(`data-open="job:${k}"`,ic,n,d,ok?`${ok} nghề`:'Chưa mở',!S.alive)}
+    }else{const L=(grp[gk]||[]).sort((x,y)=>(!!x.why-!!y.why)||(x.J.pay[0]-y.J.pay[0]));
+      if(!L.length)b+='<p class="note">Không có nghề nào trong nhóm này.</p>';
+      for(const{id,J,isOwn,why}of L)b+=gRow(`data-job="${id}"`,JIC[id]||'anvil',J.n,why||`Khởi đầu: ${(S.sex==='f'&&J.tf?J.tf:J.t)[0]} · ${J.t.length} bậc${J.risk?' · nguy hiểm':''}${isOwn?' · riêng '+RACES[S.race].n:''}`,`${J.pay[0]} xu/năm`,!!why||!S.alive);
+    }
   }
   if(view==='act'||(view.startsWith('act:')&&view!=='act:job')){
     const avail=a=>!(S.age<a.min||(a.req&&!a.req(S))||S.done[a.id]||(a.cost&&S.money<a.cost));
@@ -10183,7 +10187,7 @@ for(const e of CAP_EV){EV.push(e);EVB[e.id]=e}
 {const f0=flavorYear;flavorYear=function(){if(!S||!S.cap)return f0();S.pend=S.pend.filter(id=>id==='cap_sc');capYear()}}
 {const d0=drawExt3;drawExt3=function(v){if(v==='cap')return capView();if(v==='capjob')return['Nghề nghiệp',`<p class="note">Bạn đang bị giam. Nghề${S.cap&&S.cap.job?` ${esc(JOBS[S.cap.job.id]?JOBS[S.cap.job.id].n:'')}`:''} bị khóa: không thể xin, đổi hay thăng nghề cho tới khi được tự do.</p>`,''];return d0(v)}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('cap:')){const[,k,id]=x.split(':');return capAct(k,id)}return x0(x)}}
-{const s0=drawSheet;drawSheet=function(){if(S&&S.cap&&view){if(view==='act'||view.startsWith('act:')||/^(hq|hon|sea|mk|org|dragon|retire|vo|nb|dh)(:|$)/.test(view))view='cap';else if(view==='job')view='capjob'}s0();
+{const s0=drawSheet;drawSheet=function(){if(S&&S.cap&&view){if(view==='act'||view.startsWith('act:')||/^(hq|hon|sea|mk|org|dragon|retire|vo|nb|dh)(:|$)/.test(view))view='cap';else if(view==='job'||view.startsWith('job:'))view='capjob'}s0();
   if(S&&S.cap&&view&&/^(rel|p:|r:)/.test(view)){const sb=$('#sheet .sbody');if(sb&&!sb.querySelector('.capnote'))sb.insertAdjacentHTML('afterbegin','<p class="note bad capnote">Bạn đang bị giam. Bạn không liên lạc được với gia đình, bạn bè hay người yêu.</p>')}}}
 {const r0=render;render=function(){r0();if(S&&S.cap){const e=$('#sub');if(e)e.textContent=`Bị giam tại ${capLoc().n} · ${capYrs()} năm · ${e.textContent}`}}}
 /* lớp chặn nút bấm khi bị giam */
@@ -11154,7 +11158,7 @@ function voYear(){if(!S||!S.alive)return;
   const sub=V.st==='app'?`Học đồ · ${V.alias||'chưa có bí danh'}`:V.C?`Hợp đồng: ${voTxt(V.C)} · hạn ${V.C.dl}`:`${V.alias} · công trạng ${V.m}`;
   return'<p class="sec">Hội Vô Diện</p>'+gRow('data-open="vo"','hood','Hội Vô Diện',sub,'',!S.alive||!!S.cap)+b}}
 /* ẩn nghề Sát Thủ khỏi danh sách nghề với người ngoài hội */
-{const d0=drawSheet;drawSheet=function(){if(view==='job'&&!(S&&S.vo&&S.vo.st==='sworn')){const J=JOBS.assassin;delete JOBS.assassin;try{return d0()}finally{JOBS.assassin=J}}return d0()}}
+{const d0=drawSheet;drawSheet=function(){if((view==='job'||view==='job:vo')&&!(S&&S.vo&&S.vo.st==='sworn')){const J=JOBS.assassin;delete JOBS.assassin;try{return d0()}finally{JOBS.assassin=J}}return d0()}}
 {const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'){if(r.vo&&typeof r.vo!=='object')r.vo=null;if(r.vo){const V=r.vo;V.np=V.np||{};V.sk=V.sk||{qs:10,dx:10,yc:10,ph:10};V.j=V.j||[];V.hist=V.hist||[];V.inv=V.inv||[];V.done=V.done||{};V.mates=V.mates||[]}
   if(r.voF&&!(r.vo&&r.vo.C))r.voF=null}return r}}
 
@@ -11656,6 +11660,7 @@ function jobPull(body){const out=[];let cur=null,anchor=null,first=true;
   return res}}
 {const d0=drawExt3;drawExt3=function(v){if(v==='jobs')return['Nghề nghiệp',JOBH||'<p class="note">Bạn chưa làm nghề nào.</p>','act'];return d0(v)}}
 
+{const j0=joinJob;joinJob=function(id){if(view&&view.startsWith('job:'))view='job';return j0(id)}}
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
