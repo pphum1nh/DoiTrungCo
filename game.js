@@ -10187,14 +10187,14 @@ for(const e of CAP_EV){EV.push(e);EVB[e.id]=e}
 {const f0=flavorYear;flavorYear=function(){if(!S||!S.cap)return f0();S.pend=S.pend.filter(id=>id==='cap_sc');capYear()}}
 {const d0=drawExt3;drawExt3=function(v){if(v==='cap')return capView();if(v==='capjob')return['Nghề nghiệp',`<p class="note">Bạn đang bị giam. Nghề${S.cap&&S.cap.job?` ${esc(JOBS[S.cap.job.id]?JOBS[S.cap.job.id].n:'')}`:''} bị khóa: không thể xin, đổi hay thăng nghề cho tới khi được tự do.</p>`,''];return d0(v)}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('cap:')){const[,k,id]=x.split(':');return capAct(k,id)}return x0(x)}}
-{const s0=drawSheet;drawSheet=function(){if(S&&S.cap&&view){if(view==='act'||view.startsWith('act:')||/^(hq|hon|sea|mk|org|dragon|retire|vo|nb|dh)(:|$)/.test(view))view='cap';else if(view==='job'||view.startsWith('job:'))view='capjob'}s0();
+{const s0=drawSheet;drawSheet=function(){if(S&&S.cap&&view){if(view==='act'||view.startsWith('act:')||/^(hq|hon|sea|mk|org|dragon|retire|vo|nb|dh|wt)(:|$)/.test(view))view='cap';else if(view==='job'||view.startsWith('job:'))view='capjob'}s0();
   if(S&&S.cap&&view&&/^(rel|p:|r:)/.test(view)){const sb=$('#sheet .sbody');if(sb&&!sb.querySelector('.capnote'))sb.insertAdjacentHTML('afterbegin','<p class="note bad capnote">Bạn đang bị giam. Bạn không liên lạc được với gia đình, bạn bè hay người yêu.</p>')}}}
 {const r0=render;render=function(){r0();if(S&&S.cap){const e=$('#sub');if(e)e.textContent=`Bị giam tại ${capLoc().n} · ${capYrs()} năm · ${e.textContent}`}}}
 /* lớp chặn nút bấm khi bị giam */
 document.addEventListener('click',e=>{
   if(!S||!S.cap)return;const b=e.target.closest('button');if(!b||b.disabled)return;const d=b.dataset;let why='';
-  if(d.open&&(/^(shop|owned|dom|kd|gd|flirt|match|rg|tt|vj|rn|bt|kg|hl|xk|kk|mt|nb|vo|dh|hc|hq|hon|sea|mk|org|dragon|retire|co|dm|acad|kn|hn|rm|cult|mv)(:|$)/.test(d.open)))why='Bạn đang bị giam, không thể làm việc này.';
-  else if(d.x&&!d.x.startsWith('cap:')&&(['allrel','skip5'].includes(d.x)||/^(kc|tt|vj|rn|bt|kg|hl|xk|kk|mt|nb|vo|dh|hc|hq|rg|co|dm|kn|hn|gd|kd|pv|ptgo)(:|$)/.test(d.x)||/^(rel|p:|r:)/.test(view||'')))why=d.x==='allrel'?'Bạn không thể gặp người thân khi đang bị giam.':'Bạn đang bị giam, không thể làm việc này.';
+  if(d.open&&(/^(shop|owned|dom|kd|gd|flirt|match|rg|tt|vj|rn|bt|kg|hl|xk|kk|mt|nb|vo|dh|wt|hc|hq|hon|sea|mk|org|dragon|retire|co|dm|acad|kn|hn|rm|cult|mv)(:|$)/.test(d.open)))why='Bạn đang bị giam, không thể làm việc này.';
+  else if(d.x&&!d.x.startsWith('cap:')&&(['allrel','skip5'].includes(d.x)||/^(kc|tt|vj|rn|bt|kg|hl|xk|kk|mt|nb|vo|dh|wt|hc|hq|rg|co|dm|kn|hn|gd|kd|pv|ptgo)(:|$)/.test(d.x)||/^(rel|p:|r:)/.test(view||'')))why=d.x==='allrel'?'Bạn không thể gặp người thân khi đang bị giam.':'Bạn đang bị giam, không thể làm việc này.';
   else if(d.act&&!['sword','spell'].includes(d.act))why='Khi bị giam, bạn chỉ có thể luyện tập.';
   else if(d.job!==undefined||'quit'in d)why='Nghề nghiệp bị khóa khi bạn đang bị giam.';
   else if(d.pa||d.ra||'match'in d||d.wed!==undefined||'baby'in d||d.flirt!==undefined||'findf'in d)why='Bạn không liên lạc được với gia đình, bạn bè hay người yêu khi đang bị giam.';
@@ -11669,6 +11669,266 @@ const SILLY_DEATH=['hóc xương cá trong bữa tối','vấp phải hòn đá 
  'thua cược nên phải nhảy xuống sông giữa mùa đông','đứng dưới gốc cây giữa trời giông để khoe mình không sợ sét','bị con lừa đá trúng ngực khi đang tết đuôi cho nó',
  'say rượu ngủ quên trong chuồng lợn','uống nhầm lọ thuốc nhuộm vải tưởng là rượu vang'];
 {const y0=extYear3;extYear3=function(){y0();if(S.alive&&S.age>=4&&!S.cap&&ch(.01))die(pick(SILLY_DEATH))}}
+/* ===== Chuyện vặt lãng xẹt: một dòng mỗi năm (~12%) ===== */
+const SILLY_LOG=[
+ ['Con ngỗng nhà hàng xóm đuổi bạn chạy ba vòng quanh giếng làng. Cả xóm đứng xem.',{happy:-1}],
+ ['Bạn ngủ gật trong nhà thờ và ngáy to hơn cả tiếng đàn ống.',{honor:-1}],
+ ['Con dê nhà bên ăn mất một nửa chiếc ủng bạn phơi ngoài sân.',{}],
+ ['Bạn hắt hơi đúng lúc cha xứ đọc lời ban phước. Cả hàng ghế quay lại nhìn.',{}],
+ ['Một con quạ cướp miếng bánh mì trên tay bạn rồi đậu ngay trên mái nhà ăn trước mặt bạn.',{happy:-1}],
+ ['Bạn thắng giải "bộ râu ấn tượng nhất" ở hội làng, dù bạn không hề đăng ký.',{happy:2}],
+ ['Bạn gọi nhầm tên vợ của trưởng làng ba lần trong một buổi tối.',{honor:-1}],
+ ['Con mèo nhà bạn mang về một con cá to hơn cả nó. Không ai biết nó lấy ở đâu.',{happy:2}],
+ ['Bạn bước hụt bậc thang hầm rượu và ngồi luôn vào thùng dưa muối.',{happy:-1}],
+ ['Gánh hát rong mời bạn đóng vai cái cây. Bạn đứng yên suốt hai canh giờ và được khen nhập vai.',{happy:2}],
+ ['Bạn mặc ngược áo suốt cả phiên chợ mà không ai nói gì.',{}],
+ ['Một bà lão bán trứng nhất quyết rằng bạn là cháu bà. Bạn được cho không một chục trứng.',{happy:1}],
+ ['Bạn thua cược và phải hát một bài trước quán rượu. Chó trong làng hú theo.',{honor:-1,happy:1}],
+ ['Gió thổi bay chiếc mũ của bạn xuống sông. Một con vịt đội nó bơi đi rất tự hào.',{}],
+ ['Bạn ăn phải quả ớt của thương nhân phương nam và uống cạn nửa cái giếng.',{health:-1}],
+ ['Con lừa của bạn không chịu đi khi bạn kéo, nhưng đi ngay khi con trẻ hàng xóm gọi.',{}],
+ ['Bạn tập nói tiếng tiên với một khách lữ hành. Hóa ra bạn vừa chê mũi người ta.',{honor:-1}],
+ ['Bạn tìm thấy một đồng xu trong túi áo cũ và vui suốt cả ngày.',{happy:2}],
+ ['Một con bò lạc vào nhà bạn, nằm cạnh lò sưởi và không chịu ra.',{}],
+ ['Bạn kể chuyện ma quá hay, cả bàn ở quán rượu không ai dám về nhà một mình.',{happy:1}],
+ ['Bạn đặt tên cho con chuột trong bếp. Giờ bạn không nỡ đặt bẫy nữa.',{happy:1}],
+ ['Bạn bị con ong đốt vào mũi đúng hôm đi xem mắt hộ người khác.',{}],
+ ['Bạn thử đi cà kheo ở hội làng và hạ cánh trên quầy bánh mật.',{health:-1,happy:1}],
+ ['Thầy bói phán bạn sẽ gặp may. Ngay hôm đó bạn bị chim ỉa trúng đầu. Thầy bói bảo đó chính là may.',{}],
+ ['Bạn ngủ quên trên đống cỏ khô và bị chở ra tận chợ làng bên.',{}]
+];
+{const y0=extYear3;extYear3=function(){y0();if(S&&S.alive&&!S.cap&&S.age>=5&&ch(.12)){const[t,fx]=pick(SILLY_LOG);mod(fx);log(t)}}}
+
+/* ===== Người Nghe Nước → Người Giữ Con Nước / Chủ Khế Ước Vực Sâu ===== */
+const WTRK={keep:['Người Nghe Nước','Kẻ Đọc Dấu Triều','Người Dẫn Luồng','Người Giữ Con Nước','Người Để Lại Ngọn Đèn'],
+ pact:['Người Nghe Nước','Kẻ Gọi Dưới Mạn Thuyền','Người Cầm Dây Triều','Chủ Khế Ước Vực Sâu','Kẻ Được Biển Đáp Lời']};
+const WTCLS={keep:'Người Giữ Con Nước',pact:'Chủ Khế Ước Vực Sâu'};
+const WTREQ={2:30,3:45,4:60,5:75};
+const WTB={calf:{n:'Chuông',ic:'shell',d:'Con thủy quái non từng mắc chuông làng trong hàm. Quen vịnh và quen tín hiệu của bạn hơn mọi con khác'},
+ ran:{n:'Rắn Vây Bạc',ic:'trident',d:'Luồn qua bãi đá, dẫn đường trong sương, dồn cá vào lưới. Dễ hoảng khi thấy lửa'},
+ cua:{n:'Cua Mỏ Neo',ic:'anchor',d:'Giữ thuyền khỏi trôi, kéo xác tàu, che chắn khi cứu người. Chịu được dòng xiết nhưng chậm'},
+ bach:{n:'Bạch Tuộc Khe Đen',ic:'ghost',d:'Ghìm tàu, kéo quái vật khác khỏi mạn thuyền. Không thích bị nhìn chằm chằm'},
+ kinh:{n:'Kình Mù Vực Sâu',ic:'ship',d:'Mở luồng giữa sóng lớn, nghe được đàn thủy quái từ rất xa. Thích nghe hát'}};
+const wtOn=()=>!!(S&&S.wt&&S.alive&&!S.cap);
+const wtBr=()=>S.wt&&S.wt.br;
+const wtName=()=>{const T=S.wt;return T.rk?WTRK[T.br||'keep'][T.rk-1]:'Mẻ Lưới Bơi Ngược'};
+const wtJ=t=>{const j=S.wt.j;if(!j.includes(t))j.push(t);if(j.length>14)j.shift()};
+const wtWs=v=>{S.wt.ws=Math.max(0,Math.min(100,S.wt.ws+v))};
+const wtLg=v=>{S.wt.lg=Math.max(0,Math.min(100,S.wt.lg+v))};
+const wtBoat=lv=>!!(S.boat&&BOATS[S.boat.k].lv>=lv&&S.boat.cond>15);
+const wtNLeft=()=>Math.max(0,2-(S.done.wtn||0));
+const wtNext=sc=>{S.wt.sc=sc;if(!S.pend.includes('wt_sc'))S.pend.push('wt_sc')};
+/* thủy quái */
+const wtBs=k=>S.wt&&S.wt.bs&&S.wt.bs[k];
+const wtPk=()=>{const T=S.wt;if(!T||T.br!=='pact')return null;const k=T.pick&&T.bs[T.pick]?T.pick:Object.keys(T.bs)[0];return k?[k,T.bs[k]]:null};
+function wtTr(k,v){const b=wtBs(k);if(b)b.tr=Math.max(0,Math.min(100,b.tr+v))}
+function wtOan(k,v){const b=wtBs(k);if(!b)return;b.oan=Math.max(0,Math.min(100,b.oan+v));
+  if(b.oan>=60&&!b.warn){b.warn=1;log(`${WTB[k].n} lặn mất cả buổi khi bạn gõ tín hiệu, rồi mới chịu nổi lên. Nó đang giận bạn.`,'bad')}
+  if(b.oan>=90){delete S.wt.bs[k];S.wt.lost=S.wt.lost||[];S.wt.lost.push(k);if(S.wt.pick===k)S.wt.pick=null;log(`${WTB[k].n} xé khế ước và bơi ra biển sâu. Có thể một ngày bạn sẽ gặp lại nó, ở phía bên kia.`,'bad')}}
+function wtGain(k){if(!S.wt.bs[k]){S.wt.bs[k]={tr:k==='calf'?35:25,sp:100,oan:k==='bach'?25:0};wtJ(`Lập khế ước với ${WTB[k].n}.`)}}
+function wtStart(clue){S.wt={rk:0,br:null,ws:8,lg:40,clue,sc:null,st:{},j:[],buoy:0,guide:null,store:0,bs:{},pick:null,y:S.year,end:null,ry:0,fam:null};
+  wtJ('Cá trong lưới chảy nước ngược lên mạn thuyền. Từ đáy vịnh vọng lên ba tiếng chuông.')}
+function wtRank(n,t){const T=S.wt;T.rk=n;T.st={};T.sc=null;T.ry=S.year;mod({magic:2,health:1});S.house.prestige+=8*n;wtWs(3);
+  announce(WTRK[T.br||'keep'][n-1],T.br==='pact'?`Ngư dân kể về một chiếc thuyền có thứ gì đó to lớn bơi dưới mạn, và người cầm lái chỉ cần gõ ba nhịp lên ván thuyền.`:`Ngư dân trong vùng kể về một người đọc được con nước như đọc chữ. Thuyền nào đi theo người ấy đều về bến.`,T.br==='pact'?'trident':'anchor','seasong');
+  return[`${t} Bạn đạt Bậc ${n}: ${WTRK[T.br||'keep'][n-1]}.`,'magic']}
+/* các chương */
+const WTS={
+ i1:{t:'Ba Tiếng Chuông Dưới Vịnh',img:'seasong',x:()=>{const c=S.wt.clue;return`${c==='buoy'?'Bạn chèo tới chỗ phao chìm.':c==='market'?'Người mua cá ở chợ nói vảy cá của bạn có rêu của giếng nước ngọt, thứ không thể có ngoài vịnh.':'Bạn vẫn thấy rõ tháp chuông và cửa cống bị khóa mỗi khi nhắm mắt.'} Người chèo thuyền già trong làng kể: thuở nhỏ, ông được dặn phải rời vịnh ngay khi nghe tiếng chuông thứ ba. Ông chưa bao giờ hỏi vì sao.`},
+  c:()=>[['Đối chiếu lời ông với hải đồ cũ ở nhà thờ',()=>{wtWs(S.wt.clue==='market'?8:5);wtJ('Hải đồ cũ vẽ một ngôi làng ở chỗ bây giờ là giữa vịnh. Bên cạnh có ghi: "cống dẫn cá".');return wtRank(1,'Hải đồ cũ vẽ một ngôi làng ở chỗ bây giờ là mặt nước. Bạn bắt đầu nghe được nhịp của con nước.')}],
+   ['Ở lại trên thuyền chờ tiếng chuông thứ ba',()=>{mod({health:-6});wtWs(S.wt.clue==='buoy'?10:7);wtJ('Tiếng chuông thứ ba đến cùng một dòng nước lạnh kéo thuyền về phía cửa vịnh.');return wtRank(1,'Đúng nửa đêm, tiếng chuông thứ ba vang lên, và con nước kéo mạnh thuyền về phía cửa vịnh. Bạn giữ được tay lái.')}],
+   ['Lặn xuống bằng Mệnh Thủy',()=>{if(S.st.magic<6)return['Ma lực của bạn chưa đủ để giữ hơi thở dưới đáy vịnh. Bạn quay lên, quyết định thử cách khác.',''];mod({magic:-6});wtWs(S.wt.clue==='menh'?12:8);wtJ('Dưới đáy vịnh có tháp chuông, giếng làng và một cửa cống bằng đồng bị khóa.');return wtRank(1,'Nước tách ra nhường đường cho bạn. Dưới đáy là cả một làng cũ: tháp chuông, giếng nước, và cửa cống bằng đồng.')}]]},
+ fork:{t:'Vết Răng Trên Chuông',img:'seasong',x:'Lưới bỗng căng như dây đàn, thuyền nghiêng sát mặt nước. Một con thủy quái non đang giãy giụa, chiếc chuông làng chìm mắc chặt trong hàm. Hóa ra suốt bao năm, tiếng chuông dưới vịnh là tiếng nó cố thoát ra. Bạn chạm tay xuống nước, dòng chảy dịu lại. Con vật thôi giãy và đẩy chiếc chuông về phía bạn.',
+  c:()=>[['Cắt lưới và đánh dấu luồng nó bơi qua',()=>{S.wt.br='keep';S.wt.buoy=1;wtLg(5);wtJ('Ta chọn con nước, không chọn con vật. Luồng nó bơi qua giờ có một chiếc phao.');return['Con vật lặn mất. Bạn thả một chiếc phao ở chỗ nó vừa đi. Từ nay bạn sẽ là người giữ con nước cho cả làng: Người Giữ Con Nước.','good']}],
+   ['Gỡ chuông và thử gọi nó quay lại',()=>{if(ch(.45+S.wt.ws/200+S.st.magic/400)){S.wt.br='pact';wtGain('calf');S.wt.pick='calf';wtJ('Con non quay lại sau ba nhịp gõ. Ta đặt tên nó là Chuông.');return['Bạn gỡ chiếc chuông khỏi hàm nó rồi gõ ba nhịp lên mạn thuyền. Con vật lượn một vòng và quay lại, dụi đầu vào mái chèo. Bạn đặt tên nó là Chuông. Con đường Chủ Khế Ước Vực Sâu mở ra.','magic']}
+     S.wt.sc=null;return['Bạn gỡ được chuông, nhưng con vật hoảng sợ bơi đi mất. Năm sau bạn có thể tìm lại nó ở vùng vịnh.','']}],
+   ['Thả nó đi, trở về bến',()=>['Bạn tháo lưới thả con vật đi. Có thể lần sau ra vịnh bạn sẽ gặp lại nó.','']]]},
+ k2:{t:'Bãi Cọc Chỉ Nổi Một Giờ',img:'seasong',x:'Mỗi tháng có một lần nước rút sâu, để lộ một bãi cọc gỗ dẫn về làng chìm. Bãi cọc chỉ nổi một giờ. Giữ thuyền chờ ngoài bãi thì an toàn hơn, nhưng có thể lỡ lúc cửa cống lộ ra.',
+  c:()=>[['Giữ thuyền chờ nước rút hẳn',()=>{if(ch(.45+S.wt.ws/200)){wtJ('Ta đếm được bảy mươi cọc dẫn về làng chìm.');return wtRank(2,'Bạn chờ đúng lúc, chèo theo hàng cọc vào tận chân tháp chuông rồi quay ra trước khi nước lên.')}S.wt.sc=null;return['Nước lên sớm hơn bạn tưởng. Bạn quay về an toàn, nhưng phải đợi lần nước rút sau.','']}],
+   ['Lao vào ngay khi cửa cống lộ ra',()=>{if(S.boat)S.boat.cond=Math.max(5,S.boat.cond-R(10,25));if(ch(.6)){S.wt.st2=1;wtJ('Cửa cống bằng đồng có khắc chữ: "Mở thì cá về, nước đi". Nước đi đâu?');return wtRank(2,'Thuyền cào xước đáy vào cọc, nhưng bạn tới được cửa cống. Trên đó có khắc: "Mở thì cá về, nước đi".')}mod({health:-8});S.wt.sc=null;return['Thuyền mắc vào cọc, bạn phải nhảy xuống đẩy trong nước lạnh. Lần sau phải khôn hơn.','bad']}]]},
+ k3:{t:'Hai Thuyền Trong Sương',img:'seasong',x:()=>{const T=S.wt;return`Sương dày đến mức không thấy mũi thuyền. Một thuyền cá mất lái đang trôi về bãi đá, còn thuyền kia chở lương thực cho cả làng thì mắc cạn ở cửa vịnh.${T.buoy>=2?' Tuyến phao của bạn vẫn còn.':''}${T.guide?` ${T.guide.n} đang ở trên bến.`:''}`},
+  c:()=>{const T=S.wt,L=[];const fam=pick(['nhà Corbin','nhà Hale','nhà Ashby','nhà Marlow','nhà Tull']);
+   if(T.buoy>=2&&T.guide&&T.guide.sk>=40)L.push(['Chia đội: giao một thuyền cho người biết đường',()=>{wtLg(15);mod({honor:6});T.guide.sk=Math.min(100,T.guide.sk+10);wtJ(`${T.guide.n} dẫn thuyền lương theo tuyến phao. Ta kéo thuyền cá khỏi bãi đá. Không ai mất gì.`);return wtRank(3,`${T.guide.n} dẫn thuyền lương về theo tuyến phao trong khi bạn kéo thuyền cá khỏi bãi đá. Sáng ra, cả làng ra bến đếm đủ người và đủ lương.`)}]);
+   L.push(['Kéo thuyền cá mất lái trước',()=>{wtLg(-4);T.store=Math.max(0,T.store-20);mod({honor:3});T.fam=fam;wtJ(`Ta cứu người trên thuyền cá. Thuyền lương mất một nửa. Mùa đông năm ấy ${fam} chịu đói nhiều nhất.`);return wtRank(3,`Bạn cứu đủ người trên thuyền cá. Thuyền lương chìm mất một nửa, và mùa đông năm ấy ${fam} chịu đói nhiều nhất.`)}]);
+   L.push(['Cứu thuyền chở lương trước',()=>{wtLg(6);mod({honor:-2,happy:-4});T.fam=fam;wtJ(`Ta giữ được lương cho cả làng. Thuyền cá vỡ trên bãi đá, ${fam} mất một người.`);return wtRank(3,`Lương thực của cả làng được giữ lại. Thuyền cá vỡ trên bãi đá, và ${fam} mất một người con.`)}]);return L}},
+ k4:{t:'Hải Đồ Của Người Đã Chết',img:'seasong',x:'Trong rương của người chèo thuyền già vừa mất có một tấm hải đồ vùng nước sâu. Theo đó, bạn ra tới nơi luồng cá lớn rẽ vào vịnh. Bạn hiểu ra vì sao làng cũ chìm: mỗi lần cửa cống mở để dẫn cá vào cảng, nước lại dồn về phía một xóm khác. Giờ cửa cống đã nứt, và nó sắp vỡ.',
+  c:()=>[['Tự cầm lái ra vùng nước sâu',()=>{if(ch(.5+S.wt.ws/250+(S.boat?S.boat.cond/400:0))){wtJ('Cống nứt ba đường. Khi nó vỡ, nước sẽ dồn vào xóm thấp.');return wtRank(4,'Bạn đo từng sải nước quanh cửa cống. Ba đường nứt, và cả ba đều hướng về xóm thấp.')}if(S.boat)S.boat.cond=Math.max(5,S.boat.cond-R(20,35));mod({health:-10});S.wt.sc=null;return['Sóng lớn hất thuyền khỏi luồng. Bạn phải quay về sửa thuyền và thử lại năm sau.','bad']}],
+   ['Thuê thêm thủy thủ đi cùng (30 xu)',()=>{if(S.money<30)return['Bạn không đủ 30 xu để thuê người.',''];S.money-=30;wtJ('Cống nứt ba đường. Khi nó vỡ, nước sẽ dồn vào xóm thấp.');return wtRank(4,'Có đủ người giữ buồm, bạn đo được toàn bộ vùng cống trong một con nước. Ba đường nứt đều hướng về xóm thấp.')}]]},
+ k5:{t:'Đêm Vịnh Cạn',img:'seasong',x:()=>{const T=S.wt;return`Nước rút để lộ cả làng cũ: mái nhà, giếng làng, những bậc thềm dưới đáy vịnh. Chuông trong tháp lại rung. Lần này, từ làng trên bờ có tiếng chuông đáp lại. Họ đã thấy nước đang trở về. Bạn có đúng một con triều. (Phao ${T.buoy}/3 · kho dự trữ ${T.store}/100 · lòng làng ${T.lg}/100)`},
+  c:()=>{const T=S.wt;return[['Đóng cửa cống vĩnh viễn',()=>wtEnd('close','Bạn chèn đá vào cửa cống và khóa nó lại mãi mãi. Xóm thấp an toàn. Luồng cá lớn rời vịnh, và những năm sau làng phải học cách sống với ít cá hơn.')],
+   ['Giữ cống, giao quyền mở cho hội ngư dân',()=>{if(T.lg>=50||ch(T.lg/100))return wtEnd('guild','Các chủ thuyền đồng ý góp người trực cống quanh năm. Bến giữ được nguồn cá, và mỗi năm có một ngày cả làng cùng sửa cống.');wtLg(-5);S.wt.sc=null;return['Các chủ thuyền không chịu góp người. Họ chưa tin bạn đủ. Bạn còn thời gian tới con nước sau.','bad']}],
+   ['Mở một lối thoát nước mới',()=>{const ok=T.buoy>=3&&T.store>=50;if(ok||ch(.4))return wtEnd('outlet',ok?'Phao đã cắm, dân đã sơ tán, kho lương đã đầy. Bạn mở lối thoát mới đúng lúc nước về. Cả xóm thấp lẫn bãi cá đều còn nguyên.':'Bạn mở lối thoát khi chưa chuẩn bị đủ. May mắn đứng về phía bạn: nước rẽ đúng hướng.');
+     T.store=0;S.money=Math.max(0,S.money-40);mod({health:-12});return wtEnd('outlet','Lối thoát mới mở ra, nhưng nước cuốn mất kho lương và phá một góc bến. Xóm thấp vẫn còn, và bãi cá vẫn ở lại.')}]]}},
+ p2:{t:'Ba Nhịp Gõ',img:'seasong',x:()=>`Bạn tập gọi ${WTB.calf.n} bằng ba nhịp gõ lên ván thuyền. Hôm nay có một thuyền cá mắc cạn ngoài bãi đá. Nếu nó chịu đáp lời, nó có thể kéo thuyền ra.`,
+  c:()=>[['Gõ đúng ba nhịp như đã luyện',()=>{const b=wtBs('calf');if(b&&ch(.3+b.tr/120)){wtTr('calf',8);wtLg(6);return wtRank(2,'Ba nhịp gõ, rồi mặt nước sủi lên. Chuông húc vào mạn chiếc thuyền mắc cạn, đẩy nó ra khỏi bãi đá. Lệnh Kéo Mạn đã thành.')}S.wt.sc=null;return['Không có gì đáp lại. Có lẽ nó chưa đủ tin bạn. Hãy luyện thêm rồi thử lại.','']}],
+   ['Ép nó tới bằng Mệnh Thủy',()=>{if(S.st.magic<8)return['Ma lực của bạn không đủ để kéo nó tới.',''];mod({magic:-8});wtOan('calf',20);wtLg(4);return wtRank(2,'Bạn bẻ dòng nước, kéo thẳng con vật tới mạn thuyền mắc cạn. Nó làm theo, nhưng không nhìn bạn khi bơi đi.')}]]},
+ p3:{t:'Mùa Cá Biến Mất',img:'seasong',x:'Chuông giờ đã lớn bằng chiếc thuyền nan, và nó ăn nhiều. Cá trong vịnh thưa hẳn. Dân làng bắt đầu nhìn thuyền bạn bằng ánh mắt khác.',
+  c:()=>[['Đổi ngư trường, đưa nó ra xa bờ (20 xu)',()=>{if(S.money<20)return['Bạn không đủ 20 xu cho những chuyến đi xa.',''];S.money-=20;wtTr('calf',6);wtGain(pick(['ran','cua']));return wtRank(3,'Ngoài khơi xa, Chuông dẫn bạn tới một con thủy quái khác đang săn cùng đàn cá. Nó chịu theo bạn về.')}],
+   ['Bù cá cho dân làng (30 xu)',()=>{if(S.money<30)return['Bạn không đủ 30 xu để bù cá.',''];S.money-=30;wtLg(12);wtGain(pick(['ran','cua']));return wtRank(3,'Bạn mua cá đền cho từng nhà. Một bà cụ bảo: "Con vật của cậu đói thì cũng như con mình đói thôi." Tuần sau, một con thủy quái khác theo Chuông về vịnh.')}],
+   ['Giới hạn vùng săn của nó',()=>{wtOan('calf',12);wtLg(8);wtGain('ran');return wtRank(3,'Bạn cắm phao giới hạn vùng săn. Chuông cáu kỉnh suốt một tháng, nhưng làng yên lòng. Một con Rắn Vây Bạc bắt đầu bơi theo thuyền bạn.')}]]},
+ p4:{t:'Con Vật Dưới Xác Tàu',img:'seasong',x:'Theo tiếng gọi của Chuông, bạn đưa thuyền buồm ra vùng xác tàu. Dưới đó, một con thủy quái trưởng thành canh giữ vùng nước sâu. Nơi sinh sản của nó đang bị lưới bỏ hoang quấn chặt.',
+  c:()=>{const pk=wtPk();return[['Cứu nơi sinh sản',()=>{const b=pk&&pk[1];if(b&&b.sp>=40){b.sp-=30;wtGain('kinh');wtTr('calf',10);return wtRank(4,`${WTB[pk[0]].n} giữ dòng nước cho bạn cắt từng đoạn lưới. Khi tấm lưới cuối cùng rơi ra, Kình Mù Vực Sâu nổi lên và để bạn chạm tay vào trán nó.`)}mod({health:-6});S.wt.sc=null;return['Thủy quái đi cùng bạn đã kiệt sức. Một mình bạn không cắt kịp lưới trước khi triều lên. Hãy cho nó nghỉ rồi quay lại.','']}],
+   ['Đánh bại nó trong trận thủy chiến',()=>{if(ch(.3+S.st.health/300+S.st.magic/300+(S.blade||0)/400)){wtGain('bach');mod({honor:4});return wtRank(4,'Bạn dùng Mệnh Thủy siết dòng nước quanh nó tới khi nó phải chịu thua. Thứ nổi lên đầu hàng là một con Bạch Tuộc Khe Đen khổng lồ.')}mod({health:-R(12,20)});if(S.boat)S.boat.cond=Math.max(5,S.boat.cond-30);S.wt.sc=null;return['Nó quật gãy cột buồm và kéo bạn xuống nước. Bạn sống sót, nhưng phải quay về.','bad']}]]}},
+ p5:{t:'Đêm Các Đàn Cùng Nổi',img:'seasong',x:()=>{const c=wtBs('calf');return`Một luồng nước lạnh dồn hàng chục đàn thủy quái về cửa vịnh. Trước mũi thuyền, lưng đen nhô lên khắp mặt nước. ${c?'Chuông bơi sát mạn. Nó nghe thấy hiệu lệnh, nhưng lần đầu tiên quay đầu nhìn về phía đàn trước khi đáp lại.':'Bạn ước gì Chuông còn ở đây.'} (Lòng làng ${S.wt.lg}/100)`},
+  c:()=>{const L=[['Dẫn đàn ra biển sâu',()=>{const c=wtBs('calf');if((c&&c.tr>=60)||ch(.35))return wtEnd('home','Chuông bơi trước, cả đàn theo sau. Đến rạng sáng, cửa vịnh trống trơn, chỉ còn lại tiếng sóng.');mod({health:-15});S.wt.sc=null;return['Đàn không theo bạn. Thuyền bị đánh dạt vào bờ. Bạn cần Chuông tin bạn hơn trước khi thử lại.','bad']}],
+   ['Buộc đàn trưởng khuất phục',()=>{if(S.st.magic<20)return['Ma lực của bạn không đủ để ép cả một đàn.',''];mod({magic:-20});for(const k of Object.keys(S.wt.bs))wtOan(k,20);return wtEnd('command','Bạn dồn toàn bộ Mệnh Thủy vào một tiếng gọi. Đàn trưởng cúi đầu. Từ nay, khi bạn ra biển, có một đàn quái vật nghe lệnh bạn.')}]];
+   if(S.wt.lg>=50)L.push(['Để một đàn ở lại canh vịnh',()=>wtEnd('stay','Một đàn nhỏ ở lại. Làng chừa cho chúng một vùng sinh sản, đổi lại thuyền trong vịnh không bao giờ còn sợ hải tặc.')]);
+   else L.push(['Để một đàn ở lại canh vịnh (cần lòng làng 50)',()=>{S.wt.sc=null;return['Dân làng chưa đủ tin để chừa vùng sinh sản cho thủy quái. Hãy lấy lại lòng tin của họ trước.','']}]);return L}}
+};
+function wtEnd(k,t){const T=S.wt;T.end=k;
+  if(k==='close'){wtLg(-8);mod({honor:6})}if(k==='guild'){wtLg(10);mod({honor:4})}if(k==='outlet'){wtLg(8);mod({honor:5,smarts:2})}
+  if(k==='home'){wtTr('calf',15);mod({happy:5})}if(k==='command'){mod({magic:6})}if(k==='stay'){wtLg(10);mod({honor:4})}
+  S.world.wtEnd={k,br:T.br,who:`${S.first} ${S.surname}`,rl:S.realm,y:S.year,g:T.guide?T.guide.n:null};
+  news(T.br==='pact'?`Ngư dân ở ${S.realm} kể rằng có một đêm cả đàn thủy quái nổi lên ở cửa vịnh, và một người đã nói chuyện được với chúng.`:`Ở ${S.realm}, một ngọn hải đăng mới được thắp trên mỏm đá cửa vịnh.`,'',true);
+  return wtRank(5,t)}
+function wtQ(){const T=S.wt,L=[];if(T.sc)return L;const n=T.rk+1;
+  if(T.rk===0)L.push(['i1','helm',`Chương đầu: ${WTS.i1.t}`,'Tìm người chèo thuyền già',null]);
+  else if(T.rk===1&&!T.br)L.push(['fork','shell',`Ra vịnh: ${WTS.fork.t}`,wtBoat(1)?'Đi tìm thứ đang kéo chiếc chuông':'Cần có thuyền',wtBoat(1)?null:'Cần có thuyền']);
+  else if(n<=5){const id=(T.br==='pact'?'p':'k')+n,why=T.ws<WTREQ[n]?`Cần Hiểu nước ${WTREQ[n]}`:
+    T.br==='keep'&&n===2&&!wtBoat(2)?'Cần thuyền gỗ nhỏ còn tốt':(n===4&&!wtBoat(3))?'Cần thuyền buồm còn tốt':
+    T.br==='pact'&&n===2&&!(wtBs('calf')&&wtBs('calf').tr>=30)?'Chuông cần tin bạn ít nhất 30':
+    n===5&&S.year-T.ry<2?`Chờ thêm ${2-(S.year-T.ry)} năm`:null;
+    L.push([id,T.br==='pact'?'trident':'anchor',`Thăng bậc: ${WTS[id].t}`,why||WTRK[T.br][n-1],why])}
+  return L}
+/* việc làm giữa các chương */
+const WTN={
+ any:[['ear','Lặn nghe nước','Hiểu nước +4',()=>{wtWs(4);mod({health:1});return[pick(['Bạn nằm úp trên mạn thuyền, tai sát mặt nước, nghe dòng ngầm đổi chiều lúc nửa đêm.','Bạn thả một sợi chỉ xuống nước và nhìn nó trôi. Hôm nay dòng ngầm chảy về phía bãi đá.','Nước giếng làng hôm nay lạnh hơn mọi khi. Bạn biết ngoài vịnh sắp có sóng.'])+' Hiểu nước +4.','good']}],
+  ['sack','Để bãi cá nghỉ một mùa','Mất ít tiền · Hiểu nước, lòng làng tăng nếu kho còn lương',()=>{const T=S.wt;S.money=Math.max(0,S.money-R(5,10));wtWs(2);if(T.store>=20||T.br==='pact'){wtLg(6);return['Bạn treo lưới một mùa. Dân làng càu nhàu, nhưng mùa sau cá về nhiều hơn hẳn. Lòng làng +6.','good']}wtLg(-3);return['Bạn treo lưới một mùa khi kho không còn lương. Vài nhà phải nhịn đói và trách bạn.','bad']}]],
+ keep:[['flag','Cắm phao báo luồng','Dùng một chuyến biển · phao +1 (tối đa 3)',()=>{if(!S.boat||!seaLeft())return['Bạn cần có thuyền và còn lượt ra khơi năm nay.',''];const T=S.wt;if(T.buoy>=3)return['Ba tuyến phao vẫn còn nguyên. Không cần cắm thêm.',''];S.done.sean=(S.done.sean||0)+1;T.buoy++;wtWs(2);return[`Bạn cắm một hàng phao sơn đỏ dọc luồng ra cửa vịnh. Tuyến phao: ${T.buoy}/3.`,'good']}],
+  ['user','Dạy một thủy thủ đọc nước','Người biết đường có thể dẫn thuyền thứ hai',()=>{const T=S.wt;if(!T.guide){T.guide={n:pick(['Tam','Wren','Osric','Brann','Elsie','Mags','Pip']),sk:20};wtJ(`${T.guide.n} bắt đầu học đọc nước với ta.`);return[`${T.guide.n}, đứa nhỏ hay ngồi vá lưới ở bến, xin theo bạn học đọc nước. Bạn nhận lời.`,'good']}T.guide.sk=Math.min(100,T.guide.sk+15);return[`${T.guide.n} đã đọc được dòng ngầm qua màu nước. Tay nghề: ${T.guide.sk}/100.`,'good']}],
+  ['coins','Góp kho dự trữ cho bến (15 xu)','Kho dự trữ +20',()=>{if(S.money<15)return['Bạn không đủ 15 xu.',''];S.money-=15;const T=S.wt;T.store=Math.min(100,T.store+20);wtLg(3);return[`Bạn gửi cá khô và lương thực vào kho của bến. Kho dự trữ: ${T.store}/100.`,'good']}]],
+ pact:[['shell','Luyện ba nhịp gọi','Thủy quái đang đi cùng tin bạn hơn',()=>{const P=wtPk();if(!P)return['Bạn chưa có thủy quái nào để luyện.',''];wtTr(P[0],6);wtWs(2);return[`Bạn gõ ba nhịp, ${WTB[P[0]].n} nổi lên. Gõ lại, nó lại nổi lên. Đến lần thứ mười, nó bắt đầu nổi lên trước khi bạn gõ xong.`,'good']}],
+  ['heart','Chữa thương và cho nghỉ','Hồi sức, giảm oán cho tất cả thủy quái',()=>{const T=S.wt;for(const k of Object.keys(T.bs)){T.bs[k].sp=100;wtOan(k,-12);wtTr(k,2)}return['Bạn rửa vết thương bằng nước muối, gỡ những móc câu cắm trên da chúng. Cả đàn nằm im trong vũng nước nông suốt một ngày.','good']}],
+  ['coins','Bù cá cho dân làng (15 xu)','Lòng làng +8',()=>{if(S.money<15)return['Bạn không đủ 15 xu.',''];S.money-=15;wtLg(8);return['Bạn mua cá đền cho những nhà than thủy quái ăn mất phần của họ. Lòng làng +8.','good']}]]
+};
+const wtNL=()=>[...WTN.any,...(WTN[S.wt.br]||[])];
+/* năng lực trên biển: Đọc Dòng, Giữ Mạn, Kéo Mạn, kéo thuyền về khi chìm */
+{const s0=seaStorm;seaStorm=function(far){const T=S.wt;if(!T||!T.rk||!S.boat)return s0(far);
+  const B=S.boat,p=far?.18:.1;if(!ch(p))return'';
+  if(T.br!=='pact'&&ch(.35+T.ws/300)){wtWs(1);return' Bạn đọc thấy nước đổi màu và sóng dồn về một phía, liền đổi điểm đánh cá. Cơn bão đi qua mà không chạm tới thuyền.'}
+  let d=R(15,35),x='';
+  if(T.br==='keep'&&T.rk>=2&&S.st.magic>=4){mod({magic:-4});d=Math.round(d/2);x=' Bạn dùng Mệnh Thủy giữ mạn, đỡ được nửa sức sóng.'}
+  const P=wtPk();if(T.br==='pact'&&T.rk>=2&&P&&P[1].sp>=20){P[1].sp-=15;d=Math.round(d/2);x=` ${WTB[P[0]].n} kéo mạn thuyền, giữ nó khỏi lật.`}
+  B.cond=Math.max(0,B.cond-d);
+  if(B.cond<=0){const c=wtBs('calf');if(T.br==='pact'&&c&&c.tr>=70&&c.sp>=20){B.cond=5;c.sp-=20;wtTr('calf',5);return x+' Thuyền vỡ đôi giữa sóng. Bạn chìm xuống, rồi một cái lưng quen thuộc đẩy bạn lên. Chuông kéo bạn và cả xác thuyền về bến.'}
+    const n=BOATS[B.k].n;S.boat=null;if(far&&ch(.08)){die('đắm thuyền ngoài biển xa');return' Bão đánh chìm thuyền. Bạn không bao giờ trở về.'}mod({health:-R(10,25)});return x+` Bão lớn đánh chìm ${n.toLowerCase()} của bạn. Bạn bám vào mảnh ván trôi dạt vào bờ.`}
+  return x+` Một cơn bão bất ngờ làm thuyền hư hại (độ bền ${B.cond}).`}}
+{const a0=seaAct;seaAct=function(k){const m0=S.money,ok=['coast','far'].includes(k)&&!seaWhy(k);
+  /* mở chuỗi: sau ba chuyến thành công khi đủ điều kiện, chuyến ven bờ tiếp theo mở sự kiện */
+  const can=ok&&!S.wt&&wtCan();if(can&&k==='coast'&&(S.wtN||0)>=3&&!S.pend.includes('wt_call')){S.wtN=0;S.pend.push('wt_call')}
+  a0(k);if(!ok||!S.alive)return;
+  if(can&&S.money>m0&&!S.pend.includes('wt_call'))S.wtN=(S.wtN||0)+1;
+  const T=S.wt;if(!T||!T.rk)return;wtWs(1);
+  const P=wtPk();if(T.br==='pact'&&T.rk>=3&&P&&P[1].sp>=10&&S.money>m0){const g=Math.max(2,Math.round((S.money-m0)*.3));S.money+=g;P[1].sp-=8;log(`${WTB[P[0]].n} dồn đàn cá về lưới. Bạn bán thêm được ${g} xu.`,'good');if(P[0]!=='calf'&&ch(.25))wtLg(-2)}
+  if(T.br==='keep'&&T.rk>=1&&ch(.15)){const g=R(3,8);S.money+=g;log(`Bạn đọc được dòng ngầm và dẫn hai thuyền khác tới bãi cá. Họ chia cho bạn ${g} xu.`,'good');wtLg(2)}}}
+const wtCan=()=>S.alive&&!S.cap&&!clsHas(S)&&S.age>=16&&S.job&&S.job.id==='fisher'&&S.job.rank>=1&&S.hid&&S.hid.menh==='thuy'&&mnOn()&&!(S.wtRun&&S.year-S.wtRun<3);
+function wtYear(){const T=S&&S.wt;if(!T||!S.alive||S.cap)return;
+  for(const k of Object.keys(T.bs)){const b=T.bs[k];b.sp=Math.min(100,b.sp+20);if(b.tr>=50)b.oan=Math.max(0,b.oan-3);if(b.oan<60)b.warn=0}
+  if(T.br==='keep'&&T.rk>=3&&T.lg>=50&&ch(.5)){const g=R(5,12);S.money+=g;log(`Hội ngư dân trả bạn ${g} xu tiền giữ luồng và tuyến phao.`,'good')}
+  if(T.br==='keep'&&T.buoy>0&&ch(.12)){T.buoy--;log('Một trận gió lớn làm trôi mất một tuyến phao. Cần cắm lại.','bad')}
+  if(T.br==='pact'&&Object.keys(T.bs).length>1&&ch(.2))wtLg(-3);
+  if(T.end==='guild'||T.end==='stay')mod({honor:1});
+  if(T.end==='home'&&ch(.3)){mod({happy:2});log('Đêm qua có tiếng gõ ba nhịp từ dưới mạn thuyền. Sáng ra, ai đó đã để lại trên ván thuyền một chiếc vỏ ốc to bằng cái mũ.','magic')}
+  const R0=WD().rs[S.realm];if(R0&&R0.pl&&T.rk>=2&&!T.st.pl){T.st.pl=1;mod({honor:2});wtLg(4);log(T.br==='pact'?'Dịch bệnh làm cảng thiếu người. Thủy quái của bạn kéo sà lan lương thực giữa hai bến. Người ở bến bên kia hoảng sợ lúc đầu, rồi quen dần.':'Dịch bệnh làm cảng hạn chế đi lại. Bạn mở một tuyến tiếp tế ngoài bến, đưa thuốc và lương tới đúng chỗ làng chỉ định.','good')}
+  const n=T.rk+1;if(T.rk>=1&&n<=5&&T.ws>=WTREQ[n]&&!T.st.h){T.st.h=1;log('Đêm qua bạn mơ thấy tiếng chuông dưới vịnh gọi tên mình. Đã đến lúc đi tiếp trên con đường của nước.','magic')}}
+function wtView(){const T=S.wt;if(!T)return['Con nước','<p class="note">Mặt nước vẫn lặng.</p>','act'];const dis=!S.alive||!!S.cap||S.pend.includes('wt_sc');
+  let b=gRow('',T.br==='pact'?'trident':'anchor',wtName(),`Bậc ${T.rk}/5${T.br?' · '+WTCLS[T.br]:' · chưa chọn nhánh'}`,'',false,true);
+  const bar=(n,v,d,i)=>`<div class="row"><span class="ri">${ic(i,24)}</span><div><b>${n}: ${v}/100</b><small>${d}</small><div class="bond"><i style="width:${v}%"></i></div></div></div>`;
+  b+=bar('Hiểu nước',T.ws,'Cảm nhận dòng chảy, sóng và thủy triều','snowflake')+bar('Lòng làng',T.lg,'Dân làng tin bạn tới đâu','user');
+  if(T.br==='keep')b+=`<p class="note">Tuyến phao ${T.buoy}/3 · Kho dự trữ ${T.store}/100 · Người biết đường: ${T.guide?`${T.guide.n} (${T.guide.sk}/100)`:'chưa có'}</p>`;
+  if(T.br==='pact'){b+='<p class="sec">Thủy quái đã lập khế ước</p>';const pk=wtPk();for(const[k,x]of Object.entries(T.bs)){const on=pk&&pk[0]===k;b+=gRow(`data-x="wt:p:${k}"`,WTB[k].ic,`${WTB[k].n}${on?' · đang đi cùng':''}`,`Lòng tin ${x.tr} · Sức ${x.sp} · Oán ${x.oan}${x.oan>=60?' (sắp bỏ đi)':''} · ${WTB[k].d}`,on?'':'Chọn',dis||on)}
+    if(T.lost&&T.lost.length)b+=`<p class="note bad">Đã bỏ đi: ${T.lost.map(k=>WTB[k].n).join(', ')}</p>`}
+  for(const[id,i,n,d,why]of wtQ()){const used=(S.done.wtq||0)>=1;b+=gRow(`data-x="wt:q:${id}"`,i,n,used?'Đã đi tiếp một chương năm nay':d,'',dis||used||!!why)}
+  if(T.rk>=1){b+=`<p class="sec">Việc giữa các chương · còn ${wtNLeft()}/2 việc năm nay</p>`;wtNL().forEach((A,i)=>{const why=S.done['wtn'+i]?'Đã làm năm nay':!wtNLeft()?'Đã hết lượt năm nay':'';b+=gRow(`data-x="wt:n:${i}"`,A[0],A[1],why||A[2],'',dis||!!why)})}
+  if(T.end)b+=`<p class="note">Kết thúc đã chọn: ${({close:'Đóng cống vĩnh viễn',guild:'Hội ngư dân giữ cống',outlet:'Lối thoát nước mới',home:'Tiếng Gọi Hồi Hương',command:'Hiệu Lệnh Vực Sâu',stay:'Bến Có Thủy Quái Canh Giữ'})[T.end]}</p>`;
+  b+='<p class="note">Các chương ngoài khơi dùng thuyền của bạn. Nếu thuyền chìm hay bị bán, tiến độ vẫn được giữ lại cho tới khi bạn có thuyền phù hợp.</p>';
+  b+='<p class="sec">Nhật ký con nước</p>'+T.j.map(t=>`<p class="note">${esc(t)}</p>`).join('');return['Con Nước',b,'act']}
+function wtAct(k,id){if(!S.wt||!S.alive||S.cap||S.pend.includes('wt_sc'))return;const T=S.wt;let r;
+  if(k==='n'){const i=+id,A=wtNL()[i];if(!A||S.done['wtn'+i]||!wtNLeft()||T.rk<1)return;S.done.wtn=(S.done.wtn||0)+1;S.done['wtn'+i]=1;r=A[3]()}
+  else if(k==='q'){const Q=wtQ().find(q=>q[0]===id);if(!Q||Q[4]||(S.done.wtq||0)>=1)return;S.done.wtq=1;wtNext(id);return afterSheetAction()}
+  else if(k==='p'){if(!T.bs[id])return;T.pick=id;r=[`${WTB[id].n} sẽ đi cùng bạn trong các chuyến tới.`,'']}
+  if(r){const[t,tone]=arr(r);log(t,tone);note={t,tone}}afterSheetAction()}
+const WT_EV=[
+ {id:'wt_call',queued:true,big:true,art:'anchor',img:'seasong',c:s=>s.alive&&!s.cap&&!clsHas(s)&&!s.wt,title:'Mẻ Lưới Bơi Ngược',
+  text:'Lưới nặng đến mức hai người mới kéo nổi. Khi con cá đầu tiên rơi xuống khoang, nước trên vảy nó chảy ngược lên mạn thuyền. Cùng lúc ấy, chiếc phao ngoài cửa vịnh bị kéo chìm, và từ dưới nước vọng lên ba tiếng chuông. Người chèo thuyền già nhìn bạn: "Đấy là chuông làng cũ. Nó chìm từ trước khi ta ra đời."',
+  ch:[{t:'Thả cá, đánh dấu chỗ phao chìm',f:s=>{s.money=Math.max(0,s.money-R(5,10));wtStart('buoy');return['Bạn đổ cả mẻ cá xuống biển và cắm một cọc tre ở chỗ phao chìm. Con đường của nước mở ra trong mục Hoạt động.','magic']}},
+      {t:'Giữ một con cá, bán phần còn lại',f:s=>{s.money+=R(8,15);wtStart('market');return['Bạn có tiền sửa thuyền. Người mua cá cầm con cá lên ngửi, rồi bảo bạn rằng nó có mùi giếng nước ngọt. Con đường của nước mở ra trong mục Hoạt động.','magic']}},
+      {t:'Dùng Mệnh Thủy dò xuống đáy',f:s=>{mod({magic:-4});wtStart('menh');wtWs(4);return['Bạn chạm tay xuống nước. Trong một thoáng, bạn thấy một tháp chuông và một cửa cống bị khóa. Con đường của nước mở ra trong mục Hoạt động.','magic']}},
+      {t:'Coi như không có gì',f:s=>{s.wtRun=s.year;return'Bạn bán cá rồi về nhà. Đêm đó bạn ngủ không yên, như có ai gõ ba nhịp dưới gầm giường.'}}]},
+ {id:'wt_sc',queued:true,big:true,art:'anchor',c:s=>s.alive&&!!(s.wt&&s.wt.sc&&WTS[s.wt.sc]),title:s=>WTS[s.wt.sc].t,text:s=>{const x=WTS[s.wt.sc].x;return typeof x==='function'?x():x}},
+ {id:'wt_wild',queued:true,big:true,art:'trident',img:'seasong',c:s=>s.alive&&!!(s.wt&&s.wt.lost&&s.wt.lost.length&&s.boat),title:'Kẻ Từng Nghe Lệnh',
+  text:s=>`Giữa chuyến đi, một bóng đen lượn quanh thuyền. Bạn nhận ra ${WTB[s.wt.lost[0]].n}, con vật từng bỏ khế ước với bạn. Nó húc mạnh vào mạn thuyền.`,
+  ch:[{t:'Gõ ba nhịp, xin nó quay lại',f:s=>{const k=s.wt.lost[0];if(ch(.35+s.wt.ws/300)){s.wt.lost.shift();s.wt.bs[k]={tr:30,sp:60,oan:40};return[`${WTB[k].n} dừng lại, nghe hết ba nhịp, rồi bơi sát mạn thuyền. Khế ước được nối lại, dù nó vẫn còn giận.`,'good']}if(s.boat)s.boat.cond=Math.max(5,s.boat.cond-20);return['Nó húc thêm một lần nữa rồi lặn mất.','bad']}},
+      {t:'Đánh đuổi nó',f:s=>{const k=s.wt.lost.shift();mod({health:-R(5,12)});if(s.boat)s.boat.cond=Math.max(5,s.boat.cond-10);return[`Bạn dùng Mệnh Thủy đẩy ${WTB[k].n} ra xa. Nó không bao giờ quay lại vịnh nữa.`,'bad']}}]}
+];
+Object.defineProperty(WT_EV[1],'ch',{get:()=>{const D=S&&S.wt&&WTS[S.wt.sc];return D?D.c().map(([t,f])=>({t,f:()=>{const sc=S.wt.sc;const r=f();if(S.wt&&S.wt.sc===sc)S.wt.sc=null;return r}})):[]}});
+Object.defineProperty(EIMG,'wt_sc',{get:()=>S&&S.wt&&WTS[S.wt.sc]?WTS[S.wt.sc].img:'seasong',enumerable:true,configurable:true});
+for(const e of WT_EV){EV.push(e);EVB[e.id]=e;if(e.img)EIMG[e.id]=e.img}
+/* sự kiện nhỏ, sự kiện lớn của hai nhánh */
+const WTE=[
+ ['keep',1,'Phao Biến Mất','Ba chiếc phao trên tuyến luồng biến mất trong một đêm. Lần theo dấu, bạn thấy một gia đình đã kéo phao lên bờ làm ghế ngồi ăn cơm.',null,
+  [['Xin lại phao',s=>{return['Cả nhà đứng dậy, phủi đít trả phao. Đứa út khóc vì mất ghế.','']}],['Đổi cho họ một chiếc ghế thật (8 xu)',s=>{s.money=Math.max(0,s.money-8);wtLg(4);s.wt.buoy=Math.min(3,s.wt.buoy+1);return['Ông chủ nhà cảm động đến mức xin nhận luôn việc trông phao. Tuyến phao có thêm một người canh.','good']}]]],
+ ['keep',1,'Đèn Báo Ba Nhịp','Người học việc của bạn đánh tín hiệu sai. Cả đội cứu hộ hớt hải chèo tới nơi, và rơi đúng vào giữa một tiệc cưới.',null,
+  [['Giúp đưa khách qua sông cho đỡ ngượng',s=>{wtLg(3);mod({happy:3});return['Cô dâu được ngồi thuyền cứu hộ qua sông. Cả đội được mời ở lại uống rượu.','good']}],['Nhân dịp đó tập cứu hộ cho cả làng',s=>{wtWs(3);if(s.wt.guide)s.wt.guide.sk=Math.min(100,s.wt.guide.sk+8);return['Khách cưới được dạy cách bám phao. Chú rể là người học nhanh nhất.','good']}]]],
+ ['keep',1,'Con Cá Biết Đường Về','Có một con cá cứ chui vào đúng chiếc giỏ bạn vừa đổ ra. Ba lần liền.',null,
+  [['Thả nó ra và đi theo',s=>{wtWs(6);return['Con cá dẫn bạn tới một dòng nước ngầm chưa có trên hải đồ.','magic']}],['Giữ lại làm bữa tối',s=>{mod({happy:2});return'Bạn có thêm một bữa ăn và một câu chuyện chẳng ai ở quán rượu tin.'}]]],
+ ['keep',1,'Ngày Biển Im','Mặt biển phẳng như gương. Không có gió, không có cá, chẳng ai ra khơi.',null,
+  [['Dạy trẻ con trong làng đọc dấu sóng',s=>{wtLg(5);s.wt.kids=1;return['Lũ trẻ ngồi thành hàng trên bến nghe bạn giảng. Một đứa hỏi câu mà bạn phải mất ba năm mới nghĩ ra.','good']}],['Ngủ trên thuyền cả ngày',s=>{mod({health:3,happy:2});return'Một ngày nghỉ hiếm hoi. Bạn ngủ say đến mức hải âu đậu lên ngực.'}]]],
+ ['keep',3,'Một Bến, Hai Lời Cầu Cứu',s=>`Một thuyền chở người sơ tán mất lái ngoài vịnh. Cùng lúc, đèn báo ở xóm thấp tắt hẳn. Nước đang lên.${s.wt.guide?` ${s.wt.guide.n} đang chờ lệnh của bạn.`:''}`,null,
+  [['Tự đi cứu thuyền',s=>{mod({honor:3});if(s.wt.guide&&s.wt.guide.sk>=40){wtLg(10);return[`Bạn kéo thuyền về, còn ${s.wt.guide.n} tự dẫn người ở xóm thấp lên đồi. Năm sau, người sống sót góp tiền dựng hải đăng.`,'good']}wtLg(-6);return['Bạn cứu được thuyền. Xóm thấp không có ai dẫn đường, nước cuốn mất hai căn nhà. Người ta hỏi vì sao bạn cứu nơi này trước.','bad']}],
+   ['Đưa đội về xóm thấp',s=>{wtLg(5);mod({honor:2});if(s.wt.buoy>=2)return['Cả xóm được sơ tán. Chiếc thuyền ngoài vịnh trôi theo tuyến phao về đúng bến.','good'];return['Xóm thấp được sơ tán. Chiếc thuyền ngoài vịnh dạt vào vùng đá, may mà không ai chết.','']}]]],
+ ['keep',4,'Bản Hải Đồ Bị Đem Bán','Một chủ thuyền chép trộm hải đồ của bạn, dẫn thương nhân vào luồng tránh bão và thu phí. Làng muốn lấy lại bản đồ. Thủy thủ của ông ta nói đây là lần đầu họ kiếm đủ tiền nuôi nhà.',null,
+  [['Công bố hải đồ cho mọi người',s=>{wtLg(8);mod({honor:4});return['Từ nay ai cũng có hải đồ. Không ai thu phí được nữa, và cả vịnh an toàn hơn.','good']}],['Lập hội quản lý luồng',s=>{wtLg(4);s.money+=10;return['Hội thu một khoản phí nhỏ để duy tu phao. Chủ thuyền kia được nhận vào hội.','good']}],['Đổi quyền khai thác lấy tiền duy tu (30 xu)',s=>{s.money+=30;wtLg(-5);return['Bạn có tiền giữ phao, nhưng dân làng bảo bạn bán luồng cho người ngoài.','']}]]],
+ ['pact',1,'Cua Mỏ Neo Đi Vay Neo','Sáng nay trên bến có ba chiếc neo lạ. Cua Mỏ Neo đã "mượn" chúng từ ba thuyền khác trong đêm.',s=>!!wtBs('cua'),
+  [['Trả lại đủ ba chiếc',s=>{wtLg(3);return['Bạn trả neo và xin lỗi từng nhà. Con cua giận dỗi cả tuần.','']}],['Hỏi mua lại một chiếc cho nó (10 xu)',s=>{s.money=Math.max(0,s.money-10);wtTr('cua',10);return['Người bán đồng ý, với điều kiện con cua không được lại gần kho sắt nữa.','good']}]]],
+ ['pact',1,'Bạch Tuộc Xin Vào Hội','Bạch Tuộc Khe Đen thò một xúc tu qua cửa sổ nhà hội ngư dân và đóng mực lên sổ hội.',s=>!!wtBs('bach'),
+  [['Chấp nhận "đơn xin"',s=>{wtLg(6);wtTr('bach',8);return['Hội đòi nó đóng hội phí bằng một rổ cá mỗi tháng. Nó đóng đều đặn. Vài ngư dân bắt đầu gọi nó là đồng nghiệp.','good']}],['Kéo nó về',s=>{wtOan('bach',5);return'Bạch tuộc rút xúc tu về, để lại một vệt mực trên bàn hội.'}]]],
+ ['pact',1,'Cá Trong Bồn Tắm','Rắn Vây Bạc dồn cá quá tay. Một mẻ cá theo dòng nước chui thẳng vào bồn tắm của trưởng bến, đúng lúc ông đang tắm.',s=>!!wtBs('ran'),
+  [['Đền cho ông (10 xu)',s=>{s.money=Math.max(0,s.money-10);return'Trưởng bến nhận tiền, giữ luôn cả cá.'}],['Biến chuyện thành cuộc thi bắt cá',s=>{wtLg(6);mod({happy:4});return['Cả làng kéo tới xem thi bắt cá trong bồn tắm. Trưởng bến về nhì.','good']}]]],
+ ['pact',1,'Kình Mù Thích Nghe Hát','Kình Mù Vực Sâu cứ nổi lên cạnh thuyền mỗi khi một thủy thủ hát. Người đó hát rất dở.',s=>!!wtBs('kinh'),
+  [['Cho anh ta hát tiếp',s=>{wtTr('kinh',10);mod({happy:-1});return['Con kình nằm yên nghe hết bài. Cả thuyền phải nghe theo. Người thủy thủ trở thành người giữ tín hiệu cho nó.','good']}],['Bảo anh ta im',s=>{wtOan('kinh',5);return'Con kình lặn xuống, phun một cột nước ướt cả thuyền.'}]]],
+ ['pact',3,'Người Làng Đòi Treo Đầu Quái','Một thuyền cá bị đánh vỡ. Người sống sót quả quyết đã thấy dấu vây của thủy quái bạn nuôi. Con vật của bạn trở về với một mảnh dây lưới cắm trong vết thương.',null,
+  [['Điều tra cùng người sống sót',s=>{if(ch(.6)){wtLg(8);return['Hóa ra họ nhầm loài. Thủ phạm là một con thủy quái hoang. Dân làng xin lỗi bạn.','good']}wtLg(-6);const P=wtPk();if(P)wtOan(P[0],5);return['Thủy quái của bạn đã tấn công thật, sau khi bị dồn khỏi vùng săn. Bạn phải bồi thường.','bad']}],
+   ['Bồi thường và đổi vùng săn cho nó (20 xu)',s=>{s.money=Math.max(0,s.money-20);wtLg(6);const P=wtPk();if(P)wtTr(P[0],-5);return['Làng yên lòng. Con vật giờ săn ở xa bến hơn, khó gọi tới khi có chuyện.','']}],
+   ['Giao nó cho hội ngư dân xét xử',s=>{wtLg(10);const P=wtPk();if(P)wtOan(P[0],15);return['Bạn đứng ra xin thả nó về biển sâu và nhận trách nhiệm thay. Hội đồng ý. Con vật nhìn bạn rất lâu khi bị dắt ra cửa vịnh.','']}]]],
+ ['pact',2,'Con Non Dẫn Bạn Đi Tìm Mẹ','Chuông bỗng bỏ lệnh giữa chuyến và bơi về vùng xác tàu. Nó dẫn bạn tới một con trưởng thành đang mắc giữa hai mảnh thân tàu. Vùng nước bên dưới cũng là nơi cất hàng hóa mà bạn đã bỏ tiền đi tìm.',s=>!!wtBs('calf'),
+  [['Bỏ hàng để cứu con trưởng thành',s=>{wtTr('calf',15);s.money=Math.max(0,s.money-10);return['Bạn cắt dây kéo con trưởng thành ra. Chuông quẫy nước mừng rỡ. Bạn mất chuyến hàng, nhưng con non giờ tin bạn hơn bao giờ hết.','good']}],
+   ['Ưu tiên hàng hóa',s=>{s.money+=R(20,35);wtTr('calf',-15);wtOan('calf',15);return['Đội được trả công đủ. Chuông ở lại bên xác tàu cả đêm và không theo bạn về.','bad']}]]]
+];
+WTE.forEach(([br,rk,title,text,cond,chs],i)=>{const e={id:`wte_${i}`,queued:true,big:true,art:br==='pact'?'trident':'anchor',img:'seasong',c:s=>!!(s.alive&&!s.cap&&s.wt&&s.wt.br===br&&s.wt.rk>=rk&&(!cond||cond(s))),title,text:typeof text==='function'?text:text,ch:chs.map(([t,f])=>({t,f}))};EV.push(e);EVB[e.id]=e;EIMG[e.id]='seasong'});
+{const y0=extYear3;extYear3=function(){y0();wtYear();if(!S||!S.alive||S.cap||!S.wt||!S.wt.br)return;
+  if(S.wt.lost&&S.wt.lost.length&&S.boat&&ch(.15)&&!S.pend.includes('wt_wild')){S.pend.push('wt_wild');return}
+  if(!S.wtD)S.wtD={};if(S.wtY&&S.year-S.wtY<2)return;if(S.pend.includes('wt_sc'))return;
+  const L=WTE.map((e,i)=>`wte_${i}`).filter(id=>!S.wtD[id]&&EVB[id].c(S));if(L.length&&ch(.4)){const id=pick(L);S.wtD[id]=1;S.wtY=S.year;S.pend.push(id)}}}
+{const d0=drawExt3;drawExt3=function(v){if(v==='wt')return wtView();return d0(v)}}
+{const x0=extAct3;extAct3=function(x){if(x.startsWith('wt:')){const[,k,id]=x.split(':');return wtAct(k,id)}return x0(x)}}
+{const a0=actExtra3;actExtra3=function(){const b=a0();if(!S.wt)return b;const T=S.wt;return'<p class="sec">Class ẩn</p>'+gRow('data-open="wt"',T.br==='pact'?'trident':'anchor',wtName(),`Bậc ${T.rk}/5 · Hiểu nước ${T.ws} · Lòng làng ${T.lg}`,'',!S.alive||!!S.cap)+b}}
+{const c0=clsHas;clsHas=function(s){return c0(s)||!!s.wt}}
+{const c0=clsOther;clsOther=function(s,k){return c0(s,k)||!!s.wt}}
+{const o0=cdOwn;cdOwn=function(){if(S.wt&&S.wt.rk>=1)return['wt',S.wt.rk];return o0()}}
+CD_CLASSES.wt=['Người Nghe Nước','anchor','seasong','một con sóng dựng đứng đập vào mạn'];
+CE_K.push('wt');
+/* hành động riêng trong ba thảm họa */
+{const a0=dhActs;dhActs=function(){const L=a0();const T=S.wt,W=dhC();if(!T||!T.br||!T.rk||!W)return L;const st=W.st||0,keep=T.br==='keep',P=wtPk();
+  const A=(id,i,n,d,f,dis)=>L.push({id,ic:i,n,d,f,dis});
+  if(W.id==='sleep'){if(keep)A('wtlamp','lantern','Dẫn thuyền theo đèn','Người Giữ Con Nước · sơ tán người ngủ qua tuyến phao',()=>{W.wp+=T.buoy>=1?7:3;if(T.buoy<1)mod({health:-3});return[T.buoy>=1?'Bạn thắp đèn dọc tuyến phao, chở từng thuyền người ngủ say về nơi an toàn.':'Chưa có tuyến phao, bạn phải tự dẫn từng chuyến trong bóng tối. Mệt rã người.','good']});
+    else A('wtrope','trident','Dây kéo từ dưới nước','Chủ Khế Ước · thủy quái kéo thuyền có người ngủ gục',()=>{if(!P||P[1].sp<15)return['Thủy quái của bạn đã kiệt sức. Hãy cho nó nghỉ trước.',''];P[1].sp-=15;W.wp+=7;return[`${WTB[P[0]].n} kéo những chiếc thuyền có người chèo ngủ gục về bến. Bạn gõ tín hiệu ở mỗi ngã rẽ.`,'good']})}
+  if(W.id==='crystal'){if(keep)A('wtdock','anchor','Đưa làng xuống bến','Người Giữ Con Nước · sơ tán trước khi đường bộ kết tinh',()=>{W.wp+=5;W.sp=Math.max(0,W.sp-3);if(T.store>=10){T.store-=10;W.wp+=3}return['Bạn dựng tuyến sơ tán bằng thuyền trước khi đường bộ hóa pha lê. Kho dự trữ nuôi được thêm một đoàn dân.','good']});
+    else A('wtgap','trident','Mở khe qua bãi tinh thể','Chủ Khế Ước · thủy quái kéo mảng pha lê khỏi luồng',()=>{if(!P||P[1].sp<20)return['Thủy quái của bạn đã kiệt sức. Hãy cho nó nghỉ trước.',''];P[1].sp-=20;W.sp=Math.max(0,W.sp-6);W.wp+=4;if(ch(.2)){wtOan(P[0],8);return[`${WTB[P[0]].n} kéo được mảng pha lê lớn nhất, nhưng bị cứa rách da.`,'']}return[`${WTB[P[0]].n} kéo các mảng pha lê vỡ khỏi luồng nước để đoàn thuyền vượt qua.`,'good']})}
+  if(W.id==='returned'){if(keep)A('wtferry','anchor','Chuyến đò cho hai bờ','Người Giữ Con Nước · chở người sống đi gặp người trở về',()=>{W.wp+=5;W.pw=Math.max(0,(W.pw||0)-3);mod({happy:-2});return['Bạn chở người sống tới bến trung lập. Có người ôm lại mẹ mình lần cuối. Thủy thủ của bạn khóc khi nhổ neo.','good']});
+    else A('wtdrift','trident','Kéo chiếc thuyền không người lái','Chủ Khế Ước · giữ con đò đang trôi về cửa biển',()=>{if(!P||P[1].sp<15)return['Thủy quái của bạn đã kiệt sức.',''];P[1].sp-=15;W.pw=Math.max(0,(W.pw||0)-5);return[`${WTB[P[0]].n} kéo con đò không người lái vào bến. Trên đò có mười hai người, đều còn thở.`,'good']})}
+  return L}}
+/* dấu ấn và truyền đời */
+DA.wt={img:'seasong',art:'anchor',t:'Con Nước Của Cả Vương Quốc',
+ x:s=>`Triều đình ${s.realm} muốn đào kênh nối vịnh của bạn với cảng lớn, để thuyền buôn khỏi phải đi vòng. Họ cần một người đọc được con nước để chọn đường kênh. Kênh sẽ đi qua bãi cá của làng, hoặc vòng qua núi tốn gấp đôi.`,
+ c:[{t:'Chọn đường vòng qua núi, giữ bãi cá',f:(s,R,m)=>{wtLg(10);mod({honor:4});R.stab=Math.min(100,R.stab+2);daW(`Kênh mới của ${m.rl} vòng qua núi. Bãi cá ven vịnh vẫn còn nguyên.`);return['Triều đình càu nhàu vì tốn kém, nhưng làng chài giữ được bãi cá cho con cháu.','good']},yrs:15,p:R=>{R.stab=Math.min(100,R.stab+1)},
+   h:{t:'Con Kênh Vòng Qua Núi',x:m=>`Người lái đò trên kênh kể: "Năm ấy ${m.who} không cho kênh cắt qua bãi cá. Tới giờ làng chài vẫn sống được là nhờ vậy."`,c:[['Đi đò một chuyến dọc kênh',s=>{mod({happy:3});return['Hai bên kênh là những làng chài vẫn còn đông người.','good']}],['Tìm tới bãi cá của tổ tiên',s=>{s.money+=R(10,20);return['Ngư dân ở đó cho bạn một mẻ cá, bảo là trả ơn.','good']}]]}},
+  {t:'Cho kênh cắt thẳng qua bãi cá',f:(s,R,m)=>{wtLg(-15);s.money+=60;R.stab=Math.min(100,R.stab+5);daW(`Kênh thẳng của ${m.rl} mở ra. Thuyền buôn đi nhanh gấp đôi, bãi cá ven vịnh không còn.`);return['Triều đình thưởng bạn 60 xu. Thuyền buôn nối đuôi nhau qua kênh, còn làng chài mất bãi cá.','']},yrs:10,p:R=>{R.stab=Math.min(100,R.stab+1)},
+   h:{t:'Bãi Cá Đã Mất',x:m=>`Một bà lão ở bến kênh nói: "Chỗ này ngày xưa là bãi cá. ${m.who} cho đào kênh qua, và cả làng tôi phải lên phố kiếm ăn."`,c:[['Góp tiền cho làng (20 xu)',s=>{s.money=Math.max(0,s.money-20);mod({honor:3});return['Bà lão cầm tiền, không nói gì thêm.','']},20],['Im lặng bỏ đi',s=>{mod({happy:-2});return'Bạn đi dọc bờ kênh, nghe tiếng thuyền buôn rì rầm cả buổi chiều.'}]]}}]};
+{const i0=inherit;inherit=function(id){const old=S;const r=i0(id);if(S===old||!S)return r;const E=S.world&&S.world.wtEnd;if(E&&!S.flags.wtLeg&&E.rl===S.realm){S.flags.wtLeg=1;
+  if(E.br==='keep'){mod({happy:2});log(`Ngọn hải đăng ${E.who} để lại vẫn sáng mỗi đêm${E.g?`. Người giữ đèn bây giờ là học trò của ${E.g}`:''}. Ngư dân trong vùng vẫn nhắc tên tổ tiên bạn.`,'magic')}
+  else{mod({magic:2});log(`Đôi khi có tiếng gõ ba nhịp từ dưới nước khi bạn đi dọc bến. Người già bảo đó là thủy quái từng theo ${E.who}, vẫn đi tìm người cùng dòng máu.`,'magic')}save();render()}return r}}
+{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.wt){const T=r.wt;T.j=T.j||[];T.st=T.st||{};T.bs=T.bs||{};if(T.sc&&!WTS[T.sc])T.sc=null}return r}}
+
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
