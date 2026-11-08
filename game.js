@@ -6860,7 +6860,7 @@ const MVXP=[0,15,40,75,120];
 /* đối thủ ngẫu nhiên: đặc tính, độ khó, thưởng, phạt */
 const CBF={
   cuop:{n:'Toán cướp đường',tg:['nguoi','dong'],d:.04,dm:[8,16],ic:'dagger',intro:'Trên con đường rừng vắng, năm gã bịt mặt nhảy ra chặn đầu: "Để tiền lại rồi đi!"',
-    win:()=>{const g=R(10,30);S.money+=g;mod({honor:2});return`Bọn cướp bỏ chạy, đánh rơi túi tiền ${g} xu.`},lose:()=>{const l=Math.min(Math.max(S.money,0),R(10,30));S.money-=l;return`Bọn cướp lột của bạn ${l} xu.`}},
+    win:()=>{const g=R(10,30);S.money+=g;mod({honor:2});return`Bọn cướp bỏ chạy, đánh rơi túi tiền ${g} xu.`},lose:()=>{const l=Math.min(Math.max(S.money,0),R(10,30));S.money-=l;return l?`Bọn cướp lột của bạn ${l} xu.`:'Bọn cướp lục khắp người bạn mà không thấy đồng nào, đành đá bạn một cái rồi bỏ đi.'}},
   soi:{n:'Bầy sói đêm',tg:['thu','nhanh','dong'],d:.04,dm:[8,16],ic:'wolf',intro:'Trăng tròn. Tiếng hú vây quanh bạn từ ba phía, rồi những đôi mắt vàng hiện ra giữa bụi cây.',
     win:()=>{const g=R(5,15);S.money+=g;return`Bầy sói tan tác. Bạn lột da con đầu đàn, bán được ${g} xu.`},lose:()=>'Bạn trèo lên cây ngồi đến sáng, chân đầy vết răng.'},
   xac:{n:'Xác sống lang thang',tg:['xac'],d:.07,dm:[8,15],ic:'skull',intro:'Một xác chết trong bộ giáp gỉ sét lết ra từ nghĩa địa bỏ hoang, hốc mắt cháy lửa xanh.',
@@ -11575,7 +11575,7 @@ const LOVE_EV=[
       {t:'Đánh kẻ thứ ba',f:s=>{const L=lover();addEnemy('Kẻ thứ ba bị bạn đánh giữa làng',{...s.tmp,hate:R(50,70)});L.alive=false;L.gone=1;
         if(lvFight()){mod({happy:-4,honor:-2});return[`Bạn đấm ${s.tmp.first} ngã lăn ra đống rơm. ${L.first} chạy theo kẻ kia, và bạn biết mình vừa mất người yêu.`,'bad']}
         mod({health:-10,happy:-10});return[`${s.tmp.first} khỏe hơn bạn tưởng. Bạn về nhà với con mắt sưng tím và trái tim tan nát.`,'bad']}}]},
- {id:'sp_cheat',w:s=>spouse()&&spouse().bond<50?4:1.5,c:s=>!!spouse()&&s.age>=20,prep:s=>{s.tmp=npc('enemy',{sex:spouse().sex==='m'?'f':'m',age:Math.max(18,spouse().age+R(-8,5))})},title:'Lá thư giấu dưới gối',
+ {id:'sp_cheat',w:s=>spouse()&&spouse().bond<50?4:1.5,c:s=>!!spouse()&&s.age>=20&&spouse().age/lifeOf(spouse().race||'human')<=65,prep:s=>{s.tmp=npc('enemy',{sex:spouse().sex==='m'?'f':'m',age:Math.max(18,spouse().age+R(-8,5))})},title:'Lá thư giấu dưới gối',
   text:s=>`Khi thay áo gối, bạn tìm thấy một lá thư tình. Người viết là ${s.tmp.name}, còn người nhận là ${spouse().first}. Cả làng hình như đã biết từ lâu, chỉ có bạn là không.`,
   ch:[{t:'Tha thứ, giữ gia đình',f:s=>{const p=spouse();p.bond=clamp(p.bond+8);mod({happy:-8});return[`Bạn đặt lá thư lên bàn và không nói gì. ${p.first} quỳ xuống xin lỗi. Hai người cố bắt đầu lại, vì con cái và vì những năm đã qua.`,'']}},
       {t:'Ly hôn',f:s=>{const p=spouse();divorce(p);mod({happy:-12});return[`Bạn ra trước cha xứ đòi ly hôn. ${p.first} dọn đồ đi trong một buổi chiều mưa. Căn nhà bỗng rộng ra một cách lạ lùng.`,'bad']}},
@@ -11666,9 +11666,9 @@ const SILLY_DEATH=['hóc xương cá trong bữa tối','vấp phải hòn đá 
  'cười quá nhiều trong lúc xem gánh hát rong','bị thùng bia lăn từ trên dốc xuống đè trúng','ngã khỏi ghế khi đang cố bắt con ruồi','bị con dê húc rơi xuống giếng',
  'ăn nhầm nấm độc vì tưởng là nấm hương','hắt hơi quá mạnh làm sái cổ rồi ngã cầu thang','bị bánh xe pho mát lăn trong hội làng đè qua','nghẹn bánh mì trong tiệc cưới của người khác',
  'bị con gà trống mổ vào đầu khi đang ngủ trưa dưới gốc cây','trượt vỏ chuối ở chợ phiên','ngồi lên cái chĩa ba ai đó bỏ quên trong đống rơm','bị chậu hoa trên ban công rơi trúng đầu',
- 'thua cược nên phải nhảy xuống sông giữa mùa đông','đứng dưới gốc cây giữa trời giông để khoe mình không sợ sét','bị con lừa đá trúng ngực khi đang tết đuôi cho nó',
- 'say rượu ngủ quên trong chuồng lợn','uống nhầm lọ thuốc nhuộm vải tưởng là rượu vang'];
-{const y0=extYear3;extYear3=function(){y0();if(S.alive&&S.age>=4&&!S.cap&&ch(.01))die(pick(SILLY_DEATH))}}
+ '!thua cược nên phải nhảy xuống sông giữa mùa đông','đứng dưới gốc cây giữa trời giông để khoe mình không sợ sét','bị con lừa đá trúng ngực khi đang tết đuôi cho nó',
+ '!say rượu ngủ quên trong chuồng lợn','!uống nhầm lọ thuốc nhuộm vải tưởng là rượu vang'];
+{const y0=extYear3;extYear3=function(){y0();if(S.alive&&S.age>=4&&!S.cap&&ch(.01)){const L=SILLY_DEATH.filter(x=>x[0]!=='!'||S.age>=16);die(pick(L).replace(/^!/,''))}}}
 /* ===== Chuyện vặt lãng xẹt: một dòng mỗi năm (~12%) ===== */
 const SILLY_LOG=[
  ['Con ngỗng nhà hàng xóm đuổi bạn chạy ba vòng quanh giếng làng. Cả xóm đứng xem.',{happy:-1}],
@@ -11677,27 +11677,27 @@ const SILLY_LOG=[
  ['Bạn hắt hơi đúng lúc cha xứ đọc lời ban phước. Cả hàng ghế quay lại nhìn.',{}],
  ['Một con quạ cướp miếng bánh mì trên tay bạn rồi đậu ngay trên mái nhà ăn trước mặt bạn.',{happy:-1}],
  ['Bạn thắng giải "bộ râu ấn tượng nhất" ở hội làng, dù bạn không hề đăng ký.',{happy:2}],
- ['Bạn gọi nhầm tên vợ của trưởng làng ba lần trong một buổi tối.',{honor:-1}],
+ ['Bạn gọi nhầm tên vợ của trưởng làng ba lần trong một buổi tối.',{honor:-1},16],
  ['Con mèo nhà bạn mang về một con cá to hơn cả nó. Không ai biết nó lấy ở đâu.',{happy:2}],
  ['Bạn bước hụt bậc thang hầm rượu và ngồi luôn vào thùng dưa muối.',{happy:-1}],
  ['Gánh hát rong mời bạn đóng vai cái cây. Bạn đứng yên suốt hai canh giờ và được khen nhập vai.',{happy:2}],
  ['Bạn mặc ngược áo suốt cả phiên chợ mà không ai nói gì.',{}],
  ['Một bà lão bán trứng nhất quyết rằng bạn là cháu bà. Bạn được cho không một chục trứng.',{happy:1}],
- ['Bạn thua cược và phải hát một bài trước quán rượu. Chó trong làng hú theo.',{honor:-1,happy:1}],
+ ['Bạn thua cược và phải hát một bài trước quán rượu. Chó trong làng hú theo.',{honor:-1,happy:1},16],
  ['Gió thổi bay chiếc mũ của bạn xuống sông. Một con vịt đội nó bơi đi rất tự hào.',{}],
  ['Bạn ăn phải quả ớt của thương nhân phương nam và uống cạn nửa cái giếng.',{health:-1}],
  ['Con lừa của bạn không chịu đi khi bạn kéo, nhưng đi ngay khi con trẻ hàng xóm gọi.',{}],
- ['Bạn tập nói tiếng tiên với một khách lữ hành. Hóa ra bạn vừa chê mũi người ta.',{honor:-1}],
+ ['Bạn tập nói tiếng tiên với một khách lữ hành. Hóa ra bạn vừa chê mũi người ta.',{honor:-1},16],
  ['Bạn tìm thấy một đồng xu trong túi áo cũ và vui suốt cả ngày.',{happy:2}],
  ['Một con bò lạc vào nhà bạn, nằm cạnh lò sưởi và không chịu ra.',{}],
- ['Bạn kể chuyện ma quá hay, cả bàn ở quán rượu không ai dám về nhà một mình.',{happy:1}],
+ ['Bạn kể chuyện ma quá hay, cả bàn ở quán rượu không ai dám về nhà một mình.',{happy:1},16],
  ['Bạn đặt tên cho con chuột trong bếp. Giờ bạn không nỡ đặt bẫy nữa.',{happy:1}],
- ['Bạn bị con ong đốt vào mũi đúng hôm đi xem mắt hộ người khác.',{}],
+ ['Bạn bị con ong đốt vào mũi đúng hôm đi xem mắt hộ người khác.',{},16],
  ['Bạn thử đi cà kheo ở hội làng và hạ cánh trên quầy bánh mật.',{health:-1,happy:1}],
  ['Thầy bói phán bạn sẽ gặp may. Ngay hôm đó bạn bị chim ỉa trúng đầu. Thầy bói bảo đó chính là may.',{}],
- ['Bạn ngủ quên trên đống cỏ khô và bị chở ra tận chợ làng bên.',{}]
+ ['Bạn ngủ quên trên đống cỏ khô và bị chở ra tận chợ làng bên.',{},16]
 ];
-{const y0=extYear3;extYear3=function(){y0();if(S&&S.alive&&!S.cap&&S.age>=5&&ch(.12)){const[t,fx]=pick(SILLY_LOG);mod(fx);log(t)}}}
+{const y0=extYear3;extYear3=function(){y0();if(S&&S.alive&&!S.cap&&S.age>=5&&ch(.12)){const L=SILLY_LOG.filter(x=>S.age>=(x[2]||0));if(L.length){const[t,fx]=pick(L);mod(fx);log(t)}}}}
 
 /* ===== Người Nghe Nước → Người Giữ Con Nước / Chủ Khế Ước Vực Sâu ===== */
 const WTRK={keep:['Người Nghe Nước','Kẻ Đọc Dấu Triều','Người Dẫn Luồng','Người Giữ Con Nước','Người Để Lại Ngọn Đèn'],
