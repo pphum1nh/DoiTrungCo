@@ -7492,7 +7492,7 @@ for(const[k,D]of Object.entries(MQ2)){HQ[k]={...D,mv:true,mvId:D.mvIds[0],cc:()=
 /* mục Các tộc và quốc gia: thêm các vương quốc loài người */
 function hkRow(n,i){const rs=WD().rs[n];if(!rs)return'';const st=rs.stab;return gRow(`data-open="rg:hk:${i}"`,'castle',n+(S.realm===n?' · quê bạn':''),`${esc(rs.ruler)}${rs.war?` · ${rs.war.vs==='nội chiến'?'nội chiến':'đánh nhau với '+String(rs.war.vs).replace(RPFX,'')}`:''} · ${st>=60?'yên ổn':st>=35?'bất an':'rối loạn'}${rs.fam?' · mất mùa':''}${rs.pl?' · có dịch':''}`,'',false)}
 function hkView(i){const n=HUMAN_REALMS[+i],rs=n&&WD().rs[n];if(!rs)return['Vương quốc','<p class="note">Không tìm thấy vương quốc này.</p>','rg'];
-  let b=imgBanner(/Thánh quốc/.test(n)?'saint':/Đế chế/.test(n)?'throne':'coronation');
+  const RI=typeof RLINFO!=='undefined'&&RLINFO[n];let b=RI?imgBanner(RI.img)+`<p class="note">${RI.d}</p><p class="note">Huy hiệu: ${RI.em}</p>`:imgBanner(/Thánh quốc/.test(n)?'saint':/Đế chế/.test(n)?'throne':'coronation');
   b+=gRow('','castle',n,S.realm===n?'Quê hương của bạn':'Vương quốc của loài người','',false,true);
   b+=statGrid([['Người cai trị',esc(rs.ruler)],['Tình hình',rs.stab>=60?'yên ổn':rs.stab>=35?'bất an':'rối loạn'],['Chiến tranh',rs.war?(rs.war.vs==='nội chiến'?'nội chiến':String(rs.war.vs).replace(RPFX,'')):'không'],['Mùa màng, dịch bệnh',[rs.fam?'mất mùa':'',rs.pl?'có dịch':''].filter(Boolean).join(', ')||'bình thường']]);
   if(rs.red&&(S.flags.her>=1||rmOn()||(S.ct&&S.ct.o==='red')))b+=`<p class="note">Tín đồ Hồng Nguyệt trong nước (chỉ người trong giáo phái mới biết): ${rs.red}.</p>`;
