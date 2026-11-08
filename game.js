@@ -239,8 +239,9 @@ const WEAPON_ART=new Set(["sword_anc", "holy_sword", "dagger", "starstaff", "spe
 const ACCESSORY_ART=new Set(["ring_sig", "amulet", "relic", "chalice", "scale", "gem", "horn", "totem", "flower", "rg_ruby", "rg_emerald", "rg_arcane", "br_gold", "br_beads", "br_rune", "rx_ring", "rx_amulet", "rx_chain"]);
 const ARMOR_ART=new Set(["mail", "plate", "arm_holy", "arm_dark", "arm_dragon", "arm_frost", "arm_phoenix", "arm_necro", "cloak_shadow", "mw_armor", "ra_robe", "ra_plate"]);
 const HEADGEAR_ART=new Set(["helm", "kettle", "hornhelm", "barbute", "greathelm", "h_winged", "h_demon", "h_raven", "h_dragon", "h_crown", "rh_mask", "rh_crown"]);
+const MISC_ART=new Set(["crown","wand","tome","elixir","map","darkcrown","sc_royal","vm_curse","le_nu","chieu_chi","heal_book","p_tinh","p_than","p_ma","p_hong"]);
 const itemIcon=(id,s=24)=>ic('item:'+id,s);
-const ic=(n,s=24)=>{if(typeof n==='string'&&n.startsWith('item:')){const id=n.slice(5);if(WEAPON_ART.has(id)||ACCESSORY_ART.has(id)||ARMOR_ART.has(id)||HEADGEAR_ART.has(id)){const folder=ARMOR_ART.has(id)?"armor":HEADGEAR_ART.has(id)?"headgear":ACCESSORY_ART.has(id)?"accessories":"weapons";return`<img class="item-art" src="assets/${folder}/${id}.png" width="${s}" height="${s}" alt="" draggable="false" loading="lazy">`;}n=(ITEMS[id]||{}).ic||'gem'}const k=ICMAP[n]||n;if(CI[k])return`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${ciSVG(CI[k])}</svg>`;if(GI[k]){const[vb,inner]=GI[k];return`<svg viewBox="${vb}" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${inner}</svg>`}return`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]||P.gem}</svg>`};
+const ic=(n,s=24)=>{if(typeof n==='string'&&n.startsWith('item:')){const id=n.slice(5);if(WEAPON_ART.has(id)||ACCESSORY_ART.has(id)||ARMOR_ART.has(id)||HEADGEAR_ART.has(id)||MISC_ART.has(id)){const folder=MISC_ART.has(id)?"items":ARMOR_ART.has(id)?"armor":HEADGEAR_ART.has(id)?"headgear":ACCESSORY_ART.has(id)?"accessories":"weapons";return`<img class="item-art" src="assets/${folder}/${id}.png" width="${s}" height="${s}" alt="" draggable="false" loading="lazy">`;}n=(ITEMS[id]||{}).ic||'gem'}const k=ICMAP[n]||n;if(CI[k])return`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${ciSVG(CI[k])}</svg>`;if(GI[k]){const[vb,inner]=GI[k];return`<svg viewBox="${vb}" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${inner}</svg>`}return`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]||P.gem}</svg>`};
 const MED={skull:['#a8452a','#2a0b05'],flame:['#ff8d2a','#4a1205'],cross:['#f5e2a4','#6b5420'],moon:['#cf2633','#2a0508'],crown:['#f2b94a','#5a3208'],shield:['#d09363','#3a2214'],horn:['#8bb84f','#1f2e0f'],totem:['#8bb84f','#1f2e0f'],banner:['#c84030','#3a0c08'],dagger:['#a274f2','#22113f'],gem:['#5aa2ff','#0f234a'],tomb:['#8f8678','#1b1814'],sword:['#d6dce8','#2a3040']};
 const medal=a=>{const[c1,c2]=MED[a]||MED.shield;return`<div class="medal" style="background:radial-gradient(circle at 50% 38%,${c1},${c2} 72%);box-shadow:0 0 0 2px var(--gold),0 0 34px ${c1}">${ic(a,52)}</div>`};
 
@@ -10160,14 +10161,14 @@ for(const e of CAP_EV){EV.push(e);EVB[e.id]=e}
 {const f0=flavorYear;flavorYear=function(){if(!S||!S.cap)return f0();S.pend=S.pend.filter(id=>id==='cap_sc');capYear()}}
 {const d0=drawExt3;drawExt3=function(v){if(v==='cap')return capView();if(v==='capjob')return['Nghề nghiệp',`<p class="note">Bạn đang bị giam. Nghề${S.cap&&S.cap.job?` ${esc(JOBS[S.cap.job.id]?JOBS[S.cap.job.id].n:'')}`:''} bị khóa: không thể xin, đổi hay thăng nghề cho tới khi được tự do.</p>`,''];return d0(v)}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('cap:')){const[,k,id]=x.split(':');return capAct(k,id)}return x0(x)}}
-{const s0=drawSheet;drawSheet=function(){if(S&&S.cap&&view){if(view==='act'||view.startsWith('act:')||/^(hq|hon|sea|mk|org|dragon|retire)(:|$)/.test(view))view='cap';else if(view==='job')view='capjob'}s0();
+{const s0=drawSheet;drawSheet=function(){if(S&&S.cap&&view){if(view==='act'||view.startsWith('act:')||/^(hq|hon|sea|mk|org|dragon|retire|vo|nb)(:|$)/.test(view))view='cap';else if(view==='job')view='capjob'}s0();
   if(S&&S.cap&&view&&/^(rel|p:|r:)/.test(view)){const sb=$('#sheet .sbody');if(sb&&!sb.querySelector('.capnote'))sb.insertAdjacentHTML('afterbegin','<p class="note bad capnote">Bạn đang bị giam. Bạn không liên lạc được với gia đình, bạn bè hay người yêu.</p>')}}}
 {const r0=render;render=function(){r0();if(S&&S.cap){const e=$('#sub');if(e)e.textContent=`Bị giam tại ${capLoc().n} · ${capYrs()} năm · ${e.textContent}`}}}
 /* lớp chặn nút bấm khi bị giam */
 document.addEventListener('click',e=>{
   if(!S||!S.cap)return;const b=e.target.closest('button');if(!b||b.disabled)return;const d=b.dataset;let why='';
-  if(d.open&&(/^(shop|owned|dom|kd|gd|flirt|match|rg|tt|vj|rn|bt|kg|hl|xk|kk|mt|hc|hq|hon|sea|mk|org|dragon|retire|co|dm|acad|kn|hn|rm|cult|mv)(:|$)/.test(d.open)))why='Bạn đang bị giam, không thể làm việc này.';
-  else if(d.x&&!d.x.startsWith('cap:')&&(['allrel','skip5'].includes(d.x)||/^(kc|tt|vj|rn|bt|kg|hl|xk|kk|mt|hc|hq|rg|co|dm|kn|hn|gd|kd|pv|ptgo)(:|$)/.test(d.x)||/^(rel|p:|r:)/.test(view||'')))why=d.x==='allrel'?'Bạn không thể gặp người thân khi đang bị giam.':'Bạn đang bị giam, không thể làm việc này.';
+  if(d.open&&(/^(shop|owned|dom|kd|gd|flirt|match|rg|tt|vj|rn|bt|kg|hl|xk|kk|mt|nb|vo|hc|hq|hon|sea|mk|org|dragon|retire|co|dm|acad|kn|hn|rm|cult|mv)(:|$)/.test(d.open)))why='Bạn đang bị giam, không thể làm việc này.';
+  else if(d.x&&!d.x.startsWith('cap:')&&(['allrel','skip5'].includes(d.x)||/^(kc|tt|vj|rn|bt|kg|hl|xk|kk|mt|nb|vo|hc|hq|rg|co|dm|kn|hn|gd|kd|pv|ptgo)(:|$)/.test(d.x)||/^(rel|p:|r:)/.test(view||'')))why=d.x==='allrel'?'Bạn không thể gặp người thân khi đang bị giam.':'Bạn đang bị giam, không thể làm việc này.';
   else if(d.act&&!['sword','spell'].includes(d.act))why='Khi bị giam, bạn chỉ có thể luyện tập.';
   else if(d.job!==undefined||'quit'in d)why='Nghề nghiệp bị khóa khi bạn đang bị giam.';
   else if(d.pa||d.ra||'match'in d||d.wed!==undefined||'baby'in d||d.flirt!==undefined||'findf'in d)why='Bạn không liên lạc được với gia đình, bạn bè hay người yêu khi đang bị giam.';
@@ -10871,6 +10872,436 @@ for(const e of DA_EV){EV.push(e);EVB[e.id]=e}
   if(S.age>=16&&!S.daCur&&!S.pend.includes('da_heir')&&ch(.3)){const m=(W.da||[]).find(x=>!x.done&&x.gen<S.gen&&DA[x.k]);if(m){S.daCur=m;S.pend.push('da_heir')}}}}
 {const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'){if(r.world&&r.world.da&&!Array.isArray(r.world.da))r.world.da=[];if(r.daK&&!DA[r.daK])r.daK=null;
   if(r.daCur){const m=r.world&&r.world.da&&r.world.da.find(x=>x.k===r.daCur.k&&x.y===r.daCur.y&&x.i===r.daCur.i);r.daCur=m||null}}return r}}
+
+/* ===================== NGHỀ SÁT THỦ · HỘI VÔ DIỆN =====================
+   Lời mời lúc tròn 10 tuổi (5%, kiểm tra một lần), học việc 10–16 tuổi, thề nhận nghề, công trạng 5 cấp,
+   hợp đồng dài hạn có cộng sự, biến cố, cao trào và điều tra sau nhiệm vụ. */
+const VO_RACES=['human','elf','fiend','beast'];
+const VORK=['Sát Thủ Tập Sự','Lưỡi Dao Giấu Tên','Người Mang Mặt Nạ','Bóng Đêm Của Triều Đình','Vô Diện'];
+const VOM=[0,40,110,230,400];
+const VOSK={qs:'Quan sát',dx:'Diễn xuất',yc:'Ý chí',ph:'Phối hợp'};
+const VOGRAD={each:20,sum:120};
+JOBS.assassin={races:VO_RACES,n:'Sát Thủ · Hội Vô Diện',min:16,t:VORK,pay:[6,14,26,45,70],need:[99,99,99,99],vol:true,fx:{smarts:1},
+  req:s=>!!(s.vo&&s.vo.st==='sworn'),why:'Chỉ người đã tuyên thệ trong Hội Vô Diện'};
+JIC.assassin='hood';
+const VO=()=>S.vo;
+const voP=id=>id&&(S.rel||[]).find(r=>r.id===id);
+const voAlive=id=>{const p=voP(id);return!!(p&&p.alive)};
+const voName=id=>{const p=voP(id);return p?p.first:'người ấy'};
+const voNp=id=>{const V=VO();if(!V.np[id])V.np[id]={tr:50,amb:R(20,70),tie:null,mem:[]};return V.np[id]};
+const voTr=(id,v)=>{if(!id)return;const n=voNp(id);n.tr=Math.max(0,Math.min(100,n.tr+v));const p=voP(id);if(p)p.bond=Math.max(0,Math.min(100,(p.bond||50)+Math.round(v/2)))};
+const voSk=(k,v)=>{const V=VO();V.sk[k]=Math.max(0,Math.min(100,V.sk[k]+v))};
+const voJ=t=>{const V=VO();if(!V.j.includes(t))V.j.push(t);if(V.j.length>14)V.j.shift()};
+const voRank=()=>S.job&&S.job.id==='assassin'?S.job.rank:-1;
+const voSusp=()=>{const V=VO();return!!(V&&V.susp&&S.year<V.susp)};
+function voMkNpc(why,age,extra){const r=npc('friend',{age,race:pick(VO_RACES.filter(x=>RACES[x])),...(extra||{})});r.bond=R(45,65);r.why=why;S.rel.push(r);return r}
+function voStart(fam){S.vo={st:'app',y0:S.year,alias:null,men:null,mates:[],done:{},sk:{qs:10,dx:10,yc:10,ph:10},m:0,n:0,fails:0,susp:0,np:{},C:null,board:null,by:0,inv:[],hist:[],j:[],fam:fam||null,tr:0};
+  voJ('Đồng xu không khắc mặt người được cất dưới gối. Từ nay bạn có một cuộc đời thứ hai mà người khác không thấy.');S.vo.cur=0;S.pend.push('vo_ch')}
+/* ---------- chương học việc ---------- */
+const VOCH=[
+ {a:10,t:'Tên Gọi Sau Cánh Cửa',img:'assassin',x:s=>`Sau cánh cửa gỗ của một xưởng thuộc da bỏ hoang, một người đàn ông mặt bình thường đến mức khó nhớ đặt trước bạn ba mảnh giấy. "Ở đây không ai dùng tên thật. Chọn một cái, và nó sẽ đi theo ngươi cả đời." Hai đứa trẻ khác đứng cạnh bạn, cũng cầm đồng xu không mặt người.`,
+  c:[['Sương — cái tên không ai giữ được',s=>voAlias('Sương','qs')],['Sẻ Đêm — cái tên nhỏ, nhanh và lặng',s=>voAlias('Sẻ Đêm','dx')],['Không — cái tên không là gì cả',s=>voAlias('Không','yc')]]},
+ {a:11,t:'Bức Tranh Thay Đổi',img:'ghost',x:s=>`${voName(VO().men)} dẫn bạn vào một căn phòng có bức tranh, chiếc bàn và bốn ngọn nến. Bạn được nhìn trong mười nhịp thở. Khi bước vào lần hai, ba thứ đã đổi chỗ. "Nói cho ta biết."`,
+  c:[['Kiểm tra từng góc rồi mới trả lời',s=>{voSk('qs',7);VO().hab='verify';voTr(VO().men,5);return['Bạn đếm từng ngọn nến, sờ khung tranh, nhìn dưới gầm bàn. Bạn tìm ra cả ba. Người hướng dẫn gật đầu, ghi gì đó vào sổ.','good']}],
+     ['Đoán nhanh để kịp giờ',s=>{if(ch(.45)){voSk('qs',4);VO().hab='guess';return['Bạn đoán đúng hai. Người hướng dẫn nói: "Hên. Đừng quen với nó."','']}voSk('qs',2);VO().hab='guess';return['Bạn đoán sai cả ba. Căn phòng tối lại, và bạn phải ngồi đó tới sáng.','bad']}],
+     ['Thì thầm hỏi bạn học',s=>{voSk('ph',5);voSk('qs',2);for(const m of VO().mates)voTr(m,6);return[`${voName(VO().mates[0])} nhớ ngọn nến, bạn nhớ khung tranh. Người hướng dẫn nhíu mày, nhưng không phạt.`,'']}]]},
+ {a:12,t:'Chiếc Mặt Nạ Mượn',img:'fair',x:s=>`Hội dựng một buổi tiệc giả trong ảo ảnh. Bạn phải đóng vai một người hầu rót rượu, đứng cạnh một "lãnh chúa" suốt buổi mà không ai nghi ngờ. Giữa tiệc, một vị khách hỏi tên quê bạn.`,
+  c:[['Nhập vai trọn vẹn, bịa một quê hương',s=>{voSk('dx',8);return['Bạn kể về một làng ven sông không có thật, tới tên con chó nhà hàng xóm. Vị khách cười, rót thêm rượu cho bạn.','good']}],
+     ['Giữ mình, chỉ trả lời vừa đủ',s=>{voSk('yc',6);voSk('dx',2);return['"Một làng nhỏ, thưa ngài." Bạn cúi đầu. Vị khách mất hứng, quay đi. Không ai nhớ bạn.','']}],
+     ['Cởi mặt nạ giữa chừng',s=>{voSk('yc',3);voTr(VO().men,-8);voJ('Ta đã cởi mặt nạ giữa buổi thử. Người hướng dẫn không nói gì, nhưng ghi lại.');return['Ảo ảnh tan. Người hướng dẫn hỏi vì sao. Bạn nói bạn không muốn nói dối một người không có thật. Ông im lặng rất lâu.','']}]]},
+ {a:13,t:'Người Bạn Bị Đổ Lỗi',img:'witchtrial',x:s=>`Một cuốn sổ của hội biến mất. Mọi dấu vết chỉ về ${voName(VO().mates[0])}. Bạn biết đêm ấy cậu ta ngủ cạnh bạn, nhưng nếu lên tiếng, cả hai có thể bị loại.`,
+  c:[['Đứng ra làm chứng cho bạn',s=>{const m=VO().mates[0];voTr(m,25);voSk('yc',5);voTr(VO().men,-3);VO().np[m]&&(VO().np[m].mem.push('cứu'));return[`Bạn nói thật trước cả hội. ${voName(m)} được tha. Cậu nhìn bạn như nhìn một người anh em.`,'good']}],
+     ['Lặng lẽ tìm ra kẻ lấy sổ',s=>{const m=VO().mates[0];if(ch(.35+VO().sk.qs/200)){voSk('qs',6);voTr(m,15);return[`Bạn tìm ra cuốn sổ trong rương của ${voName(VO().mates[1])}. Người hướng dẫn xử kín. ${voName(m)} không bao giờ biết ai đã cứu mình.`,'good']}voSk('qs',2);return['Bạn không tìm ra kịp. Cuối cùng người hướng dẫn tự tìm thấy cuốn sổ, và cả nhóm bị phạt chung.','']}],
+     ['Im lặng, giữ thành tích của mình',s=>{const m=VO().mates[0];voTr(m,-30);voNp(m).amb+=15;voNp(m).mem.push('bỏ rơi');return[`${voName(m)} bị phạt đứng dưới mưa suốt đêm. Từ hôm ấy, cậu không còn ngồi cạnh bạn.`,'bad']}]]},
+ {a:14,t:'Mệnh Lệnh Sai',img:'courtappt',x:s=>`Trong mô phỏng, cấp trên ra lệnh: "Đốt kho lương ở cổng đông." Nhưng chính bạn vừa thấy trẻ con ngủ trong kho ấy. Ảo ảnh vẫn đang chạy.`,
+  c:[['Làm theo lệnh',s=>{voSk('yc',-2);VO().obey='obey';return['Ngọn lửa trong ảo ảnh không nóng. Nhưng tiếng khóc thì rất thật. Bạn qua bài thi.','']}],
+     ['Dừng lại, chất vấn với lý lẽ',s=>{voSk('yc',7);voSk('qs',3);VO().obey='ask';voTr(VO().men,6);return['"Trong kho có người." Cấp trên trong ảo ảnh sững lại, rồi tan đi. Người hướng dẫn mỉm cười lần đầu tiên.','good']}],
+     ['Tự ý làm khác',s=>{voSk('dx',3);VO().obey='rogue';voTr(VO().men,-6);return['Bạn đốt kho khác. Bài thi coi là trượt, nhưng không ai trong ảo ảnh phải chết.','']}]]},
+ {a:15,t:'Kỳ Thi Của Ba Người',img:'herotrain',x:s=>`Ba học đồ, một bài thi: lẻn vào một tòa tháp ảo ảnh, lấy một chiếc chìa khóa, cùng ra ngoài. Phần khó nhất là đánh lạc hướng lính gác, người làm phần đó dễ bị "bắt" nhất.`,
+  c:[['Nhận phần khó nhất',s=>{voSk('ph',7);for(const m of VO().mates)voTr(m,10);VO().lead='lead';return['Bạn bị "bắt" ngay cửa tháp. Hai người kia lấy được chìa. Người hướng dẫn chấm bạn điểm cao nhất.','good']}],
+     ['Chia đều công việc',s=>{voSk('ph',5);for(const m of VO().mates)voTr(m,4);VO().lead='fair';return['Ba người làm như một. Không ai nổi bật, cũng không ai thất bại.','']}],
+     ['Giành công về mình',s=>{voSk('dx',5);for(const m of VO().mates)voTr(m,-18);VO().lead='self';return['Bạn cầm chìa khóa bước ra trước. Báo cáo chỉ có tên bạn. Hai người kia không nói gì.','bad']}]]},
+ {a:16,t:'Lời Thề Vô Diện',img:'assassin',x:s=>`Trong căn phòng không đèn, các thành viên của hội đứng thành vòng tròn, ai cũng đeo mặt nạ trơn. ${voName(VO().men)} trao bạn chiếc mặt nạ của mình. "Thề, và từ nay ngươi nhận hợp đồng thật. Hoặc trả lại đồng xu, và chưa ai từng gặp ngươi."`,
+  c:[['Đeo mặt nạ, tuyên thệ',s=>{const V=VO();V.st='sworn';V.gy=S.year;if(S.job)log(`Bạn thôi làm ${jt().toLowerCase()}.`);S.job={id:'assassin',rank:0,yr:0,ry:0,perf:45};mod({happy:4});voJ(`Ta đã thề dưới cái tên ${V.alias}. Ta nhận hợp đồng, nhưng ta vẫn được chọn hợp đồng nào.`);
+       announce('Hội Vô Diện',`Một mặt nạ mới được trao trong bóng tối. Không ai biết đó là ${S.first} ${S.surname}.`,'hood','assassin');return['Bạn trở thành Sát Thủ Tập Sự của Hội Vô Diện. Bảng hợp đồng nằm trong mục Hoạt động.','good']}],
+     ['Xin thêm một năm',s=>{VO().done[6]=0;return['Người hướng dẫn gật đầu. "Mặt nạ sẽ chờ."','']}],
+     ['Trả lại đồng xu',s=>{VO().st='no';return['Bạn đặt đồng xu xuống sàn đá rồi đi ra. Không ai ngăn bạn. Sáng hôm sau, xưởng thuộc da đã trống không.','']}]]}
+];
+function voAlias(a,k){const V=VO();V.alias=a;voSk(k,6);
+  const men=voMkNpc('người hướng dẫn trong Hội Vô Diện',R(38,55));V.men=men.id;voNp(men.id).tr=55;
+  for(let i=0;i<2;i++){const m=voMkNpc('bạn học việc trong Hội Vô Diện',S.age+R(-1,1));V.mates.push(m.id);voNp(m.id).tr=50}
+  voNp(V.mates[1]).tie='debt';
+  return[`Từ nay trong hội bạn là ${a}. Người hướng dẫn của bạn là ${men.first}. Hai học đồ cùng lứa là ${voName(V.mates[0])} và ${voName(V.mates[1])}.`,'good']}
+const voGradOK=()=>{const k=VO().sk;return Object.values(k).every(v=>v>=VOGRAD.each)&&Object.values(k).reduce((a,b)=>a+b,0)>=VOGRAD.sum};
+const voNextCh=()=>{const V=VO();for(let i=0;i<7;i++)if(!V.done[i])return i;return-1};
+/* ---------- hợp đồng ---------- */
+const VOT=[
+ {n:'Mục tiêu địa phương',ts:['một kẻ cho vay nặng lãi','một gã đầu nậu bến cảng','một quản đốc mỏ'],rew:[40,70],m:8,hp:30,dur:[2,2]},
+ {n:'Nam tước',ts:['Nam tước'],rew:[90,150],m:14,hp:40,dur:[2,3]},
+ {n:'Tử tước, bá tước',ts:['Tử tước','Bá tước'],rew:[160,260],m:22,hp:50,dur:[2,3]},
+ {n:'Hầu tước, công tước',ts:['Hầu tước','Công tước'],rew:[280,420],m:32,hp:62,dur:[3,4]},
+ {n:'Vua và nhân vật đặc biệt',ts:['king'],rew:[500,800],m:50,hp:78,dur:[3,5]}
+];
+const VOCLAIM=['gây ra nạn đói ở vùng mình cai quản','bán con gái người khác cho bọn buôn người','đầu độc người anh để chiếm đất','treo cổ mười hai nông dân vì nợ thuế','ăn chặn lương thực cứu tế'];
+function voMkC(tier){const T=VOT[tier];let tg;
+  if(T.ts[0]==='king'){const rs=WD().rs,names=Object.keys(rs).filter(n=>!(n===S.realm&&kingMe()));const rl=pick(names);tg={n:rs[rl].ruler,t:'Vua',rl,king:1}}
+  else{const t=pick(T.ts);const sx=pick(['m','f']);tg={n:`${pick(nameList(sx,'human'))} ${surFor('human',pick(NPCLS))}`,t,rl:pick(Object.keys(WD().rs))}}
+  const truth=pick(['true','true','lie','mixed']);
+  return{id:uid(),tier,tg,emp:pick(['một người đàn bà đeo khăn voan','một thương nhân không chịu nói tên','một giáo sĩ cởi áo dòng','một hiệp sĩ già mất một tay']),
+    claim:pick(VOCLAIM),truth,rew:R(...T.rew),dur:R(...T.dur),y0:0,st:'offer',inf:0,ver:0,know:[],team:[],ready:0,twist:null,tw:0,go:0,dl:0}}
+function voBoard(){const V=VO();if(V.by!==S.year){V.by=S.year;const r=Math.max(0,voRank());V.board=[];
+  for(const t of [Math.max(0,r-1),r,r])V.board.push(voMkC(t))}return V.board}
+const voTxt=C=>C.tg.king?`${C.tg.n} của ${C.tg.rl}`:`${C.tg.t==='Nam tước'||C.tg.t==='Tử tước'||C.tg.t==='Bá tước'||C.tg.t==='Hầu tước'||C.tg.t==='Công tước'?C.tg.t+' ':''}${C.tg.n}${C.tier===0?', '+C.tg.t:''} ở ${C.tg.rl}`;
+const voTurns=()=>Math.max(0,2-(S.done.voT||0));
+const voTeamMax=()=>voRank()>=3?3:2;
+function voTake(i){const V=VO(),C=voBoard()[i];if(!C||V.C||voSusp())return;C.st='info';C.y0=S.year;C.dl=S.year+C.dur;V.C=C;V.board.splice(i,1);
+  C.know.push(`Người thuê (${C.emp}) nói ${voTxt(C)} đã ${C.claim}.`);voJ(`Hợp đồng: ${voTxt(C)}.`);
+  return[`Bạn nhận hợp đồng nhắm vào ${voTxt(C)}. Thời hạn ${C.dur} năm, thù lao ${C.rew} xu.`,'']}
+const VOINFO={
+ true:['Dân trong vùng xác nhận lời người thuê. Họ sợ đến mức không dám nói tên mục tiêu.','Bạn thấy tận mắt sổ sách: lời buộc tội là thật.'],
+ lie:['Một bà lão kể mục tiêu vừa mở kho cứu tế mùa đông năm ngoái. Điều này trái với lời người thuê.','Bạn lần ra người thuê đang tranh đất với mục tiêu. Lời buộc tội có thể chỉ là cái cớ.'],
+ mixed:['Lời buộc tội đúng một nửa: mục tiêu từng làm điều đó, nhưng đã bồi thường cho các gia đình.','Có người khác hưởng lợi nếu mục tiêu chết, và người đó quen biết người thuê.']};
+function voInfo(){const V=VO(),C=V.C;const k=C.truth;const p=.45+V.sk.qs/200+(V.hab==='verify'?.1:0);
+  if(ch(p)){const L=VOINFO[k];const t=L[Math.min(C.inf,L.length-1)];C.inf++;if(k==='true')C.know.push(t);else C.know.push('Nghi vấn: '+t);if(C.inf>=2)C.ver=1;voSk('qs',2);
+    return[`${t}${C.ver?' Bạn đã kiểm chứng đủ để chất vấn người thuê nếu cần.':''}`,'good']}
+  C.know.push('Một lần dò hỏi không kết quả: người trong vùng ngậm miệng.');return['Bạn dò hỏi cả ngày mà không ai chịu nói. Thông tin vẫn còn mâu thuẫn.','']}
+function voCands(){const V=VO(),C=V.C;const L=[];for(const id of [V.men,...V.mates])if(id&&voAlive(id)&&!C.team.includes(id)&&!voNp(id).gone)L.push(id);return L}
+function voRecruit(id){const V=VO(),C=V.C;if(C.team.length>=voTeamMax())return['Đội đã đủ người.',''];
+  if(id==='merc'){if(S.money<30)return['Không đủ 30 xu.',''];S.money-=30;const m=voMkNpc('lính đánh thuê từng theo bạn làm hợp đồng',R(22,40));voNp(m.id).tr=35;voNp(m.id).amb=R(50,85);C.team.push(m.id);return[`Bạn thuê ${m.first}, một tay kiếm lạnh lùng. Anh ta đòi trả trước 30 xu.`,'']}
+  const n=voNp(id);if(n.tr<25)return[`${voName(id)} từ chối: "Ta chưa quên chuyện cũ."`,'bad'];C.team.push(id);
+  let t=`${voName(id)} đồng ý vào đội.`;if(n.tie==='debt'&&!n.tieDone){t+=' Bạn biết người này đang mắc nợ một gã cho vay ở chợ. Món nợ ấy có thể kéo cả đội xuống.'}
+  return[t,'good']}
+function voPrep(k){const V=VO(),C=V.C;
+  if(k==='gear'){if(S.money<40)return['Không đủ 40 xu.',''];S.money-=40;C.ready+=2;return['Bạn mua dây, móc leo, áo tối màu và thuốc mê cho cả đội. Mức sẵn sàng tăng.','good']}
+  if(k==='magic'){if(S.money<60)return['Không đủ 60 xu.',''];S.money-=60;C.ready+=2;C.mag=1;return['Một pháp sư lang thang bán cho bạn bột che dấu chân. Lính gác có chó cũng khó lần ra.','magic']}
+  if(k==='care'){if(S.money<20)return['Không đủ 20 xu.',''];S.money-=20;for(const id of C.team)voTr(id,8);return['Bạn đãi cả đội một bữa no và trả trước một phần thưởng. Đội vui hơn hẳn.','good']}
+  if(k==='debt'){const id=C.team.find(x=>voNp(x).tie==='debt'&&!voNp(x).tieDone);if(!id)return['Không có món nợ nào cần lo.',''];if(S.money<35)return['Không đủ 35 xu.',''];S.money-=35;voNp(id).tieDone=1;voTr(id,20);return[`Bạn trả 35 xu món nợ của ${voName(id)}. Người ấy không nói gì, chỉ siết chặt tay bạn.`,'good']}
+}
+const voMood=C=>{if(!C.team.length)return'Chưa có cộng sự.';const a=C.team.map(id=>voNp(id).tr).reduce((x,y)=>x+y,0)/C.team.length;return a>=60?'Đội tin bạn.':a>=40?'Đội làm việc, nhưng chưa thật lòng.':'Đội đang bất mãn.'};
+function voTwist(){const V=VO(),C=V.C;const L=['status','revise'];const bad=C.team.find(id=>voNp(id).amb>=55&&voNp(id).tr<70);if(bad)L.push('double','double');
+  const debt=C.team.find(x=>voNp(x).tie==='debt'&&!voNp(x).tieDone);if(debt)L.push('debt');
+  C.twist=pick(L);C.twId=C.twist==='double'?bad:C.twist==='debt'?debt:null;S.pend.push('vo_tw')}
+/* cao trào */
+function voGoP(mode){const V=VO(),C=V.C,sk=V.sk;let p=.25+C.ready*.05+C.team.length*.05-C.tier*.05;
+  p+=mode==='sneak'?(sk.qs+sk.ph)/400:mode==='mask'?(sk.dx+sk.yc)/400:.25;
+  if(C.mag)p+=.05;if(voMood(C)==='Đội đang bất mãn.')p-=.1;return Math.max(.1,Math.min(.85,p))}
+function voGo(mode){const V=VO(),C=V.C;C.go=1;
+  if(mode==='expose'){return voEnd('expose')}
+  if(mode==='shadowmask'){nbFd(6);if(ch(.75))return voEnd('ok','Bạn đeo Mặt Nạ Nguyệt Ảnh. Lính gác nhìn thẳng vào bạn mà chỉ thấy một vệt bóng trăng.')}
+  if(ch(voGoP(mode)))return voEnd('ok');
+  const H=VOT[C.tier].hp+R(-5,5);S.voF={hp:H,max:H,r:0,tier:C.tier,step:0,ward:0,esc:C.tier<4||C.team.length>0};S.pend.push('vo_fight');
+  return[`Bạn bị phát hiện. ${C.tg.king?'Cận vệ hoàng gia':'Lính gác'} vây lấy ${C.team.length?'cả đội':'bạn'}.`,'bad']}
+function voFightRound(m){const F=S.voF,V=VO(),C=V&&V.C;if(!F||!S.alive||!C){S.voF=null;return['Trận đánh đã kết thúc.','']}F.r++;
+  if(m==='run'){if(ch(.55+C.team.length*.1)){S.voF=null;return voEnd('fled')}const d=R(8,14);mod({health:-d});if(S.st.health<=0)return voDie();S.pend.push('vo_fight');return[`Lối thoát bị chặn. Bạn mất ${d} sức khỏe.`,'bad']}
+  let p=.5+(S.hid.sword||0)/350+(S.blade||0)/350+cbB()/300,d=R(9,15);if(m==='guard'){p-=.1;d=R(5,9)}
+  let t='';if(m==='step'){F.step=1;nbFd(4);F.dodge=1;t='Bạn bước qua bóng của chính mình, biến mất một nhịp rồi hiện ra sau lưng lính gác. '}
+  if(m==='ward'){F.ward=1;nbFd(8);F.half=1;t='Bóng của bạn đứng dậy, chắn trước bạn như một tấm khiên đen. '}
+  if(ch(Math.min(.9,p))){F.hp=Math.max(0,F.hp-d);t+=`Bạn hạ được một lính gác (${d}).`}else t+='Đòn của bạn trượt.';
+  for(const id of C.team){if(voAlive(id)&&!voNp(id).gone){const a=R(3,7);F.hp=Math.max(0,F.hp-a);t+=` ${voName(id)} hỗ trợ (${a}).`}}
+  if(F.hp<=0){S.voF=null;return voEnd('fought',t)}
+  let dmg=R(7,12)+F.tier*2;if(m==='guard')dmg=Math.ceil(dmg*.55);if(F.dodge){dmg=0;F.dodge=0}else if(F.half){dmg=Math.ceil(dmg*.3);F.half=0}
+  if(dmg){mod({health:-dmg});t+=` Bạn trúng ${dmg} sát thương.`}t+=` Kẻ địch còn ${F.hp}/${F.max}.`;
+  if(S.st.health<=0)return voDie(t);S.pend.push('vo_fight');return[t,'bad']}
+function voDie(t){const C=VO().C;die(C&&C.tg.king?'dưới lưỡi giáo cận vệ hoàng gia':'trong một hợp đồng của Hội Vô Diện');
+  if(S.alive){S.voF=null;S.st.health=Math.max(S.st.health,5);return voEnd('fled',(t||'')+' Bạn ngã xuống, rồi tỉnh dậy trong một con hẻm, không nhớ ai đã kéo mình ra.')}
+  return[(t||'')+' Bạn ngã xuống và không đứng dậy nữa.','bad']}
+function voEnd(k,pre){const V=VO(),C=V.C;if(!C)return['',''];V.C=null;const T=VOT[C.tier];let t=pre?pre+' ':'';let tone='good';
+  const share=Math.round(C.rew*.15*C.team.length);const ev={y:S.year,tg:voTxt(C),k,wit:[],acc:[]};
+  for(const id of C.team){const n=voNp(id);if(n.gone)continue;if(n.tr>=60)ev.wit.push(id);else if(n.tr<35)ev.acc.push(id)}
+  if(k==='ok'||k==='fought'){const g=C.rew-share;S.money+=g;V.m+=T.m;V.n++;mod({honor:C.truth==='true'?1:-4});
+    t+=`${voTxt(C)} đã chết. Bạn nhận ${g} xu${share?` sau khi chia ${share} xu cho đội`:''} và ${T.m} công trạng.`;if(C.truth==='lie'){t+=' Sau này bạn mới biết lời buộc tội là bịa đặt.';voJ(`Ta đã giết ${voTxt(C)} vì một lời dối.`)}
+    if(C.tg.king){const r=WD().rs[C.tg.rl];if(r){const old=r.ruler;const pre=old.split(' ').slice(0,-1).join(' ')||'Vua';r.ruler=`${pre} ${pick(NPCRULERS)}`;r.ra=R(14,40);r.stab=Math.max(5,r.stab-15);
+      news(`${old} của ${C.tg.rl} chết đột ngột trong đêm. ${r.ruler} lên ngôi.`,'bad',true);if(r.stab<35&&!r.war&&ch(.4)){r.war={vs:'nội chiến',y:S.year};news(`Các đại công tước ${C.tg.rl} nghi ngờ lẫn nhau. Nội chiến bùng nổ.`,'bad',true)}}}
+    V.inv.push({...ev,y:S.year+R(1,3)});V.hist.push(`${S.year}: ${voTxt(C)} · hoàn thành`)}
+  else if(k==='expose'){V.m+=Math.round(T.m/2);mod({honor:5});t+=`Bạn mang bằng chứng về hội: người thuê đã dựng chuyện để mượn tay hội. Hội hủy hợp đồng, phạt người thuê và ghi nhận bạn ${Math.round(T.m/2)} công trạng.`;V.hist.push(`${S.year}: ${voTxt(C)} · hủy có căn cứ`)}
+  else if(k==='fled'){V.m+=2;V.fails++;tone='bad';t+='Bạn rút lui, hợp đồng thất bại. Hội ghi nhận 2 công trạng cho những gì bạn học được.';V.hist.push(`${S.year}: ${voTxt(C)} · thất bại`);if(C.tier>=2)V.inv.push({...ev,y:S.year+1})}
+  else if(k==='drop'){V.m=Math.max(0,V.m-10);V.susp=S.year+1;tone='bad';t+='Bạn bỏ hợp đồng không có lý do chính đáng. Hội trừ 10 công trạng và đình chỉ bạn một năm.';V.hist.push(`${S.year}: ${voTxt(C)} · bỏ ngang`)}
+  else if(k==='late'){V.m=Math.max(0,V.m-5);tone='bad';t+='Bạn trì hoãn quá lâu. Người thuê rút lời đề nghị. Hội trừ 5 công trạng.';V.hist.push(`${S.year}: ${voTxt(C)} · quá hạn`)}
+  for(const id of C.team)if(k==='ok'||k==='fought')voTr(id,share?3:-6);
+  if(S.nb&&(k==='ok'||k==='fought'||k==='expose'))S.nb.cn=(S.nb.cn||0)+1;
+  return[t,tone]}
+/* ---------- giao diện ---------- */
+function voView(){const V=VO();if(!V)return['Hội Vô Diện','<p class="note">Bạn không biết hội nào như thế.</p>','act'];const dis=!S.alive||!!S.cap||S.pend.some(x=>/^vo_/.test(x));
+  let b=gRow('','hood',V.st==='app'?`Học đồ Vô Diện · ${V.alias||'chưa có bí danh'}`:V.st==='sworn'?`${VORK[Math.max(0,voRank())]} · ${V.alias}`:V.st==='left'?`${V.alias} · đã rời hội`:'Hội Vô Diện',
+    V.st==='sworn'?`Công trạng ${V.m} · ${V.n} hợp đồng hoàn thành${voSusp()?' · đang bị đình chỉ':''}`:V.st==='app'?`Học việc từ năm ${V.y0}`:'','',false,true);
+  b+='<p class="sec">Năng lực</p>'+Object.entries(VOSK).map(([k,n])=>`<div class="row"><div><b>${n}: ${V.sk[k]}</b><div class="bond"><i style="width:${V.sk[k]}%"></i></div></div></div>`).join('');
+  if(V.st==='app'){const i=voNextCh();b+=`<p class="note">${i<0?'Đã xong mọi chương.':i<6?`Chương kế: ${VOCH[i].t} (từ ${VOCH[i].a} tuổi). Mỗi năm một chương.`:`Kỳ thi tốt nghiệp cần mỗi năng lực từ ${VOGRAD.each} và tổng từ ${VOGRAD.sum} (hiện ${Object.values(V.sk).reduce((a,c)=>a+c,0)}).`}</p>`}
+  const tl=Math.max(0,2-(S.done.votr||0));b+=`<p class="sec">Luyện tập · còn ${tl}/2 lượt năm nay</p>`;
+  for(const[k,n]of Object.entries(VOSK))b+=gRow(`data-x="vo:tr:${k}"`,{qs:'visible',dx:'mask',yc:'shield',ph:'user-group'}[k],`Luyện ${n.toLowerCase()}`,'+3–5','',dis||!tl||V.st==='no');
+  if(V.st==='sworn'||V.st==='left'){
+    const r=voRank();if(V.st==='sworn'&&r>=0&&r<4){const need=VOM[r+1];b+=gRow('data-x="vo:up"','star',`Xin thăng lên ${VORK[r+1]}`,V.m>=need?(voSusp()?'Đang bị đình chỉ':'Đủ công trạng'):`Cần ${need} công trạng`,'',dis||V.m<need||voSusp())}
+    const C=V.C;if(C){b+=`<p class="sec">Hợp đồng đang làm · còn ${voTurns()}/2 lượt năm nay</p>`;
+      b+=`<div class="row"><div><b>${voTxt(C)}</b><small>Thù lao ${C.rew} xu · hạn chót năm ${C.dl} · ${voMood(C)}${C.team.length?' Đội: '+C.team.map(voName).join(', '):''}</small></div></div>`;
+      b+='<p class="note">'+C.know.map(esc).join('<br>')+'</p>';const nt=!voTurns()||dis;
+      b+=gRow('data-x="vo:c:info"','visible','Tìm hiểu câu chuyện',C.ver?'Đã kiểm chứng đủ':'Dành một lượt kiểm chứng','',nt);
+      if(C.team.length<voTeamMax()){for(const id of voCands())b+=gRow(`data-x="vo:c:rec:${id}"`,'user',`Mời ${voName(id)} vào đội`,`Lòng tin ${voNp(id).tr}${voNp(id).tie==='debt'&&!voNp(id).tieDone?' · đang mắc nợ':''}`,'',nt);
+        b+=gRow('data-x="vo:c:rec:merc"','w-sword','Thuê lính đánh thuê','30 xu · ít trung thành','',nt||S.money<30)}
+      b+=gRow('data-x="vo:c:prep:gear"','w-dagger','Đầu tư trang bị','40 xu · đội mạnh hơn','',nt||S.money<40);
+      b+=gRow('data-x="vo:c:prep:magic"','wand','Tìm hỗ trợ phép thuật','60 xu · khó bị lần dấu','',nt||S.money<60||C.mag);
+      if(C.team.length)b+=gRow('data-x="vo:c:prep:care"','heart','Chăm lo cho đội','20 xu · tăng lòng tin','',nt||S.money<20);
+      if(C.team.some(x=>voNp(x).tie==='debt'&&!voNp(x).tieDone))b+=gRow('data-x="vo:c:prep:debt"','coins','Trả nợ giúp cộng sự','35 xu','',nt||S.money<35);
+      const early=S.year<=C.y0;b+=gRow('data-x="vo:c:go"','w-dagger','Tiến hành',early?'Cần ít nhất một năm chuẩn bị':'Cao trào của hợp đồng','',nt||early);
+      b+=gRow('data-x="vo:c:drop"','door',C.ver&&C.truth!=='true'?'Hủy hợp đồng với bằng chứng':'Bỏ hợp đồng',C.ver&&C.truth!=='true'?'Hội đánh giá khác với bỏ việc':'Trừ công trạng, đình chỉ 1 năm','',dis)}
+    else if(V.st==='sworn'&&!voSusp()){b+='<p class="sec">Bảng hợp đồng năm nay</p>';voBoard().forEach((c,i)=>b+=gRow(`data-x="vo:take:${i}"`,'scroll',`${VOT[c.tier].n} · ${voTxt(c)}`,`Người thuê: ${c.emp} · ${c.rew} xu · ${c.dur} năm`,'',dis))}
+    else if(V.st==='left')b+='<p class="note">Bạn đã rời hội, không còn bảng hợp đồng chính thức. Việc tự do thỉnh thoảng tìm tới bạn qua chợ đen.</p>'}
+  if(V.hist.length)b+='<p class="sec">Hồ sơ</p>'+V.hist.slice(-6).map(t=>`<p class="note">${esc(t)}</p>`).join('');
+  b+='<p class="sec">Sổ tay</p>'+V.j.map(t=>`<p class="note">${esc(t)}</p>`).join('');return['Hội Vô Diện',b,'act']}
+function voAct(a){const V=VO();if(!V||!S.alive||S.cap||S.pend.some(x=>/^vo_/.test(x)))return;let r;const p=a.split(':');
+  if(p[0]==='tr'){if((S.done.votr||0)>=2||!VOSK[p[1]])return;S.done.votr=(S.done.votr||0)+1;const v=R(3,5);voSk(p[1],v);if(p[1]==='ph')for(const m of V.mates)voTr(m,3);r=[`Bạn luyện ${VOSK[p[1]].toLowerCase()} suốt nhiều đêm. +${v}.`,'good']}
+  else if(p[0]==='up'){const k=voRank();if(k<0||k>=4||V.m<VOM[k+1]||voSusp())return;S.job.rank++;mod({happy:5});S.house.prestige+=10*S.job.rank;r=[`Hội trao cho bạn chiếc mặt nạ mới. Bạn trở thành ${VORK[S.job.rank]}.`,'good']}
+  else if(p[0]==='take'){if(V.st!=='sworn')return;r=voTake(+p[1])}
+  else if(p[0]==='c'&&V.C){const C=V.C;
+    if(p[1]==='drop'){r=voEnd(C.ver&&C.truth!=='true'?'expose':'drop')}
+    else{if(!voTurns())return;S.done.voT=(S.done.voT||0)+1;
+      if(p[1]==='info')r=voInfo();else if(p[1]==='rec')r=voRecruit(p[2]==='merc'?'merc':p[2]);else if(p[1]==='prep')r=voPrep(p[2]);
+      else if(p[1]==='go'){if(S.year<=C.y0){S.done.voT--;return}if(!C.twist){voTwist();r=null}else{S.pend.push('vo_go');r=null}}}}
+  if(r){const[t,tone]=arr(r);log(t,tone);note={t,tone}}afterSheetAction()}
+/* ---------- sự kiện ---------- */
+const VO_EV=[
+ {id:'vo_inv',queued:true,big:true,art:'hood',c:s=>s.alive&&!s.cap&&!s.vo,title:'Người Khách Không Có Bóng',
+  text:'Một người lạ gõ cửa, trả lại món đồ bạn đánh mất từ nhiều tháng trước. Bên trong có một đồng xu không khắc mặt người. "Chúng ta không tìm đứa trẻ mạnh nhất. Chúng ta tìm người biết mình đang lựa chọn điều gì." Dưới ánh đèn, bạn để ý người ấy không có bóng.',
+  ch:[{t:'Nhận đồng xu',f:s=>{voStart();return['Bạn nắm chặt đồng xu. Người lạ gật đầu: "Đêm trăng non tới, hãy đến xưởng thuộc da bỏ hoang." Bạn trở thành Học đồ Vô Diện.','magic']}},
+      {t:'Kể với người giám hộ',f:s=>{const g=s.fam.find(p=>p.alive&&/Cha|Mẹ/.test(p.rel))||s.fam.find(p=>p.alive);s.voFam={id:g?g.id:null,r:g?pick(['ok','no','meet']):'ok'};s.pend.push('vo_fam');return[`Bạn kể với ${g?g.rel.toLowerCase()+' '+g.first:'người lớn trong nhà'}.`,'']}},
+      {t:'Trả lại đồng xu',f:s=>{s.vo={st:'no',np:{},sk:{qs:0,dx:0,yc:0,ph:0},j:[],hist:[],inv:[],done:{},mates:[]};return'Người lạ cầm lại đồng xu, cúi đầu rồi đi. Bạn không bao giờ gặp lại người ấy.'}}]},
+ {id:'vo_fam',queued:true,big:true,art:'house',img:'destiny',c:s=>s.alive&&!!s.voFam&&!s.vo,title:'Chuyện Trong Nhà',
+  text:s=>{const g=voP(s.voFam.id)||s.fam.find(p=>p.id===s.voFam.id);const n=g?g.first:'Người lớn';return s.voFam.r==='ok'?`${n} lật đồng xu rất lâu rồi nói: "Ông nội con cũng từng có một đồng như thế." Họ không ngăn con.`:s.voFam.r==='no'?`${n} giật lấy đồng xu, mặt tái đi: "Không bao giờ. Bọn ấy không trả lại con cho ai cả."`:`${n} nói: "Ta muốn gặp người đã đưa nó cho con." Đêm sau, người lạ ngồi bên bếp lửa nhà bạn, nói chuyện rất lâu.`},
+  get ch(){const r=S&&S.voFam&&S.voFam.r;const g=()=>S.fam.find(p=>p.id===S.voFam.id);
+   if(r==='no')return[{t:'Nghe lời gia đình',f:s=>{s.vo={st:'no',np:{},sk:{qs:0,dx:0,yc:0,ph:0},j:[],hist:[],inv:[],done:{},mates:[]};s.voFam=null;return['Đồng xu bị ném xuống giếng. Gia đình ôm bạn vào lòng.','']}},
+     {t:'Lén giữ lại đồng xu',f:s=>{const p=g();if(p)p.bond=Math.max(0,p.bond-12);voStart('secret');s.voFam=null;return['Bạn vớt đồng xu lên lúc nửa đêm. Từ nay bạn có một bí mật với chính gia đình mình.','bad']}}];
+   if(r==='meet')return[{t:'Ngồi nghe hai người nói chuyện',f:s=>{voStart('meet');s.voFam=null;const p=g();if(p)p.bond=Math.min(100,p.bond+5);return['Gia đình đồng ý với một điều kiện: mỗi mùa con phải về nhà ăn một bữa. Người lạ hứa sẽ giữ lời.','good']}}];
+   return[{t:'Cảm ơn và cất đồng xu',f:s=>{voStart('ok');s.voFam=null;return['Bạn trở thành Học đồ Vô Diện, với sự chúc phúc của gia đình.','good']}}]}},
+ {id:'vo_ch',queued:true,big:true,art:'hood',c:s=>s.alive&&!s.cap&&!!(s.vo&&s.vo.cur!=null&&VOCH[s.vo.cur]),title:s=>VOCH[s.vo.cur].t,text:s=>VOCH[s.vo.cur].x(s),
+  get ch(){const V=S&&S.vo,D=V&&VOCH[V.cur];if(!D)return[];return D.c.map(([t,f])=>({t,f:s=>{const i=V.cur;V.done[i]=1;V.cur=null;return f(s)}}))}},
+ {id:'vo_menfall',queued:true,big:true,art:'hood',img:'fallenhero',c:s=>s.alive&&!!(s.vo&&s.vo.men&&!voAlive(s.vo.men)),title:'Chiếc Mặt Nạ Bỏ Trống',
+  text:s=>`Người hướng dẫn của bạn, ${voName(s.vo.men)}, đã không còn. Hội gửi tới một mảnh giấy: "Một người khác sẽ dạy ngươi phần còn lại. Hoặc ngươi chọn người dạy mình."`,
+  get ch(){const V=S&&S.vo;if(!V)return[];const L=[{t:'Nhận người hội cử tới',f:s=>{const m=voMkNpc('người hướng dẫn mới trong Hội Vô Diện',R(40,58));V.men=m.id;voNp(m.id).tr=40;return[`${m.first} tới vào đêm sau. Người này nghiêm khắc hơn, nhưng giữ lời.`,'']}}];
+   const f=V.mates.find(id=>voAlive(id)&&voNp(id).tr>=60);if(f)L.push({t:`Nhờ ${voName(f)} cùng học với mình`,f:s=>{V.men=f;voTr(f,10);return[`Hai người tự dạy nhau từ sổ ghi chép của người thầy cũ.`,'good']}});return L}},
+ {id:'vo_tw',queued:true,big:true,art:'hood',img:'assassin',c:s=>s.alive&&!!(s.vo&&s.vo.C&&s.vo.C.twist),
+  title:s=>({status:'Mục Tiêu Đổi Địa Vị',revise:'Người Thuê Sửa Yêu Cầu',double:'Phần Thưởng Thứ Hai',debt:'Món Nợ Đến Hạn'})[s.vo.C.twist],
+  text:s=>{const C=s.vo.C;return({status:`${voTxt(C)} vừa được thăng chức và tăng gấp đôi lính gác. Đi tiếp sẽ khó hơn.`,revise:`Người thuê gửi thư: muốn thêm một điều kiện, phải làm cho giống tai nạn. Thù lao tăng một phần năm.`,
+    double:`${voName(C.twId)} thừa nhận có người đề nghị trả gấp đôi để họ rời đội trước nhiệm vụ. Họ chưa trả lời.`,debt:`Bọn đòi nợ chặn ${voName(C.twId)} ngoài chợ. Nếu không trả, người ấy sẽ phải bán thông tin của đội.`})[C.twist]},
+  get ch(){const C=S&&S.vo&&S.vo.C;if(!C)return[];const go=()=>{S.pend.push('vo_go')};
+   if(C.twist==='status')return[{t:'Vẫn tiến hành',f:s=>{C.ready-=1;go();return'Bạn chấp nhận rủi ro cao hơn.'}},{t:'Hoãn sang năm sau',f:s=>{C.twist='done';return'Bạn quyết định chờ. Hạn chót vẫn không đổi.'}}];
+   if(C.twist==='revise')return[{t:'Chấp nhận điều kiện mới',f:s=>{C.rew=Math.round(C.rew*1.2);C.ready-=1;go();return'Thù lao tăng, nhưng việc khó hơn.'}},{t:'Giữ đúng thỏa thuận cũ',f:s=>{go();return'Người thuê không vui, nhưng hội đứng về phía bạn.'}}];
+   if(C.twist==='double'){const id=C.twId;return[
+     {t:'Thương lượng lại phần chia',f:s=>{voTr(id,12);C.rew=Math.round(C.rew*.9);go();return[`${voName(id)} ở lại, với phần chia lớn hơn.`,'']}},
+     {t:'Nhắc lại tình nghĩa xưa',f:s=>{const n=voNp(id);if(n.tr>=50||n.mem.includes('cứu')){voTr(id,8);go();return[`${voName(id)} im lặng rồi gật đầu: "Ta chưa quên."`,'good']}n.gone=1;C.team=C.team.filter(x=>x!==id);go();return[`${voName(id)} cười nhạt: "Tình nghĩa nào?" rồi bỏ đi.`,'bad']}},
+     {t:'Cho họ rút lui',f:s=>{C.team=C.team.filter(x=>x!==id);voTr(id,6);go();return[`${voName(id)} rời đội, không oán giận.`,'']}},
+     {t:'Gây sức ép để giữ người',f:s=>{voTr(id,-30);voNp(id).amb+=10;go();return[`${voName(id)} ở lại, nhưng ánh mắt đã khác.`,'bad']}}]}
+   if(C.twist==='debt'){const id=C.twId;return[{t:'Trả nợ thay (35 xu)',cost:35,f:s=>{S.money-=35;voNp(id).tieDone=1;voTr(id,20);go();return[`Bọn đòi nợ bỏ đi. ${voName(id)} sẽ nhớ chuyện này.`,'good']}},
+     {t:'Để người ấy tự lo',f:s=>{voNp(id).gone=1;C.team=C.team.filter(x=>x!==id);C.leak=1;go();return[`${voName(id)} biến mất. Bạn nghi đội đã bị lộ một phần kế hoạch.`,'bad']}}]}
+   return[{t:'Tiếp tục',f:s=>{go();return''}}]}},
+ {id:'vo_go',queued:true,big:true,art:'hood',img:'assassin',c:s=>s.alive&&!!(s.vo&&s.vo.C),title:'Đêm Tiến Hành',
+  text:s=>{const C=s.vo.C;return`Đêm không trăng. ${voTxt(C)} ở cách bạn một bức tường. ${C.ver&&C.truth!=='true'?'Trong túi bạn có những bằng chứng trái với lời người thuê. ':C.truth!=='true'?'Có điều gì đó trong câu chuyện này chưa khớp, nhưng bạn chưa kiểm chứng. ':''}${voMood(C)}`},
+  get ch(){const C=S&&S.vo&&S.vo.C;if(!C)return[];const L=[{t:'Lẻn vào theo kế hoạch',f:()=>voGo('sneak')},{t:'Giả dạng người trong nhà',f:()=>voGo('mask')}];
+   if(S.nb&&S.nb.rk>=3&&!nbLock())L.push({t:'Đeo Mặt Nạ Nguyệt Ảnh',f:()=>voGo('shadowmask')});
+   if(C.ver&&C.truth!=='true')L.push({t:'Quay về, vạch trần người thuê trước hội',f:()=>voGo('expose')});
+   L.push({t:'Rút lui, để năm sau',f:s=>{C.go=0;return'Bạn lùi lại vào bóng tối. Hạn chót vẫn đang tới gần.'}});return L}},
+ {id:'vo_fight',queued:true,big:true,art:'crossed',img:'assassin',c:s=>s.alive&&!!s.voF&&!!(s.vo&&s.vo.C),title:'Giao Chiến',
+  text:s=>`Kẻ địch còn ${s.voF.hp}/${s.voF.max} sức chiến đấu. Bạn còn ${s.st.health} sức khỏe.${s.voF.esc?'':' Không còn đường lui.'}`,
+  get ch(){const F=S&&S.voF;if(!F)return[];const L=[{t:'Tấn công',f:()=>voFightRound('atk')},{t:'Thủ thế',f:()=>voFightRound('guard')}];
+   if(S.nb&&S.nb.rk>=2&&!F.step&&!nbLock())L.push({t:'Bước Qua Bóng',f:()=>voFightRound('step')});
+   if(S.nb&&S.nb.rk>=4&&!F.ward&&!nbLock())L.push({t:'Thế Thân Bóng',f:()=>voFightRound('ward')});
+   if(F.esc)L.push({t:'Rút lui',f:()=>voFightRound('run')});return L}},
+ {id:'vo_invq',queued:true,big:true,art:'visible',img:'witchtrial',c:s=>s.alive&&!s.cap&&!!s.voQ,title:'Người Thừa Kế Hỏi Chuyện',
+  text:s=>{const Q=s.voQ;return`Người ta mở cuộc điều tra về cái chết của ${Q.tg}. ${Q.acc.length?`Có tin ${Q.acc.map(voName).join(', ')} đã khai với người điều tra.`:'Người điều tra chưa có ai làm chứng chống lại bạn.'}${Q.wit.length?` ${Q.wit.map(voName).join(', ')} sẵn sàng làm chứng có lợi cho bạn.`:''}`},
+  get ch(){const Q=S&&S.voQ;if(!Q)return[];const done=t=>{S.voQ=null;return t};return[
+   {t:'Đối chất với người điều tra',f:s=>{const p=.45+Q.wit.length*.15-Q.acc.length*.2+s.vo.sk.dx/300;if(ch(p))return done(['Lời khai mâu thuẫn. Cuộc điều tra khép lại mà không có ai bị buộc tội.','good']);mod({health:-10});s.money=Math.max(0,s.money-40);s.flags.suspect=(s.flags.suspect||0)+2;for(const id of Q.acc)voTr(id,-20);return done(['Bạn bị giữ ba ngày, mất 40 xu tiền chuộc. Tên bạn đã nằm trong sổ của người điều tra.','bad'])}},
+   {t:'Hối lộ người điều tra (50 xu)',cost:50,f:s=>{s.money-=50;if(ch(.7))return done(['Hồ sơ biến mất khỏi bàn người điều tra.','']);s.flags.suspect=(s.flags.suspect||0)+2;return done(['Người điều tra nhận tiền rồi vẫn ghi tên bạn.','bad'])}},
+   {t:'Đi xa một thời gian',f:s=>{mod({happy:-6});s.money=Math.max(0,s.money-20);return done(['Bạn rời thành phố cả mùa. Khi quay về, cuộc điều tra đã nguội.',''])}}]}}
+];
+for(const e of VO_EV){EV.push(e);EVB[e.id]=e}
+Object.defineProperty(EIMG,'vo_ch',{get:()=>S&&S.vo&&VOCH[S.vo.cur]?VOCH[S.vo.cur].img:'assassin',enumerable:true,configurable:true});
+Object.assign(EIMG,{vo_inv:'assassin'});
+/* ---------- vòng năm ---------- */
+function voYear(){if(!S||!S.alive)return;
+  if(S.age===10&&!S.voChk){S.voChk=1;if(!S.cap&&!S.vo&&VO_RACES.includes(S.race)&&ch(.05))S.pend.push('vo_inv')}
+  const V=S.vo;if(!V||S.cap||V.st==='no')return;
+  if(V.men&&!voAlive(V.men)&&!S.pend.includes('vo_menfall')&&V.st!=='no'){S.pend.push('vo_menfall');return}
+  if(V.st==='app'){const i=voNextCh();if(i>=0&&S.age>=VOCH[i].a&&(i<6||voGradOK())&&!S.pend.includes('vo_ch')){V.cur=i;S.pend.push('vo_ch')}}
+  if(V.C&&S.year>V.C.dl&&!S.pend.some(x=>/^vo_/.test(x))){const[t,tone]=voEnd('late');log(t,tone)}
+  const due=(V.inv||[]).findIndex(x=>x.y<=S.year);if(due>=0&&!S.voQ){const q=V.inv.splice(due,1)[0];if(ch(.6)){S.voQ=q;S.pend.push('vo_invq')}}
+  if(V.st==='left'&&!V.C&&ch(.3)){const C=voMkC(Math.min(2,Math.max(0,voRank())));C.rew=Math.round(C.rew*.7);C.emp='một người môi giới chợ đen';V.board=[C];V.by=S.year}
+}
+{const y0=extYear3;extYear3=function(){y0();voYear()}}
+{const d0=drawExt3;drawExt3=function(v){if(v==='vo')return voView();return d0(v)}}
+{const x0=extAct3;extAct3=function(x){if(x.startsWith('vo:'))return voAct(x.slice(3));return x0(x)}}
+{const a0=actExtra3;actExtra3=function(){const b=a0();const V=S.vo;if(!V||V.st==='no')return b;
+  const sub=V.st==='app'?`Học đồ · ${V.alias||'chưa có bí danh'}`:V.C?`Hợp đồng: ${voTxt(V.C)} · hạn ${V.C.dl}`:`${V.alias} · công trạng ${V.m}`;
+  return'<p class="sec">Hội Vô Diện</p>'+gRow('data-open="vo"','hood','Hội Vô Diện',sub,'',!S.alive||!!S.cap)+b}}
+/* ẩn nghề Sát Thủ khỏi danh sách nghề với người ngoài hội */
+{const d0=drawSheet;drawSheet=function(){if(view==='job'&&!(S&&S.vo&&S.vo.st==='sworn')){const J=JOBS.assassin;delete JOBS.assassin;try{return d0()}finally{JOBS.assassin=J}}return d0()}}
+{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'){if(r.vo&&typeof r.vo!=='object')r.vo=null;if(r.vo){const V=r.vo;V.np=V.np||{};V.sk=V.sk||{qs:10,dx:10,yc:10,ph:10};V.j=V.j||[];V.hist=V.hist||[];V.inv=V.inv||[];V.done=V.done||{};V.mates=V.mates||[]}
+  if(r.voF&&!(r.vo&&r.vo.C))r.voF=null}return r}}
+
+/* ===================== CLASS ẨN · NGƯỜI ẨN MÌNH DƯỚI BÓNG MẶT TRĂNG =====================
+   Mở cho Sát Thủ chính thức trong đêm Hai Mặt Trăng. Vật dẫn: Dao Găm Mặt Trăng.
+   Hai chỉ số: Đồng điệu (phối hợp với bóng) và Phai danh (thế giới bắt đầu quên bạn). */
+ITEMS.moon_dagger={n:'Dao Găm Mặt Trăng',r:3,ic:'L-moondagger',cb:9,fx:{magic:1},v:0,sl:'weapon',d:'Lưỡi dao không phản chiếu gì, kể cả mặt trăng. Vật dẫn của những người sống giữa hai cái bóng.'};
+const NBRK=['Kẻ Có Bóng Thứ Hai','Người Đi Giữa Hai Vầng Trăng','Kẻ Giấu Tên Trong Nguyệt Ảnh','Người Ẩn Mình Dưới Bóng Mặt Trăng','Cái Bóng Mà Trăng Không Soi Tới'];
+const NBREQ={2:30,3:45,4:60};
+const hasMoonDagger=()=>(S.bag||[]).some(x=>x.k==='moon_dagger');
+const nbDd=v=>{S.nb.dd=Math.max(0,Math.min(100,S.nb.dd+v))};
+function nbFd(v){if(!S.nb)return;S.nb.fd=Math.max(0,Math.min(100,S.nb.fd+v));if(v>0)S.nb.used=S.year}
+const nbLock=()=>!!(S.nb&&S.nb.crisis);
+const nbJ=t=>{const j=S.nb.j;if(!j.includes(t))j.push(t);if(j.length>14)j.shift()};
+const nbKeep=()=>{const id=S.nb&&S.nb.keep;return id&&((S.rel||[]).find(r=>r.id===id&&r.alive)||(S.fam||[]).find(p=>p.id===id&&p.alive))};
+const twinNow=()=>!!(S.world.tm&&S.world.tm.y===S.year);
+const nbNLeft=()=>Math.max(0,2-(S.done.nbn||0));
+function nbStart(){S.nb={rk:0,ic:0,dd:5,fd:0,keep:null,know:null,cause:null,fac:null,end:null,sc:null,st:{},j:[],pages:0,cn:0,used:0,w4:0,crisis:0,lv:{}};
+  nbJ('Đêm hai trăng: mọi người có hai cái bóng. Bạn chỉ có một, và nó không chịu đứng yên.')}
+function nbRank(n,t){const T=S.nb;T.rk=n;T.st={};T.sc=null;T.cn=0;if(n===4)T.w4=S.year;mod({magic:2,smarts:1});S.house.prestige+=8*n;
+  announce(NBRK[n-1],`Có người kể về một cái bóng đi trước chủ nó một bước. Không ai nhớ rõ mặt người ấy.`,'moon','eclipse');return[`${t} Bạn đạt Bậc ${n}: ${NBRK[n-1]}.`,'magic']}
+const nbNext=sc=>{S.nb.sc=sc;S.pend.push('nb_sc')};
+/* ---------- nhập môn (bậc 0) và các chương thăng bậc ---------- */
+const NBS={
+ i0:{t:'Dấu Chân Thứ Hai',img:'ghost',x:'Ở chợ, người ta xì xào về một kẻ giống hệt bạn, đi qua cầu đá lúc nửa đêm mà không để lại dấu chân. Một bà bán cá nói đã thấy "cái bóng của người ấy rẽ trái trong khi người ấy rẽ phải".',
+  c:()=>[['Tin lời bà bán cá, đi thẳng tới cầu đá',()=>{nbDd(2);S.nb.rash=1;S.nb.ic=1;return['Ở cầu đá không có ai. Chỉ có vết nước hình bàn chân, đi ngược về phía nhà bạn.','']}],
+   ['Kiểm chứng ở ba nơi trước khi tin',()=>{nbDd(5);if(S.vo)voSk('qs',2);S.nb.ic=1;nbJ('Ba người thấy "kẻ giống ta" ở ba nơi cùng một giờ. Không phải người. Là bóng.');return['Ba người, ba nơi, cùng một giờ. Bạn hiểu ra đó không phải kẻ giả danh. Đó là cái bóng của bạn tự đi dạo.','good']}]]},
+ i1:{t:'Người Giữ Đền Không Có Mặt',img:'ruins',x:'Cái bóng dẫn bạn tới ngôi đền bỏ hoang ngoài thành. Người giữ đền đứng sau bệ thờ. Bạn không nhìn rõ mặt, như nhìn qua lớp nước. Người ấy gọi bạn bằng một cái tên bạn chưa từng nghe.',
+  c:()=>{const L=[['Đi vào một mình',()=>{mod({health:-5});nbDd(4);S.nb.ic=2;return['Không có ai đi cùng, không ai đỡ khi bạn lảo đảo vì cái tên lạ. Nhưng bí mật vẫn chỉ của riêng bạn.','']}]];
+   const f=S.vo&&[S.vo.men,...S.vo.mates].find(id=>voAlive(id)&&voNp(id).tr>=50);if(f)L.unshift([`Nhờ ${voName(f)} đi cùng`,()=>{S.nb.know=f;voTr(f,8);nbDd(3);S.nb.ic=2;nbJ(`${voName(f)} đã thấy bóng của ta ở đền. Từ nay người ấy biết.`);return[`${voName(f)} đứng cạnh bạn suốt buổi, đỡ bạn khi người giữ đền gọi cái tên lạ. Giờ người ấy biết bí mật của bạn.`,'good']}]);return L}},
+ i2:{t:'Lưỡi Dao Không Phản Chiếu',img:'ruins',x:()=>hasMoonDagger()?'Người giữ đền nhìn con dao của bạn: "Nó không phản chiếu gì, kể cả trăng. Ngươi đã có vật dẫn. Không cần tìm thêm."':'Người giữ đền nói: "Ngươi cần một vật dẫn. Dao Găm Mặt Trăng nằm trong phế tích ảo ảnh phía nam. Chưa ai mang nó ra hai lần."',
+  c:()=>{if(hasMoonDagger())return[['Đặt dao lên bệ thờ cho người giữ đền xem',()=>{nbDd(4);S.nb.ic=3;return['Lưỡi dao rung khẽ khi chạm vào đá. Người giữ đền gật đầu.','magic']}]];
+   const L=[['Tự vào phế tích ảo ảnh',()=>{mod({health:-10});if(ch(.5+(S.vo?S.vo.sk.yc:0)/250)){gainItem('moon_dagger');S.nb.ic=3;nbDd(5);return['Ba ngày lạc trong những hành lang tự đổi chỗ. Ngày thứ tư, bạn bước ra, tay cầm con dao không phản chiếu.','magic']}S.nb.sc=null;return['Phế tích đẩy bạn ra ngoài sau ba ngày. Bạn phải thử lại vào lượt sau.','bad']}]];
+   const f=S.vo&&[S.vo.men,...S.vo.mates].find(id=>voAlive(id)&&voNp(id).tr>=40);if(f)L.push([`Nhờ ${voName(f)} dẫn đường`,()=>{gainItem('moon_dagger');S.nb.debt=f;S.nb.ic=3;nbJ(`${voName(f)} đã dẫn ta qua phế tích. Ta nợ người ấy một lần.`);return[`${voName(f)} biết lối. Hai người mang con dao ra trước khi trời sáng. Bạn nợ người ấy một lần.`,'good']}]);return L}},
+ i3:{t:'Một Người Phải Nhớ',img:'destiny',x:'"Con đường này sẽ làm thế giới quên ngươi," người giữ đền nói. "Hãy chọn một người giữ tên thật của ngươi. Khi ngươi quên mình là ai, người ấy sẽ gọi ngươi về."',
+  c:()=>{const L=[];const fam=(S.fam||[]).filter(p=>p.alive).slice(0,2);const rel=S.vo?[S.vo.men,...S.vo.mates].filter(voAlive).map(voP):[];const sp=(S.rel||[]).find(r=>r.alive&&r.kind==='spouse');
+   for(const p of [...(sp?[sp]:[]),...fam,...rel].slice(0,4))L.push([`${p.first}${p.rel?' · '+p.rel.toLowerCase():p.why?' · '+p.why:''}`,()=>{S.nb.keep=p.id;S.nb.ic=4;p.bond=Math.min(100,(p.bond||50)+8);nbJ(`${p.first} giữ tên thật của ta.`);return[`Bạn kể cho ${p.first} nghe tên thật của mình, và vì sao người ấy phải nhớ nó.`,'good']}]);
+   if(!L.length)L.push(['Viết tên mình vào một cuốn sổ',()=>{S.nb.pages+=2;S.nb.ic=4;return['Không còn ai để giao, bạn viết tên thật lên trang đầu một cuốn sổ và cất kỹ.','']}]);return L}},
+ i4:{t:'Bước Qua Bóng Mình',img:'eclipse',x:'Nghi thức cuối. Bạn đặt Dao Găm Mặt Trăng giữa mình và cái bóng. Bóng đứng dậy, nói bằng giọng của bạn: "Để ta mang một ký ức đau buồn của ngươi. Ngươi sẽ nhẹ hơn, và ta sẽ mạnh hơn."',
+  c:()=>[['Giữ ký ức của mình',()=>{nbDd(5);nbJ('Ta giữ lại ký ức đau nhất. Con đường sẽ chậm hơn, nhưng là của ta.');return nbRank(1,'Bóng gật đầu, lùi lại. Từ đêm ấy bạn có hai cái bóng, và một cái biết nghe lời.')}],
+   ['Trao ký ức cho bóng',()=>{nbDd(12);nbFd(15);mod({magic:3});nbJ('Ta đã trao cho bóng một ký ức. Ta không nhớ nó là gì nữa, chỉ nhớ là nó từng đau.');return nbRank(1,'Bóng nuốt ký ức, dài ra một chút. Bạn thấy nhẹ, và hơi trống.')}]]},
+ r2a:{t:'Người Đồng Hành Không Ngủ',img:'ghost',x:()=>{const f=nbWitness();return`${f?voName(f):'Một người quen'} hỏi bạn sau bữa tối: "Lúc nãy cậu cười, nhưng cái bóng thì không. Nó quay lại nhìn tôi." Người ấy chờ câu trả lời.`},
+  c:()=>{const f=nbWitness();return[['Thú nhận mọi chuyện',()=>{if(f)voTr(f,15);S.nb.help=f||null;nbNext('r2b');return['Người ấy nghe hết, không chạy đi. "Vậy để tôi trông chừng nó cho cậu."','good']}],
+   ['Nhờ người ấy theo dõi bóng giúp mình, không nói vì sao',()=>{if(f)voTr(f,5);S.nb.help=f||null;nbNext('r2b');return['Người ấy đồng ý, dù vẫn còn nhiều câu hỏi.','']}],
+   ['Phủ nhận, nói người ấy nhìn nhầm',()=>{if(f)voTr(f,-15);S.nb.help=null;nbNext('r2b');return['Người ấy im lặng. Bạn biết họ không tin.','bad']}]]}},
+ r2b:{t:'Thử Thách Trong Ảo Ảnh',img:'eclipse',x:'Cái bóng kéo bạn vào một hành lang ảo ảnh. Ở cuối là một cánh cửa và một kẻ canh giữ làm bằng sương. Bóng thì thầm: "Để ta làm. Nhanh thôi."',
+  c:()=>[['Để bóng ra tay',()=>{nbFd(10);nbDd(4);return nbRank(2,'Bóng lướt qua kẻ canh giữ trong một nhịp thở. Cánh cửa mở. Bạn không nhớ mình đã bước qua lúc nào.')}],
+   ['Tự mình vượt qua, giữ quyền điều khiển',()=>{const p=.4+(S.vo?S.vo.sk.yc:30)/250+S.nb.dd/300+(S.nb.help&&voAlive(S.nb.help)?.15:0);if(ch(p)){nbDd(6);return nbRank(2,`Bạn đánh từng nhịp, chậm và đau.${S.nb.help&&voAlive(S.nb.help)?` Giọng ${voName(S.nb.help)} gọi tên bạn từ bên ngoài ảo ảnh.`:''} Cánh cửa mở, và bóng lùi lại sau lưng bạn.`)}mod({health:-8});S.nb.sc=null;return['Kẻ canh giữ đẩy bạn ra khỏi ảo ảnh. Bạn có thể thử lại vào năm sau.','bad']}]]},
+ r3a:{t:'Hợp Đồng Mang Tên Mình',img:'witchtrial',x:'Hội nhận một hợp đồng nhắm vào "một sát thủ đeo mặt nạ trơn, có hai cái bóng". Hồ sơ ghi ba việc bạn không nhớ đã làm, kèm ngày giờ và nhân chứng.',
+  c:()=>[['Lần theo nhân chứng',()=>{S.nb.clue=({impostor:'Nhân chứng tả kẻ ấy thuận tay trái. Bạn thuận tay phải.',mate:'Nhân chứng nói kẻ ấy biết mật hiệu của đội bạn, thứ chỉ người trong đội mới biết.',shadow:'Nhân chứng nói kẻ ấy không có bóng. Đêm ấy, bạn nhớ mình đã ngủ rất sâu.'})[S.nb.cause];nbJ(S.nb.clue);nbNext('r3b');return[S.nb.clue,'']}],
+   ['Hỏi thẳng cái bóng',()=>{S.nb.clue=({impostor:'Bóng nói: "Không phải ta. Ta ở cạnh ngươi suốt."',mate:'Bóng nói: "Ta thấy một người quen đứng sau cửa sổ đêm ấy."',shadow:'Bóng im lặng rất lâu, rồi quay mặt đi.'})[S.nb.cause];nbJ(S.nb.clue);nbNext('r3b');return[S.nb.clue,'magic']}],
+   ['Đặt bẫy cho kẻ gây án lần tới',()=>{S.nb.clue=({impostor:'Bẫy bắt được một mảnh áo choàng may kiểu phương nam, không phải của bạn.',mate:'Bẫy dính một sợi dây đeo mặt nạ đúng loại hội phát cho đội bạn.',shadow:'Bẫy sập, nhưng không có ai trong đó. Chỉ có một vệt tối trên tường, hình người.'})[S.nb.cause];nbJ(S.nb.clue);nbNext('r3b');return[S.nb.clue,'']}]]},
+ r3b:{t:'Đối Chất',img:'witchtrial',x:()=>`Hội cho bạn ba ngày để chỉ ra kẻ thật sự đứng sau. Manh mối bạn có: "${S.nb.clue}"`,
+  c:()=>{const mate=S.nb.cmate;const L=[['Chỉ ra một kẻ giả danh từ phương nam',()=>nbR3('impostor')],
+   [`Tố cáo ${mate?voName(mate):'một người trong đội'}`,()=>nbR3('mate')],['Nhận rằng chính bóng của mình đã làm',()=>nbR3('shadow')],
+   ['Nhận hết trách nhiệm về mình',()=>{nbFd(-5);mod({honor:4});if(S.vo)S.vo.m=Math.max(0,S.vo.m-15);return nbRank(3,'Bạn nhận tội thay cho ai đó mà bạn không biết. Hội trừ công trạng, nhưng bóng của bạn cúi đầu trước bạn lần đầu tiên.')}]];return L}},
+ r4:{t:'Hội Nghị Những Mặt Nạ',img:'courtappt',x:()=>`Ba người chờ bạn trong căn phòng không đèn. ${S.vo&&voAlive(S.vo.men)?voName(S.vo.men):'Người hướng dẫn'} muốn giúp bạn giữ quyền kiểm soát. Trưởng hội muốn dùng sức mạnh của bạn cho các hợp đồng lớn. Một người sống sót từ con đường cũ, mặt nửa trong suốt, muốn phá Dao Găm Mặt Trăng.`,
+  c:()=>[['Theo người hướng dẫn: giữ quyền kiểm soát',()=>{S.nb.fac='men';nbFd(-8);if(S.vo)voTr(S.vo.men,10);return nbRank(4,'Người hướng dẫn đặt tay lên vai bạn. "Ta sẽ gọi ngươi về nếu ngươi đi quá xa."')}],
+   ['Theo trưởng hội: dùng sức mạnh cho hội',()=>{S.nb.fac='guild';nbDd(6);nbFd(10);if(S.vo)S.vo.m+=25;return nbRank(4,'Trưởng hội trao cho bạn chiếc mặt nạ bạc. Hợp đồng lớn hơn, cái giá cũng lớn hơn.')}],
+   ['Theo người sống sót: phong ấn một phần vật dẫn',()=>{S.nb.fac='seal';nbDd(-5);nbFd(-15);mod({honor:3});return nbRank(4,'Người sống sót khắc một vòng phong ấn lên lưỡi dao. Bóng yếu đi, nhưng bạn nhớ rõ tên mình hơn bao giờ hết.')}],
+   ['Rời hội, tự đi con đường của mình',()=>{S.nb.fac='left';if(S.vo){S.vo.st='left';S.vo.C=null;if(S.job&&S.job.id==='assassin')S.job=null}return nbRank(4,'Bạn đặt mặt nạ lên bàn rồi bước ra. Không còn bảng hợp đồng chính thức, nhưng không ai ra lệnh cho bạn nữa.')}]]},
+ r5:{t:'Đêm Chỉ Còn Một Cái Bóng',img:'redmoon',x:()=>{const k=nbKeep();return`${twinNow()?'Hai mặt trăng lại treo trên mái nhà.':'Nghi thức thay thế: bạn tự khâu hai cái bóng làm một dưới ánh nến.'} ${k?`${k.first} gọi tên thật của bạn từ phía ngoài cửa.`:'Không còn ai gọi tên thật của bạn.'} Cái bóng đứng trước mặt bạn, cao bằng bạn, và chờ.`},
+  c:()=>[['Giữ tên dưới trăng',()=>nbEnd('keep','Bạn trả lời người giữ tên. Cái bóng nhỏ lại, nằm yên dưới chân bạn như mọi cái bóng khác, nhưng vẫn nghe lời.')],
+   ['Cùng bước với bóng, lập giao ước',()=>nbEnd('pact','Bạn chìa tay ra. Cái bóng nắm lấy. Từ nay hai người đi cùng nhau, và đôi khi không đồng ý với nhau.')],
+   ['Trao tên cho đêm',()=>nbEnd('night','Bạn đọc tên thật của mình lần cuối rồi để nó tan vào bóng tối. Bạn mạnh hơn bất kỳ ai trong hội. Người quen nhìn bạn như nhìn một người lạ dễ mến.')]]}
+};
+function nbWitness(){const V=S.vo;if(!V)return null;return[S.nb.know,...V.mates,V.men].find(id=>id&&voAlive(id))||null}
+function nbR3(g){const T=S.nb;if(g===T.cause){mod({honor:3});if(g==='mate'&&T.cmate){voNp(T.cmate).gone=1;voTr(T.cmate,-40)}if(g==='shadow'){nbDd(8);nbFd(5)}
+  return nbRank(3,({impostor:'Kẻ giả danh bị bắt ở bến cảng phía nam.',mate:'Người cộng sự cúi đầu nhận tội. Họ bị trục xuất khỏi hội.',shadow:'Bạn trói bóng mình bằng chỉ bạc suốt một đêm. Nó thôi đi dạo một mình.'})[g])}
+  mod({honor:-3});if(g==='mate'&&T.cmate)voTr(T.cmate,-30);T.sc=null;return['Lời buộc tội của bạn không khớp với manh mối. Hội hoãn phán quyết sang năm sau, và bạn mất uy tín.','bad']}
+function nbEnd(k,t){const T=S.nb;T.end=k;if(k==='keep'){nbFd(-30);mod({honor:5,happy:4})}if(k==='pact'){nbDd(15);mod({magic:4})}if(k==='night'){nbFd(35);nbDd(20);mod({magic:8,happy:-6})}
+  S.world.nbEnd={k,who:`${S.first} ${S.surname}`,y:S.year};return nbRank(5,t)}
+function nbQRows(){const T=S.nb,L=[];if(T.sc)return L;
+  if(T.rk===0){const i=T.ic;const id=['i0','i1','i2','i3','i4'][i];if(!id)return L;if(i===4&&!hasMoonDagger())return L;L.push(['init','moon',`Nhập môn: ${NBS[id].t}`,'Chương tiếp theo dưới hai mặt trăng',()=>nbNext(id)])}
+  else if(T.rk===1&&T.dd>=NBREQ[2])L.push(['up','moon',`Thăng bậc: ${NBS.r2a.t}`,'Bóng bắt đầu xuất hiện trong các cuộc trò chuyện',()=>nbNext('r2a')]);
+  else if(T.rk===2&&T.dd>=NBREQ[3]&&T.cn>=1)L.push(['up','moon',`Thăng bậc: ${NBS.r3a.t}`,'Hội nhận một hợp đồng nhắm vào bạn',()=>{if(!T.cause){const m=S.vo&&[...S.vo.mates].find(id=>voAlive(id)&&voNp(id).tr<50);T.cmate=m||(S.vo&&S.vo.mates.find(voAlive))||null;T.cause=pick(m?['impostor','mate','shadow']:['impostor','shadow'])}nbNext('r3a')}]);
+  else if(T.rk===3&&T.dd>=NBREQ[4])L.push(['up','moon',`Thăng bậc: ${NBS.r4.t}`,'Ba phe chờ bạn trong căn phòng không đèn',()=>nbNext('r4')]);
+  else if(T.rk===4&&(twinNow()||S.year-T.w4>=5))L.push(['up','moon',twinNow()?`Thăng bậc: ${NBS.r5.t}`:'Nghi thức thay thế (khó hơn)',twinNow()?'Đợt Hai Mặt Trăng đang diễn ra':'Đã chờ quá lâu; mất 15 sức khỏe',()=>{if(!twinNow())mod({health:-15});nbNext('r5')}]);
+  return L}
+const NBN=[
+ ['moon','Tập bước cùng bóng','Đồng điệu +4 · quá sức có thể tăng Phai danh',()=>{nbDd(4);if(S.nb.dd>=60&&ch(.3)){nbFd(3);return['Bạn và bóng bước cùng nhịp suốt đêm. Gần sáng, bóng bước trước bạn một nhịp. Phai danh +3.','']}return['Bạn và bóng tập bước cùng nhịp dưới trăng. Đồng điệu +4.','good']}],
+ ['book','Ghi lại một ký ức','Thêm trang sổ tên thật · Phai danh -3',()=>{S.nb.pages++;nbFd(-3);return[`Bạn viết lại ngày mẹ dạy bạn buộc dây giày. Sổ tên thật có ${S.nb.pages} trang.`,'good']}],
+ ['ghost','Trò chuyện với bóng','Hiểu ý chí của bóng · Đồng điệu +2',()=>{nbDd(2);const T=S.nb;const t=T.fd>=60?'Bóng hỏi: "Nếu ngươi biến mất, ta có được giữ tên ngươi không?"':T.dd>=50?'Bóng kể về những nơi nó đi khi bạn ngủ. Nó thích những mái nhà.':'Bóng không trả lời. Nó chỉ nghiêng đầu, giống hệt bạn.';nbJ(t);return[t,'magic']}],
+ ['heart','Thăm người giữ tên','Phai danh -6 · tăng thân thiết',()=>{const k=nbKeep();if(!k)return['Không còn ai giữ tên thật của bạn. Bạn cần tìm một điểm tựa mới.','bad'];nbFd(-6);k.bond=Math.min(100,(k.bond||50)+5);return[`${k.first} gọi tên thật của bạn khi bạn bước vào cửa. Phai danh -6.`,'good']}],
+ ['w-dagger','Lắng nghe dao găm','Chuyện về chủ cũ của con dao',()=>{if(!hasMoonDagger())return['Bạn không có Dao Găm Mặt Trăng trong túi.','bad'];const T=S.nb;if(T.lv[T.rk])return['Con dao im lặng. Nó đã kể cho bạn điều cần kể ở bậc này.',''];T.lv[T.rk]=1;
+   const L=['Chủ đầu tiên của con dao là một người gác cổng thành, chết mà không ai nhớ tên.','Chủ thứ hai đã trao tên cho đêm. Con dao vẫn nhớ tiếng cười của người ấy.','Chủ thứ ba giữ tên đến cuối đời và chết trên giường, giữa con cháu.','Con dao kể về một đêm có ba mặt trăng. Nó chưa hiểu đêm đó là gì.','Con dao im lặng rất lâu, rồi gọi tên thật của bạn.'];const t=L[Math.min(T.rk,4)];nbJ(t);nbDd(3);return[t,'magic']}]
+];
+const NBFADE=[[30,'Người bán bánh mì gọi bạn bằng tên một người khác. Gương trong nhà phản chiếu bạn chậm nửa nhịp.'],[55,'Một người bạn quên cuộc hẹn với bạn, rồi xin lỗi rằng họ không nhớ đã từng hẹn.'],[75,'Người trong nhà gọi bạn từ phòng bên, rồi hỏi "ai đấy?" khi bạn trả lời. Đêm qua, bóng của bạn đã trả lời thay.']];
+function nbYear(){const T=S&&S.nb;if(!T||!S.alive||S.cap)return;
+  if(T.used!==S.year&&T.rk>=1&&!T.crisis)nbFd(-2);
+  for(const[v,t]of NBFADE)if(T.fd>=v&&!T.st['f'+v]){T.st['f'+v]=1;log(t,'magic');if(v===55){const f=(S.rel||[]).find(r=>r.alive&&r.kind==='friend');if(f)f.bond=Math.max(0,f.bond-5)}break}
+  if(T.fd>=90&&!T.crisis){T.crisis=1;S.pend.push('nb_crisis')}
+  if(T.keep&&!nbKeep()&&!T.lost){T.lost=1;S.pend.push('nb_lost')}
+  if(T.debt&&T.rk>=2&&!T.debtCalled&&voAlive(T.debt)&&ch(.3)){T.debtCalled=1;S.pend.push('nb_debt')}}
+/* đợt Hai Mặt Trăng và lời gọi */
+function twinYear(){const W=S.world;if(!W.tm||S.year-W.tm.y>=3){if(ch(.12)){W.tm={y:S.year};news('Hai mặt trăng cùng mọc trên bầu trời. Mọi vật đổ hai bóng.','',true);log('Đêm nay có hai mặt trăng trên trời. Mọi người đều có hai cái bóng.','magic')}}
+  if(!twinNow()||!S.alive||S.cap)return;
+  const V=S.vo;if(!V||V.st!=='sworn'||S.age<16||clsHas(S)||S.nb||S.nbChk===W.tm.y||S.pend.length>4)return;S.nbChk=W.tm.y;
+  if(ch(hasMoonDagger()?.35:.15))S.pend.push('nb_call')}
+function nbView(){const T=S.nb;if(!T)return['Con đường ẩn','<p class="note">Bóng của bạn vẫn nằm yên.</p>','act'];const dis=!S.alive||!!S.cap||S.pend.includes('nb_sc');
+  let b=gRow('','moon',T.rk?NBRK[T.rk-1]:'Đang nhập môn',`Bậc ${T.rk}/5 · Người Ẩn Mình Dưới Bóng Mặt Trăng${hasMoonDagger()?' · đang giữ Dao Găm Mặt Trăng':' · chưa có vật dẫn'}`,'',false,true);
+  b+=`<div class="row"><span class="ri">${ic('moon',24)}</span><div><b>Đồng điệu: ${T.dd}/100</b><small>Phối hợp với bóng</small><div class="bond"><i style="width:${T.dd}%"></i></div></div></div>`;
+  b+=`<div class="row"><span class="ri">${ic('ghost',24)}</span><div><b>Phai danh: ${T.fd}/100</b><small>${T.fd>=90?'Nguy hiểm: thế giới đang quên bạn':T.fd>=75?'Cao: người thân không nhận ra giọng bạn':T.fd>=55?'Vừa: người quen quên cuộc hẹn':T.fd>=30?'Thấp: người lạ nhớ nhầm mặt':'Thế giới vẫn nhớ bạn'}</small><div class="bond"><i style="width:${T.fd}%"></i></div></div></div>`;
+  const k=nbKeep();b+=`<p class="note">Người giữ tên: ${k?k.first:T.keep?'đã mất, cần một điểm tựa mới':'chưa chọn'} · Sổ tên thật: ${T.pages} trang${T.crisis?' · Năng lực bóng đang bị khóa cho tới khi vượt qua khủng hoảng':''}</p>`;
+  const n=T.rk+1;if(T.rk>=1&&n<=5)b+=`<p class="note">Bậc kế: ${NBRK[n-1]}. ${n<=4?`Cần Đồng điệu ${NBREQ[n]}${n===3?' và ít nhất một hợp đồng giải quyết xong kể từ bậc 2':''}.`:'Cần đợt Hai Mặt Trăng kế tiếp (hoặc nghi thức thay thế sau 5 năm chờ).'}</p>`;
+  for(const[id,icon,nm,d]of nbQRows())b+=gRow(`data-x="nb:q:${id}"`,icon,nm,(S.done.nbq||0)>=(T.rk===0?2:1)?'Đã đi tiếp đủ chương năm nay':d,'',dis||(S.done.nbq||0)>=(T.rk===0?2:1));
+  if(T.rk>=1){b+=`<p class="sec">Hoạt động · còn ${nbNLeft()}/2 việc năm nay</p>`;NBN.forEach((A,i)=>{const why=S.done['nbn'+i]?'Đã làm năm nay':!nbNLeft()?'Đã hết lượt năm nay':'';b+=gRow(`data-x="nb:n:${i}"`,A[0],A[1],why||A[2],'',dis||!!why)})}
+  b+='<p class="sec">Ghi chép</p>'+T.j.map(t=>`<p class="note">${esc(t)}</p>`).join('');return['Dưới Bóng Mặt Trăng',b,'act']}
+function nbAct(k,id){if(!S.nb||!S.alive||S.cap||S.pend.includes('nb_sc'))return;let r;const T=S.nb;
+  if(k==='n'){const i=+id;if(!NBN[i]||S.done['nbn'+i]||!nbNLeft()||T.rk<1)return;S.done.nbn=(S.done.nbn||0)+1;S.done['nbn'+i]=1;r=NBN[i][3]()}
+  else if(k==='q'){const Q=nbQRows().find(q=>q[0]===id);if(!Q||(S.done.nbq||0)>=(T.rk===0?2:1))return;S.done.nbq=(S.done.nbq||0)+1;Q[4]();return afterSheetAction()}
+  if(r){const[t,tone]=arr(r);log(t,tone);note={t,tone}}afterSheetAction()}
+const NB_EV=[
+ {id:'nb_call',queued:true,big:true,art:'moon',img:'eclipse',c:s=>s.alive&&!s.cap&&!clsHas(s)&&!s.nb,title:'Cái Bóng Ngẩng Đầu',
+  text:'Hai mặt trăng cùng treo trên mái nhà. Mọi người đều có hai cái bóng. Riêng bạn chỉ có một. Khi bạn dừng bước, nó vẫn đi thêm một bước nữa, rồi quay lại nhìn bạn.',
+  get ch(){const L=[{t:'Đứng yên quan sát',f:s=>{nbStart();nbJ('Bóng chỉ về ngôi đền bỏ hoang ngoài thành.');return['Bóng giơ tay chỉ về phía ngôi đền bỏ hoang ngoài thành, rồi nằm xuống như chưa có gì. Con đường ẩn mở ra trong mục Hoạt động.','magic']}}];
+   if(S&&hasMoonDagger())L.push({t:'Đặt Dao Găm Mặt Trăng giữa hai bóng sáng',f:s=>{nbStart();nbDd(5);nbJ('Dao Găm Mặt Trăng nằm giữa hai bóng sáng. Trên lưỡi dao hiện một dòng chữ: "Người mang ta không cần tìm ta lần nữa."');return['Lưỡi dao không phản chiếu trăng nào. Trên đó hiện ra một dòng chữ về nghi thức. Bóng của bạn quỳ xuống trước nó.','magic']}});
+   const m=S&&S.vo&&S.vo.men;if(m&&voAlive(m))L.push({t:`Gọi ${voName(m)}`,f:s=>{nbStart();if(voNp(m).tr>=50){S.nb.know=m;nbDd(3);return[`${voName(m)} tới ngay, nhìn bóng của bạn rất lâu. "Ta từng thấy chuyện này một lần. Ta sẽ giúp."`,'good']}S.nb.reported=1;return[`${voName(m)} tới, nhìn bóng, rồi lặng lẽ đi. Sáng hôm sau trưởng hội đã biết.`,'']}});
+   L.push({t:'Bỏ đi',f:s=>['Bạn quay lưng, không nhìn xuống chân. Có thể lần sau hai mặt trăng mọc, bóng sẽ lại gọi bạn.','']});return L}},
+ {id:'nb_sc',queued:true,big:true,art:'moon',c:s=>s.alive&&!!(s.nb&&s.nb.sc&&NBS[s.nb.sc]),title:s=>NBS[s.nb.sc].t,text:s=>{const x=NBS[s.nb.sc].x;return typeof x==='function'?x():x}},
+ {id:'nb_crisis',queued:true,big:true,art:'ghost',img:'eclipse',c:s=>s.alive&&!!(s.nb&&s.nb.crisis),title:'Ai Đang Sống Cuộc Đời Này?',
+  text:'Sáng nay, người trong nhà dọn bữa cho một người. Họ không dọn cho bạn. Khi bạn lên tiếng, cái bóng của bạn trả lời trước. Nó nói đúng giọng bạn, và mọi người quay về phía nó.',
+  get ch(){const T=S&&S.nb;if(!T)return[];const L=[];
+   if(T.pages>=3)L.push({t:'Đọc to sổ tên thật',f:s=>{T.crisis=0;nbFd(-25);return['Bạn đọc từng trang, từng ký ức. Tới trang cuối, người trong nhà quay lại, gọi đúng tên bạn.','good']}});
+   const k=nbKeep();if(k)L.push({t:`Tìm ${k.first}, người giữ tên`,f:s=>{T.crisis=0;nbFd(-20);k.bond=Math.min(100,(k.bond||50)+10);return[`${k.first} ôm lấy bạn, gọi tên bạn ba lần. Lần thứ ba, cái bóng lùi về dưới chân.`,'good']}});
+   L.push({t:'Tạm ngừng mọi năng lực một năm',f:s=>{T.crisis=0;nbFd(-12);nbDd(-6);return['Bạn quấn Dao Găm Mặt Trăng trong vải, không đụng tới bóng cả năm. Thế giới chậm rãi nhớ lại bạn.','']}});
+   L.push({t:'Để bóng trả lời thay',f:s=>{T.crisis=0;nbFd(5);nbDd(8);mod({happy:-8});return['Cả buổi tối, bóng nói chuyện với gia đình bạn. Họ cười. Bạn ngồi ở góc phòng, không ai thấy.','bad']}});return L}},
+ {id:'nb_lost',queued:true,big:true,art:'heart-break',img:'destiny',c:s=>s.alive&&!!(s.nb&&s.nb.lost),title:'Không Còn Ai Gọi Tên',
+  text:'Người giữ tên thật của bạn đã không còn. Đêm ấy, bóng của bạn ngồi ở chỗ người ấy hay ngồi, như đang chờ một tiếng gọi.',
+  get ch(){const T=S&&S.nb;if(!T)return[];const L=[];const c=[...(S.fam||[]).filter(p=>p.alive),...(S.rel||[]).filter(r=>r.alive&&(r.kind==='spouse'||r.kind==='friend'))].slice(0,3);
+   for(const p of c)L.push({t:`Nhờ ${p.first} giữ tên thật của mình`,f:s=>{T.keep=p.id;T.lost=0;p.bond=Math.min(100,(p.bond||50)+6);return[`${p.first} nghe bạn kể, rồi lặp lại tên bạn, chậm rãi như học thuộc.`,'good']}});
+   L.push({t:'Viết tên mình vào sổ, tự giữ lấy',f:s=>{T.keep=null;T.lost=0;T.pages+=1;nbFd(4);return['Bạn viết tên mình lên trang mới. Sổ không gọi bạn được, nhưng ít ra nó không quên.','']}});return L}},
+ {id:'nb_debt',queued:true,big:true,art:'user',img:'assassin',c:s=>s.alive&&!!(s.nb&&s.nb.debt&&voAlive(s.nb.debt)),title:'Món Nợ Ở Phế Tích',
+  text:s=>`${voName(s.nb.debt)}, người từng dẫn bạn qua phế tích ảo ảnh, tìm tới: "Đến lúc trả ơn rồi. Ta cần cái bóng của ngươi đứng gác cho ta một đêm, không hỏi vì sao."`,
+  get ch(){const T=S&&S.nb;if(!T)return[];const id=T.debt;return[{t:'Trả ơn, không hỏi',f:s=>{nbFd(8);voTr(id,20);T.debt=null;return['Bóng của bạn đứng gác suốt đêm trước một nhà kho. Sáng ra, món nợ đã xong. Bạn không bao giờ biết trong kho có gì.','']}},
+   {t:'Hỏi cho rõ trước đã',f:s=>{if(ch(.6)){voTr(id,5);T.debt=null;return['Người ấy kể: kho chứa thuốc cho một làng đang có dịch. Bạn để bóng gác mà lòng nhẹ nhõm.','good']}voTr(id,-20);voNp(id).amb+=10;T.debt=null;return['"Ta tưởng ngươi giữ lời." Người ấy bỏ đi. Món nợ giờ thành mối hận.','bad']}}]}}
+];
+Object.defineProperty(NB_EV[1],'ch',{get:()=>{const D=S&&S.nb&&NBS[S.nb.sc];return D?D.c().map(([t,f])=>({t,f:()=>{const sc=S.nb.sc;const r=f();if(S.nb&&S.nb.sc===sc)S.nb.sc=null;return r}})):[]}});
+Object.defineProperty(EIMG,'nb_sc',{get:()=>S&&S.nb&&NBS[S.nb.sc]?NBS[S.nb.sc].img:'eclipse',enumerable:true,configurable:true});
+for(const e of NB_EV){EV.push(e);EVB[e.id]=e}
+{const y0=extYear3;extYear3=function(){y0();twinYear();nbYear()}}
+{const d0=drawExt3;drawExt3=function(v){if(v==='nb')return nbView();return d0(v)}}
+{const x0=extAct3;extAct3=function(x){if(x.startsWith('nb:')){const[,k,id]=x.split(':');return nbAct(k,id)}return x0(x)}}
+{const a0=actExtra3;actExtra3=function(){const b=a0();if(!S.nb)return b;const T=S.nb;return'<p class="sec">Class ẩn</p>'+gRow('data-open="nb"','moon',T.rk?NBRK[T.rk-1]:'Dưới hai mặt trăng',`Bậc ${T.rk}/5 · Đồng điệu ${T.dd} · Phai danh ${T.fd}`,'',!S.alive||!!S.cap)+b}}
+/* một class ẩn mỗi đời; Tử đấu; sự kiện nhỏ; dấu ấn; truyền đời */
+{const c0=clsHas;clsHas=function(s){return c0(s)||!!s.nb}}
+{const c0=clsOther;clsOther=function(s,k){return c0(s,k)||!!s.nb}}
+{const o0=cdOwn;cdOwn=function(){if(S.nb&&S.nb.rk>=1)return['nb',S.nb.rk];return o0()}}
+CD_CLASSES.nb=['Người Ẩn Mình Dưới Bóng Mặt Trăng','moon','eclipse','bóng của đối thủ tách ra, đâm từ phía bạn không ngờ tới'];
+CE_K.push('nb');
+for(const[i,[title,text,chs]]of[
+ ['Bóng Ở Lại Ăn Tối','Bữa tối, cả nhà đã ngồi vào bàn. Bạn đứng dậy lấy nước, nhưng bóng của bạn vẫn ngồi lại trên ghế, tay đặt cạnh bát canh.',[['Ngồi xuống cạnh nó',s=>{nbDd(3);mod({happy:2});return['Bạn ngồi xuống. Bóng nhích sang, nhường chỗ. Không ai trong nhà để ý.','good']}],['Gọi nó về dưới chân',s=>{nbFd(-2);return['Bóng trượt khỏi ghế, nằm lại dưới chân bạn, có vẻ hờn dỗi.','']}]]],
+ ['Đứa Trẻ Nhận Nhầm','Một đứa trẻ chạy tới ôm chân bạn, gọi bạn là "chú Tobin". Mẹ nó kéo nó lại, xin lỗi, rồi nhìn bạn rất lâu như cố nhớ ra ai.',[['Nói tên thật của mình',s=>{nbFd(-3);return['"Không, ta là '+S.first+'." Người mẹ gật đầu, lẩm bẩm tên bạn như để nhớ.','good']}],['Để họ nhầm',s=>{nbFd(3);nbDd(2);return['Bạn xoa đầu đứa trẻ rồi đi. Sau lưng, nó vẫn gọi chú Tobin.','']}]]],
+ ['Người Giữ Tên Bị Ốm','Người giữ tên thật của bạn sốt cao, mê man. Trong cơn sốt, họ gọi tên bạn, nhưng phát âm sai một chữ.',[['Ngồi canh suốt đêm',s=>{const k=nbKeep();if(k)k.bond=Math.min(100,(k.bond||50)+8);nbFd(-4);mod({health:-3});return['Gần sáng cơn sốt hạ. Người ấy mở mắt, gọi đúng tên bạn.','good']}],['Nhờ thầy lang, rồi đi làm việc',s=>{s.money=Math.max(0,s.money-15);return['Thầy lang lấy 15 xu. Người ấy khỏi bệnh sau một tuần, và hỏi bạn đã đi đâu.','']}]]],
+ ['Vì Sao Cậu Có Hai Cái Bóng?','Một cộng sự nhìn xuống chân bạn dưới ánh đuốc, rồi hỏi nhỏ: "Vì sao cậu có hai cái bóng?"',[['Kể thật',s=>{const f=S.vo&&S.vo.mates.find(voAlive);if(f)voTr(f,8);return['Người ấy nghe rồi gật đầu: "Ta sẽ không kể với ai."','good']}],['Nói đó là do ánh đuốc',s=>{nbDd(1);return['Người ấy cười, nhưng từ đó luôn đứng ở phía có ánh sáng.','']}]]]
+].entries()){const e={id:`ce_nb${i+1}`,queued:true,big:true,art:'moon',img:'eclipse',c:s=>!!(s.alive&&s.nb&&s.nb.rk>=1&&!s.cap)&&(i!==2||!!nbKeep()),title,text,ch:chs.map(([t,f])=>({t,f}))};CE_EV.push(e);EV.push(e);EVB[e.id]=e;EIMG[e.id]='eclipse'}
+DA.nb={img:'eclipse',art:'moon',t:'Cái Tên Bị Xóa Khỏi Sổ Hoàng Gia',
+ x:s=>`Triều đình ${s.realm} lập danh sách "những kẻ không có mặt", gồm người bị xóa tên, người chết không ai nhận, và sát thủ. Tên thật của bạn nằm ở dòng cuối. Bạn có một đêm với cuốn sổ gốc.`,
+ c:[{t:'Xóa tên của tất cả những người trong sổ',f:(s,R,m)=>{nbFd(10);mod({honor:4});rep('u',3);R.stab=Math.max(5,R.stab-3);daW(`Sổ "những kẻ không có mặt" của ${m.rl} bị đốt trong một đêm. Không ai biết ai làm.`);return['Bạn đốt cuốn sổ. Hàng trăm cái tên được tự do. Tên của bạn mờ đi thêm một chút trong trí nhớ thế giới.','good']},
+   yrs:20,p:()=>{rep('u',1)},
+   h:{t:'Những Người Không Có Trong Sổ',x:m=>`Một ông lão tìm tới: "Năm ấy có người đốt sổ của triều đình, nên ta mới được về làng sống nốt đời. Người ta bảo đó là ${m.who}." Ông mang cho bạn một hũ mật ong.`,
+    c:[['Nhận hũ mật, mời ông ở lại',s=>{mod({happy:4});return['Ông lão kể về những người khác trong sổ. Nhiều người giờ đã có cháu chắt.','good']}],['Hỏi ông về tổ tiên mình',s=>{mod({smarts:2});return['Ông chỉ nhớ một điều: người ấy có hai cái bóng.','magic']}]]}},
+  {t:'Chỉ xóa tên mình, để lại những người khác',f:(s,R,m)=>{nbFd(-10);rep('n',2);return['Bạn cạo tên mình khỏi trang giấy. Những cái tên khác vẫn còn đó. Bạn tự nhủ đó không phải việc của mình.','']},
+   yrs:0,
+   h:{t:'Dòng Trống Trong Sổ Cũ',x:m=>`Trong kho lưu trữ, bạn thấy cuốn sổ "những kẻ không có mặt" năm xưa. Dòng cuối bị cạo trắng. Người giữ kho nói đó là chỗ của ${m.who}, người duy nhất thoát khỏi cuốn sổ.`,
+    c:[['Viết lại tên tổ tiên vào chỗ trống',s=>{S.house.prestige+=10;return['Bạn viết lại tên. Lần này, cạnh tên là chữ "đã về nhà".','good']}],['Để trống như cũ',s=>{mod({happy:-1});return['Dòng trắng vẫn ở đó. Có lẽ tổ tiên muốn như vậy.','']}]]}}]};
+{const i0=inherit;inherit=function(id){const old=S;i0(id);if(S===old)return;const E=S.world&&S.world.nbEnd;if(E&&!S.flags.nbLeg){S.flags.nbLeg=1;
+  if(E.k==='keep'){mod({happy:2});log(`Gia đình bạn vẫn giữ cuốn sổ tên thật của ${E.who}. Trang cuối có tên của bạn, do ai đó viết sẵn.`,'magic')}
+  else if(E.k==='pact'){mod({magic:3});log(`Đôi khi bóng của bạn đứng lại một nhịp, như chờ ai đó. Người trong nhà bảo đó là bóng của ${E.who} vẫn đi theo dòng họ.`,'magic')}
+  else{mod({magic:4,happy:-2});log(`Không ai trong nhà nhớ rõ mặt ${E.who}, chỉ nhớ có một người từng mạnh hơn tất cả. Đêm trăng, bạn thấy mình có hai cái bóng.`,'magic')}save();render()}}}
+{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.nb){const T=r.nb;T.j=T.j||[];T.st=T.st||{};T.lv=T.lv||{};if(T.sc&&!NBS[T.sc])T.sc=null}return r}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
