@@ -61,6 +61,8 @@ button{font:inherit;color:inherit}
 .hb i{position:absolute;inset:0 auto 0 0;transition:width .4s ease}
 .hb.hp i{background:linear-gradient(#e8513f,#8a1a12)}
 .hb.mp i{background:linear-gradient(#5a8ff0,#1c3c86)}
+.hb.lt i{background:linear-gradient(#b48ad8,#4a2a6e)}
+.hb[hidden]{display:none}
 .hb.kb i{background:linear-gradient(#e0b862,#7a5518)}
 .hb span{position:relative;display:block;text-align:center;font:700 .64rem/15px var(--f-ui);color:#fff;text-shadow:0 1px 1px #000;letter-spacing:.05em;font-variant-numeric:tabular-nums}
 .hudside{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
@@ -258,6 +260,7 @@ button.row:hover:not(:disabled) .ri{color:var(--title);border-color:var(--copper
       <div class="hb hp"><i id="hp" style="width:0"></i><span id="hpt">Sức khỏe</span></div>
       <div class="hb mp"><i id="mp" style="width:0"></i><span id="mpt">Ma lực</span></div>
       <div class="hb kb"><i id="sw" style="width:0"></i><span id="swt">Kiếm thuật</span></div>
+      <div class="hb lt" id="ltb" hidden><i id="lt" style="width:0"></i><span id="ltt">Lý trí</span></div>
     </div>
     <div class="hudside">
       <div class="gold" id="goldBox"><span id="coin"></span><b id="money">0</b></div>
@@ -276,7 +279,7 @@ button.row:hover:not(:disabled) .ri{color:var(--title);border-color:var(--copper
 <div id="sheet" class="veil" hidden></div>
 <div id="modal" class="veil mid" hidden></div>
 
-<script src="game.js?v=20261108g"></script>
+<script src="game.js?v=20261108h"></script>
 
 
 </html>

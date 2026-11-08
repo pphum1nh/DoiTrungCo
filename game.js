@@ -10106,7 +10106,7 @@ const CAPS={
     c:s=>[['Đứng chắn trước hai người mới, đỡ bẫy bằng thân mình',()=>{const h=R(12,22);mod({health:-h,honor:4});const rk=capRisk(.5,1);if(!S.alive)return[`Bạn đỡ được hai cái bẫy, mất ${h} sức khỏe.${rk}`,'bad'];s.cap.ar.f=2;capEnd();return[`Bạn đỡ được hai cái bẫy, mất ${h} sức khỏe.${rk} Hai người mới sống sót.`,'']}],
       ['Chạy tới cần gạt dưới khán đài phía tây',()=>{if(!s.cap.cl.lever){const h=R(6,12);mod({health:-h});const rk=capRisk(1,1);if(!S.alive)return[`Bạn không biết cần gạt ở đâu. Một tấm ván sụp dưới chân bạn.${rk}`,'bad'];return capFightLose(`Bạn không biết cần gạt ở đâu. Một tấm ván sụp dưới chân bạn. Bạn mất ${h} sức khỏe.${rk} Trận này phải đánh lại vào năm sau.`)}
         s.cap.ar.f=2;capCl('trap','Bạn đã khóa cơ cấu bẫy và giữ lại một mảnh xích có dấu của ông bầu: chứng cứ rằng ông bầu nhận tiền của khách để nhả bẫy giết đấu sĩ, trái điều khoản hợp đồng.');capEnd();return['Bạn kéo cần gạt. Mọi tấm ván khóa chặt. Không ai bị thương. Bạn bẻ lấy một mảnh xích có khắc dấu của ông bầu.','good']}],
-      ['Mặc kệ hai người mới, chỉ lo mình',()=>{mod({honor:-6});s.cap.ar.f=2;capEnd();return['Bạn thắng. Sau lưng bạn, hai người mới bị bẫy làm gãy chân và con gấu xích kéo đi. Khách giàu reo hò lớn nhất từ đầu mùa.','bad']}]]},
+      ['Mặc kệ hai người mới, chỉ lo mình',()=>{const h=R(6,14);mod({honor:-6,health:-h});const rk=capRisk(.6,1);if(!S.alive)return[`Không có ai che sườn cho bạn. Con gấu xích quật bạn ngã ngay trên tấm ván sập.${rk}`,'bad'];s.cap.ar.f=2;capEnd();return[`Bạn thắng, nhưng không có ai che sườn: con gấu cào bạn mất ${h} sức khỏe.${rk} Sau lưng bạn, hai người mới bị bẫy làm gãy chân và con gấu xích kéo đi. Khách giàu reo hò lớn nhất từ đầu mùa.`,'bad']}]]},
   f3c:{t:'Bản hợp đồng giải phóng',img:'throne',x:s=>`Trước trận cuối, ông bầu Varro đưa bạn bản hợp đồng: hạ được nhà vô địch đấu trường Gorran Bất Bại thì người thắng được tự do. Bạn làm gì?`,
     c:s=>[['Ký như được đưa',()=>{s.cap.fl.clause=0;capNext('f3');return'Bạn ký tên.'}],
       ['Đòi sửa điều khoản trước mặt khán giả',()=>{const C=s.cap.cl;if(!C.contract)return capFightLose('Bạn đòi sửa, nhưng không chỉ ra được điều khoản nào sai. Ông bầu cười nhạo bạn trước cả khán đài. Trận cuối dời sang năm sau.');
@@ -11929,6 +11929,147 @@ DA.wt={img:'seasong',art:'anchor',t:'Con Nước Của Cả Vương Quốc',
   else{mod({magic:2});log(`Đôi khi có tiếng gõ ba nhịp từ dưới nước khi bạn đi dọc bến. Người già bảo đó là thủy quái từng theo ${E.who}, vẫn đi tìm người cùng dòng máu.`,'magic')}save();render()}return r}}
 {const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.wt){const T=r.wt;T.j=T.j||[];T.st=T.st||{};T.bs=T.bs||{};if(T.sc&&!WTS[T.sc])T.sc=null}return r}}
 
+/* ===== Nợ nần có hậu quả: chủ nợ siết đồ, làm trả nợ, ngục nợ ===== */
+const canFlee=()=>!(typeof kingMe==='function'&&kingMe()&&typeof rules==='function'&&rules())&&!S.cap;
+function debtSeize(){let got=0;const out=[];const need=()=>-S.money-got>0;
+  if(S.boat&&need()){const g=Math.round(BOATS[S.boat.k].p*.4);got+=g;out.push(BOATS[S.boat.k].n.toLowerCase());S.boat=null}
+  for(const[k,n]of Object.entries(S.own||{})){const A=ASSETS[k];if(!A||A.nosell)continue;for(let i=0;i<n&&need();i++){S.own[k]--;got+=Math.round(A.p*.5);out.push(A.n.toLowerCase())}}
+  for(const it of [...S.bag]){if(!need())break;const I=ITEMS[it.k];if(!I||I.ev||!I.v)continue;S.bag=S.bag.filter(x=>x.id!==it.id);got+=I.v;out.push(I.n.toLowerCase())}
+  S.money+=got;return[got,[...new Set(out)]]}
+const DEBT_EV=[
+ {id:'debt_call',queued:true,big:true,art:'coins',c:s=>s.alive&&s.money<0,title:'Chủ Nợ Gõ Cửa',
+  text:s=>`Ông Grub, người cho vay nặng lãi ở chợ, đứng trước cửa cùng hai gã to con. "${-s.money} xu, cả gốc lẫn lãi. Hôm nay ta phải mang về thứ gì đó."`,
+  ch:[{t:'Để họ siết đồ',f:s=>{s.flags.debtC=s.year;const[g,L]=debtSeize();if(!g){mod({honor:-4,happy:-6});return['Họ lục khắp nhà mà chẳng có gì đáng giá. Ông Grub nhổ nước bọt xuống bậc cửa: "Lần sau sẽ không nhẹ nhàng thế này đâu."','bad']}
+        mod({happy:-6});return[`Họ khuân đi ${L.join(', ')}. Tính ra được ${g} xu.${s.money<0?` Bạn vẫn còn nợ ${-s.money} xu.`:' Món nợ đã được trả hết.'}`,'bad']}},
+      {t:'Xin làm công trả nợ',f:s=>{s.flags.debtC=s.year;const g=R(30,60)+(s.job?s.job.rank*10:0);s.money=Math.min(0,s.money+g);mod({health:-8,happy:-6});if(s.job)s.job.perf=Math.max(0,(s.job.perf||40)-15);
+        return[`Suốt mùa đông, bạn làm thêm ca đêm cho kho hàng của ông Grub. Món nợ giảm đi ${g} xu.${s.money<0?` Vẫn còn ${-s.money} xu.`:''}`,'']}},
+      {t:'Bỏ trốn sang vương quốc khác',hide:true,req:s=>canFlee(),f:s=>{if(!canFlee())return'Bạn không thể bỏ đi lúc này.';const old=s.realm;s.realm=pick(REALMS.filter(r=>r!==old));s.money=0;mod({honor:-15,happy:-5});s.house.prestige=Math.max(0,s.house.prestige-20);
+        return[`Bạn gói ghém đồ đạc và trốn đi trong đêm, sang ${s.realm}. Ở ${old}, tên bạn bị dán ở cổng chợ cùng dòng chữ "quỵt nợ".`,'bad']}}]},
+ {id:'debt_jail',queued:true,big:true,art:'lock',c:s=>s.alive&&s.money<0,title:'Ngục Nợ',
+  text:s=>`Ông Grub đã kiện bạn lên quan. Lính tới tận nhà. Với khoản nợ ${-s.money} xu, bạn sẽ phải vào ngục nợ của thị trấn cho tới khi trả xong bằng sức lao động.`,
+  ch:[{t:'Chịu ngục',f:s=>{s.money=0;s.job=null;mod({health:-15,happy:-15,honor:-10});s.flags.debtC=null;return['Mấy tháng trong ngục nợ: đập đá ban ngày, ngủ trên rơm ẩm ban đêm. Khi được thả, bạn không còn nợ, nhưng cũng không còn việc làm.','bad']}},
+      {t:'Nhờ người nhà chuộc ra',hide:true,req:s=>!!(spouse()&&spouse().bond>=60),f:s=>{const p=spouse();if(!p||p.bond<60)return'Không ai đứng ra chuộc bạn.';p.bond=clamp(p.bond-20);s.money=0;mod({honor:-5,happy:-6});s.flags.debtC=null;return[`${p.first} bán của hồi môn và vay mượn khắp họ hàng để chuộc bạn ra. Hai người không nhắc chuyện ấy thêm lần nào.`,'']}}]}
+];
+for(const e of DEBT_EV){EV.push(e);EVB[e.id]=e}
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||S.cap)return;S.debtN=S.money<0?(S.debtN||0)+1:0;
+  if(S.money<=-30&&S.debtN>=2&&!S.pend.includes('debt_call')&&!S.pend.includes('debt_jail')){S.pend.push(S.flags.debtC&&S.year-S.flags.debtC<=3&&S.money<=-100?'debt_jail':'debt_call');S.debtN=0}}}
+
+/* ===== Lý trí và mất nhân tính ===== */
+const ltV=()=>S.lt==null?100:S.lt;
+const ltCap=()=>100-6*ltRk();
+function ltHit(v,why){if(!S||!S.alive)return;const o=ltV();S.lt=Math.max(0,Math.min(100,v>0?Math.min(o+v,Math.max(o,ltCap()+10)):o+v));if(why)log(`${why} Lý trí ${S.lt}/100.`,v<0?'magic':'good')}
+const ltRk=()=>{let m=0;for(const k of CE_K){const x=S[k];if(x&&typeof x.rk==='number')m=Math.max(m,x.rk)}try{const o=cdOwn();if(o)m=Math.max(m,+o[1]||0)}catch(e){}return m};
+const ltShow=()=>S&&(ltV()<100||ltRk()>0||(S.job&&S.job.id==='nightwatch'));
+const LT_RKMSG=['Sáng nay bạn không nhớ nổi giọng của mẹ mình.','Bạn nhìn ngọn lửa trong bếp và chợt thấy nó thật nhỏ bé, như mọi thứ trên đời.','Có một khoảnh khắc bạn không nhận ra khuôn mặt mình trong gương.','Bạn nghe thấy nhịp tim của người ngồi cạnh, và thấy nó ồn ào.','Đứa trẻ hàng xóm khóc, và bạn không còn hiểu vì sao người ta khóc.'];
+const LT_HAL=['Bóng của bạn cử động chậm hơn bạn nửa nhịp.','Bạn nghe có người gọi tên mình từ trong giếng.','Trong bữa tối, bạn thấy một chiếc ghế trống có người ngồi.','Những con chữ trong sách tự xếp lại thành một câu bạn không dám đọc.','Bạn đếm bậc thang lên gác. Hôm nay có mười ba bậc, hôm qua chỉ có mười hai.','Con mèo nhìn chằm chằm vào khoảng không sau lưng bạn suốt cả buổi tối.','Bạn tỉnh dậy, đứng giữa sân, chân lấm bùn, không nhớ mình ra đó lúc nào.'];
+function ltYear(){if(!S.alive||S.cap)return;const r=ltRk();
+  if(r>(S.ltR||0)){let d=0;for(let k=(S.ltR||0)+1;k<=r;k++)d+=5*k;S.ltR=r;ltHit(-d,`Mỗi bậc sức mạnh lấy đi một phần nhân tính. ${pick(LT_RKMSG)}`)}
+  let dv=0;const W=typeof dhC==='function'?dhC():null;if(W&&!W.done&&(W.st||0)>=2&&W.rl===S.realm)dv-=3;if(S.flags.dark)dv-=3;if(S.vo&&S.vo.st==='sworn')dv-=1;if(S.world.tm&&S.world.tm.y===S.year&&r>0)dv-=3;
+  let up=1;const sp=spouse();if(sp&&sp.bond>=50)up+=1;if(kids(false).some(k=>k.alive))up+=1;if(S.st.happy>=60)up+=1;if(S.job&&S.job.id==='nightwatch')up+=2;if(S.st.happy<20)up-=2;
+  {const n=ltV()+dv;S.lt=Math.max(0,Math.min(100,up>0?Math.min(n+up,Math.max(n,ltCap())):n+up))}
+  const v=ltV();if(v<70&&ch(.35))log(pick(LT_HAL),'magic');
+  if(v<30)mod({happy:-2});
+  if(v<=0&&!S.pend.includes('lt_lost')){S.pend.push('lt_lost');return}
+  if(v<40&&(!S.flags.ltE||S.year-S.flags.ltE>=3)&&!S.pend.includes('lt_edge')){S.flags.ltE=S.year;S.pend.push('lt_edge');return}
+  if(v<25&&r>0&&!(S.job&&S.job.id==='nightwatch')&&(!S.flags.gdP||S.year-S.flags.gdP>=6)&&ch(.3)){S.flags.gdP=S.year;S.pend.push('gd_probe')}}
+const LT_EV=[
+ {id:'lt_edge',queued:true,big:true,art:'eye',img:'ghost',c:s=>s.alive&&ltV()<40,title:'Tiếng Thì Thầm',
+  text:'Tiếng thì thầm không còn chỉ đến vào ban đêm. Nó nói bằng giọng của chính bạn, và nó biết những điều bạn chưa từng học. Nó bảo: sức mạnh đang chờ, chỉ cần bạn thôi bám víu vào những thứ nhỏ nhặt.',
+  ch:[{t:'Bám lấy ký ức về người thân',f:s=>{const has=!!spouse()||kids(false).some(k=>k.alive);ltHit(has?10:4);return[has?'Bạn nhắm mắt, nhớ lại tiếng cười của người nhà trong bữa tối. Tiếng thì thầm lùi lại. Lý trí +10.':'Bạn cố nhớ một khuôn mặt thân quen, nhưng chỉ thấy mờ mờ. Tiếng thì thầm lặng đi một chút. Lý trí +4.','good']}},
+      {t:'Lắng nghe nó',f:s=>{ltHit(-10);mod({magic:5});s.blade=Math.min(100,(s.blade||0)+3);return['Bạn lắng nghe. Nó dạy bạn một điều mà không cuốn sách nào có. Sáng ra tay bạn mạnh hơn, mắt sáng hơn, nhưng bạn thấy mình xa lạ với chính mình. Lý trí -10.','magic']}},
+      {t:'Tìm tới Đội Gác Đêm xin giúp',f:s=>{ltHit(15);s.flags.gdW=1;mod({honor:-2});return['Một người Gác Đêm già cho bạn uống thứ trà đắng và dạy bạn đếm nhịp thở. Họ giúp, nhưng từ nay tên bạn nằm trong sổ của họ. Lý trí +15.','']}}]},
+ {id:'lt_lost',queued:true,big:true,art:'skull',img:'ghost',c:s=>s.alive&&ltV()<=0,title:'Mất Kiểm Soát',
+  text:'Bạn không còn phân biệt được đâu là tiếng thì thầm, đâu là ý nghĩ của mình. Da bạn nứt ra như vỏ cây khô. Thứ bên dưới không còn là người.',
+  ch:[{t:'Gọi tên người thân lần cuối',f:s=>{const has=!!spouse()||kids(false).some(k=>k.alive);if(has&&ch(.5)){s.lt=15;mod({health:-20,happy:-10});return['Bạn hét lên một cái tên. Cái tên ấy kéo bạn trở lại, như sợi dây thả xuống giếng sâu. Bạn tỉnh dậy trên sàn nhà, máu chảy từ mũi. Lý trí 15.','good']}
+        ltLose();return['Không có cái tên nào đủ mạnh để kéo bạn về.','bad']}},
+      {t:'Buông tay',f:s=>{ltLose();return['Bạn buông tay.','bad']}}]},
+ {id:'gd_probe',queued:true,big:true,art:'lantern',img:'ghost',c:s=>s.alive&&!s.cap,title:'Hai Chiếc Mũ Rộng Vành',
+  text:'Hai người mặc áo choàng đen, đội mũ rộng vành, gõ cửa lúc nửa đêm. Huy hiệu ngọn đèn bạc trên ngực áo: Đội Gác Đêm. "Hàng xóm báo nhà này có tiếng nói chuyện một mình. Chúng tôi chỉ muốn hỏi vài câu."',
+  ch:[{t:'Thành thật kể hết',f:s=>{ltHit(12);s.flags.gdW=1;return['Họ nghe bạn kể mà không chớp mắt, rồi để lại một chiếc vòng sắt và lời dặn: đeo nó khi ngủ. Đêm đó, lần đầu tiên sau nhiều năm, bạn không mơ. Lý trí +12.','good']}},
+      {t:'Che giấu',f:s=>{if(ch(.35+s.st.smarts/250))return'Bạn pha trà, kể chuyện con mèo hay kêu đêm. Họ nhìn nhau, rồi đi. Nhưng một người ngoái lại nhìn bạn rất lâu.';s.flags.gdW=1;mod({honor:-6});ltHit(-5);return['Bạn nói dối vụng về. Họ ghi tên bạn vào sổ đen, và từ đó có người theo dõi nhà bạn. Lý trí -5.','bad']}},
+      {t:'Bỏ trốn qua cửa sau',hide:true,req:s=>canFlee(),f:s=>{if(!canFlee())return'Bạn không thể bỏ đi lúc này.';const old=s.realm;s.realm=pick(REALMS.filter(r=>r!==old));mod({honor:-8});return[`Bạn trốn đi ngay trong đêm, sang ${s.realm}. Đội Gác Đêm ở ${old} treo chân dung bạn ở nhà thờ.`,'bad']}}]}
+];
+for(const e of LT_EV){EV.push(e);EVB[e.id]=e;if(e.img)EIMG[e.id]=e.img}
+function ltLose(){const o=(()=>{try{return cdOwn()}catch(e){return null}})();S.world.lost=S.world.lost||[];
+  S.world.lost.push({who:`${S.first} ${S.surname}`,rl:S.realm,y:S.year,cls:o&&CD_CLASSES[o[0]]?CD_CLASSES[o[0]][0]:null,gen:S.gen,hunted:0});S.flags.ltLost=1;
+  news(`Ở ${S.realm}, có người đã mất kiểm soát và hóa thành quái vật. Đội Gác Đêm phong tỏa cả khu phố.`,'bad',true);die('mất kiểm soát, hóa thành quái vật')}
+{const y0=extYear3;extYear3=function(){y0();if(S&&S.alive)ltYear()}}
+{const r0=render;render=function(){r0();if(!S)return;const box=$('#ltb');if(!box)return;const on=ltShow();box.hidden=!on;if(on){$('#lt').style.width=ltV()+'%';$('#ltt').textContent=`Lý trí ${ltV()}/100`}}}
+const LTA=[['book','Viết nhật ký','Nhớ lại mình là ai · Lý trí +4',s=>{ltHit(4);mod({smarts:1});return['Bạn viết lại những việc đã làm trong năm, từng cái tên, từng bữa ăn. Trang giấy giữ giúp bạn những điều bạn đang quên dần. Lý trí +4.','good']}],
+ ['heart','Ở bên gia đình','Cần vợ/chồng hoặc con · Lý trí +7',s=>{if(!spouse()&&!kids(false).some(k=>k.alive))return['Bạn không có ai ở nhà để ngồi cùng.',''];ltHit(7);mod({happy:3});return['Cả nhà ăn tối, chẳng ai nói gì to tát. Bạn nhận ra mình đã bỏ lỡ những buổi tối như thế này quá lâu. Lý trí +7.','good']}],
+ ['church','Cầu nguyện lặng lẽ','Lý trí +5',s=>{ltHit(5);return['Bạn quỳ ở góc nhà nguyện vắng, không cầu xin gì, chỉ lắng nghe tiếng nến cháy. Lý trí +5.','good']}]];
+{const a0=actExtra3;actExtra3=function(){let b=a0();if(!S||!ltShow()||ltV()>=100)return b;const used=!!S.done.lta;
+  b+='<p class="sec">Giữ lấy nhân tính · một việc mỗi năm</p>'+LTA.map((A,i)=>gRow(`data-x="lta:${i}"`,A[0],A[1],used?'Đã làm năm nay':A[2],'',!S.alive||!!S.cap||used)).join('');return b}}
+{const x0=extAct3;extAct3=function(x){if(x.startsWith('lta:')){if(S.done.lta||!S.alive||S.cap)return;const A=LTA[+x.slice(4)];if(!A)return;S.done.lta=1;const[t,tone]=arr(A[3](S));log(t,tone);note={t,tone};return afterSheetAction()}return x0(x)}}
+/* các việc vốn đã "ép" sức mạnh cũng làm hao lý trí */
+{const o0=wtOan;wtOan=function(k,v){o0(k,v);if(v>=15)ltHit(-3)}}
+
+/* ===== Kỷ nguyên và biên niên sử ===== */
+const ERAORD=['Thứ Nhất','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy','Thứ Tám','Thứ Chín','Thứ Mười'];
+const ERAEP={demon:'Kỷ Sau Ma Vương',heresy:'Kỷ Lửa Đỏ',undead:'Kỷ Mộ Yên',dragon:'Kỷ Tro Rồng',plague:'Kỷ Hồi Sinh',sleep:'Kỷ Thức Canh',crystal:'Kỷ Pha Lê Vỡ',returned:'Kỷ Hai Bờ'};
+const eraName=e=>`Kỷ ${ERAORD[e.i]||'Thứ '+(e.i+1)}`;
+function eraW(){const W=S.world;if(!W.eras){const t0=Math.min(S.by||S.year,...(S.tree||[]).map(g=>g.by||S.year));W.eras=[{i:0,y:t0,ep:'Kỷ Bình Minh',why:'Những năm trước mọi trang biên niên'}]}return W.eras}
+function eraNext(id){const E=eraW(),cur=E[E.length-1];if(cur.y===S.year)return;cur.y1=S.year;const e={i:E.length,y:S.year,ep:ERAEP[id]||'Kỷ Mới',why:`Bắt đầu khi ${CATS[id]?CATS[id].n:'thảm họa'} chấm dứt`};E.push(e);
+  announce(`${eraName(e)} bắt đầu`,`Các sử gia gạch một đường dưới trang biên niên cuối cùng của ${eraName(cur)}. Từ năm ${S.year}, người ta gọi thời đại mới là ${e.ep}.`,'book');
+  news(`${eraName(cur)} khép lại. ${eraName(e)}, ${e.ep}, bắt đầu.`,'',true)}
+{const e0=endCat;endCat=function(){const id=S.world.cat&&S.world.cat.id;const r=e0.apply(this,arguments);if(id)eraNext(id);return r}}
+{const d0=dhEnd;dhEnd=function(k){const W=dhC(),id=W&&W.id;const r=d0(k);if(id)eraNext(id);return r}}
+{const g0=genRecord;genRecord=function(){const r=g0();try{const o=cdOwn();if(o&&CD_CLASSES[o[0]])r.cls=`${CD_CLASSES[o[0]][0]} bậc ${o[1]}`}catch(e){}if(S.job)r.jobT=jt();if(S.flags.ltLost)r.lost=1;return r}}
+function eraOf(y){const E=eraW();let e=E[0];for(const x of E)if(y>=x.y)e=x;return e}
+function eraView(){const E=eraW(),gens=[...(S.tree||[]),genRecord()];let b='<p class="note">Biên niên sử ghi lại các kỷ nguyên của thế giới và những người trong gia tộc bạn đã sống qua chúng.</p>';
+  for(const e of [...E].reverse()){b+=`<p class="sec">${eraName(e)} · ${e.ep}</p><p class="note">${e.why}. Từ năm ${e.y}${e.y1?` đến năm ${e.y1}`:' tới nay'}.</p>`;
+    const G=gens.filter(g=>(g.by||0)<=(e.y1||1e9)&&(g.dy||S.year)>=e.y);
+    for(const g of G){const live=g===gens[gens.length-1]&&S.alive;const deeds=[g.title,g.cls,g.jobT,g.knight?'Hiệp sĩ':'',g.saint?'Thánh':'',g.slayer?'Kẻ Diệt Rồng':'',g.legend?'Anh Hùng trong Lời Tiên Tri':'',g.dark?'Thảm Họa':'',g.lost?'Mất kiểm soát':''].filter(Boolean).join(' · ');
+      b+=gRow('',g.lost?'skull':live?'user':'scroll',`${esc(g.first)}${g.sur?' '+esc(g.sur):''} · đời thứ ${g.gen}`,`${g.by} – ${live?'nay':g.dy}${deeds?' · '+esc(deeds):''}${!live&&g.cause?' · qua đời vì '+esc(g.cause):''}`,'',false,true)}
+    if(!G.length)b+='<p class="note">Không ai trong gia tộc bạn sống trong kỷ này.</p>'}
+  const L=(S.world.lost||[]);if(L.length)b+='<p class="sec">Những người đã mất kiểm soát</p>'+L.map(x=>`<p class="note bad">${esc(x.who)}${x.cls?' · '+esc(x.cls):''} · ${esc(x.rl)}, năm ${x.y}${x.hunted?' · đã được Đội Gác Đêm an táng':''}</p>`).join('');
+  return['Biên Niên Sử',b,'wd']}
+{const w0=wdView;wdView=function(){const r=w0();const E=eraW(),e=E[E.length-1];r[1]=gRow('data-open="era"','book',`${eraName(e)} · ${e.ep}`,`Từ năm ${e.y} · Xem biên niên sử các kỷ và tổ tiên của bạn`,'',false)+r[1];return r}}
+{const d0=drawExt3;drawExt3=function(v){if(v==='era')return eraView();return d0(v)}}
+const TALE_X=['đã một mình đánh lui ba con rồng bằng một cái chảo','cao gần ba thước và ăn hết một con bò trong một bữa','từng đánh cờ với Thần Chết và thắng hai ván','có thể nói chuyện với chim và gọi mưa bằng một tiếng huýt sáo'];
+EV.push(EVB.era_tale={id:'era_tale',w:W(2),c:s=>s.age>=8&&!s.cap&&(s.tree||[]).some(g=>g.cls||g.legend||g.knight||g.slayer||g.saint||g.dark||g.lost||/Vua|Nữ hoàng|Công tước/.test(g.title||'')),
+  prep:s=>{const L=(s.tree||[]).filter(g=>g.cls||g.legend||g.knight||g.slayer||g.saint||g.dark||g.lost||/Vua|Nữ hoàng|Công tước/.test(g.title||''));const g=pick(L);s.tmp={n:`${g.first}${g.sur?' '+g.sur:''}`,d:g.cls||g.title||(g.slayer?'Kẻ Diệt Rồng':g.knight?'Hiệp sĩ':g.saint?'Thánh':g.dark?'Thảm Họa':g.lost?'người mất kiểm soát':'anh hùng'),e:eraName(eraOf(g.by||s.year)),wrong:ch(.45)?pick(TALE_X):null,lost:!!g.lost}},
+  title:'Người Kể Chuyện Ở Quán Rượu',
+  text:s=>`Một người kể chuyện rong ngồi bên lò sưởi, kể về ${s.tmp.n}, ${s.tmp.d.toLowerCase()} từ thời ${s.tmp.e}. ${s.tmp.lost?'Ông ta hạ giọng khi kể đến đêm người ấy hóa thành quái vật, và cả quán im phăng phắc.':s.tmp.wrong?`Theo lời ông ta, người ấy ${s.tmp.wrong}.`:'Ông ta kể đúng đến từng chi tiết, như thể đã tận mắt chứng kiến.'} Không ai trong quán biết bạn là hậu duệ của người ấy.`,
+  ch:[{t:'Ngồi nghe hết',f:s=>{mod({happy:3});return'Bạn nghe tới khi lò sưởi tàn. Về nhà, bạn lục tìm cuốn gia phả cũ và đọc lại cái tên ấy.'}},
+      {t:'Đứng lên kể lại cho đúng',f:s=>{if(s.tmp.wrong){mod({honor:2,smarts:1});return['Bạn kể lại chuyện thật. Người kể chuyện gãi đầu: "Ừ thì... chuyện thật nghe chán hơn." Cả quán cười ồ, rồi mời bạn một cốc.','good']}mod({happy:-1});return'Bạn định sửa lời ông ta, nhưng ông ta đã kể đúng hết. Bạn đành ngồi xuống, hơi ngượng.'}},
+      {t:'Nói mình là hậu duệ',f:s=>{if(s.tmp.lost){mod({honor:-3});return['Quán rượu im lặng. Vài người lặng lẽ đứng dậy đổi bàn.','bad']}mod({honor:3});s.house.prestige+=3;return['Cả quán quay lại nhìn bạn. Có người đòi bắt tay, có người không tin. Người kể chuyện xin bạn kể thêm chuyện nhà.','good']}}]});
+
+/* ===== Nghề Đội Gác Đêm ===== */
+JOBS.nightwatch={n:'Đội Gác Đêm',min:18,t:['Lính gác đêm tập sự','Kẻ Gác Đêm','Đội trưởng Gác Đêm','Người Cầm Đèn Bạc'],pay:[10,26,52,95],need:[3,6,10],risk:.05,riskDie:'trong một cuộc truy bắt kẻ mất kiểm soát',
+ riskMsg:['Thứ từng là người cào rách vai bạn trước khi gục xuống.','Bạn bị kéo vào giấc mơ của kẻ mất kiểm soát và tỉnh dậy với máu mũi chảy ròng.'],fx:{honor:1,piety:1},
+ req:s=>s.st.health>=40&&s.st.smarts>=30,why:'Cần Sức khỏe 40 và Trí tuệ 30',
+ yr:s=>{if(s.alive&&!s.cap&&ch(.45)&&!s.pend.includes('gd_hunt'))s.pend.push('gd_hunt')},
+ top:s=>{S.house.prestige+=100;mod({honor:10});announce('Người Cầm Đèn Bạc',`${s.first} ${s.surname} được trao chiếc đèn bạc của Đội Gác Đêm. Từ nay, mọi đêm dài ở ${s.realm} đều có người thức canh.`,'lantern','ghost')}};
+JIC.nightwatch='lantern';
+JACT.nightwatch=[['Đi tuần đêm','Lương thêm · đôi khi gặp chuyện lạ',.7,'Bạn đi tuần hết ba khu phố. Một người say ngủ quên ngoài đường được bạn đưa về nhà.',{honor:1},[4,10],'Bạn nghe tiếng hát từ một ngôi nhà bỏ hoang. Khi bước vào thì tiếng hát tắt, và bạn mất một đêm không ngủ được.',{happy:-3},.06],
+ ['Thẩm vấn nhân chứng','Trí tuệ giúp moi được manh mối',.65,'Bà bán cá nhớ ra người lạ mặt hay đi qua lúc nửa đêm. Manh mối dẫn tới một căn hầm đầy sách cấm.',{smarts:2},[6,14],'Nhân chứng nói toàn chuyện vô lý. Hay là chính bạn đang nghe nhầm?',{happy:-2},.06]];
+JGRP.find(g=>g[0]==='phep')[2].push('nightwatch');
+const GD_T=[['Người thợ đồng hồ','nghe tiếng tích tắc trong đầu không bao giờ dừng, và bắt đầu tháo tung mọi thứ quanh mình để tìm nó'],
+ ['Bà đỡ ở xóm dưới','tin rằng mọi đứa trẻ sinh ra đều mang một linh hồn khác, và không cho ai bế con mình'],
+ ['Một học giả ở thư viện','đọc một cuốn sách cổ đến trang cuối, và bây giờ chỉ nói bằng thứ tiếng không ai hiểu'],
+ ['Người lái đò','thấy những gương mặt dưới đáy sông gọi tên mình, và đêm nào cũng chèo đò ra giữa dòng'],
+ ['Một hiệp sĩ già','nghe tiếng kèn trận đã tắt bốn mươi năm, và chém vào mọi thứ chuyển động trong bóng tối']];
+EV.push(EVB.gd_hunt={id:'gd_hunt',queued:true,big:true,art:'lantern',img:'ghost',c:s=>s.alive&&!s.cap&&s.job&&s.job.id==='nightwatch',
+  prep:s=>{const L=(s.world.lost||[]).filter(x=>!x.hunted&&x.rl===s.realm);if(L.length&&ch(.5)){const x=L[0];s.tmp={n:x.who,d:`đã mất kiểm soát từ năm ${x.y}${x.cls?', từng là '+x.cls.toLowerCase():''}. Thứ còn lại vẫn lang thang quanh nơi người ấy từng sống`,anc:(s.tree||[]).some(g=>g.gen===x.gen&&x.who.startsWith(g.first+' ')),lost:1}}else{const[n,d]=pick(GD_T);s.tmp={n,d}}},
+  title:'Lệnh Truy Vết',
+  text:s=>`Đội trưởng đưa bạn một tờ lệnh có đóng dấu ngọn đèn bạc. Mục tiêu: ${s.tmp.n}, người ${s.tmp.d}.${s.tmp.anc?' Bạn nhận ra cái tên ấy trong cuốn gia phả của nhà mình.':''}`,
+  ch:[{t:'Ra tay ngay',f:s=>{ltHit(-5);if(ch(.45+s.st.health/300+(s.blade||0)/300+s.job.rank*.05)){const g=R(10,25)*(1+s.job.rank);s.money+=g;mod({honor:3});s.job.perf=Math.min(100,(s.job.perf||40)+12);if(s.tmp.lost){const x=(s.world.lost||[]).find(x=>x.who===s.tmp.n&&!x.hunted);if(x)x.hunted=1}
+        return[`Bạn kết thúc nó trước khi nó kịp hại ai. Đội trả bạn ${g} xu.${s.tmp.anc?' Bạn tự tay chôn tổ tiên mình dưới gốc cây sau nhà thờ.':''} Lý trí -5.`,'good']}
+        mod({health:-R(10,20)});return['Nó nhanh hơn bạn tưởng. Bạn tỉnh dậy trong trạm xá của đội, mục tiêu đã biến mất. Lý trí -5.','bad']}},
+      {t:'Thử kéo họ trở lại',hide:true,req:s=>!(s.tmp&&s.tmp.lost),f:s=>{if(ch(.3+s.st.smarts/300+ltV()/400)){ltHit(-3);mod({honor:6});s.job.perf=Math.min(100,(s.job.perf||40)+8);return['Bạn ngồi xuống cạnh họ, gọi tên những người họ thương, kể về bữa tối, về mùa gặt. Sáng ra, họ khóc như một đứa trẻ. Họ vẫn còn là người. Lý trí -3.','good']}
+        ltHit(-8);mod({health:-12});return['Họ nghe bạn nói, rồi mỉm cười theo cách không ai nên cười. Bạn phải rút kiếm. Lý trí -8.','bad']}},
+      {t:'Báo về, chờ viện binh',f:s=>{ltHit(-1);s.job.perf=Math.max(0,(s.job.perf||40)-6);return'Bạn canh ở đầu ngõ tới sáng. Viện binh tới, việc xong, nhưng tên bạn không có trong bản báo công.'}}]});
+EIMG.gd_hunt='ghost';
+
+/* ===== Nút quay lại về mục Nghề nghiệp gom chung ===== */
+let JOBCH=null,LASTV=null;
+{const d0=drawSheet;drawSheet=function(){const prev=LASTV;const r=d0();const v=view||'';const root=v.split(':')[0];
+  if(prev==='jobs'&&v!=='jobs'&&v!=='act')JOBCH=root;else if(v==='act'||v==='jobs'||(JOBCH&&root!==JOBCH))JOBCH=null;
+  if(JOBCH){const bk=$('#sheet .bk');if(bk&&bk.dataset.open==='act')bk.dataset.open='jobs'}LASTV=v;return r}}
+
+{const j0=joinJob;joinJob=function(id){const o=S.job;if(o&&o.id==='assassin'&&S.vo)S.vo.rk={rank:o.rank,yr:o.yr};const r=j0(id);if(id==='assassin'&&S.vo&&S.vo.rk&&S.job&&S.job.id==='assassin'){S.job.rank=S.vo.rk.rank;S.job.yr=S.vo.rk.yr;S.job.perf=25;S.vo.rk=null;render()}return r}}
+{const q0=quitJob;quitJob=function(){if(S.job&&S.job.id==='assassin'&&S.vo)S.vo.rk={rank:S.job.rank,yr:S.job.yr};return q0()}}
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
