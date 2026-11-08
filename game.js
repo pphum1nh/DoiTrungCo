@@ -516,7 +516,7 @@ Object.assign(JOBS,{
     yr:s=>{if(ch(.1)){mod({happy:4});log(pick(['Bạn dẫn một con hươu bạc bị lạc về với bầy.','Bạn đuổi bọn đốn gỗ trộm ra khỏi rừng thiêng.']),'good')}},top:JTOP('Thủ lĩnh kiểm lâm','flower',s=>`${s.first} được trao cây cung bạc của các Thủ lĩnh kiểm lâm. Mọi cánh rừng của Tiên tộc nay dưới sự bảo hộ của người.`)},
   druid:{races:['elf','beast'],n:'Druid rừng già',min:16,t:['Người giữ hạt giống','Druid','Đại Druid'],pay:[3,22,55],need:[6,14],fx:{magic:2,happy:1},magicJob:true,req:s=>s.st.magic>=30||s.hid.arcane>=50,why:'Cần Ma lực từ 30 hoặc cảm nhận ma pháp tốt',
     yr:s=>{if(ch(.1)){const g=R(5,20);s.money+=g;log(`Bạn gọi mưa cứu một làng bị hạn. Dân làng biếu ${g} xu.`,'magic')}},top:JTOP('Đại Druid','gem',s=>`Cây sồi nghìn năm nở hoa giữa mùa đông khi ${s.first} bước vào vòng đá. Người là Đại Druid của rừng già.`)},
-  bard:{races:['elf','human'],n:'Thi sĩ ánh trăng',min:14,t:['Người hát rong','Thi sĩ cung đình','Thi bá'],pay:[6,24,58],need:[3,8],vol:true,fx:{happy:2,looks:1},req:s=>s.st.looks>=40||s.st.smarts>=50,why:'Cần Dung mạo hoặc Trí tuệ khá',
+  bard:{races:['elf','human'],n:'Thi sĩ ánh trăng',min:14,t:['Người hát rong','Thi sĩ cung đình','Thi bá'],pay:[0,24,58],need:[99,99],payT:'Tiền thưởng của khán giả',fx:{happy:2,looks:1},req:s=>s.st.looks>=40||s.st.smarts>=50,why:'Cần Dung mạo hoặc Trí tuệ khá',
     yr:s=>{if(ch(.12)){mod({honor:4});s.house.prestige+=8;log(pick(['Bản ballad của bạn được hát ở mọi quán rượu.','Một công chúa khóc khi nghe bạn hát.']),'good')}}},
   enchanter:{races:['elf'],n:'Thợ phù chú',min:18,t:['Học việc phù chú','Thợ phù chú','Đại sư phù chú'],pay:[6,40,110],need:[5,12],fx:{magic:1,smarts:1},magicJob:true,req:s=>s.flags.literate&&s.st.magic>=35,why:'Phải biết chữ và có Ma lực từ 35',
     yr:s=>{if(ch(.06)&&s.bag.length<BAGMAX){gainItem(pick(['amulet','wand','flower']))}}},
@@ -1442,7 +1442,7 @@ function drawSheet(){
     if(gk){back='job';title=(JGRP.find(g=>g[0]===gk)||[,'Nghề nghiệp'])[1]}else{
     title='Nghề nghiệp';
     if(S.flags.saint)b+=`<div class="row"><div><b>Thánh Nữ</b><small>Giáo hội cấp bổng lộc 60 xu mỗi năm · có thể ban phước chữa lành</small></div></div>`;
-    if(S.job){const J=JOBS[S.job.id];b+=`<p class="sec">Đang làm</p><div class="row"><div><b>${jt()}</b><small>${S.job.yr} năm trong nghề · ${J.pay[S.job.rank]} xu mỗi năm${S.job.rank<J.t.length-1&&J.need[S.job.rank]<99?' · bậc kế: '+(S.sex==='f'&&J.tf?J.tf:J.t)[S.job.rank+1]:''}</small></div></div>`+rowBtn('data-quit','Bỏ việc','','')}
+    if(S.job){const J=JOBS[S.job.id];b+=`<p class="sec">Đang làm</p><div class="row"><div><b>${jt()}</b><small>${S.job.yr} năm trong nghề · ${J.payT&&!J.pay[S.job.rank]?J.payT:J.pay[S.job.rank]+' xu mỗi năm'}${S.job.id==='bard'?` · Danh tiếng ${S.job.fame||0}/100${S.job.rank<2?` · được mời khi đạt ${S.job.rank?80:40}`:''}`:''}${S.job.rank<J.t.length-1&&J.need[S.job.rank]<99?' · bậc kế: '+(S.sex==='f'&&J.tf?J.tf:J.t)[S.job.rank+1]:''}</small></div></div>`+rowBtn('data-quit','Bỏ việc','','')}
     b+=hcHTML();
     }
     const okR=J=>!J.races||J.races.includes(S.race);
@@ -1459,7 +1459,7 @@ function drawSheet(){
         b+=gRow(`data-open="job:${k}"`,ic,n,d,ok?`${ok} nghề`:'Chưa mở',!S.alive)}
     }else{const L=(grp[gk]||[]).sort((x,y)=>(!!x.why-!!y.why)||(x.J.pay[0]-y.J.pay[0]));
       if(!L.length)b+='<p class="note">Không có nghề nào trong nhóm này.</p>';
-      for(const{id,J,isOwn,why}of L)b+=gRow(`data-job="${id}"`,JIC[id]||'anvil',J.n,why||`Khởi đầu: ${(S.sex==='f'&&J.tf?J.tf:J.t)[0]} · ${J.t.length} bậc${J.risk?' · nguy hiểm':''}${isOwn?' · riêng '+RACES[S.race].n:''}`,`${J.pay[0]} xu/năm`,!!why||!S.alive);
+      for(const{id,J,isOwn,why}of L)b+=gRow(`data-job="${id}"`,JIC[id]||'anvil',J.n,why||`Khởi đầu: ${(S.sex==='f'&&J.tf?J.tf:J.t)[0]} · ${J.t.length} bậc${J.risk?' · nguy hiểm':''}${isOwn?' · riêng '+RACES[S.race].n:''}`,`${J.payT&&!J.pay[0]?'Tiền thưởng':J.pay[0]+' xu/năm'}`,!!why||!S.alive);
     }
   }
   if(view==='act'||(view.startsWith('act:')&&view!=='act:job')){
@@ -2109,8 +2109,9 @@ const JACT={
           ['Vẽ bản đồ rừng sâu','Hiểu biết và lối tắt',.7,'Bạn tìm ra một lối mòn cổ dẫn tới thác nước bí mật.',{smarts:3},[0,6],'Bạn lạc trong rừng ba ngày.',{health:-6},.15,'map']],
  druid:[['Chữa lành cánh rừng bệnh','Ma lực và lòng biết ơn',.6,'Những cây sồi đen lại đâm chồi xanh dưới tay bạn.',{magic:4,happy:3},[0,8],'Bệnh của rừng lan sang cả bạn.',{health:-12},.2],
         ['Cầu mưa cho làng hạn','Dân làng biếu quà',.55,'Mây kéo đến ngay đêm đó. Dân làng mang lúa gạo đến tạ ơn.',{magic:2,honor:3},[8,20],'Mưa không đến. Dân làng bắt đầu xì xào.',{honor:-3},.15]],
- bard:[['Hát ở tiệc cưới quý tộc','Tiền thưởng và danh tiếng',.65,'Bản tình ca của bạn làm cô dâu khóc. Chú rể ném cho bạn cả túi bạc.',{happy:4},[15,40],'Bạn hát nhầm bài chế giễu chính gia tộc chú rể.',{honor:-6},.2],
-       ['Sáng tác trường ca','Có thể lưu danh muôn đời',.4,'Trường ca về Long Vương của bạn được chép vào sách ở tu viện.',{smarts:3,honor:4},[0,10],'Bạn viết mãi không xong, xé hết cả xấp giấy.',{happy:-4},.3]],
+ bard:[['Hát ở chợ phiên','Khán giả có thể ném tiền, hoặc ném cà chua',.7,'Một đám đông nhỏ tụ lại nghe bạn hát. Chiếc mũ úp dưới chân đầy dần tiếng leng keng.',{happy:2},[1,6],'Ai đó ném cà chua. Rồi cả chợ ném theo.',{happy:-3},0],
+       ['Hát ở quán rượu đổi bữa tối','No bụng, đôi khi có tiền thưởng',.75,'Cả quán hát theo điệp khúc. Chủ quán cho bạn bữa tối và một vò rượu.',{happy:4,health:1},[0,3],'Một gã say chê bạn hát dở rồi lao vào đánh.',{health:-6},0],
+       ['Sáng tác bài mới','Bài hay thì danh tiếng tăng mạnh',.45,'Bạn viết được một bài mà hôm sau cả chợ đã huýt sáo theo.',{smarts:2},[0,0],'Bạn viết mãi không xong, xé hết cả xấp giấy.',{happy:-3},0]],
  enchanter:[['Yểm bùa cho kiếm của hiệp sĩ','Thu nhập cao',.6,'Thanh kiếm sáng lên ánh xanh khi bạn đọc câu chú cuối.',{magic:2},[20,50],'Câu chú lệch, thanh kiếm phát nổ trong tay khách hàng.',{honor:-6,health:-6},.2],
              ['Nghiên cứu phù văn cổ','Ma lực, trí tuệ',.65,'Bạn giải mã được một phù văn bảo hộ từ thời cổ đại.',{magic:3,smarts:3},[0,0],'Phù văn tự bốc cháy khi bạn chạm vào.',{health:-8},.2,'rg_arcane']],
  tracker:[['Dẫn đường cho đoàn buôn','Tiền công chắc chắn',.75,'Bạn dẫn đoàn buôn băng rừng an toàn trong sáu ngày.',{honor:2},[10,22],'Đoàn buôn lạc vào lãnh địa bầy sói.',{health:-10},.1],
@@ -12267,7 +12268,7 @@ for(const[id,k]of [['tt_call','moc'],['vj_call','quang'],['rn_call','hoa'],['bt_
 {const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.pp){r.pp.j=r.pp.j||[];r.pp.d=r.pp.d||{};if(r.pp.pr==null)r.pp.pr=100;if(r.pp.br==='loi'||r.pp.br==='bang'){r.pp.k=r.pp.br;r.pp.br=r.pp.k==='loi'?'hoa':'thuy'}if(!PP[r.pp.k])r.pp=null}return r}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('lta:')&&S&&S.pp&&S.pp.k==='vm'&&!S.done.lta)S.pp.pr=Math.min(100,S.pp.pr+5);return x0(x)}}
 /* ===== Phỏng vấn xin việc (trừ Hội Thợ Săn và Sát Thủ) ===== */
-const IV_SKIP=['hunter','assassin'];
+const IV_SKIP=['hunter','assassin','bard'];
 const IS=(k,n,a=2,b=0)=>s=>((k==='blade'?s.blade:k==='arc'?(s.hid&&s.hid.arcane):k==='money'?s.money:s.st[k])||0)>=n?a:b;
 const IVWHO={shepherd:'Lão chủ đàn cừu',farm:'Ông chủ ruộng',smith:'Thợ cả lò rèn',soldier:'Đội trưởng mộ lính',church:'Cha bề trên',mission:'Giám mục phụ trách truyền giáo',trade:'Chủ hiệu buôn',scribe:'Thư lại trưởng',surgeon:'Thầy thuốc trưởng',knight:'Hiệp sĩ trưởng',lady:'Phu nhân quản sự',wizard:'Pháp sư giám khảo của Tháp Bạc',alch:'Đại giả kim sư',
  orcwar:'Tù trưởng một mắt',orcshaman:'Shaman già',pitfighter:'Ông bầu hố máu',ranger:'Kiểm lâm trưởng',druid:'Druid già nhất rừng',bard:'Ông bầu gánh hát',enchanter:'Thợ phù chú cả',tracker:'Lão truy dấu mù một mắt',beastspeak:'Hiền giả thú rừng',merc:'Thủ lĩnh đoàn đánh thuê',warlock:'Khế ước sư già',shadowblade:'Người đeo mặt nạ bạc',blackmarket:'Gã môi giới mặt sẹo',demonhunter:'Đồ tể ác quỷ',
@@ -12397,6 +12398,29 @@ EV.push(EVB.job_iv={id:'job_iv',queued:true,big:false,art:'scroll',c:s=>!!(s.ali
 Object.defineProperty(EVB.job_iv,'ch',{get:()=>{const Q=S&&S.iv&&ivCur();if(!Q)return[];return (S.iv.ord||[0,1,2]).map(i=>Q[1][i]).filter(Boolean).map(([t,v,rep])=>({t,f:s=>{s.iv.sc+=ivF(v);if(s.iv.i<s.iv.q.length-1){s.iv.i++;s.pend.splice(1,0,'job_iv');return rep}const[r,tone]=ivEnd();return[`${rep} ${r}`,tone]}}))}});
 function jobApply(id){if(!S.alive||IV_SKIP.includes(id))return joinJob(id);if(S.ivNo&&S.ivNo[id]===S.year)return;if(S.pend.includes('job_iv'))return;ivStart(id);afterSheetAction()}
 
+/* ===== Thi sĩ ánh trăng: tự đi hát, sống nhờ khán giả, được mời khi có danh tiếng ===== */
+const bdF=v=>{S.job.fame=Math.max(0,Math.min(100,(S.job.fame||0)+v))};
+{const j0=jobAct;jobAct=function(i){if(!S.job||S.job.id!=='bard')return j0(i);const m0=S.money;j0(i);if(!S.job||S.job.id!=='bard')return;const ok=note&&note.tone!=='bad';
+  const g=[[3,-1],[2,0],[7,0]][i]||[1,0];const d=ok?g[0]:g[1];bdF(d);let x=d?` Danh tiếng ${d>0?'+':''}${d}.`:'';
+  if(ok&&i===0){const tip=Math.round((S.job.fame||0)/8);if(tip){S.money+=tip;x=` Người ta đã biết tên bạn, nên ném thêm ${tip} xu.`+x}}
+  if(note&&x){note.t+=x;log(x.trim(),'good');if(!$('#sheet').hidden)drawSheet()}}}
+JOBS.bard.yr=s=>{const J=s.job;if(J.fame==null)J.fame=[0,50,85][J.rank]||0;if(J.rank===0){const tip=Math.max(0,R(-2,5)+Math.floor(J.fame/12));if(tip){s.money+=tip;log(`Cả năm hát rong đầu đường xó chợ, bạn nhận được ${tip} xu tiền thưởng của khán giả.`)}else log('Năm nay khán giả chỉ vỗ tay. Không ai bỏ đồng nào vào mũ.')}
+  bdF(-2);
+  if(J.rank===0&&J.fame>=40&&(!J.inv||s.year-J.inv>=2)&&!s.pend.includes('bard_inv1')){J.inv=s.year;s.pend.push('bard_inv1')}
+  else if(J.rank===1&&J.fame>=80&&(!J.inv||s.year-J.inv>=2)&&!s.pend.includes('bard_inv2')){J.inv=s.year;s.pend.push('bard_inv2')}
+  if(J.rank===1&&J.fame<20){J.rank=0;J.ry=0;log('Lãnh chúa thấy tên bạn không còn ai nhắc tới, nên thôi bảo trợ. Bạn lại ôm đàn ra chợ.','bad')}
+  if(J.rank===2&&J.fame<50){J.rank=1;J.ry=0;log('Triều đình đã có thi sĩ mới được yêu thích hơn. Bạn trở về lâu đài của lãnh chúa cũ.','bad')}};
+EV.push(EVB.bard_inv1={id:'bard_inv1',queued:true,big:true,art:'music',img:'coronation',c:s=>!!(s.alive&&s.job&&s.job.id==='bard'&&s.job.rank===0),title:'Lời Mời Từ Lâu Đài',
+  text:'Một gia nhân mặc áo thêu huy hiệu dừng lại trước gánh hát của bạn. "Bá tước nghe người ta hát bài của ngươi khắp chợ. Ngài mời ngươi về lâu đài làm thi sĩ, có phòng riêng, có lương 24 xu một năm."',
+  ch:[{t:'Nhận lời',f:s=>{s.job.rank=1;s.job.ry=0;bdF(5);mod({happy:5});return['Bạn ôm đàn vào lâu đài. Từ nay bạn là thi sĩ cung đình, hát trong những bữa tiệc mà trước kia bạn chỉ đứng ngoài cổng nghe vọng ra.','good']}},
+      {t:'Từ chối, giữ tự do của kẻ hát rong',f:s=>{bdF(4);mod({happy:2});return'Bạn cúi chào gia nhân rồi hát tiếp. Cả chợ vỗ tay: hóa ra có người từ chối cả bá tước để hát cho họ nghe.'}}]});
+EV.push(EVB.bard_inv2={id:'bard_inv2',queued:true,big:true,art:'music',img:'coronation',c:s=>!!(s.alive&&s.job&&s.job.id==='bard'&&s.job.rank===1),title:'Hát Trước Nhà Vua',
+  text:s=>`Tên bạn đã tới tai nhà vua ở ${s.realm}. Một sứ giả mời bạn hát trong yến tiệc mừng thọ của ngài. Hát hay, bạn sẽ thành Thi bá của cả vương quốc. Hát hỏng, cả triều đình sẽ cười vào mặt bạn.`,
+  ch:[{t:'Hát bản trường ca hay nhất của mình',f:s=>{if(ch(.35+s.st.looks/300+s.st.smarts/300+(s.job.fame||0)/400)){s.job.rank=2;s.job.ry=0;bdF(10);mod({happy:8,honor:5});s.house.prestige+=40;return['Cả đại sảnh lặng đi khi bạn hát xong câu cuối. Rồi nhà vua đứng dậy vỗ tay đầu tiên. Bạn trở thành Thi bá.','good']}
+        bdF(-15);mod({happy:-8});return['Giọng bạn lạc đi đúng đoạn cao trào. Một bá tước bật cười, rồi cả triều đình cười theo. Danh tiếng -15.','bad']}},
+      {t:'Từ chối, lâu đài này là đủ',f:s=>{mod({happy:1});return'Bạn gửi lời cảm tạ và ở lại với lãnh chúa của mình.'}}]});
+EIMG.bard_inv1='coronation';EIMG.bard_inv2='coronation';
+{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.job&&r.job.id==='bard'&&r.job.fame==null)r.job.fame=[0,50,85][r.job.rank]||0;return r}}
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
