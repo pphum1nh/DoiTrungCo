@@ -7141,11 +7141,17 @@ function mvNorm(s){if(!s.mv||typeof s.mv!=='object'||Array.isArray(s.mv))s.mv={}
 /* chiêu mới */
 Object.assign(MV,{
   mk1:mv('Hỏa Kiếm','h:mks','atk',.12,{mp:5,imb:'hoa',sv:['thu','xac','giap'],wk:['lua'],d:'Phủ lửa lên kiếm. Ba đòn kiếm thuật kế tiếp đều mang lửa và mạnh hơn',x:'lưỡi kiếm bùng cháy, mỗi nhát chém để lại một vệt lửa'}),
-  mk2:mv('Băng Kiếm','h:mks','ctl',.12,{mp:5,imb:'thuy',sv:['nhanh','lua','thu'],d:'Phủ băng lên kiếm, làm chậm và đóng băng. Ba đòn kiếm thuật kế tiếp mạnh hơn',x:'lưỡi kiếm phủ băng trắng, đối thủ đông cứng nửa người'}),
+  mk2:mv('Băng Kiếm','h:mks','ctl',.12,{mp:5,imb:'bang',sv:['nhanh','lua','thu'],d:'Phủ băng lên kiếm, làm chậm và đóng băng. Ba đòn kiếm thuật kế tiếp mạnh hơn',x:'lưỡi kiếm phủ băng trắng, đối thủ đông cứng nửa người'}),
   mk3:mv('Lôi Kiếm','h:mks','atk',.12,{mp:5,imb:'loi',sv:['giap','phep','nhanh'],d:'Phủ sét lên kiếm, xuyên giáp và làm choáng. Ba đòn kiếm thuật kế tiếp mạnh hơn',x:'sét chạy dọc lưỡi kiếm, đối thủ giật nảy người'}),
   mk4:mv('Ma Kiếm Trảm','h:mks','atk',.18,{mp:6,hp:3,sv:['dong','phep','giap'],d:'Dồn cả thể lực lẫn ma lực vào một nhát chém phép',x:'một nhát chém mang ánh phép xé toạc không khí'}),
   mk5:mv('Phản Ma Trảm','h:mks','def',.16,{mp:4,sv:['phep','quy'],d:'Chém tan hoặc phản lại một câu thần chú đang thi triển',x:'lưỡi kiếm chém đôi câu thần chú, hất nó ngược về phía đối thủ'}),
-  mk6:mv('Nguyên Tố Kiếm Vũ','h:mks','ult',.26,{mp:10,sv:['dong','giap','thu','lua'],d:'Liên hoàn kiếm mang cả lửa, băng và sét',x:'lửa, băng và sét thay nhau quấn quanh lưỡi kiếm trong một vũ điệu chết chóc'}),
+  mk6:mv('Nguyên Tố Kiếm Vũ','h:mks','ult',.26,{mp:10,sv:['dong','giap','thu','lua'],d:'Liên hoàn kiếm mang nguyên tố của mệnh, cùng Băng hoặc Lôi nếu đã mở',x:'nguyên tố của mệnh bạn quấn quanh lưỡi kiếm trong một vũ điệu chết chóc'}),
+  mkT:mv('Thủy Kiếm','h:mks','ctl',.12,{mp:5,imb:'thuy',sv:['lua','nhanh'],wk:['rong'],d:'Phủ dòng nước lên kiếm, dập lửa và cuốn đối thủ mất thăng bằng. Ba đòn kiếm thuật kế tiếp mạnh hơn',x:'lưỡi kiếm cuộn sóng, nhát chém kéo đối thủ ngã nhào'}),
+  mkM:mv('Mộc Kiếm','h:mks','ctl',.12,{mp:5,imb:'moc',sv:['thu','nhanh'],wk:['lua'],d:'Phủ gai và dây leo lên kiếm, trói chân và làm rỉ máu. Ba đòn kiếm thuật kế tiếp mạnh hơn',x:'gai mọc dọc lưỡi kiếm, dây leo quấn chặt chân đối thủ'}),
+  mkD:mv('Thổ Kiếm','h:mks','atk',.12,{mp:5,imb:'tho',sv:['giap','dong'],wk:['nhanh'],d:'Phủ đá lên kiếm, mỗi nhát nặng như búa tạ. Ba đòn kiếm thuật kế tiếp mạnh hơn',x:'lưỡi kiếm phủ lớp đá, mặt đất nứt theo nhát chém'}),
+  mkH:mv('Hắc Kiếm','h:mks','atk',.12,{mp:5,imb:'hac',sv:['nguoi','phep'],wk:['quy'],d:'Phủ bóng tối lên kiếm, che mắt và hút sinh lực. Ba đòn kiếm thuật kế tiếp mạnh hơn',x:'lưỡi kiếm chìm vào bóng tối, đối thủ không thấy nó tới'}),
+  mkQ:mv('Quang Kiếm','h:mks','atk',.12,{mp:5,imb:'quang',sv:['xac','quy'],d:'Phủ ánh sáng lên kiếm, khắc chế xác sống và quỷ. Ba đòn kiếm thuật kế tiếp mạnh hơn',x:'lưỡi kiếm sáng rực, bóng tối quanh đối thủ tan ra'}),
+  mkU:mv('Huyết Kiếm','h:mks','atk',.15,{mp:4,hp:4,imb:'huyet',sv:['nguoi','thu','giap'],d:'Đổ máu của chính mình lên kiếm để đổi lấy sát thương rất lớn. Ba đòn kiếm thuật kế tiếp mạnh hơn',x:'máu bạn chảy dọc lưỡi kiếm và sôi lên, mỗi nhát chém như xé thịt'}),
   mk7:mv('Thiên Kiếm Giáng Lâm','h:mks','ult',.34,{mp:14,hp:6,sv:['quy','rong','dong','giap'],d:'Tuyệt kỹ cuối của Ma Kiếm Sư, chỉ học được qua hành trình Thánh Ma Kiếm',x:'một thanh kiếm ánh sáng khổng lồ từ trời cắm xuống'}),
   rh1:mv('Thánh Kiếm Phá Ma','r:hero','atk',.22,{sv:['quy','xac','phep'],d:'Chiêu riêng của Anh Hùng trong Lời Tiên Tri: thanh kiếm sáng lên trước bóng tối',x:'thanh kiếm của bạn sáng rực như mặt trời, chém xuyên qua bóng tối'}),
   rh2:mv('Ý Chí Bất Khuất','r:hero','heal',.12,{h:[15,25],d:'Anh Hùng đứng dậy dù đã ngã, sức lực hồi lại giữa trận',x:'bạn nghiến răng đứng dậy, như cả vương quốc đang đỡ lưng bạn'}),
@@ -7155,7 +7161,8 @@ Object.assign(MV,{
   rd2:mv('Uy Áp Ma Vương','r:dark','ctl',.2,{sv:['nguoi','thu','dong'],wk:['quy'],d:'Chỉ một ánh nhìn, kẻ yếu bóng vía quỳ xuống',x:'bạn chỉ nhìn, và đối thủ quỳ sụp xuống run rẩy'}),
   rd3:mv('Triệu Hồi Quân Đoàn Quỷ','r:dark','ult',.28,{mp:12,sv:['dong','nguoi','giap'],d:'Mở cổng Vực Sâu gọi quỷ binh',x:'một cánh cổng lửa mở ra, quỷ binh ùa ra như thác lũ'})
 });
-const IMBN={hoa:'rực lửa',thuy:'phủ băng',loi:'tóe sét'};
+const IMBN={hoa:'rực lửa',thuy:'cuộn sóng nước',bang:'phủ băng',loi:'tóe sét',moc:'quấn gai',tho:'nặng như đá',hac:'chìm trong bóng tối',quang:'rực ánh sáng',huyet:'nhuốm máu'};
+const MKS_MV={hoa:'mk1',thuy:'mkT',moc:'mkM',tho:'mkD',hac:'mkH',quang:'mkQ',huyet:'mkU'};const MKS_X={hoa:['loi','mk3','Lôi'],thuy:['bang','mk2','Băng']};
 const mvIc=M=>M.src[0]==='m'?MENH[M.src.slice(2)].ic:M.src[0]==='h'?HC[M.src.slice(2)].ic:M.src==='r:hero'?'sword':M.src==='r:saint'?'holy':M.src==='r:dark'?'demon':'sword';
 {const w0=mvWhy;mvWhy=function(id,book){const M=MV[id];if(M&&M.src[0]==='r'&&!(S.mv&&S.mv[id]))return`Chiêu riêng của ${{hero:'Anh Hùng',saint:'Thánh Nữ',dark:'Ma Vương'}[M.src.slice(2)]}`;return w0(id,book)}}
 /* phủ nguyên tố lên kiếm: ba đòn kiếm thuật sau đó mạnh hơn */
@@ -7170,18 +7177,26 @@ for(const[k,L]of Object.entries(BOSSNM))if(BOSSMOVE[k])for(const n of L)BOSSMOVE
 const HEROMV=['Thánh Kiếm Phá Ma','Ánh Sáng Tiên Tri','Ý Chí Bất Khuất','Nhát Chém Bình Minh'];
 
 /* Ma Kiếm Sư: nghề ẩn không cần nghề gốc */
-HC.mks={n:'Ma Kiếm Sư',ic:'sword',jobs:[],free:1,call:'',train:['Truyền phép vào kiếm',''],fx:{magic:1},perk:'Truyền phép vào kiếm: chiêu Hỏa Kiếm, Băng Kiếm, Lôi Kiếm làm mạnh mọi đòn kiếm thuật sau đó'};
-HCA.mks=[['wand','Truyền phép vào kiếm','Ma lực, kiếm thuật',0,()=>{mod({magic:2});S.hid.sword=Math.min(100,(S.hid.sword||0)+1);S.hid.arcane=Math.min(100,(S.hid.arcane||0)+1);return pick(['Bạn truyền ma lực vào lưỡi kiếm cho tới khi nó ngân lên như dây đàn.','Bạn tập giữ ngọn lửa trên lưỡi kiếm suốt một nén hương mà không để nó tắt.'])}],
+HC.mks={n:'Ma Kiếm Sư',ic:'sword',jobs:[],free:1,call:'',train:['Truyền phép vào kiếm',''],fx:{magic:1},perk:'Truyền nguyên tố của mệnh vào kiếm, làm mạnh mọi đòn kiếm thuật sau đó. Mệnh Thủy mở thêm được Băng, mệnh Hỏa mở thêm được Lôi'};
+HCA.mks=[['wand','Truyền phép vào kiếm','Ma lực, kiếm thuật',0,()=>{mod({magic:2});S.hid.sword=Math.min(100,(S.hid.sword||0)+1);S.hid.arcane=Math.min(100,(S.hid.arcane||0)+1);return pick(['Bạn truyền ma lực vào lưỡi kiếm cho tới khi nó ngân lên như dây đàn.','Bạn tập giữ nguyên tố của mệnh mình trên lưỡi kiếm suốt một nén hương mà không để nó tan.'])}],
   ['sword','Giao đấu với kiếm sĩ pháp sư lang thang','Tiền thưởng, danh dự · có thể bị thương',1,()=>{if(ch(.2)){mod({health:-R(6,14)});return['Đối thủ tung một câu thần chú ngay giữa đường kiếm. Bạn trúng đòn.','bad']}const g=R(20,50);S.money+=g;mod({honor:3});return[`Bạn thắng một kiếm sĩ pháp sư từ phương xa. Tiền cược ${g} xu.`,'good']}],
-  ['flame','Luyện Nguyên Tố Kiếm Vũ','Ma lực lớn · có thể mất kiểm soát',2,()=>{if(ch(.12)){mod({health:-R(8,16)});return['Lửa, băng và sét cùng lúc vượt khỏi tầm tay bạn.','bad']}mod({magic:4,honor:1});return['Ba nguyên tố xoay quanh lưỡi kiếm theo đúng nhịp thở của bạn.','magic']}]];
+  ['flame','Luyện Nguyên Tố Kiếm Vũ','Ma lực lớn · có thể mất kiểm soát',2,()=>{if(ch(.12)){mod({health:-R(8,16)});return['Nguyên tố trên lưỡi kiếm vượt khỏi tầm tay bạn.','bad']}mod({magic:4,honor:1});return['Nguyên tố của mệnh bạn xoay quanh lưỡi kiếm theo đúng nhịp thở.','magic']}]];
+/* nguyên tố thứ hai: mệnh Thủy mở Băng, mệnh Hỏa mở Lôi */
+{const base=HCA.mks;Object.defineProperty(HCA,'mks',{configurable:true,enumerable:true,get(){const X=S&&S.hid&&MKS_X[S.hid.menh];if(!X||!(S.hc&&S.hc.k==='mks'))return base;
+  const [el,id,n]=X;const has=!!(S.mv&&S.mv[id]);
+  return[...base,[has?'snowflake':'wand',has?`Luyện song nguyên tố ${MENH[S.hid.menh].n} và ${n}`:`Mở nguyên tố ${n}`,has?'Ma lực, kiếm thuật':`${S.hid.menh==='thuy'?'Hạ nước xuống tới khi đông thành băng':'Dồn lửa tới khi nó nổ thành sét'} · có thể thất bại`,2,()=>{
+    if(has){mod({magic:3});S.hid.arcane=Math.min(100,(S.hid.arcane||0)+1);return[`Bạn chuyển qua lại giữa ${MENH[S.hid.menh].n.toLowerCase()} và ${n.toLowerCase()} trên cùng một lưỡi kiếm.`,'magic']}
+    if(ch(.3+(S.hid.arcane||0)/300+S.st.magic/400)){mvLearn(id,true);S.hc.el2=el;return[S.hid.menh==='thuy'?`Nước trên lưỡi kiếm đông lại thành băng trắng. Bạn mở được nguyên tố thứ hai: Băng.`:`Lửa trên lưỡi kiếm nổ lách tách rồi hóa thành sét xanh. Bạn mở được nguyên tố thứ hai: Lôi.`,'magic']}
+    mod({health:-R(4,9)});return[S.hid.menh==='thuy'?'Nước trên lưỡi kiếm đóng băng ngược lên tay bạn.':'Lửa bùng ngược lại, sét giật tê cả cánh tay.','bad']}]]}})}
 HCQ.mks=[['Người thầy hỏi: "Thứ gì có lưỡi mà không biết nói, có lửa mà không bị cháy, nằm trong tay ai thì mang linh hồn người ấy?"','Thanh ma kiếm','Ngọn đuốc','Con rồng'],['Người thầy hỏi: "Kiếm cắt được thứ gì mà phép không cắt được, và phép cắt được thứ gì mà kiếm không cắt được?"','Kiếm cắt thân, phép cắt hồn','Kiếm cắt sắt, phép cắt đá','Không thứ gì cả']];
 HQB.mks={fire:{t:['Ma Kiếm Sĩ','Ma Kiếm Sư','Viêm Ma Kiếm Sư'],d:'Hỏa thuật, sát thương và thiêu đốt',on:s=>{mvLearn('mk4',true);mvLearn('mk1',true);return'Lưỡi kiếm của bạn từ nay luôn ấm như than hồng.'}},
   ice:{t:['Ma Kiếm Sĩ','Ma Kiếm Sư','Băng Ma Kiếm Sư'],d:'Phòng thủ, khống chế và phản kích',fx:{health:1},on:s=>{mvLearn('mk4',true);mvLearn('mk2',true);return'Hơi thở của bạn đọng thành sương trên lưỡi kiếm.'}},
   thunder:{t:['Ma Kiếm Sĩ','Ma Kiếm Sư','Lôi Ma Kiếm Sư'],d:'Tốc độ, xuyên giáp và làm choáng',on:s=>{mvLearn('mk4',true);mvLearn('mk3',true);return'Tóc bạn dựng lên mỗi khi rút kiếm.'}}};
-HQBD.mks='fire';HCMV.mks=['mk4','mk6'];
+for(const[m,id]of Object.entries(MKS_MV))HQB.mks[m]={t:['Ma Kiếm Sĩ','Ma Kiếm Sư',`${MENH[m].n} Ma Kiếm Sư`],d:`Nguyên tố ${MENH[m].n} theo mệnh${MKS_X[m]?`, mở thêm được ${MKS_X[m][2]}`:''}`,on:s=>{mvLearn('mk4',true);mvLearn(id,true);return`Lưỡi kiếm của bạn từ nay ${IMBN[m]} mỗi khi bạn rút ra.`}};
+Object.defineProperty(HQBD,'mks',{configurable:true,enumerable:true,get:()=>(S&&S.hid&&MKS_MV[S.hid.menh])?S.hid.menh:'hoa'});HCMV.mks=['mk4','mk6'];
 HQW.mks=e=>`Một trường phái Ma Kiếm mới mở cửa, lấy tên ${e.who} làm tổ sư. Thanh niên khắp nơi tìm đến xin học.`;
-HQ.mks={n:'Di Sản Ma Kiếm',op:'Lưỡi Kiếm Bắt Lửa',img:'spellblade',men:{t:'người thầy bí ẩn của trường phái Ma Kiếm thất truyền',race:'human',sx:'m'},riv:'người học trò phản bội của trường phái Ma Kiếm',art:'thanh kiếm tập bị cháy sém',cc:()=>true,
- x:q=>`Trong một buổi tập kiếm, bạn vô tình truyền ma lực vào thanh kiếm. Lưỡi kiếm bùng cháy, các học viên xung quanh lùi cả lại. Một người thầy lạ mặt tên ${QM(q)} nhìn bạn rất lâu: "Ngươi không hoàn toàn là kiếm sĩ, cũng chẳng phải pháp sư. Nếu điều khiển được cả hai, ngươi sẽ bước vào con đường mà rất ít người dám theo đuổi."`,
+HQ.mks={n:'Di Sản Ma Kiếm',op:'Lưỡi Kiếm Thức Tỉnh',img:'spellblade',men:{t:'người thầy bí ẩn của trường phái Ma Kiếm thất truyền',race:'human',sx:'m'},riv:'người học trò phản bội của trường phái Ma Kiếm',art:'thanh kiếm tập bị cháy sém',cc:()=>true,
+ x:q=>`Trong một buổi tập kiếm, bạn vô tình truyền ma lực vào thanh kiếm. Lưỡi kiếm ${IMBN[(S.hid&&S.hid.menh)||'hoa']||'bùng cháy'}, các học viên xung quanh lùi cả lại. Một người thầy lạ mặt tên ${QM(q)} nhìn bạn rất lâu: "Ngươi không hoàn toàn là kiếm sĩ, cũng chẳng phải pháp sư. Nếu điều khiển được cả hai, ngươi sẽ bước vào con đường mà rất ít người dám theo đuổi."`,
  ch:[{n:'Bí Mật Của Lưỡi Kiếm',d:'Điều tra nguồn gốc Ma Kiếm Sư ở Học viện và một phế tích cổ.',clue:'Trường phái Ma Kiếm bị Học viện và Hội Kiếm Sĩ cùng xóa tên ba trăm năm trước.',
      o:[oR('Tìm tài liệu về Ma Kiếm Sư ở thư viện Học viện','smarts',.45,'Bạn tìm thấy một trang sách bị xé dở vẽ người cầm kiếm lửa.','Thủ thư bảo không có cuốn nào như thế.'),
         oF('Vượt qua hồn ma kiếm sĩ trong phế tích cổ',.42,'Hồn ma kiếm sĩ tan đi, để lại một thanh kiếm gãy nóng ấm.','Hồn ma chém xuyên qua áo giáp của bạn.',{tg:['xac','phep']}),
@@ -7199,12 +7214,12 @@ HQ.mks={n:'Di Sản Ma Kiếm',op:'Lưỡi Kiếm Bắt Lửa',img:'spellblade',
         oR('Cùng thợ rèn Rune khắc mạch dẫn phép lên kiếm','magic',.4,'Mạch dẫn phép sáng lên dọc sống kiếm như mạch máu.','Mạch Rune nứt khi bạn truyền ma lực vào. Phải khắc lại.',{at:'irondeep'})],
      ev:{img:'runeforge',x:q=>'Thanh kiếm mới hát lên khi bạn truyền ma lực vào. Lão thợ rèn Rune lau mồ hôi: "Ba trăm năm rồi ta mới rèn lại một thanh như thế này."',
        c:[{t:'Cảm tạ và trả thêm tiền công',f:q=>{rgAdd('irondeep',6);return['Lão thợ rèn khắc tên bạn lên chuôi kiếm.','good']}},{t:'Thử kiếm ngay tại lò',f:q=>{mod({magic:2});return'Một nhát chém thử làm tắt cả bảy ngọn đuốc trong lò.'}}]}},
-    {n:'Thử Thách Nguyên Tố',d:'Truyền Hỏa thuật vào kiếm, dùng Băng thuật phòng thủ và đánh bại một Golem kháng cả kiếm lẫn phép.',y:2,clue:'Mỗi Ma Kiếm Sư chỉ làm chủ thật sự một nguyên tố.',
-     o:[oR('Truyền Hỏa thuật vào kiếm','magic',.38,'Lưỡi kiếm bùng lửa mà tay bạn không bị bỏng.','Lửa bùng ngược lên tay bạn.',{pen:{health:-8}}),
-        oR('Dùng Băng thuật phòng thủ giữa bão tuyết','health',.42,'Bạn dựng được một tấm khiên băng đứng vững suốt cơn bão.','Gió tuyết quật bạn ngã.',{pen:{health:-6}}),
+    {n:'Thử Thách Nguyên Tố',d:'Truyền nguyên tố của mệnh vào kiếm, giữ vững nó giữa bão tuyết và đánh bại một Golem kháng cả kiếm lẫn phép.',y:2,clue:'Ma Kiếm Sư chỉ làm chủ nguyên tố của chính mệnh mình.',
+     o:[oR('Truyền nguyên tố của mệnh vào kiếm','magic',.38,'Lưỡi kiếm nhận nguyên tố của bạn mà tay bạn không hề hấn gì.','Nguyên tố bùng ngược lên tay bạn.',{pen:{health:-8}}),
+        oR('Giữ nguyên tố trên kiếm giữa bão tuyết','health',.42,'Nguyên tố trên lưỡi kiếm đứng vững suốt cơn bão.','Gió tuyết quật bạn ngã, nguyên tố tan mất.',{pen:{health:-6}}),
         oF('Đánh bại Golem kháng cả kiếm lẫn phép',.35,'Golem đổ sụp khi lưỡi kiếm phép của bạn tìm được khe giữa hai khối đá.','Golem hất bạn văng vào vách núi.',{tg:['giap','phep']})],
-     ev:{img:'spellblade',x:q=>`${QM(q)} hỏi: "Ngươi đã chạm vào cả ba nguyên tố. Giờ hãy chọn một, để nó chọn lại ngươi."`,
-       c:[{t:'Viêm: lửa không bao giờ tắt',f:q=>{q.br='fire';return['Lưỡi kiếm của bạn rực lên màu đỏ thẫm.','magic']}},{t:'Băng: tĩnh lặng như mặt hồ',f:q=>{q.br='ice';return['Lưỡi kiếm của bạn phủ một lớp sương trắng.','magic']}},{t:'Lôi: nhanh hơn tiếng sấm',f:q=>{q.br='thunder';return['Lưỡi kiếm của bạn tóe sét xanh.','magic']}}]}},
+     ev:{img:'spellblade',x:q=>{mnEnsure();const m=S.hid.menh,X=MKS_X[m];return`${QM(q)} nói: "Lưỡi kiếm không chọn nguyên tố. Nó nhận ra mệnh của người cầm nó. Mệnh của ngươi là ${MENH[m].n}."${X?` Ông nhìn lưỡi kiếm thêm một lúc: "Với mệnh ${MENH[m].n}, sau này ngươi còn có thể mở thêm ${X[2]}."`:''}`},
+       c:[{t:q=>{mnEnsure();return`Để mệnh ${MENH[S.hid.menh].n} nhận lấy lưỡi kiếm`},f:q=>{mnEnsure();const m=S.hid.menh;q.br=MKS_MV[m]?m:'hoa';return[`Lưỡi kiếm của bạn ${IMBN[m]||'rực lửa'}.`,'magic']}}]}},
     {n:'Người Kế Thừa Cuối Cùng',d:'Đánh bại người học trò phản bội bằng cách phối hợp kiếm thuật và ma pháp.',clue:'Kẻ phản bội từng học cùng thầy với bạn, và hắn muốn thanh kiếm của bạn.',
      o:q=>[oF(`Giao đấu với ${q.npc.r?q.npc.r.n:'người học trò phản bội'}`,.35,'Kiếm của đối thủ gãy làm đôi trước lưỡi kiếm phép của bạn.','Đối thủ tung một nhát Ma Kiếm Trảm, bạn ngã xuống.',{tg:['nguoi','phep','nhanh']}),oM('Nghe lời dặn cuối của người thầy','"Đừng bao giờ dùng nó để chứng tỏ mình hơn người."')],
      ev:{img:'spellblade',x:q=>`Người học trò phản bội quỳ gối, thanh kiếm gãy dưới chân. ${QM(q)} đứng nhìn, chờ xem bạn làm gì.`,
