@@ -7184,7 +7184,7 @@ HCA.mks=[['wand','Truyền phép vào kiếm','Ma lực, kiếm thuật',0,()=>{
 /* nguyên tố thứ hai: mệnh Thủy mở Băng, mệnh Hỏa mở Lôi */
 {const base=HCA.mks;Object.defineProperty(HCA,'mks',{configurable:true,enumerable:true,get(){const X=S&&S.hid&&MKS_X[S.hid.menh];if(!X||!(S.hc&&S.hc.k==='mks'))return base;
   const [el,id,n]=X;const has=!!(S.mv&&S.mv[id]);
-  return[...base,[has?'snowflake':'wand',has?`Luyện song nguyên tố ${MENH[S.hid.menh].n} và ${n}`:`Mở nguyên tố ${n}`,has?'Ma lực, kiếm thuật':`${S.hid.menh==='thuy'?'Hạ nước xuống tới khi đông thành băng':'Dồn lửa tới khi nó nổ thành sét'} · có thể thất bại`,2,()=>{
+  return[...base,[has?(S.hid.menh==='thuy'?'snowflake':'lightning'):'wand',has?`Luyện song nguyên tố ${MENH[S.hid.menh].n} và ${n}`:`Mở nguyên tố ${n}`,has?'Ma lực, kiếm thuật':`${S.hid.menh==='thuy'?'Hạ nước xuống tới khi đông thành băng':'Dồn lửa tới khi nó nổ thành sét'} · có thể thất bại`,2,()=>{
     if(has){mod({magic:3});S.hid.arcane=Math.min(100,(S.hid.arcane||0)+1);return[`Bạn chuyển qua lại giữa ${MENH[S.hid.menh].n.toLowerCase()} và ${n.toLowerCase()} trên cùng một lưỡi kiếm.`,'magic']}
     if(ch(.3+(S.hid.arcane||0)/300+S.st.magic/400)){mvLearn(id,true);S.hc.el2=el;return[S.hid.menh==='thuy'?`Nước trên lưỡi kiếm đông lại thành băng trắng. Bạn mở được nguyên tố thứ hai: Băng.`:`Lửa trên lưỡi kiếm nổ lách tách rồi hóa thành sét xanh. Bạn mở được nguyên tố thứ hai: Lôi.`,'magic']}
     mod({health:-R(4,9)});return[S.hid.menh==='thuy'?'Nước trên lưỡi kiếm đóng băng ngược lên tay bạn.':'Lửa bùng ngược lại, sét giật tê cả cánh tay.','bad']}]]}})}
@@ -10880,6 +10880,7 @@ for(const e of DA_EV){EV.push(e);EVB[e.id]=e}
   /* hiệu ứng kéo dài của những dấu ấn đã để lại */
   for(const m of W.da||[]){if(m.yrs>0){const R=daR(m),p=DA[m.k]&&DA[m.k].c[m.i].p;if(R&&p)try{p(R,m)}catch(e){console.error(e)}m.yrs--}}
   if(S.cap)return;
+  if(S.daK&&!S.pend.includes('da_now'))S.daK=null;if(S.daCur&&!S.pend.includes('da_heir'))S.daCur=null;
   /* khoảnh khắc dấu ấn của đời này: từ Bậc 3, mỗi đời một lần */
   const k=CE_K.find(x=>S[x]);
   if(k&&DA[k]&&!S.flags.daDone&&!S.daK&&(S[k].rk||0)>=3&&!S.pend.includes(k+'_sc')&&!S.pend.includes('da_now')&&ch(.5)){S.daK=k;S.pend.push('da_now');return}
@@ -10964,7 +10965,7 @@ function voMkC(tier){const T=VOT[tier];let tg;
   const truth=pick(['true','true','lie','mixed']);
   return{id:uid(),tier,tg,emp:pick(['một người đàn bà đeo khăn voan','một thương nhân không chịu nói tên','một giáo sĩ cởi áo dòng','một hiệp sĩ già mất một tay']),
     claim:pick(VOCLAIM),truth,rew:R(...T.rew),dur:R(...T.dur),y0:0,st:'offer',inf:0,ver:0,know:[],team:[],ready:0,twist:null,tw:0,go:0,dl:0}}
-function voBoard(){const V=VO();if(V.by!==S.year){V.by=S.year;const r=Math.max(0,voRank());V.board=[];
+function voBoard(){const V=VO();if(V.st==='left'){if(V.by!==S.year){V.by=S.year;V.board=[]}return V.board||[]}if(V.by!==S.year){V.by=S.year;const r=Math.max(0,voRank());V.board=[];
   for(const t of [Math.max(0,r-1),r,r])V.board.push(voMkC(t))}return V.board}
 const voTxt=C=>C.tg.king?`${C.tg.n} của ${C.tg.rl}`:`${C.tg.t==='Nam tước'||C.tg.t==='Tử tước'||C.tg.t==='Bá tước'||C.tg.t==='Hầu tước'||C.tg.t==='Công tước'?C.tg.t+' ':''}${C.tg.n}${C.tier===0?', '+C.tg.t:''} ở ${C.tg.rl}`;
 const voTurns=()=>Math.max(0,2-(S.done.voT||0));
@@ -11021,12 +11022,12 @@ function voDie(t){const C=VO().C;die(C&&C.tg.king?'dưới lưỡi giáo cận v
   if(S.alive){S.voF=null;S.st.health=Math.max(S.st.health,5);return voEnd('fled',(t||'')+' Bạn ngã xuống, rồi tỉnh dậy trong một con hẻm, không nhớ ai đã kéo mình ra.')}
   return[(t||'')+' Bạn ngã xuống và không đứng dậy nữa.','bad']}
 function voEnd(k,pre){const V=VO(),C=V.C;if(!C)return['',''];V.C=null;const T=VOT[C.tier];let t=pre?pre+' ':'';let tone='good';
-  const share=Math.round(C.rew*.15*C.team.length);const ev={y:S.year,tg:voTxt(C),k,wit:[],acc:[]};
+  const act=C.team.filter(id=>voAlive(id)&&!voNp(id).gone);const share=Math.round(C.rew*.15*act.length);const ev={y:S.year,tg:voTxt(C),k,wit:[],acc:[]};
   for(const id of C.team){const n=voNp(id);if(n.gone)continue;if(n.tr>=60)ev.wit.push(id);else if(n.tr<35)ev.acc.push(id)}
-  if(k==='ok'||k==='fought'){const g=C.rew-share;S.money+=g;V.m+=T.m;V.n++;mod({honor:C.truth==='true'?1:-4});
-    t+=`${voTxt(C)} đã chết. Bạn nhận ${g} xu${share?` sau khi chia ${share} xu cho đội`:''} và ${T.m} công trạng.`;if(C.truth==='lie'){t+=' Sau này bạn mới biết lời buộc tội là bịa đặt.';voJ(`Ta đã giết ${voTxt(C)} vì một lời dối.`)}
+  if(k==='ok'||k==='fought'){const g=C.rew-share;S.money+=g;const tm=C.bm?0:T.m;V.m+=tm;V.n++;mod({honor:C.truth==='true'?1:-4});
+    t+=`${voTxt(C)} đã chết. Bạn nhận ${g} xu${share?` sau khi chia ${share} xu cho đội`:''} ${tm?` và ${tm} công trạng`:''}.`;if(C.truth==='lie'){t+=' Sau này bạn mới biết lời buộc tội là bịa đặt.';voJ(`Ta đã giết ${voTxt(C)} vì một lời dối.`)}
     if(C.tg.king){const r=WD().rs[C.tg.rl];if(r){const old=r.ruler;const pre=old.split(' ').slice(0,-1).join(' ')||'Vua';r.ruler=`${pre} ${pick(NPCRULERS)}`;r.ra=R(14,40);r.stab=Math.max(5,r.stab-15);
-      news(`${old} của ${C.tg.rl} chết đột ngột trong đêm. ${r.ruler} lên ngôi.`,'bad',true);if(r.stab<35&&!r.war&&ch(.4)){r.war={vs:'nội chiến',y:S.year};news(`Các đại công tước ${C.tg.rl} nghi ngờ lẫn nhau. Nội chiến bùng nổ.`,'bad',true)}}}
+      if(S.kd&&S.kd.realms&&S.kd.realms[C.tg.rl])S.kd.realms[C.tg.rl].ruler=r.ruler;news(`${old} của ${C.tg.rl} chết đột ngột trong đêm. ${r.ruler} lên ngôi.`,'bad',true);if(r.stab<35&&!r.war&&ch(.4)){r.war={vs:'nội chiến',y:S.year};news(`Các đại công tước ${C.tg.rl} nghi ngờ lẫn nhau. Nội chiến bùng nổ.`,'bad',true)}}}
     V.inv.push({...ev,y:S.year+R(1,3)});V.hist.push(`${S.year}: ${voTxt(C)} · hoàn thành`)}
   else if(k==='expose'){V.m+=Math.round(T.m/2);mod({honor:5});t+=`Bạn mang bằng chứng về hội: người thuê đã dựng chuyện để mượn tay hội. Hội hủy hợp đồng, phạt người thuê và ghi nhận bạn ${Math.round(T.m/2)} công trạng.`;V.hist.push(`${S.year}: ${voTxt(C)} · hủy có căn cứ`)}
   else if(k==='fled'){V.m+=2;V.fails++;tone='bad';t+='Bạn rút lui, hợp đồng thất bại. Hội ghi nhận 2 công trạng cho những gì bạn học được.';V.hist.push(`${S.year}: ${voTxt(C)} · thất bại`);if(C.tier>=2)V.inv.push({...ev,y:S.year+1})}
@@ -11058,13 +11059,13 @@ function voView(){const V=VO();if(!V)return['Hội Vô Diện','<p class="note">
       const early=S.year<=C.y0;b+=gRow('data-x="vo:c:go"','w-dagger','Tiến hành',early?'Cần ít nhất một năm chuẩn bị':'Cao trào của hợp đồng','',nt||early);
       b+=gRow('data-x="vo:c:drop"','door',C.ver&&C.truth!=='true'?'Hủy hợp đồng với bằng chứng':'Bỏ hợp đồng',C.ver&&C.truth!=='true'?'Hội đánh giá khác với bỏ việc':'Trừ công trạng, đình chỉ 1 năm','',dis)}
     else if(V.st==='sworn'&&!voSusp()){b+='<p class="sec">Bảng hợp đồng năm nay</p>';voBoard().forEach((c,i)=>b+=gRow(`data-x="vo:take:${i}"`,'scroll',`${VOT[c.tier].n} · ${voTxt(c)}`,`Người thuê: ${c.emp} · ${c.rew} xu · ${c.dur} năm`,'',dis))}
-    else if(V.st==='left')b+='<p class="note">Bạn đã rời hội, không còn bảng hợp đồng chính thức. Việc tự do thỉnh thoảng tìm tới bạn qua chợ đen.</p>'}
+    else if(V.st==='left'){b+='<p class="note">Bạn đã rời hội, không còn bảng hợp đồng chính thức. Việc tự do thỉnh thoảng tìm tới bạn qua chợ đen.</p>';voBoard().forEach((c,i)=>b+=gRow(`data-x="vo:take:${i}"`,'scroll',`Việc chợ đen · ${voTxt(c)}`,`Người thuê: ${c.emp} · ${c.rew} xu · ${c.dur} năm · không có công trạng`,'',dis))}}
   if(V.hist.length)b+='<p class="sec">Hồ sơ</p>'+V.hist.slice(-6).map(t=>`<p class="note">${esc(t)}</p>`).join('');
   b+='<p class="sec">Sổ tay</p>'+V.j.map(t=>`<p class="note">${esc(t)}</p>`).join('');return['Hội Vô Diện',b,'act']}
 function voAct(a){const V=VO();if(!V||!S.alive||S.cap||S.pend.some(x=>/^vo_/.test(x)))return;let r;const p=a.split(':');
   if(p[0]==='tr'){if((S.done.votr||0)>=2||!VOSK[p[1]])return;S.done.votr=(S.done.votr||0)+1;const v=R(3,5);voSk(p[1],v);if(p[1]==='ph')for(const m of V.mates)voTr(m,3);r=[`Bạn luyện ${VOSK[p[1]].toLowerCase()} suốt nhiều đêm. +${v}.`,'good']}
   else if(p[0]==='up'){const k=voRank();if(k<0||k>=4||V.m<VOM[k+1]||voSusp())return;S.job.rank++;mod({happy:5});S.house.prestige+=10*S.job.rank;r=[`Hội trao cho bạn chiếc mặt nạ mới. Bạn trở thành ${VORK[S.job.rank]}.`,'good']}
-  else if(p[0]==='take'){if(V.st!=='sworn')return;r=voTake(+p[1])}
+  else if(p[0]==='take'){if(V.st!=='sworn'&&V.st!=='left')return;r=voTake(+p[1])}
   else if(p[0]==='c'&&V.C){const C=V.C;
     if(p[1]==='drop'){r=voEnd(C.ver&&C.truth!=='true'?'expose':'drop')}
     else{if(!voTurns())return;S.done.voT=(S.done.voT||0)+1;
@@ -11107,7 +11108,7 @@ const VO_EV=[
      {t:'Để người ấy tự lo',f:s=>{voNp(id).gone=1;C.team=C.team.filter(x=>x!==id);C.leak=1;go();return[`${voName(id)} biến mất. Bạn nghi đội đã bị lộ một phần kế hoạch.`,'bad']}}]}
    return[{t:'Tiếp tục',f:s=>{go();return''}}]}},
  {id:'vo_go',queued:true,big:true,art:'hood',img:'assassin',c:s=>s.alive&&!!(s.vo&&s.vo.C),title:'Đêm Tiến Hành',
-  text:s=>{const C=s.vo.C;return`Đêm không trăng. ${voTxt(C)} ở cách bạn một bức tường. ${C.ver&&C.truth!=='true'?'Trong túi bạn có những bằng chứng trái với lời người thuê. ':C.truth!=='true'?'Có điều gì đó trong câu chuyện này chưa khớp, nhưng bạn chưa kiểm chứng. ':''}${voMood(C)}`},
+  text:s=>{const C=s.vo.C;return`Đêm không trăng. ${voTxt(C)} ở cách bạn một bức tường. ${C.ver&&C.truth!=='true'?'Trong túi bạn có những bằng chứng trái với lời người thuê. ':C.inf>=1&&C.truth!=='true'?'Có điều gì đó trong câu chuyện này chưa khớp, nhưng bạn chưa kiểm chứng đủ. ':C.inf>=1?'Những gì bạn tìm hiểu được đều khớp với lời người thuê. ':'Bạn chưa tự kiểm chứng lời người thuê. '}${voMood(C)}`},
   get ch(){const C=S&&S.vo&&S.vo.C;if(!C)return[];const L=[{t:'Lẻn vào theo kế hoạch',f:()=>voGo('sneak')},{t:'Giả dạng người trong nhà',f:()=>voGo('mask')}];
    if(S.nb&&S.nb.rk>=3&&!nbLock())L.push({t:'Đeo Mặt Nạ Nguyệt Ảnh',f:()=>voGo('shadowmask')});
    if(C.ver&&C.truth!=='true')L.push({t:'Quay về, vạch trần người thuê trước hội',f:()=>voGo('expose')});
@@ -11132,11 +11133,12 @@ Object.assign(EIMG,{vo_inv:'assassin'});
 function voYear(){if(!S||!S.alive)return;
   if(S.age===10&&!S.voChk){S.voChk=1;if(!S.cap&&!S.vo&&VO_RACES.includes(S.race)&&ch(.05))S.pend.push('vo_inv')}
   const V=S.vo;if(!V||S.cap||V.st==='no')return;
-  if(V.men&&!voAlive(V.men)&&!S.pend.includes('vo_menfall')&&V.st!=='no'){S.pend.push('vo_menfall');return}
+  if(S.voQ&&!S.pend.includes('vo_invq'))S.pend.push('vo_invq');if(S.voF&&!S.pend.includes('vo_fight')){if(V.C)S.pend.push('vo_fight');else S.voF=null}
+  if(V.men&&!voAlive(V.men)&&!S.pend.includes('vo_menfall')&&V.st!=='no'){if(V.st==='app'){S.pend.push('vo_menfall');return}log(`Tin báo về: người hướng dẫn cũ của bạn trong Hội Vô Diện, ${voName(V.men)}, đã không còn.`,'bad');V.men=null}
   if(V.st==='app'){const i=voNextCh();if(i>=0&&S.age>=VOCH[i].a&&(i<6||voGradOK())&&!S.pend.includes('vo_ch')){V.cur=i;S.pend.push('vo_ch')}}
   if(V.C&&S.year>V.C.dl&&!S.pend.some(x=>/^vo_/.test(x))){const[t,tone]=voEnd('late');log(t,tone)}
-  const due=(V.inv||[]).findIndex(x=>x.y<=S.year);if(due>=0&&!S.voQ){const q=V.inv.splice(due,1)[0];if(ch(.6)){S.voQ=q;S.pend.push('vo_invq')}}
-  if(V.st==='left'&&!V.C&&ch(.3)){const C=voMkC(Math.min(2,Math.max(0,voRank())));C.rew=Math.round(C.rew*.7);C.emp='một người môi giới chợ đen';V.board=[C];V.by=S.year}
+  const due=(V.inv||[]).findIndex(x=>x.y<=S.year);if(due>=0&&!S.voQ){const q=V.inv.splice(due,1)[0];q.wit=(q.wit||[]).filter(voAlive);q.acc=(q.acc||[]).filter(voAlive);if(ch(.6)){S.voQ=q;S.pend.push('vo_invq')}}
+  if(V.st==='left'&&!V.C&&ch(.3)){const C=voMkC(Math.min(2,Math.max(0,voRank())));C.rew=Math.round(C.rew*.7);C.emp='một người môi giới chợ đen';C.bm=1;V.board=[C];V.by=S.year}
 }
 {const y0=extYear3;extYear3=function(){y0();voYear()}}
 {const d0=drawExt3;drawExt3=function(v){if(v==='vo')return voView();return d0(v)}}
@@ -11158,7 +11160,7 @@ const NBREQ={2:30,3:45,4:60};
 const hasMoonDagger=()=>(S.bag||[]).some(x=>x.k==='moon_dagger');
 const nbDd=v=>{S.nb.dd=Math.max(0,Math.min(100,S.nb.dd+v))};
 function nbFd(v){if(!S.nb)return;S.nb.fd=Math.max(0,Math.min(100,S.nb.fd+v));if(v>0)S.nb.used=S.year}
-const nbLock=()=>!!(S.nb&&S.nb.crisis);
+const nbLock=()=>!!(S.nb&&(S.nb.crisis||(S.nb.rk>=1&&!hasMoonDagger())));
 const nbJ=t=>{const j=S.nb.j;if(!j.includes(t))j.push(t);if(j.length>14)j.shift()};
 const nbKeep=()=>{const id=S.nb&&S.nb.keep;return id&&((S.rel||[]).find(r=>r.id===id&&r.alive)||(S.fam||[]).find(p=>p.id===id&&p.alive))};
 const twinNow=()=>!!(S.world.tm&&S.world.tm.y===S.year);
@@ -11220,6 +11222,7 @@ function nbEnd(k,t){const T=S.nb;T.end=k;if(k==='keep'){nbFd(-30);mod({honor:5,h
   S.world.nbEnd={k,who:`${S.first} ${S.surname}`,y:S.year};return nbRank(5,t)}
 function nbQRows(){const T=S.nb,L=[];if(T.sc)return L;
   if(T.rk===0){const i=T.ic;const id=['i0','i1','i2','i3','i4'][i];if(!id)return L;if(i===4&&!hasMoonDagger())return L;L.push(['init','moon',`Nhập môn: ${NBS[id].t}`,'Chương tiếp theo dưới hai mặt trăng',()=>nbNext(id)])}
+  else if(T.rk>=1&&!hasMoonDagger())L.push(['dag','w-dagger','Tìm lại Dao Găm Mặt Trăng','Năng lực bóng bị khóa khi không có vật dẫn',()=>{if(ch(.5)){gainItem('moon_dagger');log('Bóng của bạn dẫn đường tới nơi con dao nằm. Nó vẫn không phản chiếu gì.','magic')}else log('Bạn lần theo bóng suốt đêm mà chưa thấy con dao. Năm sau thử lại.','bad')}]);
   else if(T.rk===1&&T.dd>=NBREQ[2])L.push(['up','moon',`Thăng bậc: ${NBS.r2a.t}`,'Bóng bắt đầu xuất hiện trong các cuộc trò chuyện',()=>nbNext('r2a')]);
   else if(T.rk===2&&T.dd>=NBREQ[3]&&T.cn>=1)L.push(['up','moon',`Thăng bậc: ${NBS.r3a.t}`,'Hội nhận một hợp đồng nhắm vào bạn',()=>{if(!T.cause){const m=S.vo&&[...S.vo.mates].find(id=>voAlive(id)&&voNp(id).tr<50);T.cmate=m||(S.vo&&S.vo.mates.find(voAlive))||null;T.cause=pick(m?['impostor','mate','shadow']:['impostor','shadow'])}nbNext('r3a')}]);
   else if(T.rk===3&&T.dd>=NBREQ[4])L.push(['up','moon',`Thăng bậc: ${NBS.r4.t}`,'Ba phe chờ bạn trong căn phòng không đèn',()=>nbNext('r4')]);
@@ -11234,14 +11237,14 @@ const NBN=[
    const L=['Chủ đầu tiên của con dao là một người gác cổng thành, chết mà không ai nhớ tên.','Chủ thứ hai đã trao tên cho đêm. Con dao vẫn nhớ tiếng cười của người ấy.','Chủ thứ ba giữ tên đến cuối đời và chết trên giường, giữa con cháu.','Con dao kể về một đêm có ba mặt trăng. Nó chưa hiểu đêm đó là gì.','Con dao im lặng rất lâu, rồi gọi tên thật của bạn.'];const t=L[Math.min(T.rk,4)];nbJ(t);nbDd(3);return[t,'magic']}]
 ];
 const NBFADE=[[30,'Người bán bánh mì gọi bạn bằng tên một người khác. Gương trong nhà phản chiếu bạn chậm nửa nhịp.'],[55,'Một người bạn quên cuộc hẹn với bạn, rồi xin lỗi rằng họ không nhớ đã từng hẹn.'],[75,'Người trong nhà gọi bạn từ phòng bên, rồi hỏi "ai đấy?" khi bạn trả lời. Đêm qua, bóng của bạn đã trả lời thay.']];
-function nbYear(){const T=S&&S.nb;if(!T||!S.alive||S.cap)return;
+function nbYear(){const T=S&&S.nb;if(!T||!S.alive||S.cap)return;if(T.sc&&!S.pend.includes('nb_sc'))S.pend.push('nb_sc');
   if(T.used!==S.year&&T.rk>=1&&!T.crisis)nbFd(-2);
-  for(const[v,t]of NBFADE)if(T.fd>=v&&!T.st['f'+v]){T.st['f'+v]=1;log(t,'magic');if(v===55){const f=(S.rel||[]).find(r=>r.alive&&r.kind==='friend');if(f)f.bond=Math.max(0,f.bond-5)}break}
+  T.ff=T.ff||{};for(const[v,t]of NBFADE)if(T.fd>=v&&!T.ff[v]){T.ff[v]=1;log(t,'magic');if(v===55){const f=(S.rel||[]).find(r=>r.alive&&r.kind==='friend');if(f)f.bond=Math.max(0,f.bond-5)}break}
   if(T.fd>=90&&!T.crisis){T.crisis=1;S.pend.push('nb_crisis')}
   if(T.keep&&!nbKeep()&&!T.lost){T.lost=1;S.pend.push('nb_lost')}
   if(T.debt&&T.rk>=2&&!T.debtCalled&&voAlive(T.debt)&&ch(.3)){T.debtCalled=1;S.pend.push('nb_debt')}}
 /* đợt Hai Mặt Trăng và lời gọi */
-function twinYear(){const W=S.world;if(!W.tm||S.year-W.tm.y>=3){if(ch(.12)){W.tm={y:S.year};news('Hai mặt trăng cùng mọc trên bầu trời. Mọi vật đổ hai bóng.','',true);log('Đêm nay có hai mặt trăng trên trời. Mọi người đều có hai cái bóng.','magic')}}
+function twinYear(){const W=S.world;if(!W.tm||S.year-W.tm.y>=3){if(ch(.12)){W.tm={y:S.year};news('Hai mặt trăng cùng mọc trên bầu trời. Mọi vật đổ hai bóng.','',true);log('Tin thiên hạ: đêm nay có hai mặt trăng trên trời. Mọi người đều có hai cái bóng.','magic')}}
   if(!twinNow()||!S.alive||S.cap)return;
   const V=S.vo;if(!V||V.st!=='sworn'||S.age<16||clsHas(S)||S.nb||S.nbChk===W.tm.y||S.pend.length>4)return;S.nbChk=W.tm.y;
   if(ch(hasMoonDagger()?.35:.15))S.pend.push('nb_call')}
@@ -11287,6 +11290,7 @@ Object.defineProperty(NB_EV[1],'ch',{get:()=>{const D=S&&S.nb&&NBS[S.nb.sc];retu
 Object.defineProperty(EIMG,'nb_sc',{get:()=>S&&S.nb&&NBS[S.nb.sc]?NBS[S.nb.sc].img:'eclipse',enumerable:true,configurable:true});
 for(const e of NB_EV){EV.push(e);EVB[e.id]=e}
 {const y0=extYear3;extYear3=function(){y0();twinYear();nbYear()}}
+if(EVB.twomoons)EVB.twomoons.c=s=>!!(s.world&&s.world.tm&&s.world.tm.y===s.year);
 {const d0=drawExt3;drawExt3=function(v){if(v==='nb')return nbView();return d0(v)}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('nb:')){const[,k,id]=x.split(':');return nbAct(k,id)}return x0(x)}}
 {const a0=actExtra3;actExtra3=function(){const b=a0();if(!S.nb)return b;const T=S.nb;return'<p class="sec">Class ẩn</p>'+gRow('data-open="nb"','moon',T.rk?NBRK[T.rk-1]:'Dưới hai mặt trăng',`Bậc ${T.rk}/5 · Đồng điệu ${T.dd} · Phai danh ${T.fd}`,'',!S.alive||!!S.cap)+b}}
