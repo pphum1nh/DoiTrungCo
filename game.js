@@ -1451,7 +1451,7 @@ function drawSheet(){
     for(const[id,J]of Object.entries(JOBS)){
       if(!okR(J)||(S.job&&S.job.id===id))continue;
       const isOwn=own.some(o=>o[0]===id);
-      const why=isStu(S)?'Đang theo học tại Học viện':S.age<J.min?`Từ ${J.min} tuổi`:!J.req(S)?J.why:'';
+      const why=S.ivNo&&S.ivNo[id]===S.year?'Vừa trượt phỏng vấn · thử lại năm sau':isStu(S)?'Đang theo học tại Học viện':S.age<J.min?`Từ ${J.min} tuổi`:!J.req(S)?J.why:'';
       const g=JGRP.find(x=>x[2].includes(id));grp[g?g[0]:'khac'].push({id,J,isOwn,why});
     }
     if(!gk){b+='<p class="sec">Chọn một nhóm nghề</p>';
@@ -8126,7 +8126,7 @@ document.addEventListener('click',e=>{
   else if('next'in d)showNext();
   else if('annok'in d){S.ann.shift();save();showNext()}
   else if(d.act)doAct(d.act);
-  else if(d.job)joinJob(d.job);
+  else if(d.job)jobApply(d.job);
   else if('quit'in d)quitJob();
   else if(d.p){note=null;view='p:'+d.p;drawSheet()}
   else if(d.r){note=null;view='r:'+d.r;drawSheet()}
@@ -12266,6 +12266,55 @@ for(const[id,k]of [['tt_call','moc'],['vj_call','quang'],['rn_call','hoa'],['bt_
 {const g0=genRecord;genRecord=function(){const r=g0();if(!r.cls&&S.pp)r.cls=`${PP[S.pp.k].n} · ${ppT(S.pp,S.pp.rk)}`;return r}}
 {const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.pp){r.pp.j=r.pp.j||[];r.pp.d=r.pp.d||{};if(r.pp.pr==null)r.pp.pr=100;if(r.pp.br==='loi'||r.pp.br==='bang'){r.pp.k=r.pp.br;r.pp.br=r.pp.k==='loi'?'hoa':'thuy'}if(!PP[r.pp.k])r.pp=null}return r}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('lta:')&&S&&S.pp&&S.pp.k==='vm'&&!S.done.lta)S.pp.pr=Math.min(100,S.pp.pr+5);return x0(x)}}
+/* ===== Phỏng vấn xin việc (trừ Hội Thợ Săn và Sát Thủ) ===== */
+const IV_SKIP=['hunter','assassin'];
+const IVWHO={church:'Cha bề trên',mission:'Cha bề trên',wizard:'Pháp sư giám khảo của Tháp Bạc',court:'Quan thượng thư',knight:'Hiệp sĩ trưởng',nightwatch:'Đội trưởng Gác Đêm',lady:'Phu nhân quản sự',alch:'Đại giả kim sư',surgeon:'Thầy thuốc trưởng',bard:'Ông bầu gánh hát',blackmarket:'Gã môi giới mặt sẹo',trade:'Chủ hiệu buôn',teacher:'Hiệu trưởng trường làng',scribe:'Thư lại trưởng',
+ _lao:'Đốc công',_vo:'Đội trưởng',_tri:'Chủ hiệu',_phep:'Người phỏng vấn trong áo choàng',_khac:'Người phỏng vấn'};
+const ivF=v=>typeof v==='function'?v(S):v;
+/* câu hỏi: [hỏi, [[trả lời, điểm hoặc hàm, lời đáp], ...]] */
+const IVQ={
+ any:[['"Vì sao ngươi muốn làm việc này?"',[['"Tôi muốn học nghề cho thật giỏi."',1,'Người phỏng vấn gật gù.'],['"Vì tiền, thưa ngài. Nhà tôi cần ăn."',s=>s.st.honor>=50?1:0,'Người phỏng vấn nhún vai: "Ít ra thì thật thà."'],['"Tôi cũng chẳng biết nữa."',-1,'Người phỏng vấn nhíu mày.']]],
+  ['"Có ai tiến cử ngươi không?"',[['Nêu tên gia tộc mình',s=>CLASSES[s.cls].rk>=2||s.house.title>=1?2:0,'Người phỏng vấn ghi gì đó vào sổ.'],['"Không ai cả. Tôi tự đến."',1,'"Tự đến là tốt. Kẻ được tiến cử thường lười."'],['Bịa ra tên một quý tộc',s=>ch(.4)?2:-2,'Người phỏng vấn nhìn bạn rất lâu.']]],
+  ['"Ngươi đòi bao nhiêu tiền công?"',[['"Ngài trả bao nhiêu tôi nhận bấy nhiêu."',1,'"Khiêm tốn. Tốt."'],['Đòi gấp đôi mức thường',s=>s.st.smarts>=65?1:-1,'Người phỏng vấn bật cười.'],['"Cho tôi làm thử một tháng không công."',s=>s.money>=20?2:0,'"Ngươi tự tin đấy."']]]],
+ lao:[['Người chủ nhìn đôi tay bạn: "Việc nặng từ sáng tới tối. Chịu nổi không?"',[['"Tay tôi chai từ năm lên mười."',s=>s.st.health>=50?2:0,'Người chủ bóp thử bắp tay bạn.'],['"Tôi học nhanh, sẽ quen thôi."',1,'"Để xem."'],['"Có được nghỉ trưa không ạ?"',-1,'Người chủ khịt mũi.']]],
+  ['"Đây, nhấc thử bao này lên vai xem."',[['Nhấc bổng lên',s=>s.st.health>=60?2:-1,'Mọi người xung quanh ngừng tay nhìn.'],['Nhờ người cùng khiêng',1,'"Biết nhờ người cũng là khôn."'],['Xin thử việc khác',0,'Người phỏng vấn lắc đầu.']]],
+  ['"Lỡ làm hỏng hàng của chủ thì sao?"',[['"Tôi đền, rồi làm cho tốt hơn."',2,'"Được."'],['"Tôi sẽ không làm hỏng."',0,'"Ai cũng nói thế."'],['"Đổ cho đứa học việc."',-2,'Người chủ đứng dậy.']]]],
+ vo:[['Đội trưởng ném cho bạn thanh kiếm gỗ: "Đánh với ta ba hiệp."',[['Lao vào tấn công',s=>(s.blade||0)>=30?2:(s.st.health>=60?1:-1),'Hai thanh gỗ va nhau chan chát.'],['Giữ thế thủ, chờ sơ hở',s=>s.st.smarts>=50?2:0,'Đội trưởng nheo mắt.'],['Xin đấu tay không',s=>s.st.health>=70?1:-1,'Đội trưởng bật cười.']]],
+  ['"Lệnh trên bảo ngươi làm điều ngươi thấy sai. Ngươi làm gì?"',[['"Làm theo lệnh."',1,'"Lính tốt."'],['"Hỏi lại cho rõ rồi mới làm."',s=>s.st.honor>=55?2:1,'"Lính khôn."'],['"Tôi tự quyết."',-1,'"Thế thì đi làm lính đánh thuê đi."']]],
+  ['"Ngươi đã từng thấy người chết chưa?"',[['"Rồi. Tôi vẫn ngủ được."',1,'Đội trưởng gật đầu.'],['"Rồi, và tôi không muốn thấy thêm."',2,'"Câu trả lời đúng."'],['"Chưa, nhưng chắc là thú vị."',-2,'Mọi người trong lều im lặng.']]]],
+ tri:[['Chủ hiệu đưa bạn một tờ giấy: "Đọc to lên cho ta nghe."',[['Đọc trôi chảy',s=>s.st.smarts>=50?2:-1,'Người phỏng vấn ngả người ra ghế.'],['Đọc chậm từng chữ',1,'"Được, nhưng phải học thêm."'],['Thú nhận không biết chữ',0,'"Thật thà thì có, chữ thì không."']]],
+  ['"Ba bao muối giá mười một xu, ta bán sáu bao thì được bao nhiêu?"',[['"Hai mươi hai xu."',s=>s.st.smarts>=40?2:0,'Người phỏng vấn gật đầu nhanh.'],['Lấy ngón tay ra đếm',0,'Người phỏng vấn chờ, gõ ngón tay xuống bàn.'],['"Tùy ngài trả giá thế nào."',s=>s.st.smarts>=60?2:-1,'Người phỏng vấn cười khẩy, rồi cười thật.']]],
+  ['"Có khách quý trả giá quá thấp. Ngươi làm gì?"',[['Lịch sự giữ giá',2,'"Đúng nghề."'],['Hạ giá cho được việc',0,'"Làm vậy thì ta phá sản."'],['Mắng khách',-2,'Người phỏng vấn lắc đầu.']]]],
+ phep:[['"Đặt tay lên viên đá này. Ngươi cảm thấy gì?"',[['"Nó ấm, như có nhịp thở."',s=>(s.hid&&s.hid.arcane||0)>=55?2:0,'Viên đá sáng lên một chút.'],['"Chẳng thấy gì cả."',s=>(s.hid&&s.hid.arcane||0)<30?1:0,'"Ít ra ngươi không nói dối."'],['Bịa ra một cảm giác thật kêu',-1,'Viên đá vẫn xám xịt.']]],
+  ['"Đêm qua ngươi cầu nguyện điều gì?"',[['"Cho người nhà được khỏe."',s=>s.st.piety>=40?2:1,'Người phỏng vấn mỉm cười.'],['"Cho tôi được nhận vào đây."',0,'"Thần thánh có việc lớn hơn."'],['"Tôi không cầu nguyện."',s=>s.st.piety<20?0:-1,'Căn phòng lạnh đi một chút.']]],
+  ['"Kiến thức có thể cứu người, cũng có thể giết người. Ngươi chọn bên nào?"',[['"Bên cứu người."',1,'"Ai cũng nói thế lúc đầu."'],['"Kiến thức không chọn bên. Người dùng nó mới chọn."',s=>s.st.smarts>=55?2:1,'Người phỏng vấn nhìn bạn lâu hơn.'],['"Bên nào trả nhiều hơn."',-2,'Người phỏng vấn gấp sổ lại.']]]],
+ khac:[],
+ nightwatch:[['"Ngươi nghe thấy tiếng người gọi tên mình trong đêm. Không có ai ở đó. Ngươi làm gì?"',[['Đếm nhịp thở tới khi tiếng gọi tắt',2,'Đội trưởng gật đầu chậm rãi.'],['Đi theo tiếng gọi',-2,'"Kẻ đi theo tiếng gọi không bao giờ trở về."'],['Báo cho đội',1,'"Đúng quy tắc."']]]],
+ church:[['"Tu viện dậy lúc ba giờ sáng, ăn cháo loãng, cấm rượu. Ngươi chịu được không?"',[['"Tôi sẽ cố."',1,'Cha bề trên mỉm cười.'],['"Tôi đã sống như thế từ lâu."',s=>s.st.piety>=40?2:0,'"Ta tin ngươi."'],['"Cấm cả rượu lễ sao?"',-1,'Cha bề trên thở dài.']]]],
+ wizard:[['"Thắp ngọn nến này mà không dùng lửa."',[['Tập trung ma lực',s=>s.st.magic>=40?2:-1,'Bấc nến lóe lên.'],['Cọ đá lửa giấu trong tay áo',s=>ch(.3)?1:-2,'Pháp sư nhìn tay áo bạn.'],['"Tôi chưa làm được, nhưng tôi muốn học."',1,'"Ít ra ngươi biết mình là ai."']]]],
+ court:[['"Một vị bá tước nói dối trước mặt nhà vua. Ngươi làm gì?"',[['Im lặng, sau đó báo riêng với nhà vua',2,'Quan thượng thư ghi chép.'],['Vạch mặt ngay tại chỗ',s=>s.st.honor>=60?1:-1,'"Dũng cảm, nhưng sống không lâu ở triều đình."'],['Giữ bí mật ấy làm vốn',s=>s.st.smarts>=60?1:-1,'Quan thượng thư nhếch mép.']]]],
+ knight:[['"Một phụ nữ nghèo và một quý tộc cùng cần ngươi cứu. Ngươi cứu ai trước?"',[['Người ở gần hơn',2,'Hiệp sĩ trưởng gật đầu.'],['Quý tộc, vì lời thề với lãnh chúa',0,'"Đúng luật, nhưng chưa đúng hiệp sĩ."'],['Người phụ nữ nghèo',1,'"Tấm lòng tốt."']]]],
+ blackmarket:[['Gã môi giới đặt con dao lên bàn: "Lính tuần hỏi ngươi về ta. Ngươi nói gì?"',[['"Chưa từng thấy mặt ông."',2,'Hắn cất dao đi.'],['"Tôi sẽ báo cho ông trước."',1,'"Khôn."'],['"Tùy họ trả bao nhiêu."',-2,'Hắn rút dao ra khỏi vỏ.']]]],
+ surgeon:[['"Người bệnh chảy máu không cầm. Ngươi làm gì trước?"',[['Ép chặt vết thương',s=>s.st.smarts>=40?2:1,'Thầy thuốc trưởng gật đầu.'],['Đi tìm thầy thuốc khác',0,'"Lúc ấy người ta chết rồi."'],['Đọc kinh cầu nguyện',-1,'"Đọc kinh sau."']]]],
+ bard:[['"Hát thử một đoạn cho ta nghe."',[['Hát bài dân ca quê nhà',s=>s.st.looks>=50?2:1,'Ông bầu nhịp chân theo.'],['Kể một câu chuyện cười',s=>s.st.smarts>=50?2:0,'Ông bầu cười sặc.'],['Ngại ngùng, hát nhỏ',-1,'Ông bầu ngáp.']]]],
+ smith:[['Thợ cả đưa bạn chiếc búa: "Nghe tiếng thép này xem nó đã tôi đủ chưa."',[['Gõ và lắng nghe kỹ',s=>s.st.smarts>=40?2:1,'Thợ cả nhướng mày.'],['Đoán bừa: "Đủ rồi."',s=>ch(.5)?1:-1,'Thợ cả không nói gì.'],['"Tôi chưa biết, xin ông dạy."',1,'"Được."']]]],
+ fisher:[['Lão chủ thuyền chỉ ra biển: "Nhìn mây kia. Mai có ra khơi được không?"',[['"Mây vảy cá, mai sẽ có gió."',s=>s.st.smarts>=45?2:0,'Lão gật gù.'],['"Ra được, trời đẹp mà."',-1,'"Mai ngươi chết đuối đầu tiên."'],['"Tôi không biết, nhưng tôi sẽ hỏi ông."',1,'"Biết hỏi là sống lâu."']]]]
+};
+function ivGrp(id){const g=JGRP.find(x=>x[2].includes(id));return g?g[0]:'khac'}
+function ivStart(id){const g=ivGrp(id),own=IVQ[id]&&IVQ[id].length?[id,IVQ[id]]:IVQ[g].length?[g,IVQ[g]]:null;const gi=R(0,IVQ.any.length-1);
+  const q=[];if(own)q.push([own[0],R(0,own[1].length-1)]);q.push(['any',gi]);if(q.length<2)q.push(['any',(gi+1)%IVQ.any.length]);
+  S.iv={id,q,i:0,sc:0,who:IVWHO[id]||IVWHO['_'+g]};S.pend.push('job_iv')}
+const ivCur=()=>{const I=S.iv;if(!I)return null;const[k,n]=I.q[I.i];return IVQ[k][n]};
+function ivEnd(){const I=S.iv,J=JOBS[I.id];S.iv=null;const p=Math.max(.08,Math.min(.95,.4+I.sc*.13+(S.st.honor-50)/400+(CLASSES[S.cls].rk>=2?.08:0)));
+  if(ch(p)){if(S.job)log(`Bạn thôi làm ${jt().toLowerCase()}.`);S.job={id:I.id,rank:0,yr:0,ry:0,perf:40+I.sc*4};log(`Bạn được nhận vào làm ${jt().toLowerCase()}.`,'good');
+    return[`${I.sc>=3?'"Ngươi khá lắm. Sáng mai tới sớm."':I.sc>=1?'"Được, ta cho ngươi thử."':'"Ta còn nhiều nghi ngờ, nhưng đang thiếu người."'} Bạn được nhận vào làm ${(S.sex==='f'&&J.tf?J.tf:J.t)[0].toLowerCase()}.`,'good']}
+  S.ivNo=S.ivNo||{};S.ivNo[I.id]=S.year;return[`${I.sc<=0?'"Ngươi không hợp với việc này."':'"Ta đã chọn được người khác."'} Bạn trượt phỏng vấn. Năm sau bạn có thể thử lại.`,'bad']}
+EV.push(EVB.job_iv={id:'job_iv',queued:true,big:false,art:'scroll',c:s=>!!(s.alive&&s.iv&&JOBS[s.iv.id]),
+  title:s=>`Phỏng vấn: ${JOBS[s.iv.id].n}${s.iv.i?' · câu hỏi 2':''}`,
+  text:s=>`${s.iv.i?'':`${s.iv.who} ngồi sau chiếc bàn gỗ, nhìn bạn từ đầu tới chân. `}${ivCur()[0]}`});
+Object.defineProperty(EVB.job_iv,'ch',{get:()=>{const Q=S&&S.iv&&ivCur();if(!Q)return[];return Q[1].map(([t,v,rep])=>({t,f:s=>{s.iv.sc+=ivF(v);if(s.iv.i<s.iv.q.length-1){s.iv.i++;s.pend.splice(1,0,'job_iv');return rep}const[r,tone]=ivEnd();return[`${rep} ${r}`,tone]}}))}});
+function jobApply(id){if(!S.alive||IV_SKIP.includes(id))return joinJob(id);if(S.ivNo&&S.ivNo[id]===S.year)return;if(S.pend.includes('job_iv'))return;ivStart(id);afterSheetAction()}
+
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
