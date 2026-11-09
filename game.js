@@ -11631,7 +11631,7 @@ PROPH.push('Hai mặt trăng sẽ cùng soi lên ngày cưới của ngươi.','
 
 /* ===== Vô Mệnh: không thức tỉnh mệnh nào, ma lực không tăng ===== */
 const vmOn=()=>!!(S&&S.hid&&S.hid.vm);
-function vmRoll(){if(!S||!S.hid||S.race==='skeleton')return;S.hid.vm=ch(['serf','craft','merchant'].includes(S.cls)?.6:.08)?1:0;if(S.hid.vm){S.st.magic=Math.min(S.st.magic,R(0,4));S.hid.vmM=S.st.magic}}
+function vmRoll(){if(!S||!S.hid||S.race==='skeleton')return;talSync();S.hid.vm=(S.hid.arcane||0)<40?1:0;if(S.hid.vm){S.st.magic=Math.min(S.st.magic,R(0,4));S.hid.vmM=S.st.magic}}
 {const n0=newLife;newLife=function(o){n0(o);if(S){vmRoll();save()}}}
 {const i0=inherit;inherit=function(id){const r=i0(id);if(S&&S.alive){vmRoll();save()}return r}}
 {const m0=mod;mod=function(c){if(vmOn()&&c&&c.magic>0)c={...c,magic:0};return m0(c)}}
@@ -12172,7 +12172,7 @@ const ppT=(P,rk)=>PP[P.k].t[rk-1];
 const ppRoot=k=>(PP[k]&&PP[k].root)||k;
 const PPBR={hoa:'loi',thuy:'bang',tho:'kim'};
 const ppArc=()=>{talSync();return S.hid.arcane||0};
-const ppCan=()=>S.pp.k==='vm'||ppArc()>=70;
+const ppCan=()=>S.pp.k==='vm'||ppArc()>=40;
 const ppName=()=>S.pp?`Mệnh Lộ ${PP[S.pp.k].n} · ${ppT(S.pp,S.pp.rk)}`:'';
 const ppNeed=()=>{const r=S.pp.rk+1;if(r>5)return null;if(r===5&&isRed(S))return'p_hong';return PPNEED[r]};
 const ppJ=t=>{const j=S.pp.j;j.push(t);if(j.length>12)j.shift()};
@@ -12183,7 +12183,7 @@ function ppUp(){const P=S.pp,D=PP[P.k];P.rk++;P.dg=0;const t=ppT(P,P.rk),ls=pick
   if(P.k==='vm')P.pr=Math.max(0,P.pr-6*P.rk);
   announce(t,`Bạn lên bậc ${P.rk} của Mệnh Lộ ${D.n}, nhận Danh Xưng ${t}. ${ls}`,D.ic);S.house.prestige+=5*P.rk;
   if(P.rk===2&&PPBR[P.k]&&!P.br&&!S.pend.includes('pp_br'))S.pend.push('pp_br')}
-function ppDrink(){if(!ppOn())return;if(S.pp.k==='vm'||!ppCan())return;const P=S.pp,k=ppNeed();if(!k)return;const i=S.bag.findIndex(x=>x.k===k);if(i<0)return[`Bạn cần một lọ ${PPMSG[k]} trong túi.`,''];
+function ppDrink(){if(!ppOn())return;if(S.pp.k==='vm'||!ppCan())return;const P=S.pp,k=ppNeed();if(!k)return;if(P.rk>=4&&ppArc()<70)return['Cảm nhận ma pháp của bạn chưa đủ để chạm tới bậc cuối. Cần cảm nhận ma pháp 70 để lên Bậc 5.',''];const i=S.bag.findIndex(x=>x.k===k);if(i<0)return[`Bạn cần một lọ ${PPMSG[k]} trong túi.`,''];
   S.bag.splice(i,1);const X=POT[k];S.potX=(S.potX||0)+(X?X.tox:0);let t,tone='magic';
   if(k==='p_ma'){S.potMa=(S.potMa||0)+1;if(ch(.08*S.potMa)&&!S.pend.includes('pot_demon'))S.pend.push('pot_demon')}
   if(P.dg>=100){ppUp();t=`Bạn uống ${PPMSG[k]}. Sức mạnh đã tiêu hóa từ trước đón lấy nó như đất khô đón mưa. Bạn lên bậc ${P.rk}, Danh Xưng ${ppT(P,P.rk)}.`}
@@ -12196,23 +12196,23 @@ function ppYear(){if(!S||!S.alive||S.cap)return;
   const P=S.pp;if(!P)return;const D=PP[P.k];
   if(!P.off&&clsHas(S)){P.off=S.year;ppJ(`${S.year}: Mệnh Lộ ${D.n} lùi lại nhường chỗ cho Mệnh Lộ Ẩn. Chỉ còn dư âm ở bậc ${P.rk}.`);log(`Mệnh Lộ ${D.n} lùi lại, nhường chỗ cho Mệnh Lộ Ẩn. Bạn vẫn giữ dư âm của nó ở bậc ${P.rk}.`,'magic')}
   D.pas(P.rk);
-  if(!P.off&&S.age>=12&&ppCan()){const o=P.dg;P.dg=Math.min(100,P.dg+4);if(o<100&&P.dg>=100){const k=ppNeed();if(P.k==='vm'&&P.rk<5)log('Sức mạnh của bậc này đã tiêu hóa xong. Giờ bạn cần đi tìm một khoảnh khắc nằm ngoài số phận.','magic');else if(k)log(`Sức mạnh của bậc ${P.rk} đã tiêu hóa xong. Giờ bạn cần một lọ ${PPMSG[k]} để bước lên bậc ${P.rk+1}.`,'magic')}}
+  if(!P.off&&S.age>=12&&ppCan()){const o=P.dg;P.dg=Math.min(100,P.dg+4);if(o<100&&P.dg>=100){const k=ppNeed();if(P.k==='vm'&&P.rk<5)log('Sức mạnh của bậc này đã tiêu hóa xong. Giờ bạn cần đi tìm một khoảnh khắc nằm ngoài số phận.','magic');else if(k&&P.rk>=4&&ppArc()<70)log('Sức mạnh của bậc 4 đã tiêu hóa xong, nhưng cảm nhận ma pháp của bạn chưa đủ để chạm tới bậc cuối (cần 70).','magic');else if(k)log(`Sức mạnh của bậc ${P.rk} đã tiêu hóa xong. Giờ bạn cần một lọ ${PPMSG[k]} để bước lên bậc ${P.rk+1}.`,'magic')}}
   if(P.k!=='vm'&&ltV()<40&&ch(.4))D.low();
   if(P.k==='vm'){P.pr=Math.min(100-4*P.rk,P.pr+1);if(P.pr<60)for(const p of [...S.fam,...S.rel].filter(x=>x.alive))p.bond=clamp(p.bond-(P.pr<30?5:2));
     if(P.pr<60&&ch(.3))log(pick(D.loss),'magic');if(P.pr<=0&&!S.pend.includes('pp_vanish'))S.pend.push('pp_vanish')}}
 {const y0=extYear3;extYear3=function(){y0();ppYear()}}
 function ppView(){const P=S.pp;if(!P)return['Đạo Mệnh','<p class="note">Bạn chưa bước lên Mệnh Lộ nào.</p>','act'];const D=PP[P.k],dis=!S.alive||!!S.cap;
   let b=imgBanner('manatest')+gRow('',D.ic,ppT(P,P.rk),`Danh Xưng · Mệnh Lộ ${D.n} · Bậc ${P.rk}/5${P.off?' · chỉ còn dư âm':''}`,'',false,true)+`<p class="note">${D.d}</p>`;
-  if(P.k!=='vm')b+=`<p class="note">Cảm nhận ma pháp: ${ppArc()}/100${ppArc()<70?' · cần 70 để đi tiếp Mệnh Lộ':''} · càng cao thì luyện chiêu Mệnh càng nhanh</p>`;
+  if(P.k!=='vm')b+=`<p class="note">Cảm nhận ma pháp: ${ppArc()}/100${ppArc()<40?' · cần 40 để đi tiếp Mệnh Lộ':ppArc()<70?' · cần 70 để lên Bậc 5':''} · càng cao thì luyện chiêu Mệnh càng nhanh</p>`;
   const bar=(n,v,d,i)=>`<div class="row"><span class="ri">${ic(i,24)}</span><div><b>${n}: ${v}/100</b><small>${d}</small><div class="bond"><i style="width:${v}%"></i></div></div></div>`;
   if(P.off){b+=`<p class="note magic">Bạn đã chuyển sang Mệnh Lộ Ẩn. Mệnh Lộ ${D.n} chỉ còn dư âm: các năng lực bị động ở bậc ${P.rk} vẫn theo bạn, nhưng không đi tiếp được nữa.</p>`}
   else if(!ppCan()){b+='<p class="note">Bạn đã thức tỉnh Mệnh, nhưng cảm nhận ma pháp của bạn chưa đủ để đi xa hơn. Như phần lớn người thức tỉnh khác, bạn mang Mệnh trong người và sống một đời bình thường. Các Mệnh Lộ Ẩn của Mệnh này vẫn có thể tìm đến bạn.</p>'}
   else{b+=bar('Tiêu hóa',Math.min(100,P.dg),'Làm việc hợp vai để tiêu hóa sức mạnh của bậc hiện tại','star');
     if(P.k==='vm')b+=bar('Hiện diện',P.pr,'Thế giới còn nhớ bạn tới đâu. Về 0, bạn biến mất khỏi ký ức của mọi người','user');
     const k=ppNeed();if(P.k==='vm'&&P.rk<5){const ready=P.dg>=100;b+=`<p class="sec">Bước lên bậc ${P.rk+1} · Danh Xưng: ${ppT({...P,rk:P.rk+1},P.rk+1)}</p>`+gRow('data-x="pp:vm"','scroll','Đi tìm một khoảnh khắc ngoài số phận',ready?'Đã tiêu hóa xong · một sự kiện đặc biệt đang chờ bạn':`Cần tiêu hóa xong (${P.dg}/100). Người không mang mệnh không lên bậc bằng dược`,ready?'Sẵn sàng':'',dis||!ready||S.pend.includes('pp_vm'))}
-    else if(k){const has=S.bag.some(x=>x.k===k),ready=P.dg>=100;
+    else if(k){const has=S.bag.some(x=>x.k===k),ready=P.dg>=100,lo5=P.rk>=4&&ppArc()<70;
       b+=`<p class="sec">Bước lên bậc ${P.rk+1} · Danh Xưng: ${ppT({...P,rk:P.rk+1},P.rk+1)}</p>`;
-      b+=gRow('data-x="pp:up"','potion',`Uống ${PPMSG[k]}`,!has?`Chưa có trong túi · ${PPWHERE[k]}`:ready?'Đã tiêu hóa xong · uống để lên bậc':`Chưa tiêu hóa xong (${P.dg}/100) · ép lên bậc rất dễ phản phệ và mất Lý trí`,ready?'Sẵn sàng':'',dis||!has);
+      b+=gRow('data-x="pp:up"','potion',`Uống ${PPMSG[k]}`,lo5?`Cần cảm nhận ma pháp 70 để lên Bậc 5 (hiện ${ppArc()})`:!has?`Chưa có trong túi · ${PPWHERE[k]}`:ready?'Đã tiêu hóa xong · uống để lên bậc':`Chưa tiêu hóa xong (${P.dg}/100) · ép lên bậc rất dễ phản phệ và mất Lý trí`,ready&&!lo5?'Sẵn sàng':'',dis||!has||lo5);
       if(k==='p_ma'&&!S.done.ppbm)b+=gRow('data-x="pp:bm"','coins','Mua lén Ma Dược ở chợ đen (100 xu)','Một lần mỗi năm · Đội Gác Đêm hay để mắt tới chợ đen','',dis||S.money<100||S.bag.length>=BAGMAX)}
     else b+='<p class="note">Bạn đã đi tới cuối Mệnh Lộ.</p>';
     const used=S.done.ppn||0;b+=`<p class="sec">Việc hợp vai · còn ${Math.max(0,2-used)}/2 việc năm nay</p>`;
@@ -12265,7 +12265,7 @@ const ppMatch=(s,k)=>!!(s.pp&&!s.pp.off&&ppRoot(s.pp.k)===k&&s.pp.rk>=1);
 for(const[id,k]of [['tt_call','moc'],['vj_call','quang'],['rn_call','hoa'],['bt_call','huyet'],['kg_call','tho'],['xk_call','hac'],['wt_call','thuy']]){const e=EVB[id];if(!e)continue;const c0=e.c;e.c=s=>ppMatch(s,k)&&(!c0||c0(s))}
 {const e=EVB.hc_call,c0=e.c;e.c=s=>s.hcK==='mks'?ppMatch(s,s.hid&&s.hid.menh)&&c0(s):c0(s)}
 {const g0=genRecord;genRecord=function(){const r=g0();if(!r.cls&&S.pp)r.cls=`${ppT(S.pp,S.pp.rk)} (Mệnh Lộ ${PP[S.pp.k].n})`;return r}}
-{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.pp){r.pp.j=r.pp.j||[];r.pp.d=r.pp.d||{};if(r.pp.pr==null)r.pp.pr=100;if(r.pp.br==='loi'||r.pp.br==='bang'){r.pp.k=r.pp.br;r.pp.br=r.pp.k==='loi'?'hoa':'thuy'}if(!PP[r.pp.k])r.pp=null}return r}}
+{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.pp){r.pp.j=r.pp.j||[];r.pp.d=r.pp.d||{};if(r.pp.pr==null)r.pp.pr=100;if(r.pp.br==='loi'||r.pp.br==='bang'){r.pp.k=r.pp.br;r.pp.br=r.pp.k==='loi'?'hoa':'thuy'}if(!PP[r.pp.k])r.pp=null}if(r&&typeof r==='object'&&r.hid&&r.hid.vm&&(r.hid.arcane||0)>=40&&!(r.pp&&r.pp.k==='vm')){r.hid.vm=0;delete r.hid.vmM}return r}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('lta:')&&S&&S.pp&&S.pp.k==='vm'&&!S.done.lta)S.pp.pr=Math.min(100,S.pp.pr+5);return x0(x)}}
 /* ===== Phỏng vấn xin việc (trừ Hội Thợ Săn và Sát Thủ) ===== */
 const IV_SKIP=['hunter','assassin','bard'];
@@ -12529,7 +12529,7 @@ const PPQ={
 };
 const PQB=['hoa','moc','thuy','tho','hac','quang','huyet','vm'];
 const ppQ=()=>S.pp&&!S.pp.off&&PQB.includes(S.pp.k)?PPQ[S.pp.k]:null;
-const ppQwhy=()=>{const Q=ppQ(),P=S.pp;if(!Q)return'Chỉ dành cho Mệnh Lộ gốc';const q=P.q||0;if(q>=3)return'Đã hoàn thành';if(!ppCan())return'Cần cảm nhận ma pháp 70';if(P.rk<q+2)return`Cần đạt bậc ${q+2}`;if(S.done.ppq)return'Đã thử một chương năm nay';if(S.age<14)return'Còn quá nhỏ';return''};
+const ppQwhy=()=>{const Q=ppQ(),P=S.pp;if(!Q)return'Chỉ dành cho Mệnh Lộ gốc';const q=P.q||0;if(q>=3)return'Đã hoàn thành';if(!ppCan())return'Cần cảm nhận ma pháp 40';if(P.rk<q+2)return`Cần đạt bậc ${q+2}`;if(S.done.ppq)return'Đã thử một chương năm nay';if(S.age<14)return'Còn quá nhỏ';return''};
 EV.push(EVB.pp_q={id:'pp_q',queued:true,big:true,art:'star',img:'manatest',c:s=>!!(s.alive&&ppQ()&&(s.pp.q||0)<3),
   title:s=>`${PPQ[s.pp.k].n} · ${PPQ[s.pp.k].ch[s.pp.q||0].t}`,text:s=>PPQ[s.pp.k].ch[s.pp.q||0].x});
 Object.defineProperty(EVB.pp_q,'ch',{get:()=>{const Q=S&&ppQ();if(!Q)return[];const n=S.pp.q||0,C=Q.ch[n];if(!C)return[];
