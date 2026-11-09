@@ -684,7 +684,7 @@ function ageUp(){
 }
 function worldYear(){
   const w=S.world;
-  if(!w.cat){if(S.age>=1&&S.year-w.last>=8&&ch(.06))startCat(pick(Object.keys(CATS)));return}
+  if(!w.cat){if(S.age>=1&&S.year-w.last>=8&&ch(.06))startCat(catPick());return}
   if(w.cat.id==='player'){if(S.flags.dark){S.pend.push('darkyear');if(S.year-w.cat.y>=3&&ch(.35))S.pend.push('herocomes')}else if(S.flags.hcat){S.pend.push('hryear');if(S.year-w.cat.y>=2&&ch(.35))S.pend.push('hrhero')}else{S.world.cat=null;S.world.last=S.year}return}
   const yrs=S.year-w.cat.y;
   if(S.flags.hero&&S.flags.hero.cat===w.cat.y){S.fight=null;S.pend.push(S.flags.hero.train>0?'herotrain':'herobattle');return}
@@ -7706,7 +7706,7 @@ function eqHTML(){const E=EQ();const cell=(id,lab)=>{const x=id&&S.bag.find(y=>y
 /* dược phẩm: cộng vào năng lực (kiếm thuật, ma lực), không cộng vào thiên phú */
 Object.assign(ITEMS,{
   p_tinh:{n:'Tinh Dược',r:1,ic:'potion',use:true,v:80,d:'Tăng kiếm thuật và ma lực. Người thiên phú tầm thường tăng nhiều hơn. Uống quá dày sẽ bị phản phệ.'},
-  p_than:{n:'Thần Dược',r:3,ic:'potion-02',use:true,v:800,d:'Tăng mạnh kiếm thuật và ma lực, không phản phệ. Tín đồ Hồng Nguyệt uống vào sẽ bị thánh quang thiêu đốt.'},
+  p_than:{n:'Thần Dược',r:3,ic:'potion-02',use:true,v:800,d:'Tăng mạnh kiếm thuật và ma lực, không phản phệ. Thứ duy nhất giúp tăng cảm nhận ma pháp (+2 đến 3). Tín đồ Hồng Nguyệt uống vào sẽ bị thánh quang thiêu đốt.'},
   p_ma:{n:'Ma Dược',r:2,ic:'potion',use:true,v:60,d:'Tìm thấy trong hầm ngục. Tăng nhiều kiếm thuật và ma lực, nhưng uống nhiều sẽ bị phản phệ và ác ma có thể dụ dỗ chiếm xác.'},
   p_hong:{n:'Hồng Dược',r:2,ic:'potion-02',use:true,v:120,d:'Dược riêng của Hồng Giáo. Chỉ tín đồ Hồng Nguyệt uống được, người ngoài uống vào sẽ bị phản phệ.'},
   rw_scythe:{n:'Lưỡi Hái Huyết Nguyệt',r:2,ic:'X-scep3',cb:16,fx:{magic:1},v:300,sl:'weapon',d:'Lưỡi hái đỏ thẫm của các pháp quan Hồng Giáo.'},
@@ -7724,13 +7724,14 @@ Object.assign(ITEMS,{
 const isRed=s=>(s.flags.her||0)>=1;
 SHOPS.push({id:'redshop',n:'Mục Hồng Giáo',ic:'night',d:'Chỉ tín đồ Hồng Nguyệt mới tìm được lối vào',vis:isRed,items:[['p_hong',300,isRed,'Chỉ dành cho tín đồ Hồng Nguyệt'],['rx_amulet',300,isRed,'Chỉ dành cho tín đồ'],['rh_mask',350,isRed,'Chỉ dành cho tín đồ'],['rx_ring',400,isRed,'Chỉ dành cho tín đồ'],['rw_twin',450,isRed,'Chỉ dành cho tín đồ'],['rx_chain',450,isRed,'Chỉ dành cho tín đồ'],['ra_robe',500,isRed,'Chỉ dành cho tín đồ'],['rw_scythe',600,isRed,'Chỉ dành cho tín đồ'],['rw_staff',700,isRed,'Chỉ dành cho tín đồ'],['rh_crown',800,isRed,'Chỉ dành cho tín đồ'],['ra_plate',900,isRed,'Chỉ dành cho tín đồ']]});
 const POT={p_tinh:{g:6,tox:1},p_ma:{g:10,tox:2},p_than:{g:15,tox:0},p_hong:{g:12,tox:1}};
+function thanArc(){talSync();const d=Math.min(R(2,3),100-S.tal.arcane);if(d<=0)return'';S.tal.arcane+=d;S.hid.arcane=S.tal.arcane;return` Cảm nhận ma pháp +${d}.`}
 function potGain(base){talSync();const f=t=>Math.max(.4,1.5-t/100);const b=Math.max(1,Math.round(base*f(S.tal.sword)*(1-(S.blade||0)/140))),m=Math.max(1,Math.round(base*f(S.tal.arcane)*(1-S.st.magic/140)));
   S.blade=Math.min(100,(S.blade||0)+b);S.st.magic=Math.min(100,S.st.magic+m);return`Kiếm thuật +${b}, ma lực +${m}.`}
 function potBack(){const r=R(0,2);if(r===0){const d=R(8,18);mod({health:-d});return` Phản phệ: máu trong người bạn sôi lên, mất ${d} sức khỏe.`}if(r===1){const d=R(2,6);S.blade=Math.max(0,(S.blade||0)-d);mod({health:-R(3,8)});return` Phản phệ: tay chân bạn run rẩy suốt một tháng, kiếm thuật giảm ${d}.`}const d=R(2,6);S.st.magic=Math.max(0,S.st.magic-d);mod({health:-R(3,8)});return` Phản phệ: ma lực trong người bạn rối loạn, giảm ${d}.`}
 {const u0=useItem;useItem=function(id){const i=S.bag.findIndex(x=>x.id===id),it=S.bag[i];if(!it||!POT[it.k])return u0(id);const k=it.k,P=POT[k];S.bag.splice(i,1);sel=null;let t,tone='magic';
   if(k==='p_than'&&isRed(S)){const d=R(25,40);mod({health:-d,magic:0});S.st.magic=Math.max(0,S.st.magic-R(5,10));t=`Thánh quang trong Thần Dược thiêu đốt máu trăng đỏ trong người bạn. Bạn quằn quại ba ngày, mất ${d} sức khỏe.`;tone='bad'}
   else if(k==='p_hong'&&!isRed(S)){const d=R(15,25);mod({health:-d});t=`Hồng Dược đặc quánh như máu đông. Thân thể của người ngoài giáo phái không chịu nổi nó. Bạn mất ${d} sức khỏe.`;tone='bad'}
-  else{t={p_tinh:'Bạn uống cạn lọ Tinh Dược. Một luồng hơi ấm chạy dọc sống lưng.',p_ma:'Ma Dược đen như mực, đắng như mật. Bạn nghe thấy tiếng ai đó cười rất khẽ.',p_than:'Thần Dược sáng như ánh nắng trong lọ pha lê. Bạn thấy mình nhẹ bẫng.',p_hong:'Hồng Dược ấm như máu. Mặt trăng đêm ấy đỏ hơn trong mắt bạn.'}[k]+' '+potGain(P.g);
+  else{t={p_tinh:'Bạn uống cạn lọ Tinh Dược. Một luồng hơi ấm chạy dọc sống lưng.',p_ma:'Ma Dược đen như mực, đắng như mật. Bạn nghe thấy tiếng ai đó cười rất khẽ.',p_than:'Thần Dược sáng như ánh nắng trong lọ pha lê. Bạn thấy mình nhẹ bẫng.',p_hong:'Hồng Dược ấm như máu. Mặt trăng đêm ấy đỏ hơn trong mắt bạn.'}[k]+' '+potGain(P.g)+(k==='p_than'?thanArc():'');
     S.potX=(S.potX||0)+P.tox;if(P.tox&&S.potX>=3&&ch((S.potX-2)*.18)){t+=potBack();tone='bad'}
     if(k==='p_ma'){S.potMa=(S.potMa||0)+1;if(ch(.08*S.potMa)&&!S.pend.includes('pot_demon'))S.pend.push('pot_demon')}}
   if(S.st.health<=0)die('phản phệ dược phẩm');log(t,tone);note={t,tone};afterSheetAction()}}
@@ -11631,8 +11632,10 @@ PROPH.push('Hai mặt trăng sẽ cùng soi lên ngày cưới của ngươi.','
 
 /* ===== Vô Mệnh: không thức tỉnh mệnh nào, ma lực không tăng ===== */
 const vmOn=()=>!!(S&&S.hid&&S.hid.vm);
-function vmRoll(){if(!S||!S.hid||S.race==='skeleton')return;talSync();S.hid.vm=(S.hid.arcane||0)<40?1:0;if(S.hid.vm){S.st.magic=Math.min(S.st.magic,R(0,4));S.hid.vmM=S.st.magic}}
-{const n0=newLife;newLife=function(o){n0(o);if(S){vmRoll();save()}}}
+function vmRoll(){if(!S||!S.hid)return;S.vm40=1;if(S.race==='skeleton')return;talSync();S.hid.vm=(S.hid.arcane||0)<40?1:0;if(S.hid.vm){S.st.magic=Math.min(S.st.magic,R(0,4));S.hid.vmM=S.st.magic}}
+{const n0=newLife;newLife=function(o){n0(o);if(S){swCommon();vmRoll();save()}}}
+/* Con nhà nông nô, thợ, nhà buôn hiếm khi có thiên phú kiếm thuật cao */
+function swCommon(){if(!S||!S.hid||!['serf','craft','merchant'].includes(S.cls))return;talSync();if(S.tal.sword>=60&&ch(.65)){S.tal.sword=S.hid.sword=R(20,59)}}
 {const i0=inherit;inherit=function(id){const r=i0(id);if(S&&S.alive){vmRoll();save()}return r}}
 {const m0=mod;mod=function(c){if(vmOn()&&c&&c.magic>0)c={...c,magic:0};return m0(c)}}
 {const y0=extYear3;extYear3=function(){y0();if(vmOn()&&S.st.magic>(S.hid.vmM||0))S.st.magic=S.hid.vmM||0;
@@ -12186,9 +12189,11 @@ function ppUp(){const P=S.pp,D=PP[P.k];P.rk++;P.dg=0;const t=ppT(P,P.rk),ls=pick
 function ppDrink(){if(!ppOn())return;if(S.pp.k==='vm'||!ppCan())return;const P=S.pp,k=ppNeed();if(!k)return;if(P.rk>=4&&ppArc()<70)return['Cảm nhận ma pháp của bạn chưa đủ để chạm tới bậc cuối. Cần cảm nhận ma pháp 70 để lên Bậc 5.',''];const i=S.bag.findIndex(x=>x.k===k);if(i<0)return[`Bạn cần một lọ ${PPMSG[k]} trong túi.`,''];
   S.bag.splice(i,1);const X=POT[k];S.potX=(S.potX||0)+(X?X.tox:0);let t,tone='magic';
   if(k==='p_ma'){S.potMa=(S.potMa||0)+1;if(ch(.08*S.potMa)&&!S.pend.includes('pot_demon'))S.pend.push('pot_demon')}
+  const tA=k==='p_than'?thanArc():'';
   if(P.dg>=100){ppUp();t=`Bạn uống ${PPMSG[k]}. Sức mạnh đã tiêu hóa từ trước đón lấy nó như đất khô đón mưa. Bạn lên bậc ${P.rk}, Danh Xưng ${ppT(P,P.rk)}.`}
   else if(ch(.15+P.dg/250)){ppUp();ltHit(-15);if(P.k==='vm')P.pr=Math.max(0,P.pr-10);t=`Bạn uống ${PPMSG[k]} khi sức mạnh cũ còn chưa tiêu hóa xong. Nó xé toạc bạn ra rồi khâu lại. Bạn lên bậc ${P.rk}, Danh Xưng ${ppT(P,P.rk)}, nhưng mất 15 Lý trí.`+potBack();tone='bad'}
   else{ltHit(-8);P.dg=Math.max(0,P.dg-20);t=`Bạn uống ${PPMSG[k]} khi chưa tiêu hóa xong sức mạnh cũ. Hai luồng sức mạnh cắn xé nhau trong máu bạn. Không lên được bậc, mất 8 Lý trí.`+potBack();tone='bad'}
+  t+=tA;
   if(X&&X.tox&&S.potX>=3&&ch((S.potX-2)*.18))t+=potBack();
   if(S.st.health<=0)die('phản phệ ma dược');return[t,tone]}
 function ppYear(){if(!S||!S.alive||S.cap)return;
@@ -12265,7 +12270,7 @@ const ppMatch=(s,k)=>!!(s.pp&&!s.pp.off&&ppRoot(s.pp.k)===k&&s.pp.rk>=1);
 for(const[id,k]of [['tt_call','moc'],['vj_call','quang'],['rn_call','hoa'],['bt_call','huyet'],['kg_call','tho'],['xk_call','hac'],['wt_call','thuy']]){const e=EVB[id];if(!e)continue;const c0=e.c;e.c=s=>ppMatch(s,k)&&(!c0||c0(s))}
 {const e=EVB.hc_call,c0=e.c;e.c=s=>s.hcK==='mks'?ppMatch(s,s.hid&&s.hid.menh)&&c0(s):c0(s)}
 {const g0=genRecord;genRecord=function(){const r=g0();if(!r.cls&&S.pp)r.cls=`${ppT(S.pp,S.pp.rk)} (Mệnh Lộ ${PP[S.pp.k].n})`;return r}}
-{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.pp){r.pp.j=r.pp.j||[];r.pp.d=r.pp.d||{};if(r.pp.pr==null)r.pp.pr=100;if(r.pp.br==='loi'||r.pp.br==='bang'){r.pp.k=r.pp.br;r.pp.br=r.pp.k==='loi'?'hoa':'thuy'}if(!PP[r.pp.k])r.pp=null}if(r&&typeof r==='object'&&r.hid&&r.hid.vm&&(r.hid.arcane||0)>=40&&!(r.pp&&r.pp.k==='vm')){r.hid.vm=0;delete r.hid.vmM}return r}}
+{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.pp){r.pp.j=r.pp.j||[];r.pp.d=r.pp.d||{};if(r.pp.pr==null)r.pp.pr=100;if(r.pp.br==='loi'||r.pp.br==='bang'){r.pp.k=r.pp.br;r.pp.br=r.pp.k==='loi'?'hoa':'thuy'}if(!PP[r.pp.k])r.pp=null}if(r&&typeof r==='object'&&r.hid&&!r.vm40){r.vm40=1;if(r.hid.vm&&(r.hid.arcane||0)>=40&&!(r.pp&&r.pp.k==='vm')){r.hid.vm=0;delete r.hid.vmM}}return r}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('lta:')&&S&&S.pp&&S.pp.k==='vm'&&!S.done.lta)S.pp.pr=Math.min(100,S.pp.pr+5);return x0(x)}}
 /* ===== Phỏng vấn xin việc (trừ Hội Thợ Săn và Sát Thủ) ===== */
 const IV_SKIP=['hunter','assassin','bard'];
@@ -12746,6 +12751,11 @@ Object.defineProperty(EVB.cq_ev,'ch',{get:()=>{const k=S&&cqK();if(!k)return[];c
     gRow('data-x="cq:go"','star',`Nhiệm vụ: ${Q.n} · chương ${q+1}/3`,why||`${Q.ch[q].t}${q===1?` · Phần thưởng: ${ITEMS[Q.it].n}`:q===2?` · Phần thưởng: chiêu ${MV[Q.mv].n}`:''}`,'',!S.alive||!!S.cap||!!why||S.pend.includes('cq_ev')))+b}}
 {const w0=mvWhy;mvWhy=function(id,book){const M=MV[id];if(M&&M.src[0]==='c'&&!(S.mv&&S.mv[id]))return'Chỉ học qua nhiệm vụ Mệnh Lộ Ẩn';return w0(id,book)}}
 {const t0=mvTal;mvTal=function(id){const M=MV[id];if(M&&M.src[0]==='c'){const k=M.src.slice(2);return((S[k]&&S[k].rk||1)-1)*.04+cqA()/600}return t0(id)}}
+
+/* Thảm họa: tránh lặp lại thảm họa vừa gặp (trong thế giới này và vài ván gần nhất) */
+const catHist=()=>{try{return JSON.parse(localStorage.getItem('dtc_cats')||'[]')}catch(e){return[]}};
+function catPick(){const ex=new Set([...catHist().slice(-3),...((S.world.seen)||[]).slice(-3)]);const K=Object.keys(CATS).filter(k=>!ex.has(k));return pick(K.length?K:Object.keys(CATS))}
+{const s0=startCat;startCat=function(id){const r=s0(id);const k=S.world.cat&&S.world.cat.id;if(k&&k!=='player'){(S.world.seen=S.world.seen||[]).push(k);if(S.world.seen.length>8)S.world.seen.shift();try{const h=catHist();h.push(k);localStorage.setItem('dtc_cats',JSON.stringify(h.slice(-6)))}catch(e){}}return r}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
