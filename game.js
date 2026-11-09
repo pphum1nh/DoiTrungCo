@@ -12072,14 +12072,14 @@ let JOBCH=null,LASTV=null;
 
 {const j0=joinJob;joinJob=function(id){const o=S.job;if(o&&o.id==='assassin'&&S.vo)S.vo.rk={rank:o.rank,yr:o.yr};const r=j0(id);if(id==='assassin'&&S.vo&&S.vo.rk&&S.job&&S.job.id==='assassin'){S.job.rank=S.vo.rk.rank;S.job.yr=S.vo.rk.yr;S.job.perf=25;S.vo.rk=null;render()}return r}}
 {const q0=quitJob;quitJob=function(){if(S.job&&S.job.id==='assassin'&&S.vo)S.vo.rk={rank:S.job.rank,yr:S.job.yr};return q0()}}
-/* ===== Con Đường Phi Phàm: con đường gốc của từng Mệnh ===== */
+/* ===== Đạo Mệnh: Mệnh Lộ gốc của từng Mệnh ===== */
 const PPNEED=['', '', 'p_tinh','p_ma','p_ma','p_than'];
 const PPMSG={p_tinh:'Tinh Dược',p_ma:'Ma Dược',p_than:'Thần Dược',p_hong:'Hồng Dược'};
 const PPWHERE={p_tinh:'bán ở tiệm bùa phép',p_ma:'tìm trong hầm ngục, trận chiến với xác sống, quỷ, pháp sư, hoặc mua lén ở chợ đen',p_than:'chỉ bán ở Thánh quốc Lumaris',p_hong:'bán ở Mục Hồng Giáo'};
 const ppAct=(t,fx,tone)=>s=>{if(fx)mod(fx);return[t,tone||'good']};
 const PP={
  hoa:{n:'Kẻ Giữ Lửa',ic:'fire',t:['Người Nhóm Lửa','Kẻ Giữ Lửa','Thợ Rèn Tàn Tro','Ngọn Lửa Không Tắt','Lò Rèn Của Thế Giới'],
-  d:'Lửa không chỉ để sưởi. Người đi con đường này giữ lửa cho cả làng, và dần quên rằng lửa cũng biết thiêu.',
+  d:'Lửa không chỉ để sưởi. Người đi Mệnh Lộ này giữ lửa cho cả làng, và dần quên rằng lửa cũng biết thiêu.',
   loss:['Bạn nổi giận vì một chuyện cỏn con, và cái bàn gỗ trước mặt cháy sém một vệt.','Bạn thấy mình thèm nhìn những thứ đang cháy hơn là nhìn người.','Người nhà bắt đầu tránh ánh mắt bạn mỗi khi bạn cáu.'],
   acts:[['fire','Giữ lửa lò rèn suốt đêm','Hợp vai · Kiếm thuật',s=>{s.blade=Math.min(100,(s.blade||0)+1);return['Bạn ngồi canh lò rèn tới sáng, nghe lửa kể chuyện. Kiếm thuật +1.','good']}],
    ['flag','Đốt đồng cỏ khô trước mùa gieo','Hợp vai · có tiền, có rủi ro',s=>{if(ch(.2)){mod({health:-8});return['Gió đổi chiều. Lửa liếm tới tận chân bạn trước khi bạn kịp dập.','bad']}const g=R(5,12);s.money+=g;return[`Đồng cỏ cháy gọn, sạch như được quét. Chủ ruộng trả bạn ${g} xu.`,'good']}],
@@ -12095,7 +12095,7 @@ const PP={
   pas:rk=>mod({health:Math.ceil(rk/2)}),
   low:()=>{mod({happy:-3});log('Bạn đứng nhìn một chiếc lá rơi suốt cả buổi sáng. Khi tỉnh ra, chợ đã tan, và bạn quên mất mình ra đó làm gì.','magic')}},
  thuy:{n:'Kẻ Đọc Con Nước',ic:'snowflake',t:['Người Nghe Mưa','Kẻ Đọc Con Nước','Người Dẫn Thủy Triều','Vực Nước Lặng','Biển Không Đáy'],
-  d:'Nước đi đâu cũng tới, nhưng không giữ lại gì. Người đi con đường này thấy mọi thứ chảy qua mình, kể cả người thân.',
+  d:'Nước đi đâu cũng tới, nhưng không giữ lại gì. Người đi Mệnh Lộ này thấy mọi thứ chảy qua mình, kể cả người thân.',
   loss:['Bạn nhìn người vợ/chồng mình khóc và chỉ thấy những giọt nước.','Bạn không còn thấy lạnh. Đó không phải tin tốt.','Bạn nghe tiếng mưa rõ hơn tiếng người nói chuyện với mình.'],
   acts:[['snowflake','Đi dọc sông đếm xoáy nước','Hợp vai',ppAct('Bạn đi dọc bờ sông từ sáng tới tối, đếm được bốn mươi bảy xoáy nước. Xoáy thứ bốn mươi tám nhìn lại bạn.',{smarts:1},'magic')],
    ['star','Gọi mưa cho ruộng hạn','Hợp vai · tốn ma lực, được danh dự',s=>{if(s.st.magic<5)return['Ma lực của bạn không đủ để gọi mây.',''];mod({magic:-5,honor:4});return['Bạn đứng giữa ruộng nứt nẻ và gọi. Trưa hôm sau, mây đen kéo về.','good']}],
@@ -12103,7 +12103,7 @@ const PP={
   pas:rk=>{if(rk>=2)mod({magic:1})},
   low:()=>{const p=spouse();if(p){p.bond=clamp(p.bond-6);log(`${p.first} bảo bạn dạo này lạnh như nước giếng. Bạn không cãi lại, vì bạn thấy điều đó đúng.`,'bad')}}},
  tho:{n:'Kẻ Mang Núi',ic:'mountain',t:['Người Đếm Đá','Kẻ Mang Núi','Tường Thành Sống','Núi Biết Thở','Người Không Ngã'],
-  d:'Đất không bao giờ ngã. Người đi con đường này đứng vững trước mọi thứ, và dần quên cả cách để mình được ngã vào lòng ai.',
+  d:'Đất không bao giờ ngã. Người đi Mệnh Lộ này đứng vững trước mọi thứ, và dần quên cả cách để mình được ngã vào lòng ai.',
   loss:['Bạn đứt tay mà không thấy đau. Máu chảy chậm như nhựa cây.','Đám tang người quen, ai cũng khóc. Bạn muốn khóc mà nước mắt không ra.','Da ở mu bàn tay bạn sần lại như đá ong.'],
   acts:[['anvil','Gánh đá xây tường thành','Hợp vai · có tiền',s=>{const g=R(6,12);s.money+=g;mod({health:1});return[`Bạn gánh đá từ sáng tới tối, vai không mỏi. Đốc công trả bạn ${g} xu và hỏi bạn có phải người không.`,'good']}],
    ['mountain','Ngồi im một ngày như tảng đá','Hợp vai mạnh · buồn chán',s=>{s.pp.dg+=8;mod({happy:-2});return['Bạn ngồi im từ lúc mặt trời mọc tới lúc lặn. Một con thằn lằn bò lên đầu gối bạn phơi nắng.','magic']}],
@@ -12119,7 +12119,7 @@ const PP={
   pas:rk=>{if(rk>=2)mod({smarts:1})},
   low:()=>{for(const p of S.fam.filter(x=>x.alive))p.bond=clamp(p.bond-3);log('Người nhà gọi bạn ba lần trong bữa tối mà không ai nhìn về phía bạn. Họ đang quên bạn dần.','bad')}},
  quang:{n:'Kẻ Cầm Đuốc',ic:'sun',t:['Người Thắp Nến','Kẻ Cầm Đuốc','Gương Soi Tội','Mặt Trời Không Lặn','Ngọn Đèn Phán Xét'],
-  d:'Ánh sáng soi rõ mọi thứ, kể cả những vết nhơ người ta muốn giấu. Người đi con đường này nhìn ra tội lỗi ở khắp nơi, và dần không tha thứ được cho ai.',
+  d:'Ánh sáng soi rõ mọi thứ, kể cả những vết nhơ người ta muốn giấu. Người đi Mệnh Lộ này nhìn ra tội lỗi ở khắp nơi, và dần không tha thứ được cho ai.',
   loss:['Bạn nhìn đứa trẻ ăn trộm táo và thấy cả một đời tội lỗi phía trước nó.','Bạn không còn nhớ lần cuối mình tha thứ cho ai là khi nào.','Ánh mắt bạn làm người khác cúi đầu. Họ không kính bạn, họ sợ bạn.'],
   acts:[['candle','Thắp nến cho người chết','Hợp vai · Đức tin',ppAct('Bạn thắp nến cho từng ngôi mộ ở nghĩa địa làng. Đến ngôi mộ cuối, bạn thấy lòng nhẹ hẳn.',{piety:2})],
    ['eye','Soi tội một kẻ gian','Hợp vai · Danh dự · có thể gây thù',s=>{mod({honor:4});if(ch(.3)){addEnemy('Kẻ gian bị bạn vạch tội',{hate:R(40,60)});return['Bạn chỉ thẳng mặt tên lái buôn cân gian giữa chợ. Hắn bị phạt, và hắn nhớ mặt bạn.','']}return['Bạn nhìn tên lái buôn đúng một lần. Hắn tự khai hết mọi lần cân gian trước khi bạn kịp hỏi.','good']}],
@@ -12127,7 +12127,7 @@ const PP={
   pas:rk=>{if(rk>=2)mod({honor:1})},
   low:()=>{addEnemy('Người bị bạn kết tội quá tay',{hate:R(45,65)});mod({honor:-2});log('Bạn kết tội một người hàng xóm chỉ vì một lời nói dối nhỏ. Cả làng thấy bạn đã đi quá xa.','bad')}},
  huyet:{n:'Kẻ Nghe Máu',ic:'heart-break',t:['Người Nghe Mạch','Kẻ Nghe Máu','Kẻ Đọc Huyết Thống','Trái Tim Đỏ','Chúa Tể Huyết Mạch'],
-  d:'Máu mang theo mọi thứ: sức mạnh, ký ức, dòng dõi. Người đi con đường này nghe được tất cả, và bắt đầu thấy khát.',
+  d:'Máu mang theo mọi thứ: sức mạnh, ký ức, dòng dõi. Người đi Mệnh Lộ này nghe được tất cả, và bắt đầu thấy khát.',
   loss:['Bạn nghe thấy tiếng tim đập của người ngồi cạnh, và thấy cổ họng khô khốc.','Mùi máu từ lò mổ làm bạn đứng lặng giữa đường.','Bạn cắn môi tới bật máu mà không biết.'],
   acts:[['heart','Chích máu chữa bệnh cho người làng','Hợp vai · có tiền, Danh dự',s=>{const g=R(4,10);s.money+=g;mod({honor:1});return[`Bạn nghe mạch, chích đúng chỗ. Cơn sốt của ông lão hạ ngay trong đêm. Gia đình trả bạn ${g} xu.`,'good']}],
    ['eye','Nghe mạch đập của kẻ nói dối','Hợp vai · Trí tuệ',ppAct('Tim kẻ nói dối đập lệch nhịp. Bạn nghe ra ngay giữa phiên chợ ồn ào.',{smarts:2},'magic')],
@@ -12135,7 +12135,7 @@ const PP={
   pas:rk=>mod({health:Math.ceil(rk/2)}),
   low:()=>{const p=pick(S.fam.filter(x=>x.alive));if(p){p.bond=clamp(p.bond-15);log(`Đêm qua bạn tỉnh dậy, đứng bên giường ${p.first}, tay đặt trên cổ người ấy. Bạn không nhớ mình đã tới đó lúc nào.`,'bad')}}},
  loi:{root:'hoa',n:'Kẻ Gọi Sấm',ic:'star',t:['Người Nhóm Lửa','Kẻ Gọi Sấm','Mắt Bão','Người Cưỡi Giông','Thiên Lôi Phán Quyết'],
-  d:'Lửa trong người bạn đã hóa thành sấm. Sấm không giữ gì lâu: người đi con đường này nhanh như chớp, và dần không chịu nổi sự chậm chạp của người khác.',
+  d:'Lửa trong người bạn đã hóa thành sấm. Sấm không giữ gì lâu: người đi Mệnh Lộ này nhanh như chớp, và dần không chịu nổi sự chậm chạp của người khác.',
   loss:['Người khác nói chưa hết câu, bạn đã thấy phát cáu.','Tóc gáy bạn dựng đứng cả ngày, và ai chạm vào bạn cũng giật mình.','Bạn không nhớ nổi lần cuối mình ngồi yên ăn hết một bữa cơm.'],
   acts:[['star','Đứng giữa đồng trong cơn giông','Hợp vai mạnh · có thể bị sét đánh',s=>{s.pp.dg+=10;if(ch(.2)){mod({health:-12});return['Tia sét đánh trúng cây sồi cạnh bạn. Bạn nằm bất tỉnh tới sáng, tóc cháy xém.','bad']}return['Bạn giơ tay lên trời. Tia sét đầu tiên chạm vào bạn như một cái bắt tay.','magic']}],
    ['anvil','Rèn kim loại bằng sét','Hợp vai · có tiền',s=>{const g=R(8,16);s.money+=g;return[`Bạn gọi sét xuống đe rèn. Lưỡi dao tôi bằng sét bán được ${g} xu.`,'good']}],
@@ -12143,7 +12143,7 @@ const PP={
   pas:rk=>{if(rk>=2)S.blade=Math.min(100,(S.blade||0)+1);if(rk>=4)mod({magic:1})},
   low:()=>{const p=spouse()||pick(S.fam.filter(x=>x.alive));if(p){p.bond=clamp(p.bond-8);log(`Bạn quát ${p.first} vì một chuyện chẳng đáng. Tia lửa điện bật ra từ đầu ngón tay bạn.`,'bad')}}},
  bang:{root:'thuy',n:'Kẻ Giữ Mùa Đông',ic:'snowflake',t:['Người Nghe Mưa','Kẻ Giữ Mùa Đông','Trái Tim Băng','Gió Bấc Không Ngừng','Kỷ Băng Hà'],
-  d:'Nước trong người bạn đã đông thành băng. Băng giữ mọi thứ nguyên vẹn, kể cả nỗi đau: người đi con đường này không quên điều gì, và cũng không tha thứ điều gì.',
+  d:'Nước trong người bạn đã đông thành băng. Băng giữ mọi thứ nguyên vẹn, kể cả nỗi đau: người đi Mệnh Lộ này không quên điều gì, và cũng không tha thứ điều gì.',
   loss:['Bạn nhớ rõ từng lời xúc phạm từ hai mươi năm trước, và vẫn thấy lạnh như hôm ấy.','Hơi thở của bạn đóng sương cả vào giữa mùa hè.','Bạn không khóc ở đám tang. Nước mắt đông lại trước khi kịp rơi.'],
   acts:[['snowflake','Ướp lạnh kho thực phẩm cho làng','Hợp vai · có tiền, Danh dự',s=>{const g=R(5,10);s.money+=g;mod({honor:1});return[`Kho cá của làng giữ được tới mùa xuân. Trưởng làng trả bạn ${g} xu.`,'good']}],
    ['moon','Ngồi thiền trên hồ băng','Hợp vai mạnh · có thể bị cảm lạnh',s=>{s.pp.dg+=10;if(ch(.2)){mod({health:-8});return['Mặt băng nứt dưới chân bạn. Bạn bò được vào bờ, run cầm cập.','bad']}return['Bạn ngồi trên hồ băng tới khi tuyết phủ kín vai. Bạn không thấy lạnh, chỉ thấy yên.','magic']}],
@@ -12151,7 +12151,7 @@ const PP={
   pas:rk=>{if(rk>=2)mod({health:1})},
   low:()=>{addEnemy('Người bạn không chịu tha thứ',{hate:R(35,55)});log('Bạn nhắc lại một lỗi cũ của người hàng xóm, lạnh lùng tới mức họ không bao giờ nhìn mặt bạn nữa.','bad')}},
  kim:{root:'tho',n:'Kẻ Nghe Kim Loại',ic:'anvil',t:['Người Đếm Đá','Kẻ Nghe Kim Loại','Lưỡi Rèn Sống','Giáp Không Vỡ','Thép Của Thế Giới'],
-  d:'Đất trong người bạn đã được tôi thành kim loại. Người đi con đường này sắc bén và cứng rắn, và dần nhìn mọi thứ, kể cả con người, như những món đồ có ích hay vô dụng.',
+  d:'Đất trong người bạn đã được tôi thành kim loại. Người đi Mệnh Lộ này sắc bén và cứng rắn, và dần nhìn mọi thứ, kể cả con người, như những món đồ có ích hay vô dụng.',
   loss:['Bạn nhìn đứa con mình và nghĩ xem nó sẽ hợp với nghề gì nhất. Chỉ thế thôi.','Da tay bạn sáng lên như kim loại đánh bóng.','Bạn nghe tiếng sắt rỉ trong tường nhà rõ hơn tiếng người gọi mình.'],
   acts:[['anvil','Nghe tiếng thép trong lò rèn','Hợp vai · Kiếm thuật',s=>{s.blade=Math.min(100,(s.blade||0)+1);return['Bạn nghe ra lưỡi kiếm nào có bọt khí bên trong chỉ bằng một tiếng gõ. Kiếm thuật +1.','good']}],
    ['mountain','Tìm mạch quặng cho thợ mỏ','Hợp vai · có tiền',s=>{const g=R(8,18);s.money+=g;return[`Bạn áp tai vào vách đá và chỉ chỗ đào. Thợ mỏ tìm được mạch sắt và chia cho bạn ${g} xu.`,'good']}],
@@ -12159,7 +12159,7 @@ const PP={
   pas:rk=>{if(rk>=2)S.blade=Math.min(100,(S.blade||0)+1);if(rk>=4)mod({health:1})},
   low:()=>{const p=pick(S.fam.filter(x=>x.alive));if(p){p.bond=clamp(p.bond-8);log(`Bạn bảo ${p.first} rằng người ấy vô dụng. Bạn nói điều đó bình thản như nói về một cái cuốc gãy.`,'bad')}}},
  vm:{n:'Kẻ Không Được Viết',ic:'scroll',t:['Trang Lề','Kẻ Không Được Viết','Người Đi Ngoài Số Phận','Vết Tẩy','Trang Giấy Trắng'],
-  d:'Không mang mệnh nào, nên không có số phận nào được viết sẵn. Người đi con đường này bước qua những lời tiên tri như bước qua vũng nước, nhưng thế giới cũng dần quên rằng họ từng tồn tại.',
+  d:'Không mang mệnh nào, nên không có số phận nào được viết sẵn. Người đi Mệnh Lộ này bước qua những lời tiên tri như bước qua vũng nước, nhưng thế giới cũng dần quên rằng họ từng tồn tại.',
   loss:['Người bán bánh mì hỏi tên bạn lần thứ ba trong tuần.','Tên bạn trong sổ rửa tội của nhà thờ mờ đi như bị nước làm nhòe.','Bạn kể một chuyện cũ, và không ai trong nhà nhớ là bạn đã có mặt.'],
   acts:[['night','Đi qua nơi không ai nhìn thấy bạn','Hợp vai',ppAct('Bạn bước vào kho thóc của lãnh chúa, đếm từng bao, rồi bước ra. Lính gác nhìn thẳng vào bạn mà không thấy gì.',null,'magic')],
    ['heart','Sửa một sai lầm mà chẳng ai biết','Hợp vai · Danh dự',ppAct('Bạn dựng lại hàng rào bị đổ của bà góa trong đêm. Sáng ra, bà cảm ơn thánh thần.',{honor:2})],
@@ -12173,52 +12173,52 @@ const ppRoot=k=>(PP[k]&&PP[k].root)||k;
 const PPBR={hoa:'loi',thuy:'bang',tho:'kim'};
 const ppArc=()=>{talSync();return S.hid.arcane||0};
 const ppCan=()=>S.pp.k==='vm'||ppArc()>=70;
-const ppName=()=>S.pp?`${PP[S.pp.k].n} · ${ppT(S.pp,S.pp.rk)}`:'';
+const ppName=()=>S.pp?`Mệnh Lộ ${PP[S.pp.k].n} · ${ppT(S.pp,S.pp.rk)}`:'';
 const ppNeed=()=>{const r=S.pp.rk+1;if(r>5)return null;if(r===5&&isRed(S))return'p_hong';return PPNEED[r]};
 const ppJ=t=>{const j=S.pp.j;j.push(t);if(j.length>12)j.shift()};
-function ppStart(k){S.pp={k,rk:1,dg:0,y:S.year,j:[],br:null,off:null,pr:100,d:{}};const D=PP[k];ppJ(`${S.year}: Bước lên con đường ${D.n}.`);
-  announce(`Con Đường Phi Phàm · ${D.n}`,`${D.d} Bạn bắt đầu ở bậc 1: ${D.t[0]}. Hãy làm những việc hợp vai để tiêu hóa sức mạnh, rồi tìm ${PPMSG.p_tinh} để bước lên bậc 2.`,D.ic,'manatest');
-  log(`Bạn bước lên Con Đường Phi Phàm: ${D.n}.`,'magic')}
-function ppUp(){const P=S.pp,D=PP[P.k];P.rk++;P.dg=0;const t=ppT(P,P.rk),ls=pick(D.loss);ppJ(`${S.year}: Lên bậc ${P.rk}, ${t}. ${ls}`);
+function ppStart(k){S.pp={k,rk:1,dg:0,y:S.year,j:[],br:null,off:null,pr:100,d:{}};const D=PP[k];ppJ(`${S.year}: Bước lên Mệnh Lộ ${D.n}.`);
+  announce(`Đạo Mệnh · Mệnh Lộ ${D.n}`,`${D.d} Bạn bắt đầu ở bậc 1 với Danh Xưng ${D.t[0]}. Hãy làm những việc hợp vai để tiêu hóa sức mạnh, rồi tìm ${PPMSG.p_tinh} để bước lên bậc 2.`,D.ic,'manatest');
+  log(`Bạn bước lên Mệnh Lộ ${D.n}.`,'magic')}
+function ppUp(){const P=S.pp,D=PP[P.k];P.rk++;P.dg=0;const t=ppT(P,P.rk),ls=pick(D.loss);ppJ(`${S.year}: Lên bậc ${P.rk}, Danh Xưng ${t}. ${ls}`);
   if(P.k==='vm')P.pr=Math.max(0,P.pr-6*P.rk);
-  announce(t,`Bạn lên bậc ${P.rk} của con đường ${D.n}. ${ls}`,D.ic);S.house.prestige+=5*P.rk;
+  announce(t,`Bạn lên bậc ${P.rk} của Mệnh Lộ ${D.n}, nhận Danh Xưng ${t}. ${ls}`,D.ic);S.house.prestige+=5*P.rk;
   if(P.rk===2&&PPBR[P.k]&&!P.br&&!S.pend.includes('pp_br'))S.pend.push('pp_br')}
 function ppDrink(){if(!ppOn())return;if(S.pp.k==='vm'||!ppCan())return;const P=S.pp,k=ppNeed();if(!k)return;const i=S.bag.findIndex(x=>x.k===k);if(i<0)return[`Bạn cần một lọ ${PPMSG[k]} trong túi.`,''];
   S.bag.splice(i,1);const X=POT[k];S.potX=(S.potX||0)+(X?X.tox:0);let t,tone='magic';
   if(k==='p_ma'){S.potMa=(S.potMa||0)+1;if(ch(.08*S.potMa)&&!S.pend.includes('pot_demon'))S.pend.push('pot_demon')}
-  if(P.dg>=100){ppUp();t=`Bạn uống ${PPMSG[k]}. Sức mạnh đã tiêu hóa từ trước đón lấy nó như đất khô đón mưa. Bạn lên bậc ${P.rk}: ${ppT(P,P.rk)}.`}
-  else if(ch(.15+P.dg/250)){ppUp();ltHit(-15);if(P.k==='vm')P.pr=Math.max(0,P.pr-10);t=`Bạn uống ${PPMSG[k]} khi sức mạnh cũ còn chưa tiêu hóa xong. Nó xé toạc bạn ra rồi khâu lại. Bạn lên bậc ${P.rk}: ${ppT(P,P.rk)}, nhưng mất 15 Lý trí.`+potBack();tone='bad'}
+  if(P.dg>=100){ppUp();t=`Bạn uống ${PPMSG[k]}. Sức mạnh đã tiêu hóa từ trước đón lấy nó như đất khô đón mưa. Bạn lên bậc ${P.rk}, Danh Xưng ${ppT(P,P.rk)}.`}
+  else if(ch(.15+P.dg/250)){ppUp();ltHit(-15);if(P.k==='vm')P.pr=Math.max(0,P.pr-10);t=`Bạn uống ${PPMSG[k]} khi sức mạnh cũ còn chưa tiêu hóa xong. Nó xé toạc bạn ra rồi khâu lại. Bạn lên bậc ${P.rk}, Danh Xưng ${ppT(P,P.rk)}, nhưng mất 15 Lý trí.`+potBack();tone='bad'}
   else{ltHit(-8);P.dg=Math.max(0,P.dg-20);t=`Bạn uống ${PPMSG[k]} khi chưa tiêu hóa xong sức mạnh cũ. Hai luồng sức mạnh cắn xé nhau trong máu bạn. Không lên được bậc, mất 8 Lý trí.`+potBack();tone='bad'}
   if(X&&X.tox&&S.potX>=3&&ch((S.potX-2)*.18))t+=potBack();
   if(S.st.health<=0)die('phản phệ ma dược');return[t,tone]}
 function ppYear(){if(!S||!S.alive||S.cap)return;
   if(!S.pp&&mnOn()&&!clsHas(S)&&S.hid&&PP[S.hid.menh]&&!S.hid.vm)ppStart(S.hid.menh);
   const P=S.pp;if(!P)return;const D=PP[P.k];
-  if(!P.off&&clsHas(S)){P.off=S.year;ppJ(`${S.year}: Con đường ${D.n} lùi lại nhường chỗ cho con đường class ẩn. Chỉ còn dư âm ở bậc ${P.rk}.`);log(`Con Đường ${D.n} lùi lại, nhường chỗ cho con đường mới. Bạn vẫn giữ dư âm của nó ở bậc ${P.rk}.`,'magic')}
+  if(!P.off&&clsHas(S)){P.off=S.year;ppJ(`${S.year}: Mệnh Lộ ${D.n} lùi lại nhường chỗ cho class ẩn. Chỉ còn dư âm ở bậc ${P.rk}.`);log(`Mệnh Lộ ${D.n} lùi lại, nhường chỗ cho class ẩn. Bạn vẫn giữ dư âm của nó ở bậc ${P.rk}.`,'magic')}
   D.pas(P.rk);
   if(!P.off&&S.age>=12&&ppCan()){const o=P.dg;P.dg=Math.min(100,P.dg+4);if(o<100&&P.dg>=100){const k=ppNeed();if(P.k==='vm'&&P.rk<5)log('Sức mạnh của bậc này đã tiêu hóa xong. Giờ bạn cần đi tìm một khoảnh khắc nằm ngoài số phận.','magic');else if(k)log(`Sức mạnh của bậc ${P.rk} đã tiêu hóa xong. Giờ bạn cần một lọ ${PPMSG[k]} để bước lên bậc ${P.rk+1}.`,'magic')}}
   if(P.k!=='vm'&&ltV()<40&&ch(.4))D.low();
   if(P.k==='vm'){P.pr=Math.min(100-4*P.rk,P.pr+1);if(P.pr<60)for(const p of [...S.fam,...S.rel].filter(x=>x.alive))p.bond=clamp(p.bond-(P.pr<30?5:2));
     if(P.pr<60&&ch(.3))log(pick(D.loss),'magic');if(P.pr<=0&&!S.pend.includes('pp_vanish'))S.pend.push('pp_vanish')}}
 {const y0=extYear3;extYear3=function(){y0();ppYear()}}
-function ppView(){const P=S.pp;if(!P)return['Con Đường Phi Phàm','<p class="note">Bạn chưa bước lên con đường nào.</p>','act'];const D=PP[P.k],dis=!S.alive||!!S.cap;
-  let b=imgBanner('manatest')+gRow('',D.ic,ppT(P,P.rk),`${D.n} · Bậc ${P.rk}/5${P.off?' · chỉ còn dư âm':''}`,'',false,true)+`<p class="note">${D.d}</p>`;
-  if(P.k!=='vm')b+=`<p class="note">Cảm nhận ma pháp: ${ppArc()}/100${ppArc()<70?' · cần 70 để đi tiếp con đường':''} · càng cao thì luyện chiêu Mệnh càng nhanh</p>`;
+function ppView(){const P=S.pp;if(!P)return['Đạo Mệnh','<p class="note">Bạn chưa bước lên Mệnh Lộ nào.</p>','act'];const D=PP[P.k],dis=!S.alive||!!S.cap;
+  let b=imgBanner('manatest')+gRow('',D.ic,ppT(P,P.rk),`Danh Xưng · Mệnh Lộ ${D.n} · Bậc ${P.rk}/5${P.off?' · chỉ còn dư âm':''}`,'',false,true)+`<p class="note">${D.d}</p>`;
+  if(P.k!=='vm')b+=`<p class="note">Cảm nhận ma pháp: ${ppArc()}/100${ppArc()<70?' · cần 70 để đi tiếp Mệnh Lộ':''} · càng cao thì luyện chiêu Mệnh càng nhanh</p>`;
   const bar=(n,v,d,i)=>`<div class="row"><span class="ri">${ic(i,24)}</span><div><b>${n}: ${v}/100</b><small>${d}</small><div class="bond"><i style="width:${v}%"></i></div></div></div>`;
-  if(P.off){b+=`<p class="note magic">Bạn đã chuyển sang con đường của class ẩn. Con đường ${D.n} chỉ còn dư âm: các năng lực bị động ở bậc ${P.rk} vẫn theo bạn, nhưng không đi tiếp được nữa.</p>`}
+  if(P.off){b+=`<p class="note magic">Bạn đã chuyển sang class ẩn. Mệnh Lộ ${D.n} chỉ còn dư âm: các năng lực bị động ở bậc ${P.rk} vẫn theo bạn, nhưng không đi tiếp được nữa.</p>`}
   else if(!ppCan()){b+='<p class="note">Bạn đã thức tỉnh Mệnh, nhưng cảm nhận ma pháp của bạn chưa đủ để đi xa hơn. Như phần lớn người thức tỉnh khác, bạn mang Mệnh trong người và sống một đời bình thường. Các class ẩn của Mệnh này vẫn có thể tìm đến bạn.</p>'}
   else{b+=bar('Tiêu hóa',Math.min(100,P.dg),'Làm việc hợp vai để tiêu hóa sức mạnh của bậc hiện tại','star');
     if(P.k==='vm')b+=bar('Hiện diện',P.pr,'Thế giới còn nhớ bạn tới đâu. Về 0, bạn biến mất khỏi ký ức của mọi người','user');
-    const k=ppNeed();if(P.k==='vm'&&P.rk<5){const ready=P.dg>=100;b+=`<p class="sec">Bước lên bậc ${P.rk+1}: ${ppT({...P,rk:P.rk+1},P.rk+1)}</p>`+gRow('data-x="pp:vm"','scroll','Đi tìm một khoảnh khắc ngoài số phận',ready?'Đã tiêu hóa xong · một sự kiện đặc biệt đang chờ bạn':`Cần tiêu hóa xong (${P.dg}/100). Người không mang mệnh không lên bậc bằng dược`,ready?'Sẵn sàng':'',dis||!ready||S.pend.includes('pp_vm'))}
+    const k=ppNeed();if(P.k==='vm'&&P.rk<5){const ready=P.dg>=100;b+=`<p class="sec">Bước lên bậc ${P.rk+1} · Danh Xưng: ${ppT({...P,rk:P.rk+1},P.rk+1)}</p>`+gRow('data-x="pp:vm"','scroll','Đi tìm một khoảnh khắc ngoài số phận',ready?'Đã tiêu hóa xong · một sự kiện đặc biệt đang chờ bạn':`Cần tiêu hóa xong (${P.dg}/100). Người không mang mệnh không lên bậc bằng dược`,ready?'Sẵn sàng':'',dis||!ready||S.pend.includes('pp_vm'))}
     else if(k){const has=S.bag.some(x=>x.k===k),ready=P.dg>=100;
-      b+=`<p class="sec">Bước lên bậc ${P.rk+1}: ${ppT({...P,rk:P.rk+1},P.rk+1)}</p>`;
+      b+=`<p class="sec">Bước lên bậc ${P.rk+1} · Danh Xưng: ${ppT({...P,rk:P.rk+1},P.rk+1)}</p>`;
       b+=gRow('data-x="pp:up"','potion',`Uống ${PPMSG[k]}`,!has?`Chưa có trong túi · ${PPWHERE[k]}`:ready?'Đã tiêu hóa xong · uống để lên bậc':`Chưa tiêu hóa xong (${P.dg}/100) · ép lên bậc rất dễ phản phệ và mất Lý trí`,ready?'Sẵn sàng':'',dis||!has);
       if(k==='p_ma'&&!S.done.ppbm)b+=gRow('data-x="pp:bm"','coins','Mua lén Ma Dược ở chợ đen (100 xu)','Một lần mỗi năm · Đội Gác Đêm hay để mắt tới chợ đen','',dis||S.money<100||S.bag.length>=BAGMAX)}
-    else b+='<p class="note">Bạn đã đi tới cuối con đường.</p>';
+    else b+='<p class="note">Bạn đã đi tới cuối Mệnh Lộ.</p>';
     const used=S.done.ppn||0;b+=`<p class="sec">Việc hợp vai · còn ${Math.max(0,2-used)}/2 việc năm nay</p>`;
     D.acts.forEach((A,i)=>{const why=S.age<12?'Còn quá nhỏ':S.done['ppn'+i]?'Đã làm năm nay':used>=2?'Đã hết lượt năm nay':'';b+=gRow(`data-x="pp:a:${i}"`,A[0],A[1],why||A[2],'',dis||!!why)})}
-  b+='<p class="sec">Nhật ký con đường</p>'+P.j.map(t=>`<p class="note">${esc(t)}</p>`).join('');
-  return['Con Đường Phi Phàm',b,'act']}
+  b+='<p class="sec">Nhật ký Mệnh Lộ</p>'+P.j.map(t=>`<p class="note">${esc(t)}</p>`).join('');
+  return['Đạo Mệnh',b,'act']}
 function ppDo(x){if(!S.pp||!S.alive||S.cap)return;const P=S.pp,D=PP[P.k];const p=x.split(':');let r;
   if(p[1]==='up')r=ppDrink();
   else if(p[1]==='bm'){if(S.done.ppbm||S.money<100||S.bag.length>=BAGMAX)return;S.done.ppbm=1;S.money-=100;gainItem('p_ma');if(ch(.25)){S.flags.gdW=1;r=['Bạn mua được một lọ Ma Dược trong căn hầm dưới cầu. Lúc đi ra, bạn thấy một chiếc mũ rộng vành ở đầu ngõ.','bad']}else r=['Người bán run tay khi đưa lọ Ma Dược cho bạn, như thể chính hắn cũng sợ nó.','item']}
@@ -12228,7 +12228,7 @@ function ppDo(x){if(!S.pp||!S.alive||S.cap)return;const P=S.pp,D=PP[P.k];const p
 {const d0=drawExt3;drawExt3=function(v){if(v==='pp')return ppView();return d0(v)}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('pp:'))return ppDo(x);return x0(x)}}
 {const a0=actExtra3;actExtra3=function(){const b=a0();if(!S.pp)return b;const P=S.pp,D=PP[P.k];
-  return`<p class="sec">Con Đường Phi Phàm</p>`+gRow('data-open="pp"',D.ic,ppT(P,P.rk),P.off?`${D.n} · dư âm bậc ${P.rk}`:!ppCan()?`${D.n} · Bậc 1 · người thường thức tỉnh`:`${D.n} · Bậc ${P.rk}/5 · Tiêu hóa ${Math.min(100,P.dg)}/100`,'',!S.alive)+b}}
+  return`<p class="sec">Đạo Mệnh</p>`+gRow('data-open="pp"',D.ic,ppT(P,P.rk),P.off?`Mệnh Lộ ${D.n} · dư âm bậc ${P.rk}`:!ppCan()?`Mệnh Lộ ${D.n} · Bậc 1 · người thường thức tỉnh`:`Mệnh Lộ ${D.n} · Bậc ${P.rk}/5 · Tiêu hóa ${Math.min(100,P.dg)}/100`,'',!S.alive)+b}}
 const PPVM={
  2:{t:'Lời Tiên Tri Bị Bỏ Lỡ',x:'Một bà tiên tri mù ngồi ở cổng chợ, nói cho từng người qua đường biết số phận của họ. Tới lượt bạn, bà sờ lên mặt bạn rất lâu rồi bật khóc: "Ta không thấy gì cả. Như chưa ai từng viết ngươi." Mọi người xung quanh đã quay đi, như thể bạn không đứng đó.',
   a:'Bước qua bà ấy, đi tiếp',ax:'Bạn bước qua lời tiên tri như bước qua một vũng nước. Từ hôm đó, những điềm báo không còn chạm được vào bạn.',b:'Ngồi lại an ủi bà',bx:'Bạn ngồi lại với bà tới khi chợ tan. Bà kể cho bạn nghe về những số phận bà đã thấy. Bạn chưa đi tiếp được.'},
@@ -12240,11 +12240,11 @@ const PPVM={
   a:'Bước vào trang giấy trắng',ax:'Bạn bước vào vai không ai được viết cho. Người ta sẽ kể về một bóng người không rõ mặt đã đứng ở cổng thành đêm ấy, và không ai nhớ được tên.',b:'Để trang ấy trắng',bx:'Bạn để trang giấy trắng như cũ. Có lẽ một ngày nào đó.'}};
 const PP_EV=[
  {id:'pp_br',queued:true,big:true,art:'star',img:'manatest',c:s=>!!(s.pp&&!s.pp.off&&PPBR[s.pp.k]&&!s.pp.br&&s.pp.rk===2),title:'Ngã Rẽ Ở Bậc Hai',
-  text:s=>({hoa:'Đêm giông, bạn đứng giữa đồng. Lửa trong người bạn gọi tia sét xuống, và tia sét trả lời. Bạn có thể giữ lửa như cũ, hoặc để lửa hóa thành sấm: con đường Kẻ Gọi Sấm.',
-    thuy:'Sáng mùa đông, mặt hồ đóng băng dưới chân bạn mà bạn không hề gọi. Nước trong người bạn muốn đứng yên lại. Bạn có thể giữ dòng chảy như cũ, hoặc để nó đông thành băng: con đường Kẻ Giữ Mùa Đông.',
-    tho:'Trong lò rèn của làng, một thanh sắt nung đỏ cất tiếng gọi bạn. Đất trong người bạn muốn được tôi trong lửa. Bạn có thể giữ đất như cũ, hoặc để nó hóa thành kim loại: con đường Kẻ Nghe Kim Loại.'})[s.pp.k],
-  ch:[{t:'Giữ con đường gốc',f:s=>{s.pp.br='giữ';return`Bạn giữ con đường ${PP[s.pp.k].n} như cũ.`}},
-      {t:'Đi theo nguyên tố mới',f:s=>{const o=s.pp.k,k=PPBR[o];s.pp.k=k;s.pp.br=o;ppJ(`${s.year}: Rẽ sang con đường ${PP[k].n}.`);return[`Con đường của bạn rẽ sang ${PP[k].n}. Bậc 2 của bạn giờ là ${PP[k].t[1]}.`,'magic']}}]},
+  text:s=>({hoa:'Đêm giông, bạn đứng giữa đồng. Lửa trong người bạn gọi tia sét xuống, và tia sét trả lời. Bạn có thể giữ lửa như cũ, hoặc để lửa hóa thành sấm: Mệnh Lộ Kẻ Gọi Sấm.',
+    thuy:'Sáng mùa đông, mặt hồ đóng băng dưới chân bạn mà bạn không hề gọi. Nước trong người bạn muốn đứng yên lại. Bạn có thể giữ dòng chảy như cũ, hoặc để nó đông thành băng: Mệnh Lộ Kẻ Giữ Mùa Đông.',
+    tho:'Trong lò rèn của làng, một thanh sắt nung đỏ cất tiếng gọi bạn. Đất trong người bạn muốn được tôi trong lửa. Bạn có thể giữ đất như cũ, hoặc để nó hóa thành kim loại: Mệnh Lộ Kẻ Nghe Kim Loại.'})[s.pp.k],
+  ch:[{t:'Giữ Mệnh Lộ gốc',f:s=>{s.pp.br='giữ';return`Bạn giữ Mệnh Lộ ${PP[s.pp.k].n} như cũ.`}},
+      {t:'Đi theo nguyên tố mới',f:s=>{const o=s.pp.k,k=PPBR[o];s.pp.k=k;s.pp.br=o;ppJ(`${s.year}: Rẽ sang Mệnh Lộ ${PP[k].n}.`);return[`Mệnh Lộ của bạn rẽ sang ${PP[k].n}. Danh Xưng bậc 2 của bạn giờ là ${PP[k].t[1]}.`,'magic']}}]},
  {id:'pp_vanish',queued:true,big:true,art:'scroll',img:'ghost',c:s=>!!(s.alive&&s.pp&&s.pp.k==='vm'&&s.pp.pr<=0),title:'Trang Giấy Trắng',
   text:'Sáng nay, người trong nhà dọn bữa thiếu một bát. Không ai nhớ trong nhà từng có bạn. Tên bạn trong sổ nhà thờ chỉ còn là một khoảng trắng.',
   ch:[{t:'Khắc tên mình lên tường nhà thờ',f:s=>{if(ch(.4+(spouse()?.2:0))){s.pp.pr=20;mod({health:-10});return['Bạn khắc từng nét bằng con dao gỉ cho tới khi tay chảy máu. Sáng ra, đứa con nhỏ chỉ vào bạn và gọi đúng tên. Thế giới nhớ ra bạn, thêm một thời gian nữa. Hiện diện 20.','good']}
@@ -12253,18 +12253,18 @@ const PP_EV=[
  {id:'pp_vm',queued:true,big:true,art:'scroll',img:'ghost',c:s=>!!(s.alive&&s.pp&&s.pp.k==='vm'&&!s.pp.off&&s.pp.dg>=100&&s.pp.rk<5),title:s=>PPVM[s.pp.rk+1].t,text:s=>PPVM[s.pp.rk+1].x},
  {id:'pp_vmcall',queued:true,big:true,art:'scroll',img:'manatest',c:s=>!!(s.alive&&s.hid&&s.hid.vm&&!s.pp&&!clsHas(s)),title:'Cuốn Sổ Không Có Tên',
   text:'Trong thư viện tu viện, bạn tìm thấy một cuốn sổ dày, mọi trang đều trắng. Chỉ trang đầu có một dòng: "Dành cho những người không mang mệnh. Các ngươi không có số phận, nên các ngươi có thể tự viết."',
-  ch:[{t:'Bước lên con đường này',f:s=>{ppStart('vm');return['Bạn cầm bút lên. Không có gì được viết sẵn cho bạn, và lần đầu tiên điều đó không làm bạn buồn.','magic']}},
+  ch:[{t:'Bước lên Mệnh Lộ này',f:s=>{ppStart('vm');return['Bạn cầm bút lên. Không có gì được viết sẵn cho bạn, và lần đầu tiên điều đó không làm bạn buồn.','magic']}},
       {t:'Đặt cuốn sổ lại kệ',f:s=>{s.flags.vmNo=1;return'Bạn đặt cuốn sổ về chỗ cũ. Có những trang giấy nên được để trắng.'}}]}
 ];
-Object.defineProperty(PP_EV.find(e=>e.id==='pp_vm'),'ch',{get:()=>{const r=S&&S.pp&&PPVM[S.pp.rk+1];if(!r)return[];return[{t:r.a,f:s=>{ppUp();if(s.pp.rk>=3)s.pp.pr=Math.max(0,s.pp.pr-5);return[r.ax+` Bạn lên bậc ${s.pp.rk}: ${ppT(s.pp,s.pp.rk)}.`,'magic']}},{t:r.b,f:s=>{s.pp.dg=70;return r.bx}}]}});
+Object.defineProperty(PP_EV.find(e=>e.id==='pp_vm'),'ch',{get:()=>{const r=S&&S.pp&&PPVM[S.pp.rk+1];if(!r)return[];return[{t:r.a,f:s=>{ppUp();if(s.pp.rk>=3)s.pp.pr=Math.max(0,s.pp.pr-5);return[r.ax+` Bạn lên bậc ${s.pp.rk}, Danh Xưng ${ppT(s.pp,s.pp.rk)}.`,'magic']}},{t:r.b,f:s=>{s.pp.dg=70;return r.bx}}]}});
 for(const e of PP_EV){EV.push(e);EVB[e.id]=e;if(e.img)EIMG[e.id]=e.img}
-EVB.vm_rev.ch.push({t:'Đi tìm con đường của người không mang mệnh',f:s=>{ppStart('vm');return['Thầy pháp ngập ngừng rồi kể cho bạn nghe về những người không mang mệnh, và con đường không ai viết sẵn của họ.','magic']}});
+EVB.vm_rev.ch.push({t:'Đi tìm Mệnh Lộ của người không mang mệnh',f:s=>{ppStart('vm');return['Thầy pháp ngập ngừng rồi kể cho bạn nghe về những người không mang mệnh, và Mệnh Lộ không ai viết sẵn của họ.','magic']}});
 {const y0=extYear3;extYear3=function(){y0();if(S&&S.alive&&!S.cap&&S.hid&&S.hid.vm&&S.flags.vmR&&!S.pp&&!S.flags.vmNo&&!clsHas(S)&&S.age>=14&&!S.pend.includes('pp_vmcall')&&ch(.25))S.pend.push('pp_vmcall')}}
-/* class ẩn dựa trên Mệnh mọc ra từ con đường gốc tương ứng */
+/* class ẩn dựa trên Mệnh mọc ra từ Mệnh Lộ gốc tương ứng */
 const ppMatch=(s,k)=>!!(s.pp&&!s.pp.off&&ppRoot(s.pp.k)===k&&s.pp.rk>=1);
 for(const[id,k]of [['tt_call','moc'],['vj_call','quang'],['rn_call','hoa'],['bt_call','huyet'],['kg_call','tho'],['xk_call','hac'],['wt_call','thuy']]){const e=EVB[id];if(!e)continue;const c0=e.c;e.c=s=>ppMatch(s,k)&&(!c0||c0(s))}
 {const e=EVB.hc_call,c0=e.c;e.c=s=>s.hcK==='mks'?ppMatch(s,s.hid&&s.hid.menh)&&c0(s):c0(s)}
-{const g0=genRecord;genRecord=function(){const r=g0();if(!r.cls&&S.pp)r.cls=`${PP[S.pp.k].n} · ${ppT(S.pp,S.pp.rk)}`;return r}}
+{const g0=genRecord;genRecord=function(){const r=g0();if(!r.cls&&S.pp)r.cls=`${ppT(S.pp,S.pp.rk)} (Mệnh Lộ ${PP[S.pp.k].n})`;return r}}
 {const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.pp){r.pp.j=r.pp.j||[];r.pp.d=r.pp.d||{};if(r.pp.pr==null)r.pp.pr=100;if(r.pp.br==='loi'||r.pp.br==='bang'){r.pp.k=r.pp.br;r.pp.br=r.pp.k==='loi'?'hoa':'thuy'}if(!PP[r.pp.k])r.pp=null}return r}}
 {const x0=extAct3;extAct3=function(x){if(x.startsWith('lta:')&&S&&S.pp&&S.pp.k==='vm'&&!S.done.lta)S.pp.pr=Math.min(100,S.pp.pr+5);return x0(x)}}
 /* ===== Phỏng vấn xin việc (trừ Hội Thợ Săn và Sát Thủ) ===== */
