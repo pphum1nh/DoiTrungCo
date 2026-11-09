@@ -12217,7 +12217,7 @@ function ppView(){const P=S.pp;if(!P)return['Đạo Mệnh','<p class="note">B�
     const k=ppNeed();if(P.k==='vm'&&P.rk<5){const ready=P.dg>=100;b+=`<p class="sec">Bước lên bậc ${P.rk+1} · Danh Xưng: ${ppT({...P,rk:P.rk+1},P.rk+1)}</p>`+gRow('data-x="pp:vm"','scroll','Đi tìm một khoảnh khắc ngoài số phận',ready?'Đã tiêu hóa xong · một sự kiện đặc biệt đang chờ bạn':`Cần tiêu hóa xong (${P.dg}/100). Người không mang mệnh không lên bậc bằng dược`,ready?'Sẵn sàng':'',dis||!ready||S.pend.includes('pp_vm'))}
     else if(k){const has=S.bag.some(x=>x.k===k),ready=P.dg>=100,lo5=P.rk>=4&&ppArc()<70;
       b+=`<p class="sec">Bước lên bậc ${P.rk+1} · Danh Xưng: ${ppT({...P,rk:P.rk+1},P.rk+1)}</p>`;
-      b+=gRow('data-x="pp:up"','potion',`Uống ${PPMSG[k]}`,lo5?`Cần cảm nhận ma pháp 70 để lên Bậc 5 (hiện ${ppArc()})`:!has?`Chưa có trong túi · ${PPWHERE[k]}`:ppTrNeed()?(S.done.pptr?'Đã thử ngã rẽ năm nay · năm sau thử lại':'Ngã rẽ: phải trả lời câu đố trước khi uống'):ready?'Đã tiêu hóa xong · uống để lên bậc':`Chưa tiêu hóa xong (${P.dg}/100) · ép lên bậc rất dễ phản phệ và mất Lý trí`,ready&&!lo5&&!(ppTrNeed()&&S.done.pptr)?'Sẵn sàng':'',dis||!has||lo5||(ppTrNeed()&&!!S.done.pptr));
+      b+=gRow('data-x="pp:up"','potion',`Uống ${PPMSG[k]}`,lo5?`Cần cảm nhận ma pháp 70 để lên Bậc 5 (hiện ${ppArc()})`:!has?`Chưa có trong túi · ${PPWHERE[k]}`:ppTrNeed()?'Ngã rẽ: một lựa chọn đang chờ trước khi uống':ready?'Đã tiêu hóa xong · uống để lên bậc':`Chưa tiêu hóa xong (${P.dg}/100) · ép lên bậc rất dễ phản phệ và mất Lý trí`,ready&&!lo5?'Sẵn sàng':'',dis||!has||lo5);
       if(k==='p_ma'&&!S.done.ppbm)b+=gRow('data-x="pp:bm"','coins','Mua lén Ma Dược ở chợ đen (100 xu)','Một lần mỗi năm · Đội Gác Đêm hay để mắt tới chợ đen','',dis||S.money<100||S.bag.length>=BAGMAX)}
     else b+='<p class="note">Bạn đã đi tới cuối Mệnh Lộ.</p>';
     const used=S.done.ppn||0;b+=`<p class="sec">Việc hợp vai · còn ${Math.max(0,2-used)}/2 việc năm nay</p>`;
@@ -12225,7 +12225,7 @@ function ppView(){const P=S.pp;if(!P)return['Đạo Mệnh','<p class="note">B�
   b+='<p class="sec">Nhật ký Mệnh Lộ</p>'+P.j.map(t=>`<p class="note">${esc(t)}</p>`).join('');
   return['Đạo Mệnh',b,'act']}
 function ppDo(x){if(!S.pp||!S.alive||S.cap)return;const P=S.pp,D=PP[P.k];const p=x.split(':');let r;
-  if(p[1]==='up'){if(ppTrNeed()){if(S.done.pptr)r=['Linh khí ở ngã rẽ đã rút lui. Năm sau hãy thử lại.',''];else if(!S.pend.includes('pp_tr')){P.tq={i:R(0,PPTR[P.k].length-1),ord:[0,1,2].sort(()=>Math.random()-.5)};S.pend.push('pp_tr');return afterSheetAction()}}else r=ppDrink()}
+  if(p[1]==='up'){if(ppTrNeed()){if(!S.pend.includes('pp_tr'))S.pend.push('pp_tr');return afterSheetAction()}r=ppDrink()}
   else if(p[1]==='bm'){if(S.done.ppbm||S.money<100||S.bag.length>=BAGMAX)return;S.done.ppbm=1;S.money-=100;gainItem('p_ma');if(ch(.25)){S.flags.gdW=1;r=['Bạn mua được một lọ Ma Dược trong căn hầm dưới cầu. Lúc đi ra, bạn thấy một chiếc mũ rộng vành ở đầu ngõ.','bad']}else r=['Người bán run tay khi đưa lọ Ma Dược cho bạn, như thể chính hắn cũng sợ nó.','item']}
   else if(p[1]==='vm'){if(P.k!=='vm'||P.dg<100||P.rk>=5||S.pend.includes('pp_vm'))return;S.pend.push('pp_vm');return afterSheetAction()}
   else if(p[1]==='a'){const i=+p[2],A=D.acts[i];if(!A||P.off||!ppCan()||S.age<12||S.done['ppn'+i]||(S.done.ppn||0)>=2)return;S.done.ppn=(S.done.ppn||0)+1;S.done['ppn'+i]=1;r=A[3](S);if(S.pp)P.dg=Math.min(100,P.dg+R(12,20));}
@@ -12757,54 +12757,31 @@ const catHist=()=>{try{return JSON.parse(localStorage.getItem('dtc_cats')||'[]')
 function catPick(){const ex=new Set([...catHist().slice(-3),...((S.world.seen)||[]).slice(-3)]);const K=Object.keys(CATS).filter(k=>!ex.has(k));return pick(K.length?K:Object.keys(CATS))}
 {const s0=startCat;startCat=function(id){const r=s0(id);const k=S.world.cat&&S.world.cat.id;if(k&&k!=='player'){(S.world.seen=S.world.seen||[]).push(k);if(S.world.seen.length>8)S.world.seen.shift();try{const h=catHist();h.push(k);localStorage.setItem('dtc_cats',JSON.stringify(h.slice(-6)))}catch(e){}}return r}}
 
-/* ===== Thử thách ngã rẽ bậc 2 (Hỏa/Thủy/Thổ): câu đố 3 đáp án → nhánh gốc / nhánh mới / chưa qua ===== */
+/* ===== Ngã rẽ bậc 2 (Hỏa/Thủy/Thổ): một cảnh cứu hộ, ba lựa chọn: ở lại bậc 1 / lộ gốc / nhánh biến thể ===== */
 const ppTrNeed=()=>{const P=S.pp;return!!(P&&P.rk===1&&PPBR[P.k]&&!P.br&&!P.brC&&ppCan()&&S.bag.some(x=>x.k===ppNeed()))};
-// mỗi câu: [đề, [đáp án nhánh gốc, lời đáp], [đáp án nhánh mới, lời đáp], [đáp án sai, lời đáp]]
+// [tiêu đề, cảnh, [lời đáp, kết quả] ở lại / lộ gốc / nhánh]
 const PPTR={
- hoa:[['Ngọn lửa trong người bạn và tia sét ngoài trời cùng hỏi: "Thứ gì soi sáng mà không cần ở lại?"',
-   ['Chẳng có gì cả. Thứ soi sáng thật sự là ngọn lửa trong lò, cháy suốt đêm để giữ ấm cho người ngủ.','Ngọn lửa trong bạn bùng lên, ấm và bền. Nó chọn ở lại.'],
-   ['Tia chớp. Sáng một khắc rồi đi, nhưng cả bầu trời nhớ nó.','Tia sét đáp lời bạn. Trong một khắc, bạn thấy cả vùng đất sáng trắng.'],
-   ['Mặt trời.','Lửa và sét cùng im lặng. Ánh sáng mượn của người khác không phải câu trả lời của bạn.']],
-  ['Giọng nói trong đống lửa trại hỏi: "Ta cần gì để sống?"',
-   ['Củi, và những người ngồi quanh ta.','Lửa reo lên như được gọi đúng tên.'],
-   ['Một khoảng trống giữa trời và đất, đủ rộng để ta lao qua.','Trên trời có tiếng sấm rền, như ai đó vừa gật đầu.'],
-   ['Không cần gì cả. Ta tự cháy.','Đống lửa tắt phụt. Không ngọn lửa nào tự cháy được.']],
-  ['Bà lão giữ lửa ở đền hỏi: "Thứ gì càng chia ra càng nhiều?"',
-   ['Lửa. Mồi từ một ngọn sang ngàn ngọn mà ngọn đầu không hề mất.','Bà gật đầu và đưa cho bạn một que đóm.'],
-   ['Tiếng sấm. Một tiếng nổ, ngàn ngọn đồi cùng vang lại.','Bà lão cười, nhìn lên đám mây đen đang kéo đến.'],
-   ['Vàng.','Bà lão thở dài: "Vàng càng chia càng ít, cháu ạ."']]],
- thuy:[['Mặt hồ hỏi bạn: "Thứ gì mạnh nhất?"',
-   ['Dòng nước, vì nó chịu cúi xuống chỗ thấp nhất mà vẫn mài mòn được đá.','Nước trong bạn chảy êm hơn, sâu hơn.'],
-   ['Mặt hồ đóng băng, vì nó biết đứng yên.','Mặt hồ cứng lại dưới chân bạn mà không có tiếng động nào.'],
-   ['Cơn lũ, vì nó cuốn trôi mọi thứ.','Mặt hồ gợn sóng rồi phẳng lặng. Cơn lũ chỉ mạnh trong một tuần.']],
-  ['Có giọng nói hỏi từ dưới giếng: "Ta có giường mà không ngủ, có miệng mà không ăn. Ta là gì?"',
-   ['Dòng sông.','Tiếng nước dưới giếng reo lên như trẻ con được khen.'],
-   ['Dòng sông vào mùa đông, khi cuối cùng nó cũng chịu nằm yên trên giường.','Miệng giếng phủ một lớp sương giá mỏng.'],
-   ['Con cá.','Giếng im lặng. Con cá có ngủ, và có ăn.']],
-  ['Ông lái đò hỏi: "Nước giữ được gì?"',
-   ['Không giữ gì cả. Nước mang mọi thứ đi, và vì thế mà sạch.','Ông lái đò đẩy sào, con đò trôi êm như được ai đỡ.'],
-   ['Nước giữ lại khoảnh khắc, như băng giữ một chiếc lá giữa mùa đông.','Ông lái đò nhìn bạn rất lâu rồi nói: "Lạnh đấy, nhưng đúng."'],
-   ['Nước giữ mọi thứ nó chạm vào.','Ông lái đò lắc đầu. Nước giữ mọi thứ là nước đầm lầy.']]],
- tho:[['Ngọn núi hỏi: "Điều gì trong ta quý nhất?"',
-   ['Lớp đất trên lưng, nơi rễ cây bám vào.','Đất dưới chân bạn ấm lên như bàn tay mẹ.'],
-   ['Mạch quặng sâu trong tim, cứng hơn cả chính ngọn núi.','Từ lòng núi vọng lên tiếng ngân rất khẽ, như kim loại chạm nhau.'],
-   ['Vàng, vì người ta trả giá cao nhất.','Ngọn núi không trả lời. Giá người ta trả không phải giá trị của núi.']],
-  ['Người thợ đá già hỏi: "Thứ gì càng bị đập càng mạnh?"',
-   ['Đất nện làm nền nhà. Càng nện càng chắc.','Ông thợ đá gõ búa xuống nền đất, nghe chắc nịch.'],
-   ['Thanh sắt dưới búa thợ rèn.','Ông thợ đá đưa bạn cây búa của mình: "Vậy thì đi mà nghe nó hát."'],
-   ['Cái trống.','Ông thợ đá cười ngặt nghẽo: "Cái trống đập nhiều thì rách, cậu ơi."']],
-  ['Hòn đá ven đường hỏi: "Ngươi muốn được nhớ như thế nào?"',
-   ['Như cánh đồng. Không ai nhớ tên, nhưng ai cũng ăn hạt của nó.','Cỏ dưới chân bạn mọc dày thêm một chút.'],
-   ['Như lưỡi kiếm. Có tên, có vết, truyền qua nhiều đời.','Trong túi bạn, một đồng xu sắt nóng lên.'],
-   ['Như ngọn núi cao nhất, để ai cũng phải ngước nhìn.','Hòn đá lăn đi chỗ khác. Kẻ muốn được ngước nhìn thì chưa nghe được đất.']]]};
-const PP_TR={id:'pp_tr',queued:true,big:true,art:'star',img:'manatest',c:s=>!!(s.alive&&s.pp&&s.pp.tq&&ppTrNeed()),title:'Thử Thách Ở Ngã Rẽ',
-  text:s=>{const P=s.pp,Q=PPTR[P.k][P.tq.i];return`Bạn cầm lọ ${PPMSG[ppNeed()]} lên. Trước khi kịp uống, ${({hoa:'lửa và sấm',thuy:'nước và băng',tho:'đất và kim loại'})[P.k]} trong người bạn cùng lên tiếng, đòi bạn trả lời trước đã. ${Q[0]}`}};
-Object.defineProperty(PP_TR,'ch',{get:()=>{const P=S&&S.pp;if(!P||!P.tq||!PPTR[P.k])return[];const Q=PPTR[P.k][P.tq.i];
-  return P.tq.ord.map(i=>({t:Q[i+1][0],f:s=>{const P=s.pp,o=P.k,a=Q[i+1][1];delete P.tq;s.done.pptr=1;
-    if(i===2){ltHit(-5);ppJ(`${s.year}: Trả lời sai ở ngã rẽ bậc 2.`);return[a+' Bạn chưa thể bước lên bậc 2 lúc này. Lọ dược vẫn còn nguyên. Mất 5 Lý trí. Năm sau hãy thử lại.','bad']}
-    P.brC=i===0?'giữ':o;const r=ppDrink();const[t,tone]=r?arr(r):['',''];
-    if(i===1&&P.k===o&&P.brC)return[a+' '+t+` Nhánh ${PP[PPBR[o]].n} vẫn đang chờ bạn ở lần lên bậc tới.`,tone];
-    return[a+' '+t,tone||'magic']}}))}});
+ hoa:['Tiếng Chuông Trong Mưa Tro','Tro rơi từ một bầu trời không mây. Bên kia vực, những người cuối cùng của làng đã thôi gọi nhau vì sợ hít phải tro. Chỉ còn một ngọn đèn leo lét trên bậc đá. Cao hơn nó là quả chuông đồng, treo yên từ mùa núi ngủ. Lửa trong lòng bàn tay bạn chợt đập hai nhịp. Nhịp đầu giống hơi thở của ngọn núi. Nhịp sau giống tiếng chuông mà bầu trời chưa kịp đánh. Qua màn tro, bạn muốn người bên kia nhìn thấy một ngọn lửa, hay nghe thấy một tiếng chuông?',
+  [['“Ta che đèn dưới áo và đưa từng người xuống núi. Chuyện của ngọn lửa xin để sau.”','Bạn dùng lối mòn cũ để dẫn người xuống.'],
+   ['“Ta đặt lửa dọc bờ vực. Chừng nào còn một người trên núi, đường về còn sáng.”','Một dải lửa cháy xuyên màn tro, chỉ đường cho đội cứu hộ.'],
+   ['“Ta gom cả ngọn lửa vào một nhịp. Xin quả chuông ngân thay những người đã khản tiếng.”','Tia sét chạm chuông. Các trạm gác dưới chân núi lần lượt đánh chuông đáp lại.']]],
+ thuy:['Bờ Bên Kia Còn Đợi','Chiếc cầu đã trôi đi. Cành liễu bên bờ quệt xuống dòng lũ, lúc chìm lúc nổi. Trên mái nhà cuối cùng, một người cha giữ con trên vai và đếm những viên ngói còn khô. Mỗi lần ông đếm lại, con số nhỏ đi. Bạn nhúng tay xuống nước. Dòng sông vẫn nhớ đường ra biển. Nhưng trong một thoáng, nó cũng nhớ mùa đông. Bạn sẽ xin con sông nhường đường, hay xin nó đứng yên?',
+  [['“Ta buộc dây vào gốc liễu và gọi thuyền lại. Hôm nay, cứ để sông chảy.”','Bạn cùng người trên bờ kéo thuyền qua theo dây.'],
+   ['“Cứ chảy đi. Chỉ xin chừa giữa lòng sông một khoảng lặng cho chiếc thuyền.”','Hai luồng xiết tách ra đủ lâu để thuyền cập mái nhà.'],
+   ['“Xin giữ nguyên con sóng này. Đợi dấu chân cuối cùng lên bờ rồi hãy tan.”','Mặt sóng đông cứng, nối mái ngói với bờ đá.']]],
+ tho:['Ngọn Núi Nghe Tiếng Gõ','Sau vách đá có ba tiếng gõ. Một tiếng mạnh, một tiếng nhẹ, một tiếng gần như không nghe thấy. Người thợ mỏ già đặt tai xuống đất rồi bảo vẫn còn người sống. Dưới bàn tay bạn, cả ngọn núi đè xuống. Sâu hơn sức nặng ấy, một đường quặng mảnh rung lên đúng nhịp với tiếng gõ bên kia. Bạn sẽ giữ lấy sức nặng của núi, hay lần theo thứ đang ngân trong lòng nó?',
+  [['“Hãy gõ thêm một lần. Ta sẽ đánh dấu chỗ này và đưa đội đào đến.”','Bạn chỉ đúng hướng cho đội cứu hộ đào lối vòng.'],
+   ['“Cứ đào đi. Phần núi sắp đổ, để ta gánh.”','Bạn đỡ vòm đá cho đến khi người cuối cùng bò ra.'],
+   ['“Ta nghe thấy sắt trong đá. Lại đây, giữ lấy chỗ núi đã buông tay.”','Mạch quặng uốn qua khe nứt, dựng thành những thanh chống.']]]};
+const PP_TR={id:'pp_tr',queued:true,big:true,art:'star',img:'manatest',c:s=>!!(s.alive&&ppTrNeed()),
+  title:s=>PPTR[s.pp.k][0],text:s=>PPTR[s.pp.k][1]};
+Object.defineProperty(PP_TR,'ch',{get:()=>{const P=S&&S.pp;if(!P||!PPTR[P.k])return[];const o=P.k,A=PPTR[o][2],sub=['Ở lại bậc 1',`Lên bậc 2 · ${PP[o].n}`,`Lên bậc 2 · ${PP[PPBR[o]].n}`];
+  return A.map(([t,res],i)=>({t:`${t}<small style="display:block;font-weight:400;opacity:.7;margin-top:3px">${sub[i]}</small>`,f:s=>{const P=s.pp;let rw='';
+    if(!P.trRw){P.trRw=1;mod({honor:4,happy:3});rw=' Danh dự +4.'}
+    if(i===0){ppJ(`${s.year}: Đứng trước ngã rẽ bậc 2 nhưng chọn ở lại. Dấu ấn thăng bậc vẫn còn đó.`);return[res+rw+' Bạn vẫn ở bậc 1. Lọ dược còn nguyên, khi nào sẵn sàng thì có thể chọn lại.','good']}
+    P.brC=i===1?'giữ':o;ppJ(`${s.year}: Ở ngã rẽ bậc 2, chọn ${i===1?'lộ gốc '+PP[o].n:'nhánh '+PP[PPBR[o]].n}.`);const r=ppDrink();const[t,tone]=r?arr(r):['',''];
+    if(P.k===o&&P.brC)return[res+rw+' '+t+` Lần uống tới bạn sẽ bước thẳng lên ${PP[i===1?o:PPBR[o]].n}.`,tone];
+    return[res+rw+' '+t,tone||'magic']}}))}});
 EV.push(PP_TR);EVB.pp_tr=PP_TR;EIMG.pp_tr='manatest';
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
