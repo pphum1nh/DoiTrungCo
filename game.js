@@ -12244,7 +12244,7 @@ const PP_EV=[
     thuy:'Sáng mùa đông, mặt hồ đóng băng dưới chân bạn mà bạn không hề gọi. Nước trong người bạn muốn đứng yên lại. Bạn có thể giữ dòng chảy như cũ, hoặc để nó đông thành băng: Mệnh Lộ Kẻ Giữ Mùa Đông.',
     tho:'Trong lò rèn của làng, một thanh sắt nung đỏ cất tiếng gọi bạn. Đất trong người bạn muốn được tôi trong lửa. Bạn có thể giữ đất như cũ, hoặc để nó hóa thành kim loại: Mệnh Lộ Kẻ Nghe Kim Loại.'})[s.pp.k],
   ch:[{t:'Giữ Mệnh Lộ gốc',f:s=>{s.pp.br='giữ';return`Bạn giữ Mệnh Lộ ${PP[s.pp.k].n} như cũ.`}},
-      {t:'Đi theo nguyên tố mới',f:s=>{const o=s.pp.k,k=PPBR[o];s.pp.k=k;s.pp.br=o;ppJ(`${s.year}: Rẽ sang Mệnh Lộ ${PP[k].n}.`);return[`Mệnh Lộ của bạn rẽ sang ${PP[k].n}. Danh Xưng bậc 2 của bạn giờ là ${PP[k].t[1]}.`,'magic']}}]},
+      {t:'Đi theo nguyên tố mới',f:s=>{const o=s.pp.k,k=PPBR[o];s.pp.k=k;s.pp.br=o;s.pp.q=0;ppJ(`${s.year}: Rẽ sang Mệnh Lộ ${PP[k].n}.`);return[`Mệnh Lộ của bạn rẽ sang ${PP[k].n}. Danh Xưng bậc 2 của bạn giờ là ${PP[k].t[1]}.`,'magic']}}]},
  {id:'pp_vanish',queued:true,big:true,art:'scroll',img:'ghost',c:s=>!!(s.alive&&s.pp&&s.pp.k==='vm'&&s.pp.pr<=0),title:'Trang Giấy Trắng',
   text:'Sáng nay, người trong nhà dọn bữa thiếu một bát. Không ai nhớ trong nhà từng có bạn. Tên bạn trong sổ nhà thờ chỉ còn là một khoảng trắng.',
   ch:[{t:'Khắc tên mình lên tường nhà thờ',f:s=>{if(ch(.4+(spouse()?.2:0))){s.pp.pr=20;mod({health:-10});return['Bạn khắc từng nét bằng con dao gỉ cho tới khi tay chảy máu. Sáng ra, đứa con nhỏ chỉ vào bạn và gọi đúng tên. Thế giới nhớ ra bạn, thêm một thời gian nữa. Hiện diện 20.','good']}
@@ -12545,6 +12545,51 @@ Object.defineProperty(EVB.pp_q,'ch',{get:()=>{const Q=S&&ppQ();if(!Q)return[];co
   const i=r[1].indexOf('<p class="sec">Việc hợp vai');r[1]=i>=0?r[1].slice(0,i)+row+r[1].slice(i):r[1]+row;return r}}
 {const w0=mvWhy;mvWhy=function(id,book){const M=MV[id];if(M&&M.src[0]==='p'&&!(S.mv&&S.mv[id]))return'Chỉ học qua nhiệm vụ Mệnh Lộ';return w0(id,book)}}
 {const t0=mvTal;mvTal=function(id){const M=MV[id];if(M&&M.src[0]==='p')return((S.pp&&S.pp.rk||1)-1)*.04+((S.hid&&S.hid.arcane)||0)/600;return t0(id)}}
+
+/* ===== Nhiệm vụ cho ba Mệnh Lộ nhánh: Lôi, Băng, Kim ===== */
+Object.assign(MV,{
+ pqLoi:mv('Sấm Truy Hồn','p:loi','atk',.2,{mp:8,sv:['nhanh','giap','rong'],wk:['phep'],d:'Chiêu riêng của Mệnh Lộ Kẻ Gọi Sấm: tia sét đuổi theo đối thủ dù họ chạy đi đâu',x:'tia sét rẽ ngoặt giữa không trung, đuổi theo đối thủ như một con chó săn'}),
+ pqBang:mv('Giam Hồn Trong Băng','p:bang','ctl',.18,{mp:7,sv:['nhanh','lua','thu'],wk:['giap'],d:'Chiêu riêng của Mệnh Lộ Kẻ Giữ Mùa Đông: băng phủ kín đối thủ, giữ họ đứng yên như một bức tượng',x:'băng bò lên từ chân đối thủ, phủ kín tới tận cằm'}),
+ pqKim:mv('Vạn Mũi Thép','p:kim','atk',.19,{mp:7,sv:['giap','dong'],wk:['phep'],d:'Chiêu riêng của Mệnh Lộ Kẻ Nghe Kim Loại: mọi mảnh sắt quanh trận đấu cùng bay về phía đối thủ',x:'đinh, khóa, lưỡi dao, cả mũ sắt của lính gác cùng rời chỗ và lao về phía đối thủ'})});
+Object.assign(ITEMS,{
+ pq_feather:{n:'Lông Chim Sấm',r:3,ic:'star',cb:5,fx:{magic:1},v:0,ev:1,sl:'acc',d:'Chiếc lông của con chim sấm cuối cùng. Chạm vào thì tóc dựng đứng, và đêm đó thế nào cũng có giông.'},
+ pq_frost:{n:'Tim Băng Vĩnh Cửu',r:3,ic:'diamond',cb:4,fx:{magic:1,health:1},v:0,ev:1,sl:'acc',d:'Một khối băng hình trái tim không bao giờ tan, kể cả khi ném vào lửa. Nó vẫn đập, rất chậm.'},
+ pq_blade:{n:'Kiếm Thép Sao Băng',r:3,ic:'sword',cb:9,fx:{},v:0,ev:1,sl:'weapon',d:'Rèn từ một mảnh sao băng rơi xuống mỏ sắt. Lưỡi kiếm khẽ ngân lên khi gặp kim loại khác.'}});
+Object.assign(PPQ,{
+ loi:{n:'Tiếng Sấm Bị Nhốt',it:'pq_feather',mv:'pqLoi',ch:[
+  {t:'Cái Chuông Đồng Trên Đỉnh Đồi',x:'Trên đỉnh đồi có một cái chuông đồng cũ. Mấy tháng nay, đêm nào nó cũng bị sét đánh trúng, dù trời quang mây tạnh. Người làng bảo có thứ gì đó bị nhốt trong chuông đang gọi sấm tới cứu.',
+   c:[['Đứng cạnh chuông chờ tia sét tiếp theo',s=>ch(.35+s.st.health/250+(s.hid&&s.hid.arcane||0)/400)?(mod({health:-4}),{ok:1,t:'Tia sét đánh xuống, xuyên qua bạn mà không đốt cháy gì. Trong tiếng nổ, bạn nghe thấy một tiếng chim kêu rất xa, từ dãy núi phía đông.'}):(mod({health:-10}),{t:'Tia sét hất bạn văng xuống chân đồi. Tóc bạn dựng đứng suốt ba ngày.'})],
+    ['Gỡ cái chuông xuống xem bên trong',s=>ch(.4+s.st.smarts/250)?{ok:1,t:'Lòng chuông khắc hình một con chim sải cánh, và một dòng chữ: "Nhốt ở Tháp Gió, dưới núi phía đông."'}:{t:'Chuông nặng quá. Bạn chỉ kịp thấy một vệt khắc mờ trước khi nó trượt khỏi tay.'}]]},
+  {t:'Con Chim Sấm Trong Lồng',x:'Trong Tháp Gió đổ nát, một con chim sấm bị nhốt trong lồng đồng từ thời các pháp sư cổ. Nó yếu lắm rồi. Mỗi lần nó đập cánh, cả vùng lại có một tia sét lạc.',
+   c:[['Phá lồng bằng chính tia sét của mình',s=>s.st.magic>=12?(mod({magic:-10}),{ok:1,t:'Bạn gọi sét đánh thẳng vào lồng. Song đồng chảy ra như sáp. Con chim bay vút lên, để lại trong tay bạn một chiếc lông còn tóe điện.'}):{t:'Ma lực của bạn không đủ để phá song đồng của các pháp sư cổ.'}],
+    ['Tìm chìa khóa trong đống đổ nát',s=>ch(.35+s.st.smarts/250)?{ok:1,t:'Chìa khóa nằm trong tay một bộ xương pháp sư. Bạn mở lồng. Con chim bay một vòng quanh bạn rồi thả xuống một chiếc lông.'}:{t:'Bạn lục cả ngày mà không thấy gì, trừ một bầy dơi giận dữ.'}],
+    ['Giữ con chim lại cho mình',s=>{ltHit(-8);mod({honor:-4});return ch(.5)?{ok:1,t:'Bạn nhổ một chiếc lông rồi khóa lồng lại. Con chim nhìn bạn bằng đôi mắt đầy sấm sét. Đêm ấy, giông bão đuổi theo bạn suốt đường về.'}:(mod({health:-12}),{t:'Con chim phóng ra một tia sét thẳng vào ngực bạn.'})}]]},
+  {t:'Cưỡi Cơn Giông',x:'Cơn giông lớn nhất trong trăm năm kéo về. Chiếc lông chim sấm trong tay bạn rung lên, như muốn kéo bạn lên trời.',
+   c:[['Để chiếc lông kéo bạn vào giữa cơn giông',s=>ch(.4+s.st.health/300+s.st.magic/400)?{ok:1,t:'Bạn bay giữa những tia chớp. Mỗi tia sét đều quay lại nhìn bạn, như chờ lệnh. Bạn học được Sấm Truy Hồn.'}:(mod({health:-12}),{t:'Gió quật bạn xuống một cánh đồng lúa. Bạn sống sót, nhưng chưa hiểu được tiếng sấm.'})],
+    ['Đứng dưới đất, dẫn từng tia sét về một chỗ',s=>ch(.35+s.st.smarts/250)?{ok:1,t:'Bạn dẫn tia sét thứ nhất vào gốc cây, tia thứ hai vào tảng đá, tia thứ ba thì đổi hướng theo ý bạn. Bạn học được Sấm Truy Hồn.'}:{t:'Bạn chỉ dẫn được một tia, những tia còn lại không chịu nghe lời.'}]]}]},
+ bang:{n:'Trái Tim Mùa Đông',it:'pq_frost',mv:'pqBang',ch:[
+  {t:'Ngôi Làng Đóng Băng Giữa Hè',x:'Giữa tháng sáu, có một ngôi làng trên núi bị băng phủ kín. Người trong làng đứng yên như tượng, mắt vẫn mở. Trên tuyết có dấu chân của một người đi chân trần.',
+   c:[['Lần theo dấu chân trên tuyết',s=>ch(.35+s.st.health/300+s.st.smarts/400)?{ok:1,t:'Dấu chân dẫn tới một hồ băng trên đỉnh núi. Trên mặt hồ có một bóng người ngồi bất động.'}:(mod({health:-6}),{t:'Bão tuyết xóa mất dấu chân. Bạn phải quay xuống trước khi chết rét.'})],
+    ['Thử làm tan băng cho một người dân',s=>s.st.magic>=10?(mod({magic:-8}),{ok:1,t:'Người dân tỉnh lại, run rẩy kể: "Bà ấy đi qua, khóc một tiếng, và cả làng đông cứng lại."'}):{t:'Băng không chịu tan dưới tay bạn.'}]]},
+  {t:'Hồ Băng Không Tan',x:'Người ngồi trên hồ băng là một phụ nữ già. Bà kể con bà chết đuối ở hồ này vào mùa đông năm ấy. Từ đó bà giữ mùa đông lại trong lồng ngực, để không phải sống qua mùa xuân nào mà thiếu con.',
+   c:[['Ngồi cạnh bà và nghe hết câu chuyện',s=>ch(.4+s.st.piety/300+s.st.honor/400)?{ok:1,t:'Bà kể tới khi trời sáng. Rồi bà lấy từ lồng ngực ra một trái tim bằng băng và đặt vào tay bạn: "Giữ giùm ta. Ta mệt rồi." Ngôi làng dưới núi tan băng.'}:{t:'Bà kể được nửa chừng thì im lặng. Có lẽ bà chưa tin bạn.'}],
+    ['Lấy trái tim băng bằng sức mạnh',s=>{ltHit(-8);return ch(.45+s.st.magic/300)?{ok:1,t:'Bạn rút trái tim băng ra khỏi lồng ngực bà. Bà vỡ thành tuyết. Ngôi làng tan băng, nhưng bạn biết mình vừa làm một điều không thể sửa.'}:(mod({health:-12}),{t:'Bà khóc thêm một tiếng, và bạn đông cứng tới tận sáng hôm sau.'})}]]},
+  {t:'Lời Hứa Dưới Tuyết',x:'Trái tim băng trong tay bạn đập rất chậm. Mỗi nhịp đập, tuyết lại rơi dày hơn quanh bạn. Bạn cần học cách giữ cái lạnh này mà không để nó giữ lấy mình.',
+   c:[['Ngồi giữa bão tuyết suốt một đêm',s=>ch(.4+s.st.health/300)?{ok:1,t:'Sáng ra, tuyết phủ kín người bạn, nhưng bạn không thấy lạnh. Bạn hiểu ra băng không giết người, băng chỉ giữ người lại. Bạn học được Giam Hồn Trong Băng.'}:(mod({health:-10}),{t:'Nửa đêm, bạn phải bò về nhà, mười đầu ngón tay tím ngắt.'})],
+    ['Mang trái tim băng tới mộ con của bà lão',s=>ch(.4+s.st.piety/250)?(ltHit(4),{ok:1,t:'Bạn đặt trái tim băng lên mộ một lúc. Nó đập nhanh hơn một chút, như được an ủi. Từ đó, cái lạnh nghe lời bạn. Bạn học được Giam Hồn Trong Băng.'}):{t:'Ngôi mộ phủ tuyết dày tới mức bạn không tìm thấy nó.'}]]}]},
+ kim:{n:'Lưỡi Kiếm Chưa Có Tên',it:'pq_blade',mv:'pqKim',ch:[
+  {t:'Tiếng Hát Trong Mỏ Sắt',x:'Thợ mỏ ở núi phía tây bỏ hầm vì nghe thấy tiếng hát vọng ra từ vách đá, cao vút như tiếng kim loại ngân. Không ai dám vào nữa.',
+   c:[['Áp tai vào vách đá lắng nghe',s=>ch(.35+(s.hid&&s.hid.arcane||0)/200)?{ok:1,t:'Tiếng hát phát ra từ một mảnh kim loại nằm rất sâu trong núi. Nó không thuộc về thế gian này.'}:{t:'Bạn chỉ nghe tiếng nước nhỏ giọt.'}],
+    ['Đào theo hướng tiếng hát',s=>s.st.health>=50&&ch(.55)?(mod({health:-4}),{ok:1,t:'Ba ngày đào, bạn chạm vào một khối kim loại đen bóng, ấm như da người. Một mảnh sao băng.'}):(mod({health:-8}),{t:'Hầm sập một góc. Bạn phải bỏ chạy ra ngoài.'})]]},
+  {t:'Thỏi Thép Sao Băng',x:'Mảnh sao băng không chịu tan trong lò của bất kỳ thợ rèn nào. Lão thợ rèn già nhất vùng bảo: "Nó không cần lửa. Nó cần một người nghe được nó muốn trở thành thứ gì."',
+   c:[['Ngồi bên lò, nghe mảnh sao băng',s=>ch(.4+(s.hid&&s.hid.arcane||0)/250+s.st.smarts/400)?{ok:1,t:'Đêm thứ ba, bạn nghe ra: nó muốn thành một thanh kiếm. Bạn chỉ cần đặt tay lên, kim loại tự kéo dài ra thành lưỡi.'}:{t:'Mảnh sao băng hát một thứ tiếng bạn chưa hiểu.'}],
+    ['Rèn nó bằng Mệnh Kim',s=>s.st.magic>=12?(mod({magic:-10}),{ok:1,t:'Bạn không đập mảnh thép. Bạn ra lệnh cho nó. Đến sáng, trên đe là một thanh kiếm đen bóng, chưa có tên.'}):{t:'Ma lực của bạn không đủ để kim loại nghe lời.'}],
+    ['Bán mảnh sao băng cho lái buôn',s=>{const g=R(80,140);s.money+=g;return{t:`Bạn bán mảnh sao băng được ${g} xu. Ít lâu sau, gã lái buôn mang nó trả lại, vì đêm nào nó cũng hát khiến cả nhà gã không ngủ được. Gã không đòi lại tiền.`}}]]},
+  {t:'Đặt Tên Cho Kiếm',x:'Thanh kiếm sao băng không chịu ra khỏi vỏ cho tới khi được đặt tên. Lão thợ rèn bảo: tên của một thanh kiếm phải lấy từ trận đánh đầu tiên của nó.',
+   c:[['Đem kiếm ra đấu với đội tuần ba người',s=>ch(.4+(s.blade||0)/250+s.st.health/400)?(mod({honor:4}),{ok:1,t:'Kiếm tự rời vỏ. Mọi mảnh sắt quanh bạn rung lên rồi cùng bay về phía đối thủ. Bạn đặt tên cho kiếm theo trận ấy. Bạn học được Vạn Mũi Thép.'}):(mod({health:-10}),{t:'Kiếm không chịu rời vỏ. Bạn thua trận, mặt mũi bầm dập.'})],
+    ['Đặt tên kiếm theo người bạn thương nhất',s=>(spouse()||kids(false).some(k=>k.alive))&&ch(.6)?{ok:1,t:'Thanh kiếm ngân lên khi nghe cái tên ấy, rồi tự trượt ra khỏi vỏ. Mọi mảnh sắt trong nhà khẽ rung theo. Bạn học được Vạn Mũi Thép.'}:{t:'Thanh kiếm im lặng. Có lẽ cái tên ấy chưa đủ nặng với nó.'}]]}]}
+});
+PQB.push('loi','bang','kim');
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
