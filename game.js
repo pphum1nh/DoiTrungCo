@@ -437,10 +437,12 @@ const CATS={
   dragon:{n:'Long Vương thức giấc',boss:'Long Vương Vermithrax',art:'flame',start:'Núi lửa Ashfang phun trào. Từ miệng núi, Long Vương Vermithrax, con rồng già nhất thế gian, vươn đôi cánh che kín mặt trời.',yr:'Bóng Long Vương lướt qua bầu trời. Những thị trấn từ chối cống nạp đều hóa thành tro.'},
   plague:{n:'Dịch Hạch Đen',boss:'Mụ Phù Thủy Dịch Bệnh Grisela',art:'skull',start:'Một con tàu không người lái trôi vào cảng, chở đầy chuột đen. Chỉ một tháng sau, dịch hạch tràn khắp vương quốc.',yr:''}
 };
-const randTalent=()=>Math.max(1,Math.min(100,Math.round(Math.pow(Math.random(),1.3)*100)));
+/* Thiên phú theo đường cong chuông: đa số ở khoảng giữa, người cực giỏi rất hiếm; thường dân có mức trung bình thấp hơn */
+const TAL_MU={serf:35,craft:35,merchant:35,noble:45,royal:50};
+const randTalent=cls=>{const g=Math.sqrt(-2*Math.log(1-Math.random()))*Math.cos(2*Math.PI*Math.random());const mu=TAL_MU[cls]||40,sd=mu<40?17:20;return Math.max(1,Math.min(100,Math.round(mu+g*sd)))};
 const talentWord=v=>v<30?'tầm thường':v<55?'khá':v<75?'xuất chúng':v<90?'thiên tài':'huyền thoại';
 const RACE_TAL={elf:{arcane:15},fiend:{arcane:10},orc:{sword:10},dwarf:{sword:5},beast:{sword:6,arcane:3}};
-function newTalents(race,pa){const t={arcane:randTalent(),sword:randTalent()};if(pa){t.arcane=Math.round((t.arcane+pa.arcane)/2+R(-6,6));t.sword=Math.round((t.sword+pa.sword)/2+R(-6,6))}const b=RACE_TAL[race]||{};for(const k in t)t[k]=Math.max(1,Math.min(100,t[k]+(b[k]||0)));return t}
+function newTalents(race,pa,cls){const t={arcane:randTalent(cls),sword:randTalent(cls)};if(pa){t.arcane=Math.round((t.arcane+pa.arcane)/2+R(-6,6));t.sword=Math.round((t.sword+pa.sword)/2+R(-6,6))}const b=RACE_TAL[race]||{};for(const k in t)t[k]=Math.max(1,Math.min(100,t[k]+(b[k]||0)));return t}
 const heroScore=()=>S.hid.arcane+S.hid.sword;
 const isHero=()=>heroScore()>=150||Math.max(S.hid.arcane,S.hid.sword)>=92;
 const heroEligible=()=>isHero()&&!S.flags.dark&&!S.flags.her&&!S.flags.hcat&&S.age>=12&&S.age/lifeOf(S.race)<=50;
@@ -641,7 +643,7 @@ function newLife(o){
   const st={};STATS.forEach(([k])=>st[k]=R(30,75));st.health=R(60,90);st.magic=R(5,40);
   for(const k in CLASSES[cls].st)st[k]=clamp(st[k]+CLASSES[cls].st[k]);
   for(const k in RACES[race].st)st[k]=clamp(st[k]+RACES[race].st[k]);
-  S={v:4,first:o.name,surname:sur,name:o.name+' '+sur,sex,race,cls,by,age:0,year:by,realm:pick(REALMS),village:pick(VILL),st,money:0,own:{},job:null,fam:[],flags:{her:0},done:{},pend:[],ann:[],log:[],alive:true,gen:1,bag:[],tree:[],spHist:[],rel:[],house:newHouse(sur,by),hid:newTalents(race),world:{cat:null,last:by}};
+  S={v:4,first:o.name,surname:sur,name:o.name+' '+sur,sex,race,cls,by,age:0,year:by,realm:pick(REALMS),village:pick(VILL),st,money:0,own:{},job:null,fam:[],flags:{her:0},done:{},pend:[],ann:[],log:[],alive:true,gen:1,bag:[],tree:[],spHist:[],rel:[],house:newHouse(sur,by),hid:newTalents(race,null,cls),world:{cat:null,last:by}};
   if(cls==='noble')S.house.title=2;if(cls==='royal'){S.cls='noble';S.house.title=6;S.flags.royalborn=1;S.house.prestige=300}
   const fa=person('Cha','m',R(20,42),sur,race),mo=person('Mẹ','f',R(17,36),sur,race);
   S.fam.push(fa,mo);if(S.house.title>=2)S.house.holder=fa.id;S.roots=`${fa.name} và ${mo.name}`;
@@ -11633,9 +11635,7 @@ PROPH.push('Hai mặt trăng sẽ cùng soi lên ngày cưới của ngươi.','
 /* ===== Vô Mệnh: không thức tỉnh mệnh nào, ma lực không tăng ===== */
 const vmOn=()=>!!(S&&S.hid&&S.hid.vm);
 function vmRoll(){if(!S||!S.hid)return;S.vm40=1;if(S.race==='skeleton')return;talSync();S.hid.vm=(S.hid.arcane||0)<40?1:0;if(S.hid.vm){S.st.magic=Math.min(S.st.magic,R(0,4));S.hid.vmM=S.st.magic}}
-{const n0=newLife;newLife=function(o){n0(o);if(S){swCommon();vmRoll();save()}}}
-/* Con nhà nông nô, thợ, nhà buôn hiếm khi có thiên phú kiếm thuật cao */
-function swCommon(){if(!S||!S.hid||!['serf','craft','merchant'].includes(S.cls))return;talSync();if(S.tal.sword>=60&&ch(.65)){S.tal.sword=S.hid.sword=R(20,59)}}
+{const n0=newLife;newLife=function(o){n0(o);if(S){vmRoll();save()}}}
 {const i0=inherit;inherit=function(id){const r=i0(id);if(S&&S.alive){vmRoll();save()}return r}}
 {const m0=mod;mod=function(c){if(vmOn()&&c&&c.magic>0)c={...c,magic:0};return m0(c)}}
 {const y0=extYear3;extYear3=function(){y0();if(vmOn()&&S.st.magic>(S.hid.vmM||0))S.st.magic=S.hid.vmM||0;
