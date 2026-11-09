@@ -12201,7 +12201,8 @@ function ppYear(){if(!S||!S.alive||S.cap)return;
   const P=S.pp;if(!P)return;const D=PP[P.k];
   if(!P.off&&clsHas(S)){P.off=S.year;ppJ(`${S.year}: Mệnh Lộ ${D.n} lùi lại nhường chỗ cho Mệnh Lộ Ẩn. Chỉ còn dư âm ở bậc ${P.rk}.`);log(`Mệnh Lộ ${D.n} lùi lại, nhường chỗ cho Mệnh Lộ Ẩn. Bạn vẫn giữ dư âm của nó ở bậc ${P.rk}.`,'magic')}
   D.pas(P.rk);
-  if(!P.off&&S.age>=12&&ppCan()){const o=P.dg;P.dg=Math.min(100,P.dg+4);if(o<100&&P.dg>=100){const k=ppNeed();if(P.k==='vm'&&P.rk<5)log('Sức mạnh của bậc này đã tiêu hóa xong. Giờ bạn cần đi tìm một khoảnh khắc nằm ngoài số phận.','magic');else if(k&&P.rk>=4&&ppArc()<70)log('Sức mạnh của bậc 4 đã tiêu hóa xong, nhưng cảm nhận ma pháp của bạn chưa đủ để chạm tới bậc cuối (cần 70).','magic');else if(k)log(`Sức mạnh của bậc ${P.rk} đã tiêu hóa xong. Giờ bạn cần một lọ ${PPMSG[k]} để bước lên bậc ${P.rk+1}.`,'magic')}}
+  if(!P.off&&S.age>=12&&ppCan()){const o=P.dg;P.dg=Math.min(100,P.dg+4);if(o<100&&P.dg>=100){const k=ppNeed();if(P.k==='vm'&&P.rk<5)log('Sức mạnh của bậc này đã tiêu hóa xong. Khoảnh khắc nằm ngoài số phận đang tìm đến bạn.','magic');else if(k&&P.rk>=4&&ppArc()<70)log('Sức mạnh của bậc 4 đã tiêu hóa xong, nhưng cảm nhận ma pháp của bạn chưa đủ để chạm tới bậc cuối (cần 70).','magic');else if(k)log(`Sức mạnh của bậc ${P.rk} đã tiêu hóa xong. Giờ bạn cần một lọ ${PPMSG[k]} để bước lên bậc ${P.rk+1}.`,'magic')}}
+  if(P.k==='vm'&&!P.off&&P.dg>=100&&P.rk<5&&S.age>=14&&!S.pend.includes('pp_vm'))S.pend.push('pp_vm');
   if(P.k!=='vm'&&ltV()<40&&ch(.4))D.low();
   if(P.k==='vm'){P.pr=Math.min(100-4*P.rk,P.pr+1);if(P.pr<60)for(const p of [...S.fam,...S.rel].filter(x=>x.alive))p.bond=clamp(p.bond-(P.pr<30?5:2));
     if(P.pr<60&&ch(.3))log(pick(D.loss),'magic');if(P.pr<=0&&!S.pend.includes('pp_vanish'))S.pend.push('pp_vanish')}}
@@ -12214,7 +12215,7 @@ function ppView(){const P=S.pp;if(!P)return['Đạo Mệnh','<p class="note">B�
   else if(!ppCan()){b+='<p class="note">Bạn đã thức tỉnh Mệnh, nhưng cảm nhận ma pháp của bạn chưa đủ để đi xa hơn. Như phần lớn người thức tỉnh khác, bạn mang Mệnh trong người và sống một đời bình thường. Các Mệnh Lộ Ẩn của Mệnh này vẫn có thể tìm đến bạn.</p>'}
   else{b+=bar('Tiêu hóa',Math.min(100,P.dg),'Làm việc hợp vai để tiêu hóa sức mạnh của bậc hiện tại','star');
     if(P.k==='vm')b+=bar('Hiện diện',P.pr,'Thế giới còn nhớ bạn tới đâu. Về 0, bạn biến mất khỏi ký ức của mọi người','user');
-    const k=ppNeed();if(P.k==='vm'&&P.rk<5){const ready=P.dg>=100;b+=`<p class="sec">Bước lên bậc ${P.rk+1} · Danh Xưng: ${ppT({...P,rk:P.rk+1},P.rk+1)}</p>`+gRow('data-x="pp:vm"','scroll','Đi tìm một khoảnh khắc ngoài số phận',ready?'Đã tiêu hóa xong · một sự kiện đặc biệt đang chờ bạn':`Cần tiêu hóa xong (${P.dg}/100). Người không mang mệnh không lên bậc bằng dược`,ready?'Sẵn sàng':'',dis||!ready||S.pend.includes('pp_vm'))}
+    const k=ppNeed();if(P.k==='vm'&&P.rk<5){const ready=P.dg>=100;b+=`<p class="sec">Bước lên bậc ${P.rk+1} · Danh Xưng: ${ppT({...P,rk:P.rk+1},P.rk+1)}</p>`+`<p class="note">${ready?'Đã tiêu hóa xong. Khoảnh khắc nằm ngoài số phận sẽ tự tìm đến bạn.':`Tiêu hóa ${P.dg}/100. Người không mang mệnh không lên bậc bằng dược; khi tiêu hóa xong, khoảnh khắc ấy sẽ tự tìm đến.`}</p>`}
     else if(k){const has=S.bag.some(x=>x.k===k),ready=P.dg>=100,lo5=P.rk>=4&&ppArc()<70;
       b+=`<p class="sec">Bước lên bậc ${P.rk+1} · Danh Xưng: ${ppT({...P,rk:P.rk+1},P.rk+1)}</p>`;
       b+=gRow('data-x="pp:up"','potion',`Uống ${PPMSG[k]}`,lo5?`Cần cảm nhận ma pháp 70 để lên Bậc 5 (hiện ${ppArc()})`:!has?`Chưa có trong túi · ${PPWHERE[k]}`:ppTrNeed()?'Ngã rẽ: một lựa chọn đang chờ trước khi uống':ready?'Đã tiêu hóa xong · uống để lên bậc':`Chưa tiêu hóa xong (${P.dg}/100) · ép lên bậc rất dễ phản phệ và mất Lý trí`,ready&&!lo5?'Sẵn sàng':'',dis||!has||lo5);
@@ -12227,7 +12228,6 @@ function ppView(){const P=S.pp;if(!P)return['Đạo Mệnh','<p class="note">B�
 function ppDo(x){if(!S.pp||!S.alive||S.cap)return;const P=S.pp,D=PP[P.k];const p=x.split(':');let r;
   if(p[1]==='up'){if(ppTrNeed()){if(!S.pend.includes('pp_tr'))S.pend.push('pp_tr');return afterSheetAction()}r=ppDrink()}
   else if(p[1]==='bm'){if(S.done.ppbm||S.money<100||S.bag.length>=BAGMAX)return;S.done.ppbm=1;S.money-=100;gainItem('p_ma');if(ch(.25)){S.flags.gdW=1;r=['Bạn mua được một lọ Ma Dược trong căn hầm dưới cầu. Lúc đi ra, bạn thấy một chiếc mũ rộng vành ở đầu ngõ.','bad']}else r=['Người bán run tay khi đưa lọ Ma Dược cho bạn, như thể chính hắn cũng sợ nó.','item']}
-  else if(p[1]==='vm'){if(P.k!=='vm'||P.dg<100||P.rk>=5||S.pend.includes('pp_vm'))return;S.pend.push('pp_vm');return afterSheetAction()}
   else if(p[1]==='a'){const i=+p[2],A=D.acts[i];if(!A||P.off||!ppCan()||S.age<12||S.done['ppn'+i]||(S.done.ppn||0)>=2)return;S.done.ppn=(S.done.ppn||0)+1;S.done['ppn'+i]=1;r=A[3](S);if(S.pp)P.dg=Math.min(100,P.dg+R(12,20));}
   if(r){const[t,tone]=arr(r);log(t,tone);note={t,tone}}afterSheetAction()}
 {const d0=drawExt3;drawExt3=function(v){if(v==='pp')return ppView();return d0(v)}}
@@ -12256,15 +12256,15 @@ const PP_EV=[
         S.world.lost=S.world.lost||[];S.world.lost.push({who:`${s.first} ${s.surname}`,rl:s.realm,y:s.year,cls:'Kẻ Không Được Viết',gen:s.gen,hunted:1});die('biến mất khỏi ký ức của thế giới');return['Nét khắc mờ đi trước khi bạn khắc xong.','bad']}},
       {t:'Để thế giới quên',f:s=>{S.world.lost=S.world.lost||[];S.world.lost.push({who:`${s.first} ${s.surname}`,rl:s.realm,y:s.year,cls:'Kẻ Không Được Viết',gen:s.gen,hunted:1});die('biến mất khỏi ký ức của thế giới');return['Bạn bước ra khỏi nhà, và cánh cửa đóng lại sau lưng như chưa từng có ai đi qua.','bad']}}]},
  {id:'pp_vm',queued:true,big:true,art:'scroll',img:'ghost',c:s=>!!(s.alive&&s.pp&&s.pp.k==='vm'&&!s.pp.off&&s.pp.dg>=100&&s.pp.rk<5),title:s=>PPVM[s.pp.rk+1].t,text:s=>PPVM[s.pp.rk+1].x},
- {id:'pp_vmcall',queued:true,big:true,art:'scroll',img:'manatest',c:s=>!!(s.alive&&s.hid&&s.hid.vm&&!s.pp&&!clsHas(s)),title:'Cuốn Sổ Không Có Tên',
+ {id:'pp_vmcall',queued:true,big:true,art:'scroll',img:'manatest',c:s=>!!(s.alive&&s.hid&&s.hid.vm&&!s.pp&&!s.vmq&&!clsHas(s)),title:'Cuốn Sổ Không Có Tên',
   text:'Trong thư viện tu viện, bạn tìm thấy một cuốn sổ dày, mọi trang đều trắng. Chỉ trang đầu có một dòng: "Dành cho những người không mang mệnh. Các ngươi không có số phận, nên các ngươi có thể tự viết."',
-  ch:[{t:'Bước lên Mệnh Lộ này',f:s=>{ppStart('vm');return['Bạn cầm bút lên. Không có gì được viết sẵn cho bạn, và lần đầu tiên điều đó không làm bạn buồn.','magic']}},
+  ch:[{t:'Mang cuốn sổ về',f:s=>{s.vmq={c:0,y:s.year};return['Bạn kẹp cuốn sổ dưới áo mang về. Đêm ấy, trang thứ hai hiện ra một dòng chữ mới: "Viết ba trang. Rồi ký tên." Mở Hoạt động để bắt đầu.','magic']}},
       {t:'Đặt cuốn sổ lại kệ',f:s=>{s.flags.vmNo=1;return'Bạn đặt cuốn sổ về chỗ cũ. Có những trang giấy nên được để trắng.'}}]}
 ];
 Object.defineProperty(PP_EV.find(e=>e.id==='pp_vm'),'ch',{get:()=>{const r=S&&S.pp&&PPVM[S.pp.rk+1];if(!r)return[];return[{t:r.a,f:s=>{ppUp();if(s.pp.rk>=3)s.pp.pr=Math.max(0,s.pp.pr-5);return[r.ax+` Bạn lên bậc ${s.pp.rk}, Danh Xưng ${ppT(s.pp,s.pp.rk)}.`,'magic']}},{t:r.b,f:s=>{s.pp.dg=70;return r.bx}}]}});
 for(const e of PP_EV){EV.push(e);EVB[e.id]=e;if(e.img)EIMG[e.id]=e.img}
 EVB.vm_rev.ch.push({t:'Đi tìm Mệnh Lộ của người không mang mệnh',f:s=>{ppStart('vm');return['Thầy pháp ngập ngừng rồi kể cho bạn nghe về những người không mang mệnh, và Mệnh Lộ không ai viết sẵn của họ.','magic']}});
-{const y0=extYear3;extYear3=function(){y0();if(S&&S.alive&&!S.cap&&S.hid&&S.hid.vm&&S.flags.vmR&&!S.pp&&!S.flags.vmNo&&!clsHas(S)&&S.age>=14&&!S.pend.includes('pp_vmcall')&&ch(.25))S.pend.push('pp_vmcall')}}
+{const y0=extYear3;extYear3=function(){y0();if(S&&S.alive&&!S.cap&&S.hid&&S.hid.vm&&S.flags.vmR&&!S.pp&&!S.vmq&&!S.flags.vmNo&&!clsHas(S)&&S.age>=14&&!S.pend.includes('pp_vmcall')&&ch(.04))S.pend.push('pp_vmcall')}}
 /* Mệnh Lộ Ẩn dựa trên Mệnh mọc ra từ Mệnh Lộ gốc tương ứng */
 const ppMatch=(s,k)=>!!(s.pp&&!s.pp.off&&ppRoot(s.pp.k)===k&&s.pp.rk>=1);
 for(const[id,k]of [['tt_call','moc'],['vj_call','quang'],['rn_call','hoa'],['bt_call','huyet'],['kg_call','tho'],['xk_call','hac'],['wt_call','thuy']]){const e=EVB[id];if(!e)continue;const c0=e.c;e.c=s=>ppMatch(s,k)&&(!c0||c0(s))}
@@ -12783,6 +12783,33 @@ Object.defineProperty(PP_TR,'ch',{get:()=>{const P=S&&S.pp;if(!P||!PPTR[P.k])ret
     if(P.k===o&&P.brC)return[res+rw+' '+t+` Lần uống tới bạn sẽ bước thẳng lên ${PP[i===1?o:PPBR[o]].n}.`,tone];
     return[res+rw+' '+t,tone||'magic']}}))}});
 EV.push(PP_TR);EVB.pp_tr=PP_TR;EIMG.pp_tr='manatest';
+
+/* ===== Cuốn Sổ Không Có Tên: nhiệm vụ 3 chương để Vô Mệnh thức tỉnh Mệnh Lộ (mỗi năm một chương) ===== */
+// mỗi chương: [tiêu đề, cảnh, [[lời chọn, thành công?, kết quả, hàm phụ]...]]
+const VMQ=[
+ ['Trang Thứ Nhất · Một Việc Không Ai Giao','Trang thứ nhất ghi: "Hãy làm một việc mà không lời tiên tri nào giao cho ngươi." Chiều hôm ấy ở chợ, một đứa bé lạc mẹ đứng khóc giữa dòng người. Thầy bói đầu chợ liếc qua rồi nói số nó không phải chết hôm nay, rồi quay đi. Không ai được định sẵn để tìm mẹ cho nó.',
+  [['Viết vào sổ rằng mình đã giúp nó',0,'Bạn viết một dòng thật đẹp. Sáng hôm sau, nét mực đã phai sạch. Cuốn sổ không nhận những trang chưa từng xảy ra.'],
+   ['Cõng đứa bé đi hỏi từng sạp hàng tới tối',1,'Tới lúc chợ dọn, bạn tìm được người mẹ đang chạy ngược ở cổng thành. Đêm đó, trang thứ nhất tự hiện lên nét chữ của bạn.',s=>mod({health:-3,happy:4})],
+   ['Gọi lính gác tới rồi đi về',0,'Lính gác dắt đứa bé đi. Bạn không biết chuyện kết thúc ra sao, và cuốn sổ cũng không biết. Trang thứ nhất vẫn trắng.']]],
+ ['Trang Thứ Hai · Số Phận Cho Mượn','Một bà đồng ở bến sông giữ bạn lại. Bà nhìn bạn rất lâu rồi bảo: "Ta không đọc được gì trên người ngươi. Nhưng ta có số phận của một người lính chết trận năm ngoái, còn dư hai mươi năm chưa sống. Ngươi muốn mượn không? Rẻ thôi." Trong túi áo, cuốn sổ nặng lên.',
+  [['Hỏi bà đã đọc được gì ở người khác',2,'Bà kể về những người số đã định sẵn. Họ biết mình sẽ chết năm nào, nên chưa từng dám sống khác đi. Bạn lắng nghe tới khuya.',s=>mod({smarts:2})],
+   ['Mượn số phận người lính',0,'Bạn trả tiền. Suốt một tháng, đêm nào bạn cũng mơ thấy chiến trường của người khác. Khi tỉnh lại, cuốn sổ đã khép chặt, không cho bạn viết.',s=>{s.money=Math.max(0,s.money-10);ltHit(-5)}],
+   ['Từ chối và giữ trang giấy trắng',1,'"Trang của tôi để trắng là có lý do," bạn nói. Bà đồng cười, lần đầu tiên như thể nhìn thấy bạn. Trang thứ hai hiện chữ.']]],
+ ['Trang Thứ Ba · Ký Tên','Lũ về giữa đêm. Cả làng tụ trên đồi, chờ người được tiên tri sẽ dẫn họ qua sông, như lời thầy bói đã nói từ ba mùa trước. Người ấy không đến. Trang cuối cuốn sổ chỉ có một dòng kẻ trống, chỗ để ký tên.',
+  [['Chờ người được tiên tri',0,'Gần sáng thì nước rút. Người được tiên tri không bao giờ tới. Cuốn sổ vẫn để trống dòng ký tên.'],
+   ['Bước ra đứng vào chỗ của người ấy',1,'Bạn lội xuống trước, dò từng chỗ nước nông, gọi người theo sau. Không ai viết cho bạn vai này. Khi người cuối cùng lên tới bờ bên kia, bạn mở sổ ra và thấy tên mình đã nằm trên dòng kẻ.',s=>mod({health:-R(5,12),honor:6})],
+   ['Ký tên người khác vào dòng trống',0,'Bạn viết tên trưởng làng. Ông không dẫn được ai. Đến sáng thì nét chữ đã chảy nhòe như bị nước xóa.']]]];
+const vmqWhy=()=>!S.vmq?'':S.pp?'Đã bước lên Mệnh Lộ':S.age<14?'Còn quá nhỏ':S.done.vmq?'Đã viết một trang năm nay':'';
+const VMQ_EV={id:'vmq_ev',queued:true,big:true,art:'scroll',img:'manatest',c:s=>!!(s.alive&&s.vmq&&!s.pp&&VMQ[s.vmq.c]),title:s=>VMQ[s.vmq.c][0],text:s=>VMQ[s.vmq.c][1]};
+Object.defineProperty(VMQ_EV,'ch',{get:()=>{const Q=S&&S.vmq&&VMQ[S.vmq.c];if(!Q)return[];return Q[2].map(([t,ok,res,fx])=>({t,f:s=>{if(fx)fx(s);const win=ok===2?ch(.6):!!ok;
+  if(!win)return[res+(ok===2?' Nhưng trang giấy vẫn chưa hiện chữ. Năm sau hãy thử lại.':' Năm sau hãy thử lại.'),ok===2?'':'bad'];
+  s.vmq.c++;if(s.vmq.c<VMQ.length)return[res+` Còn ${VMQ.length-s.vmq.c} trang nữa.`,'good'];
+  s.vmq=null;ppStart('vm');return[res+' Bạn đã thức tỉnh Mệnh Lộ của người Vô Mệnh.','magic']}}))}});
+EV.push(VMQ_EV);EVB.vmq_ev=VMQ_EV;EIMG.vmq_ev='manatest';
+{const a0=actExtra3;actExtra3=function(){const b=a0();if(!S.vmq||S.pp)return b;const why=vmqWhy();
+  return`<p class="sec">Đạo Mệnh</p>`+gRow('data-x="vmq:go"','scroll',`Cuốn Sổ Không Có Tên · Trang ${S.vmq.c+1}/3`,why||VMQ[S.vmq.c][0],'',!S.alive||!!why)+b}}
+{const x0=extAct3;extAct3=function(x){if(x==='vmq:go'){if(vmqWhy()||S.pend.includes('vmq_ev'))return;S.done.vmq=1;S.pend.push('vmq_ev');return afterSheetAction()}return x0(x)}}
+{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.vmq&&(typeof r.vmq!=='object'||!VMQ[r.vmq.c]))r.vmq=null;return r}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
