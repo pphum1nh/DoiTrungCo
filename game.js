@@ -12265,7 +12265,6 @@ const PP_EV=[
 ];
 Object.defineProperty(PP_EV.find(e=>e.id==='pp_vm'),'ch',{get:()=>{const r=S&&S.pp&&PPVM[S.pp.rk+1];if(!r)return[];return[{t:r.a,f:s=>{ppUp();if(s.pp.rk>=3)s.pp.pr=Math.max(0,s.pp.pr-5);return[r.ax+` Bạn lên bậc ${s.pp.rk}, Danh Xưng ${ppT(s.pp,s.pp.rk)}.`,'magic']}},{t:r.b,f:s=>{s.pp.dg=70;return r.bx}}]}});
 for(const e of PP_EV){EV.push(e);EVB[e.id]=e;if(e.img)EIMG[e.id]=e.img}
-EVB.vm_rev.ch.push({t:'Đi tìm Mệnh Lộ của người không mang mệnh',f:s=>{ppStart('vm');return['Thầy pháp ngập ngừng rồi kể cho bạn nghe về những người không mang mệnh, và Mệnh Lộ không ai viết sẵn của họ.','magic']}});
 {const y0=extYear3;extYear3=function(){y0();if(S&&S.alive&&!S.cap&&S.hid&&S.hid.vm&&S.flags.vmR&&!S.pp&&!S.vmq&&!S.flags.vmNo&&!clsHas(S)&&S.age>=14&&!S.pend.includes('pp_vmcall')&&ch(.04))S.pend.push('pp_vmcall')}}
 /* Mệnh Lộ Ẩn dựa trên Mệnh mọc ra từ Mệnh Lộ gốc tương ứng */
 const ppMatch=(s,k)=>!!(s.pp&&!s.pp.off&&ppRoot(s.pp.k)===k&&s.pp.rk>=1);
