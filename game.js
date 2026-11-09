@@ -7093,7 +7093,7 @@ function vhAct(a,id){mnEnsure();if(!S.alive)return;let t='',tone='';
 function vhRow(id,act){const M=MV[id],P=S.mv[id];return gRow(act,mvIc(M),`${M.n}${P?` · cấp ${P.lv}/5`:''}`,`${MVTY[M.ty]}${M.sv.length?' · khắc '+M.sv.map(t=>CBTN[t]).join(', '):''}${M.mp?` · ${M.mp} ma lực`:''}${M.hp?` · ${M.hp} sức khỏe`:''}`,S.mvL.includes(id)?'Đang mang':'',!S.alive)}
 const mvSrcN=M=>M.src==='kiem'?'Kiếm thuật':M.src[0]==='c'?`Mệnh Lộ Ẩn ${CD_CLASSES[M.src.slice(2)][0]}`:M.src[0]==='p'?`Mệnh Lộ ${PP[M.src.slice(2)].n}`:M.src[0]==='m'?`${MENH[M.src.slice(2)].n} mệnh`:M.src[0]==='r'?{hero:'Anh Hùng',saint:'Thánh Nữ',dark:'Ma Vương'}[M.src.slice(2)]:`Nghề ẩn ${HC[M.src.slice(2)].n}`;
 function vhView(v){mnEnsure();const id=v.split(':')[1];if(id&&MV[id])return vhMove(id);const dis=!S.alive,m=MENH[S.hid.menh];let b='';
-  b+=mnOn()?gRow('',m.ic,`${m.n} mệnh`,m.d,'',false,true):S.hid&&S.hid.vm?gRow('','star','Vô Mệnh','Không mang mệnh nào, ma lực không thể tăng. Chỉ học được chiêu kiếm','',false,true):gRow('','star','Mệnh ẩn: chưa thức tỉnh','','',false,true);
+  b+=mnOn()?gRow('',m.ic,`${m.n} mệnh`,m.d,'',false,true):S.hid&&S.hid.vm?gRow('','star','Vô Mệnh','Không mang mệnh nào. Ma lực không tăng (cảm nhận ma pháp từ 40 thì tăng rất chậm). Chỉ học được chiêu kiếm','',false,true):gRow('','star','Mệnh ẩn: chưa thức tỉnh','','',false,true);
   b+=statGrid([['Kiếm thuật',`${S.blade||0}/100`],['Ma lực',`${S.st.magic}/100`]]);if(S.flags.seenS||S.flags.seenA)b+=`<p class="note">Thiên phú: ${[S.flags.seenS?'kiếm '+talentWord(S.hid.sword):'',S.flags.seenA?'phép '+talentWord(S.hid.arcane):''].filter(Boolean).join(', ')}.</p>`;
   b+=`<p class="sec">Mang vào trận · ${S.mvL.length}/4</p>`;b+=S.mvL.length?S.mvL.map(x=>vhRow(x,`data-open="vh:${x}"`)).join(''):'<p class="note">Chưa có chiêu nào.</p>';
   const rest=mvList().filter(x=>!S.mvL.includes(x));if(rest.length)b+='<p class="sec">Chiêu khác đã học</p>'+rest.map(x=>vhRow(x,`data-open="vh:${x}"`)).join('');
@@ -11634,15 +11634,17 @@ PROPH.push('Hai mặt trăng sẽ cùng soi lên ngày cưới của ngươi.','
 
 /* ===== Vô Mệnh: không thức tỉnh mệnh nào, ma lực không tăng ===== */
 const vmOn=()=>!!(S&&S.hid&&S.hid.vm);
-function vmRoll(){if(!S||!S.hid)return;S.vm40=1;if(S.race==='skeleton')return;talSync();S.hid.vm=(S.hid.arcane||0)<40?1:0;if(S.hid.vm){S.st.magic=Math.min(S.st.magic,R(0,4));S.hid.vmM=S.st.magic}}
+function vmRoll(){if(!S||!S.hid)return;S.vm40=1;if(S.race==='skeleton')return;talSync();S.hid.vm=(S.hid.arcane||0)<40?1:0;if(S.hid.vm)S.hid.vmM=S.st.magic}
 {const n0=newLife;newLife=function(o){n0(o);if(S){vmRoll();save()}}}
 {const i0=inherit;inherit=function(id){const r=i0(id);if(S&&S.alive){vmRoll();save()}return r}}
-{const m0=mod;mod=function(c){if(vmOn()&&c&&c.magic>0)c={...c,magic:0};return m0(c)}}
+/* Vô Mệnh: ma lực không tăng; nếu cảm nhận ma pháp từ 40 (nhờ Thần Dược) thì mỗi lần chỉ tăng 1-2 */
+const vmArc=()=>{talSync();return S.tal.arcane||0};
+{const m0=mod;mod=function(c){if(vmOn()&&c&&c.magic>0){const ok=vmArc()>=40;c={...c,magic:ok?Math.min(c.magic,R(1,2)):0};const r=m0(c);if(ok)S.hid.vmM=Math.max(S.hid.vmM||0,S.st.magic);return r}return m0(c)}}
 {const y0=extYear3;extYear3=function(){y0();if(vmOn()&&S.st.magic>(S.hid.vmM||0))S.st.magic=S.hid.vmM||0;
   if(vmOn()&&S.alive&&S.age>=10&&!S.flags.vmR&&!S.pend.includes('vm_rev')&&ch(.4)){S.flags.vmR=1;S.pend.push('vm_rev')}}}
 {const c0=EVB.mn_wake.c;EVB.mn_wake.c=s=>!vmOn()&&c0(s)}
 EV.push(EVB.vm_rev={id:'vm_rev',queued:true,big:true,art:'star',img:'manatest',c:s=>vmOn(),title:'Viên đá không sáng',
-  text:'Thầy pháp của giáo xứ đặt tay bạn lên viên đá thử mệnh. Với mọi đứa trẻ khác, đá sáng lên màu đỏ, xanh hay vàng. Với bạn, đá vẫn xám như đá ven đường. Thầy lắc đầu: "Vô Mệnh. Không mang mệnh nào, ma lực sẽ không bao giờ lớn lên."',
+  text:'Thầy pháp của giáo xứ đặt tay bạn lên viên đá thử mệnh. Với mọi đứa trẻ khác, đá sáng lên màu đỏ, xanh hay vàng. Với bạn, đá vẫn xám như đá ven đường. Thầy lắc đầu: "Vô Mệnh. Không mang mệnh nào, ma lực của con khó mà lớn lên được."',
   ch:[{t:'Cầm kiếm lên thay cho phép thuật',f:s=>{s.blade=Math.min(100,(s.blade||0)+5);mod({health:2});return['Nếu trời không cho phép thuật, bạn sẽ tự rèn lấy sức mạnh bằng hai bàn tay. Kiếm thuật +5.','good']}},
       {t:'Vùi đầu vào sách vở',f:s=>{mod({smarts:5});return['Bạn không thắp được lửa bằng tay, nhưng có thể hiểu ngọn lửa hơn bất kỳ ai. Trí tuệ +5.','good']}},
       {t:'Lặng lẽ chấp nhận',f:s=>{mod({happy:-3});return'Bạn về nhà, ngồi nhìn ngọn nến rất lâu. Nó vẫn chỉ là một ngọn nến.'}}]});
