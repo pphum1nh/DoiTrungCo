@@ -689,8 +689,8 @@ function worldYear(){
   if(!w.cat){if(S.age>=1&&S.year-w.last>=8&&ch(.06))startCat(catPick());return}
   if(w.cat.id==='player'){if(S.flags.dark){S.pend.push('darkyear');if(S.year-w.cat.y>=3&&ch(.35))S.pend.push('herocomes')}else if(S.flags.hcat){S.pend.push('hryear');if(S.year-w.cat.y>=2&&ch(.35))S.pend.push('hrhero')}else{S.world.cat=null;S.world.last=S.year}return}
   const yrs=S.year-w.cat.y;
-  if(S.flags.hero&&S.flags.hero.cat===w.cat.y){S.fight=null;S.pend.push(S.flags.hero.train>0?'herotrain':'herobattle');return}
-  if((yrs>=2&&ch(.22))||yrs>=8){endCat();return}
+  if(S.flags.hero&&S.flags.hero.cat===w.cat.y){S.fight=null;const H=S.flags.hero;H.yrs=(H.yrs||0)+1;if(H.yrs>=6){if(!S.pend.includes('herobattle'))S.pend.push('herobattle')}else log(`${CATS[w.cat.id].boss} vẫn hoành hành. Các nhà tiên tri chờ bạn trong mục Thảm Họa của Hoạt động.${H.yrs>=4?' Họ bảo không thể chờ quá năm thứ sáu.':''}`,'magic');return}
+  if((yrs>=2&&ch(catEndP()))||yrs>=8){endCat();return}
   if(w.cat.id==='heresy'&&S.flags.her>0){S.pend.push('heryear');return}
   if(heroEligible2()&&!S.flags['call'+w.cat.y])S.pend.push(S.flags.legend?'herorecall':'callhero');
   else S.pend.push(w.cat.id==='plague'?'plague':'catyear');
@@ -1099,7 +1099,7 @@ const EV=[
  /* --- thảm họa & anh hùng --- */
  {id:'callhero',queued:true,big:true,art:'sword',c:s=>s.world.cat&&s.world.cat.id!=='player',title:'Anh Hùng Trong Lời Tiên Tri',
   text:s=>`Ba nhà tiên tri áo trắng gõ cửa nhà bạn lúc nửa đêm. "Lời sấm cổ nói: khi ${CATS[s.world.cat.id].n.toLowerCase()}, một người mang ${s.hid.sword>=s.hid.arcane?'thanh kiếm trong máu':'ngọn lửa sao trong tim'} sẽ đứng lên. Người đó là ngươi."`,
-  ch:[{t:'Nhận lấy định mệnh',f:s=>{s.flags['call'+s.world.cat.y]=1;s.flags.hero={cat:s.world.cat.y,train:2};s.flags.seenA=1;s.flags.seenS=1;mod({honor:10});if(s.job&&!JOBS[s.job.id].mobile)s.job=null;return[`Bạn rời làng theo các nhà tiên tri. Họ cho bạn biết: cảm nhận ma pháp của bạn ${talentWord(s.hid.arcane)}, thiên phú kiếm thuật ${talentWord(s.hid.sword)}. Hai năm huấn luyện đang chờ phía trước.`,'magic']}},
+  ch:[{t:'Nhận lấy định mệnh',f:s=>{s.flags['call'+s.world.cat.y]=1;s.flags.hero={cat:s.world.cat.y,train:2};s.flags.seenA=1;s.flags.seenS=1;mod({honor:10});if(s.job&&!JOBS[s.job.id].mobile)s.job=null;return[`Bạn rời làng theo các nhà tiên tri. Họ cho bạn biết: cảm nhận ma pháp của bạn ${talentWord(s.hid.arcane)}, thiên phú kiếm thuật ${talentWord(s.hid.sword)}. Mở mục Thảm Họa trong Hoạt động để luyện tập, đánh lâu la hoặc thách đấu ${CATS[s.world.cat.id].boss}.`,'magic']}},
       {t:'Từ chối, đây không phải chuyện của tôi',f:s=>{s.flags['call'+s.world.cat.y]=1;mod({honor:-10,happy:-5});return'Các nhà tiên tri lặng lẽ rời đi. Bạn không ngủ được đêm đó.'}}]},
  {id:'herotrain',queued:true,big:true,art:'sword',c:s=>s.flags.hero&&s.world.cat,title:'Huấn luyện Anh Hùng',
   text:s=>`Năm huấn luyện thứ ${3-s.flags.hero.train}. Các nhà tiên tri hỏi bạn muốn rèn giũa điều gì trước khi đối mặt ${CATS[s.world.cat.id].boss}.`,
@@ -8084,7 +8084,7 @@ function heroAdd(name,cat,k,extra){const W0=S.world;if(!W0.heroes)W0.heroes=[];W
 {const e0=endCat;endCat=function(){const c=S.world.cat,res=c?(c.res||0)+(isMil(S)&&S.co&&S.co.rk>=3?2:0):0;e0();if(c&&res>=4)heroAdd(`${S.first} ${S.surname}`,c.id,'lead',{gen:S.gen})}}
 const HRC={id:'herorecall',queued:true,big:true,art:'sword',img:'prophets',c:s=>!!(s.world.cat&&s.world.cat.id!=='player'&&s.flags.legend),title:'Lời cầu xin của các nhà tiên tri',
   text:s=>{const C=CATS[s.world.cat.id];return`Những nhà tiên tri áo trắng năm xưa lại đứng trước cửa nhà bạn, tóc giờ đã bạc. ${C.n} đang tàn phá khắp nơi và chưa ai địch nổi ${C.boss}. Họ quỳ xuống: "Người đã cứu thế giới một lần. Xin hãy ra trận thêm một lần nữa."`},
-  ch:[{t:'Ra trận',f:s=>{s.flags['call'+s.world.cat.y]=1;s.flags.hero={cat:s.world.cat.y,train:0};mod({honor:6});if(s.job&&!JOBS[s.job.id].mobile)s.job=null;return[`Bạn lấy lại thanh kiếm cũ trên tường. Năm sau, bạn sẽ đối mặt ${CATS[s.world.cat.id].boss}.`,'magic']}},
+  ch:[{t:'Ra trận',f:s=>{s.flags['call'+s.world.cat.y]=1;s.flags.hero={cat:s.world.cat.y,train:0};mod({honor:6});if(s.job&&!JOBS[s.job.id].mobile)s.job=null;return[`Bạn lấy lại thanh kiếm cũ trên tường. Khi sẵn sàng, hãy vào mục Thảm Họa trong Hoạt động để thách đấu ${CATS[s.world.cat.id].boss}.`,'magic']}},
       {t:'Hãy để việc đó cho thế hệ trẻ',f:s=>{s.flags['call'+s.world.cat.y]=1;mod({happy:2});return'Bạn đặt tay lên vai nhà tiên tri già: "Thế giới cần những anh hùng mới." Các nhà tiên tri lặng lẽ ra về, đi tìm người khác.'}}]};
 EV.push(HRC);EVB.herorecall=HRC;EIMG.herorecall='prophets';
 const HKN={me:'Đánh bại',sac:'Hy sinh để phong ấn',lead:'Dẫn đầu kháng cự, hạ',npc:'Đánh bại',fallen:'Tử trận trước'};
@@ -13097,6 +13097,60 @@ EIMG.tp_fire='sword_stone';
   if(W.id==='returned'){A('tpcall','wind','Nghe tiếng gọi giữa sương tìm người lạc','Thiên Phong · có thể bị giọng quen dẫn đi xa',()=>{W.wp+=3;W.pw=Math.max(0,(W.pw||0)-2);if(!T.route&&ch(.25)){ltHit(-4);return['Một giọng quen dẫn bạn đi xa dần khỏi đường. Bạn chỉ dừng lại khi nhận ra người ấy đã chết từ mười năm trước. Lý trí -4.','bad']}return[T.route?'Một giọng quen dẫn bạn lệch khỏi đường, nhưng bạn nhìn dải vải đã buộc và quay lại kịp. Bạn tìm được hai đứa trẻ lạc.':'Bạn lần theo tiếng gọi và tìm được hai đứa trẻ lạc giữa sương.','good']});
     A('tpmeet','wind','Giữ sương tách một tuyến cho hai bên gặp nhau','Thiên Phong bậc 4 · người sống và người trở về gặp tại nơi đã hẹn',()=>{const u=hi();if(!u)return[hiWhy,''];W.pw=Math.max(0,(W.pw||0)-5);mod({happy:-2});return[`Bạn dùng ${u} giữ sương tách khỏi một tuyến. Người sống và người trở về gặp nhau ở nơi đã hẹn. Họ xin bạn giữ thêm một lượt để kịp nói lời từ biệt.`,'good']},!!hiWhy)}
   return L}}
+
+/* ===== Thảm họa cũ: góp sức đẩy lùi, và tab Anh Hùng trong Hoạt động ===== */
+const CAT_OLD=['demon','dragon','undead','heresy','plague'];
+const catOn=()=>!!(S&&S.world&&S.world.cat&&CAT_OLD.includes(S.world.cat.id));
+const catEndP=()=>{const c=S.world.cat;return Math.max(.1,Math.min(.75,.22+((c&&c.pr)||0)/100))};
+const catPr=v=>{const c=S.world.cat;if(c)c.pr=Math.max(-20,Math.min(60,(c.pr||0)+v))};
+const isHeroNow=()=>!!(S.flags.hero&&S.world.cat&&S.flags.hero.cat===S.world.cat.y);
+const CAT_STR={demon:['quang','hoa','loi'],dragon:['thuy','bang','tho','kim','phong'],undead:['quang','hoa'],heresy:['quang','vm'],plague:['moc','quang','thuy']};
+const CAT_FOE={demon:['Quân tiên phong của quỷ',['quy','lua','dong']],dragon:['Bầy thằn lằn lửa tùy tùng',['rong','lua','dong']],undead:['Đạo quân xương',['xac','dong']],heresy:['Toán tín đồ cuồng tín Hồng Nguyệt',['nguoi','dong','phep']],plague:['Lũ chuột khổng lồ mang dịch',['thu','dong']]};
+for(const k of CAT_OLD)CBF['hm_'+k]={n:CAT_FOE[k][0],tg:CAT_FOE[k][1],d:.1,dm:[10,18],ic:'sword',c:()=>false,
+  win:()=>{const H=S.flags.hero;if(H)H.weak=Math.min(2,(H.weak||0)+1);catPr(5);mod({honor:3});return`Lâu la tan tác. ${CATS[k].boss} mất bớt tay chân${H&&H.weak>=2?', và giờ chỉ còn trơ trọi một mình':''}.`},
+  lose:()=>'Bạn phải rút về, mang theo mấy vết thương.'};
+function catMlr(){const r=Math.max(ltRk(),S.pp&&S.pp.k==='vm'&&!S.pp.off?S.pp.rk:0);if(!r)return null;const k=S.pp&&!S.pp.off?ppRoot(S.pp.k):null;
+  const g=!k?'an':['hoa','loi','kim','huyet','hac'].includes(k)?'atk':['moc','quang','thuy','bang'].includes(k)?'heal':k;return{r,k:S.pp&&!S.pp.off?S.pp.k:null,g}}
+const CAT_MLT={atk:['Dùng sức mạnh Mệnh Lộ phá vỡ quân đoàn','Bạn lao vào giữa đội hình địch, sức mạnh Mệnh Lộ xé toạc hàng ngũ của chúng.'],
+  heal:['Chữa thương và che chắn cho thành','Bạn đứng ở cổng thành suốt ba ngày, chữa cho thương binh và che chắn cho những người còn đứng.'],
+  tho:['Dựng tường đất chặn đường tiến','Bạn gọi đất dựng lên thành một bức tường dài, bẻ gãy mũi tiến công.'],
+  phong:['Dẫn đường sơ tán và báo hướng địch','Bạn đọc chiều gió, báo trước hướng địch tiến và dẫn từng đoàn dân ra khỏi vùng nguy hiểm.'],
+  vm:['Lẻn vào phá kho lương của địch','Không ai nhìn thấy bạn đi vào, cũng không ai thấy bạn đi ra. Chỉ thấy kho lương của địch cháy rụi.'],
+  an:['Dùng sức mạnh Mệnh Lộ Ẩn trấn giữ một cổng thành','Bạn một mình giữ cổng phía tây suốt đêm. Sáng ra, xác địch chất cao trước cổng.']};
+function catView(){const C=CATS[S.world.cat.id],c=S.world.cat,yrs=S.year-c.y,dis=!S.alive||!!S.cap;let b=`<p class="note bad">${C.n} đã kéo dài ${yrs} năm. ${C.boss} vẫn chưa bị đánh bại.</p>`;
+  const pr=c.pr||0;b+=statGrid([['Sức kháng cự',`${pr>0?'+':''}${pr}`],['Khả năng kết thúc năm nay',yrs<2?'Chưa thể (dưới 2 năm)':`${Math.round(catEndP()*100)}%`]]);
+  b+='<p class="note">Mỗi việc góp sức làm tăng sức kháng cự của vương quốc, giúp thảm họa kết thúc sớm hơn. Bỏ chạy hay theo phe địch làm nó kéo dài.</p>';
+  if(isHeroNow()){const H=S.flags.hero;b+=`<p class="sec">Anh Hùng Trong Lời Tiên Tri</p><p class="note magic">Đã luyện ${H.tr||0} lần · lâu la đã hạ ${H.weak||0}/2${H.weak?` (${C.boss} mất ${H.weak} sinh lực khi vào trận)`:''} · năm thứ ${(H.yrs||0)+1}, các nhà tiên tri chờ tới năm thứ sáu.</p>`;
+    const tw=S.done.htr?'Đã luyện năm nay':'';(EVB.herotrain.ch||[]).forEach((x,i)=>{b+=gRow(`data-x="cat:tr:${i}"`,['sword','wand','heart'][i]||'sword',typeof x.t==='function'?x.t(S):x.t,tw||['Thiên phú kiếm thuật, sức khỏe','Cảm nhận ma pháp, ma lực, trí tuệ','Sức khỏe'][i]||'','',dis||!!tw)});
+    const fw=S.done.hmf?'Đã giao chiến năm nay':(H.weak||0)>=2?'Đã quét sạch tay chân':'';b+=gRow('data-x="cat:hm"','sword',`Đánh lâu la: ${CAT_FOE[c.id][0]}`,fw||'Trận chọn chiêu · thắng thì Thảm Họa yếu đi khi bạn thách đấu','',dis||!!fw);
+    b+=gRow('data-x="cat:boss"',C.art||'flame',`Thách đấu ${C.boss}`,'Trận chiến định mệnh. Thua có thể chết','',dis||S.pend.includes('herobattle'))}
+  const n=S.done.catn||0,lw=S.age<14?'Từ 14 tuổi':n>=2?'Đã góp sức 2 lần năm nay':'';b+=`<p class="sec">Góp sức · ${2-Math.min(2,n)} lượt còn lại năm nay</p>`;
+  if(c.id==='plague')b+=gRow('data-x="cat:g:fight"','heart','Khiêng người bệnh, chôn người chết',lw||'Sức kháng cự +3 · có thể nhiễm bệnh','',dis||!!lw);
+  else b+=gRow('data-x="cat:g:fight"','sword','Ra trận đẩy lùi quân đoàn',lw||'Kiếm thuật, sức khỏe · thắng thì sức kháng cự +4','',dis||!!lw);
+  b+=gRow('data-x="cat:g:aid"','coins','Góp lương cứu trợ thành (20 xu)',lw||(S.money<20?'Không đủ tiền':'Sức kháng cự +3 · Danh dự'),'',dis||!!lw||S.money<20);
+  const ML=catMlr();if(ML){const T=CAT_MLT[ML.g],str=ML.k&&(CAT_STR[c.id]||[]).includes(ppRoot(ML.k))||(ML.k&&(CAT_STR[c.id]||[]).includes(ML.k));
+    b+=gRow('data-x="cat:g:ml"',ML.k?PP[ML.k].ic:'star',T[0],lw||(S.st.magic<6?'Cần 6 ma lực':`Bậc ${ML.r} · sức kháng cự +${3+2*ML.r}${str?' · khắc chế thảm họa này, hiệu quả gấp rưỡi':''} · 6 ma lực`),'',dis||!!lw||S.st.magic<6)}
+  else b+='<p class="note">Người đã bước lên Mệnh Lộ có thêm cách góp sức mạnh hơn.</p>';
+  return[`Thảm Họa · ${C.n}`,b,'act']}
+{const d0=drawExt3;drawExt3=function(v){if(v==='cat'){if(!catOn())return['Thảm Họa','<p class="note">Hiện không có Thảm Họa nào.</p>','act'];return catView()}return d0(v)}}
+{const a0=actExtra3;actExtra3=function(){const b=a0();if(!catOn()||!S.alive)return b;const C=CATS[S.world.cat.id];
+  return`<p class="sec">Thảm Họa</p>`+gRow('data-open="cat"',C.art||'skull',`${C.n}${isHeroNow()?' · Anh Hùng':''}`,isHeroNow()?'Luyện tập, đánh lâu la, thách đấu':'Góp sức đẩy lùi thảm họa','',false)+b}}
+{const x0=extAct3;extAct3=function(x){if(!x.startsWith('cat:'))return x0(x);if(!catOn()||!S.alive||S.cap)return;const p=x.split(':'),c=S.world.cat,C=CATS[c.id];let t,tone='good';
+  if(p[1]==='tr'){if(!isHeroNow()||S.done.htr)return;const ch0=EVB.herotrain.ch[+p[2]];if(!ch0)return;S.done.htr=1;const H=S.flags.hero;H.tr=(H.tr||0)+1;const r=arr(ch0.f(S));H.train=Math.max(0,H.train||0);t=r[0];tone=r[1]||'good'}
+  else if(p[1]==='hm'){const H=S.flags.hero;if(!isHeroNow()||S.done.hmf||(H.weak||0)>=2)return;S.done.hmf=1;mnEnsure();const D=CBF['hm_'+c.id];S.cb={ctx:'enc',f:'hm_'+c.id,n:D.n,tags:D.tg,d:D.d,dm:D.dm,ic:D.ic,intro:`Tay chân của ${C.boss} kéo tới chặn đường bạn.`};S.pend.push('cb_fight');note=null;return afterSheetAction()}
+  else if(p[1]==='boss'){if(!isHeroNow()||S.pend.includes('herobattle'))return;S.pend.push('herobattle');note=null;closeSheet();return afterSheetAction()}
+  else if(p[1]==='g'){if(S.age<14||(S.done.catn||0)>=2)return;const k=p[2];
+    if(k==='fight'){S.done.catn=(S.done.catn||0)+1;if(c.id==='plague'){catPr(3);mod({honor:3});if(ch(.15)){mod({health:-12});t='Bạn khiêng người bệnh suốt mùa và mắc phải cơn sốt. Sức kháng cự +3.';tone='bad'}else t='Bạn khiêng người bệnh tới nhà tế bần, chôn người chết ngoài cổng thành. Sức kháng cự +3.'}
+      else{const pw=.35+(S.blade||0)/200+S.st.health/400+cbB()/250;if(ch(pw)){catPr(4);mod({honor:4});t=`Bạn cùng dân quân đẩy lùi một đợt tấn công của ${C.boss}. Sức kháng cự +4.`}else{if(ch(.03)){die(`trong thảm họa ${C.n.toLowerCase()}`);t='Bạn ngã xuống trước cổng thành.';tone='bad'}else{mod({health:-R(8,18)});t='Đợt tấn công quá mạnh. Bạn bị thương và phải rút về.';tone='bad'}}}}
+    else if(k==='aid'){if(S.money<20)return;S.done.catn=(S.done.catn||0)+1;S.money-=20;catPr(3);mod({honor:2});rep('d',2);t='Bạn góp lương cho đoàn cứu trợ. Thêm một khu phố có bánh mì qua mùa đông. Sức kháng cự +3.'}
+    else if(k==='ml'){const ML=catMlr();if(!ML||S.st.magic<6)return;S.done.catn=(S.done.catn||0)+1;mod({magic:-6});const str=ML.k&&((CAT_STR[c.id]||[]).includes(ML.k)||(CAT_STR[c.id]||[]).includes(ppRoot(ML.k)));const v=Math.round((3+2*ML.r)*(str?1.5:1));catPr(v);mod({honor:3+ML.r});
+      t=`${CAT_MLT[ML.g][1]} Sức kháng cự +${v}.${str?' Sức mạnh của bạn khắc chế đúng thảm họa này.':''}`;if(S.pp&&!S.pp.off)S.pp.dg=Math.min(100,(S.pp.dg||0)+R(5,10));if(ch(.15)){mod({health:-8});t+=' Bạn trúng một đòn khi rút về.'}}
+    else return}
+  if(t){log(t,tone);note={t,tone}}return afterSheetAction()}}
+/* lâu la đã hạ làm Thảm Họa yếu đi khi vào trận */
+{const e=EVB.herobattle;for(const i of[0,1]){const f0=e.ch[i].f;e.ch[i].f=s=>{const r=f0(s);const w=(s.flags.hero&&s.flags.hero.weak)||0;if(s.fight&&w){s.fight.hp=Math.max(1,s.fight.hp-w);s.fight.max=Math.max(s.fight.max,s.fight.hp)}return r}}}
+/* bỏ chạy hay theo phe địch làm thảm họa kéo dài */
+{const e=EVB.catyear;if(e){const f1=e.ch[1].f;e.ch[1].f=s=>{catPr(-2);return f1(s)};const f3=e.ch[3].f;e.ch[3].f=s=>{catPr(-5);return f3(s)};const f0=e.ch[0].f;e.ch[0].f=s=>{const r=arr(f0(s));if(r[1]==='good')catPr(3);return r}}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
