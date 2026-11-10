@@ -1686,7 +1686,7 @@ function drawSheet(){
   }
   if(view==='menu'){
     title='Sổ đời';
-    b+=`<div class="row"><div><b>${esc(S.name)}</b><small>Đời thứ ${S.gen} · sinh năm ${S.by} · ${RACES[S.race].n} · ${CLASSES[S.cls].n}${S.flags.literate?' · biết chữ':''}${S.flags.dragonslayer?' · Kẻ Diệt Rồng':''}</small></div></div>`;
+    b+=(typeof achRow==='function'?achRow():'')+`<div class="row"><div><b>${esc(S.name)}</b><small>Đời thứ ${S.gen} · sinh năm ${S.by} · ${RACES[S.race].n} · ${CLASSES[S.cls].n}${S.flags.literate?' · biết chữ':''}${S.flags.dragonslayer?' · Kẻ Diệt Rồng':''}</small></div></div>`;
     b+=`<p class="sec">Thiên phú ẩn</p><div class="hgrid"><div><span>Cảm nhận ma pháp</span><b>${S.flags.seenA?talentWord(S.hid.arcane):'Chưa rõ'}</b></div><div><span>Thiên phú kiếm thuật</span><b>${S.flags.seenS?talentWord(S.hid.sword):'Chưa rõ'}</b></div></div>`;
     if(!S.flags.seenA||!S.flags.seenS)b+='<p class="note">Thiên phú ẩn lộ dần qua luyện kiếm, luyện phép, thử quả cầu pha lê hoặc gặp cao nhân. Cả hai càng cao, bạn càng có thể là Anh Hùng trong Lời Tiên Tri.</p>';
     if(S.flags.legend)b+='<p class="note item">Bạn là Anh Hùng trong Lời Tiên Tri. Triều đình cấp lương hưu mỗi năm.</p>';
@@ -12902,9 +12902,9 @@ function achView(){const A=achLoad();const nA=Object.keys(A.a).length,sd=SD_ALL(
   const t5=Object.entries(A.t5);b+=`<p class="sec">Danh Xưng bậc 5 · ${t5.length}</p>`+(t5.length?t5.map(([k,x])=>gRow('','star',k.split(': ')[1],`Mệnh Lộ ${k.split(': ')[0]} · ${x.who}, năm ${x.y}`,'',false,true)).join(''):'<p class="note">Chưa ai trong các đời của bạn chạm tới bậc 5.</p>');
   const cl=Object.keys(ACH_CLS);b+=`<p class="sec">Mệnh Lộ Ẩn đã mở · ${cl.filter(k=>A.cls[k]).length}/${cl.length}</p>`+cl.map(k=>{const x=A.cls[k];return gRow('',x?'crown':'scroll',x?ACH_CLS[k]:'???',x?`${x.who}, năm ${x.y} · cao nhất bậc ${x.rk||1}`:'Chưa mở','',!x,true)}).join('');
   b+=`<p class="sec">Sổ Tay Chết Bựa · ${nS}/${sd.length}</p>`+sd.map(c=>{const x=A.sd[c];return gRow('',x?'skull':'scroll',x?c[0].toUpperCase()+c.slice(1):'??? ??? ???',x?`${x.who}, năm ${x.y}`:'Chưa ai chết kiểu này','',!x,true)}).join('');
-  return['Sổ Tay Thành Tựu',b,'act']}
+  return['Sổ Tay Thành Tựu',b,'menu']}
 {const d0=drawExt3;drawExt3=function(v){if(v==='ach')return achView();return d0(v)}}
-{const a0=actExtra3;actExtra3=function(){const b=a0();if(!S)return b;const A=achLoad();return b+'<p class="sec">Qua mọi đời</p>'+gRow('data-open="ach"','trophy','Sổ Tay Thành Tựu',`${Object.keys(A.a).length}/${ACH.length} thành tựu · ${SD_ALL().filter(x=>A.sd[x]).length}/${SD_ALL().length} kiểu chết bựa`,'',false)}}
+const achRow=()=>{const A=achLoad();return gRow('data-open="ach"','trophy','Sổ Tay Thành Tựu',`Qua mọi đời · ${Object.keys(A.a).length}/${ACH.length} thành tựu · ${SD_ALL().filter(x=>A.sd[x]).length}/${SD_ALL().length} kiểu chết bựa`,'',false)};
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
