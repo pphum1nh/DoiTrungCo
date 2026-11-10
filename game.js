@@ -1498,6 +1498,7 @@ function drawSheet(){
     b+=gRow('data-open="rel:friend"','friends','Bạn bè',rels('friend').length?rels('friend').map(r=>r.first).slice(0,4).join(', '):'Chưa có bạn',`${rels('friend').length} người`,false);
     b+=gRow('data-open="rel:love"',sp?'rings':'heart-arrow',sp?'Hôn nhân':'Người yêu',sp?`${sp.rel} ${sp.first}`:lv?`Đang hẹn hò với ${lv.first}`:'Độc thân',sp?'Đã kết hôn':lv?'Đang yêu':'',false);
     b+=gRow('data-open="rel:enemy"','enemy','Kẻ thù',rels('enemy').length?rels('enemy').map(r=>r.first).slice(0,4).join(', '):'Chưa có kẻ thù',`${rels('enemy').length} người`,false);
+    if(typeof petRel==='function')b+=petRel();
     b+='<p class="sec">Sum vầy</p>'+gRow('data-x="allrel"','user-group','Dành thời gian cho tất cả người thân',S.age<5?'Từ 5 tuổi':S.done.allrel?'Đã sum vầy năm nay':'Gia đình, bạn bè, người yêu · tình cảm và niềm vui tăng','',S.age<5||!!S.done.allrel||!S.alive);
     if(kids().some(k=>k.age>=3&&!k.vow))b+=gRow('data-x="kc:all"','church','Cả nhà cùng đi lễ Chủ nhật',S.done.kcall?'Đã đi lễ năm nay':'Vợ chồng con cái cùng đến nhà thờ · tình cảm, lòng đạo của các con tăng','',!!S.done.kcall||!S.alive);
   }
@@ -4348,7 +4349,7 @@ function drAct(k){
 }
 function drView(){
   const D=S.dragon,dis=!S.alive;
-  if(!D)return['Rồng của bạn','<p class="note">Bạn không nuôi rồng. Trứng rồng đôi khi được tìm thấy trong hang đá sau thác nước.</p>','act'];
+  if(!D)return['Rồng của bạn','<p class="note">Bạn không nuôi rồng. Trứng rồng đôi khi được tìm thấy trong hang đá sau thác nước.</p>','rel'];
   const st=drStage(D);let b='';
   b+=`<div class="row"><span class="ri">${ic(st==='egg'?'egg':'flame',24)}</span><div><b>${esc(D.name)} · ${DRSTG[st]}</b><small>${st==='egg'?'Đang ấp bên lò sưởi':`${drAge(D)} tuổi · nguyên tố ${DREL[D.el]} · tính ${DRPER[D.per].toLowerCase()} · ${DRROLE[D.role]}`}${D.inj>S.year?' · đang bị thương':''}</small></div></div>`;
   if(st!=='egg'){
@@ -4364,7 +4365,7 @@ function drView(){
   }else b+='<p class="note">Quả trứng ấm dần theo từng tháng. Nó sẽ nở vào năm sau.</p>';
   b+=`<p class="sec">Đổi tên</p><div class="nmrow"><input id="drname" value="${esc(D.name)}" maxlength="20" autocomplete="off"><button class="btn sm pri" data-x="dr:name">Lưu</button></div>`;
   b+='<p class="note">Rồng không phải tài sản sinh tiền. Nó là một người bạn có cá tính riêng: cho ăn, chăm sóc và tôn trọng nó, nó sẽ ở lại với gia tộc qua nhiều đời.</p>';
-  return['Rồng của bạn',b,'act'];
+  return['Rồng của bạn',b,'rel'];
 }
 const DRAGON_EV=[
  {id:'dr_crack',queued:true,big:true,art:'egg',c:s=>s.dragon&&s.dragon.alive&&s.dragon.hy==null,title:'Tiếng kêu từ quả trứng',
@@ -4578,7 +4579,6 @@ const FISH_EV=[
 /* ===== v18: giao diện và móc nối ===== */
 function actExtra3(){
   let b='';
-  if(S.dragon){const D=S.dragon,st=drStage(D);b+='<p class="sec">Rồng</p>'+gRow('data-open="dragon"',st==='egg'?'egg':'flame',st==='egg'?'Trứng rồng':`${D.name} · ${DRSTG[st]}`,st==='egg'?'Đang ấp bên lò sưởi':`${drAge(D)} tuổi · tin tưởng ${D.trust} · gắn bó ${D.bond} · đói ${D.hunger}`,'',!S.alive)}
   if(S.age>=12)b+='<p class="sec">Sông nước</p>'+gRow('data-open="sea"','anchor','Bến thuyền và đánh cá',S.boat?`${BOATS[S.boat.k].n} · độ bền ${S.boat.cond} · còn ${seaLeft()}/2 chuyến`:`Chưa có thuyền · còn ${seaLeft()}/2 chuyến`,'',!S.alive);
   return b;
 }
@@ -12905,6 +12905,54 @@ function achView(){const A=achLoad();const nA=Object.keys(A.a).length,sd=SD_ALL(
   return['Sổ Tay Thành Tựu',b,'menu']}
 {const d0=drawExt3;drawExt3=function(v){if(v==='ach')return achView();return d0(v)}}
 const achRow=()=>{const A=achLoad();return gRow('data-open="ach"','trophy','Sổ Tay Thành Tựu',`Qua mọi đời · ${Object.keys(A.a).length}/${ACH.length} thành tựu · ${SD_ALL().filter(x=>A.sd[x]).length}/${SD_ALL().length} kiểu chết bựa`,'',false)};
+
+/* ===== Thú cưng và bạn đồng hành (trong Quan hệ, cùng với rồng) ===== */
+const PETK={
+ dog:{n:'Chó',ic:'wolf',life:[11,15],cost:0,min:3,get:'Nhận một con chó con nhà hàng xóm cho',names:['Mực','Vàng','Lu','Bông','Đốm','Cún','Khoai'],
+  bon:'Vui vẻ +2 mỗi năm, đôi khi đuổi được trộm',yr:P=>{mod({happy:2});if(ch(.08)){S.money+=R(3,8);return`${P.name} sủa inh ỏi giữa đêm. Tên trộm bỏ chạy, đánh rơi cả túi tiền của chính nó.`}},
+  silly:['${n} đào tung luống rau của bà hàng xóm rồi ngồi chờ được khen.','${n} cắn đứt dây giày của tu sĩ đúng lúc ông đang giảng về lòng kiên nhẫn.','${n} đuổi theo đuôi mình suốt một buổi chiều và cuối cùng đã thắng.','${n} tha về nhà một chiếc ủng không rõ của ai.','${n} sủa vào một con bò. Con bò không quan tâm.','${n} lăn vào chỗ phân ngựa, rồi lao vào lòng bạn đầy tự hào.','${n} canh nồi cháo cả buổi và chỉ ăn vụng đúng một lần, khoảng ba muỗng.','${n} kết bạn với một con mèo hoang và dẫn về ăn chung bát.'],
+  lose:['${n} chạy theo một đàn chó hoang vào rừng và không trở về.','${n} bị lái buôn dắt đi mất trong phiên chợ đông.']},
+ cat:{n:'Mèo',ic:'night',life:[13,18],cost:0,min:3,get:'Cho con mèo hoang hay lảng vảng ngoài bếp vào nhà',names:['Mướp','Mun','Miu','Tam Thể','Bơ','Nhọ'],
+  bon:'Vui vẻ +1 mỗi năm, bắt chuột giữ kho (+2 xu)',yr:P=>{mod({happy:1});S.money+=2},
+  silly:['${n} đẩy chén rượu của cha bạn khỏi bàn, nhìn thẳng vào mắt ông trong lúc làm vậy.','${n} ngủ trong nồi đất suốt ba ngày, không ai dám dùng nồi.','${n} mang về một con chuột còn sống và thả nó ngay trong bếp.','${n} ngồi lên đúng trang sách bạn đang đọc.','${n} nhìn chằm chằm vào góc nhà trống cả buổi tối. Không ai ngủ được.','${n} biến mất ba ngày rồi về như chưa có chuyện gì, béo hơn.','${n} trèo lên mái nhà thờ và kêu đúng giờ đọc kinh.','${n} cắn bạn một phát vì bạn vuốt lưng nó đúng như nó vừa đòi.'],
+  lose:['${n} ra đi một đêm trăng và không bao giờ quay lại. Mèo là vậy.','${n} theo một đoàn thuyền buôn đi bắt chuột tận cảng xa.']},
+ hawk:{n:'Chim ưng',ic:'eagle',life:[14,20],cost:40,min:14,get:'Mua một con chim ưng non ở chợ (40 xu)',names:['Gió','Sấm','Mũi Tên','Móng Bạc','Mắt Lửa'],
+  bon:'Đi săn mang về thêm 3–7 xu mỗi năm, danh dự +1',yr:P=>{S.money+=R(3,7);mod({honor:1})},
+  silly:['${n} bắt nhầm chiếc mũ lông của một tu viện trưởng.','${n} lượn cả buổi trên đầu bạn rồi bắt được một con chuột đồng bé xíu.','${n} không chịu đậu lên tay ai khác, kể cả nhà vua nếu có.','${n} cướp con cá trên tay một ngư phủ, rồi thả nó xuống ao nhà hàng xóm.','${n} mổ trúng mũi bạn khi bạn cố hôn nó.','${n} đứng im trên xà nhà suốt ngày như một bức tượng, rồi đột nhiên kêu một tiếng làm cả nhà giật mình.'],
+  lose:['${n} bay theo một đàn ngỗng trời về phương nam.','${n} lao vào một cơn giông và không trở lại nữa.']},
+ horse:{n:'Ngựa cưỡi',ic:'horse',life:[20,28],cost:60,min:10,get:'Mua một con ngựa cưỡi (60 xu)',names:['Hạt Dẻ','Bạch Vân','Ô Long','Gió Bắc','Mây Xám'],
+  bon:'Đi chợ xa, giao hàng: +4 xu mỗi năm, vui vẻ +1',yr:P=>{S.money+=4;mod({happy:1})},
+  silly:['${n} dừng giữa cầu và nhất quyết không đi tiếp vì một con ếch.','${n} ăn hết luống cải bắp nhà bên. Bạn phải đền tiền rau.','${n} hí lên đúng lúc linh mục đọc lời thề trong đám cưới hàng xóm.','${n} đá đổ xô nước rồi nhìn bạn như thể là lỗi của bạn.','${n} đi rất ngoan, cho tới khi thấy một túi táo.','${n} tự mở then chuồng và đi dạo quanh làng trong đêm.'],
+  lose:['${n} gãy chân khi vượt suối. Bạn phải để nó ra đi.','${n} bị cướp đường dắt mất trên đường từ chợ về.']}};
+const petsAll=()=>(S&&S.pets)||[];
+const petAge=P=>S.year-P.by;
+function petAdd(k){const K=PETK[k];S.pets=S.pets||[];const P={id:Date.now()+R(0,999),k,name:pick(K.names.filter(n=>!S.pets.some(x=>x.name===n)))||pick(K.names),by:S.year-(k==='horse'?R(3,6):k==='hawk'?1:0),bond:40,life:R(...K.life)};S.pets.push(P);return P}
+function petLose(P,t,sad){S.pets=petsAll().filter(x=>x!==P);log(t,'bad');mod({happy:-(sad||6)})}
+function petRel(){let b='<p class="sec">Thú cưng và bạn đồng hành</p>';
+  if(S.dragon){const D=S.dragon,st=drStage(D);b+=gRow('data-open="dragon"',st==='egg'?'egg':'flame',st==='egg'?'Trứng rồng':`${D.name} · ${DRSTG[st]}`,st==='egg'?'Đang ấp bên lò sưởi':`${drAge(D)} tuổi · tin tưởng ${D.trust} · gắn bó ${D.bond} · đói ${D.hunger}`,'',!S.alive)}
+  for(const P of petsAll()){const K=PETK[P.k];if(!K)continue;b+=gRow(`data-x="pet:play:${P.id}"`,K.ic,`${P.name} · ${K.n}`,`${petAge(P)} tuổi · gắn bó ${P.bond} · ${S.done['pet'+P.id]?'đã chơi cùng năm nay':'chơi cùng: gắn bó +10, vui vẻ +2'}`,'',!S.alive||!!S.done['pet'+P.id])}
+  if(petsAll().length<3)b+=gRow('data-open="pet:get"','paw','Nhận nuôi một con vật',S.age<3?'Từ 3 tuổi':`Đang nuôi ${petsAll().length}/3`,'',!S.alive||S.age<3);
+  else b+='<p class="note">Nhà bạn đã đủ chật với ba con vật.</p>';
+  if(!S.dragon&&!petsAll().length)b+='<p class="note">Chưa nuôi con vật nào.</p>';
+  return b}
+function petGetView(){let b='<p class="note">Thú cưng cho một chút lợi ích nhỏ mỗi năm và rất nhiều chuyện để kể. Chơi cùng thường xuyên, nếu không chúng có thể bỏ đi.</p>';
+  for(const[k,K]of Object.entries(PETK)){const has=petsAll().some(x=>x.k===k),why=has?`Đã có ${K.n.toLowerCase()}`:S.age<K.min?`Từ ${K.min} tuổi`:S.money<K.cost?'Không đủ tiền':'';
+    b+=gRow(`data-x="pet:get:${k}"`,K.ic,K.get,why||K.bon,K.cost?K.cost+' xu':'Miễn phí',!!why||!S.alive)}
+  return['Nhận nuôi',b,'rel']}
+{const d0=drawExt3;drawExt3=function(v){if(v==='pet:get')return petGetView();return d0(v)}}
+{const x0=extAct3;extAct3=function(x){if(!x.startsWith('pet:'))return x0(x);const[,a,id]=x.split(':');if(!S.alive)return;
+  if(a==='get'){const K=PETK[id];if(!K||petsAll().length>=3||petsAll().some(p=>p.k===id)||S.age<K.min||S.money<K.cost)return;S.money-=K.cost;const P=petAdd(id);mod({happy:4});
+    const t=`Bạn có thêm một ${K.n.toLowerCase()} tên là ${P.name}.`;log(t,'good');note={t,tone:'good'};view='rel';return afterSheetAction()}
+  if(a==='play'){const P=petsAll().find(p=>String(p.id)===id);if(!P||S.done['pet'+P.id])return;S.done['pet'+P.id]=1;P.bond=Math.min(100,P.bond+10);mod({happy:2});
+    const t=`Bạn dành một buổi chiều với ${P.name}. ${pick(['Cả hai đều mệt nhoài và vui.','Nó có vẻ rất hài lòng.','Đó là buổi chiều dễ chịu nhất trong năm.'])}`;log(t,'good');note={t,tone:'good'};return afterSheetAction()}}}
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||!S.pets||!S.pets.length)return;
+  for(const P of [...S.pets]){const K=PETK[P.k];if(!K||!S.alive)continue;const nm=s=>s.replace(/\$\{n\}/g,P.name);
+    if(petAge(P)>=P.life){petLose(P,`${P.name} đã già và ra đi trong giấc ngủ. Bạn chôn nó ở góc vườn.`,8);continue}
+    if(P.bond<15&&ch(.25)){petLose(P,`${P.name} bị bỏ bê quá lâu và đã bỏ đi.`,3);continue}
+    if(ch(.03)){petLose(P,nm(pick(K.lose)));continue}
+    P.bond=Math.max(0,P.bond-(S.done['pet'+P.id]?0:6));
+    const t=K.yr(P);if(t)log(t,'good');else if(ch(.4))log(nm(pick(K.silly)))}}}
+{const i0=inherit;inherit=function(id){const pets=S&&S.pets;const r=i0(id);if(S&&S.alive&&pets&&pets.length&&!S.pets){S.pets=pets.map(p=>({...p,bond:30}))}return r}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
