@@ -11675,14 +11675,14 @@ function jobPull(body){const out=[];let cur=null,anchor=null,first=true;
 {const d0=drawExt3;drawExt3=function(v){if(v==='jobs')return['Nghề nghiệp',JOBH||'<p class="note">Bạn chưa làm nghề nào.</p>','act'];return d0(v)}}
 
 {const j0=joinJob;joinJob=function(id){if(view&&view.startsWith('job:'))view='job';return j0(id)}}
-/* ===== Chết lãng xẹt (~1% mỗi năm) ===== */
+/* ===== Chết lãng xẹt (0,2% mỗi năm, từ 12 tuổi) ===== */
 const SILLY_DEATH=['hóc xương cá trong bữa tối','vấp phải hòn đá trước cửa nhà, đập đầu xuống bậc thềm','bị con ngỗng nhà hàng xóm đuổi rồi trượt chân xuống ao',
  'cười quá nhiều trong lúc xem gánh hát rong','bị thùng bia lăn từ trên dốc xuống đè trúng','ngã khỏi ghế khi đang cố bắt con ruồi','bị con dê húc rơi xuống giếng',
  'ăn nhầm nấm độc vì tưởng là nấm hương','hắt hơi quá mạnh làm sái cổ rồi ngã cầu thang','bị bánh xe pho mát lăn trong hội làng đè qua','nghẹn bánh mì trong tiệc cưới của người khác',
  'bị con gà trống mổ vào đầu khi đang ngủ trưa dưới gốc cây','trượt vỏ chuối ở chợ phiên','ngồi lên cái chĩa ba ai đó bỏ quên trong đống rơm','bị chậu hoa trên ban công rơi trúng đầu',
  '!thua cược nên phải nhảy xuống sông giữa mùa đông','đứng dưới gốc cây giữa trời giông để khoe mình không sợ sét','bị con lừa đá trúng ngực khi đang tết đuôi cho nó',
  '!say rượu ngủ quên trong chuồng lợn','!uống nhầm lọ thuốc nhuộm vải tưởng là rượu vang'];
-{const y0=extYear3;extYear3=function(){y0();if(S.alive&&S.age>=4&&!S.cap&&ch(.01)){const L=SILLY_DEATH.filter(x=>x[0]!=='!'||S.age>=16);die(pick(L).replace(/^!/,''))}}}
+{const y0=extYear3;extYear3=function(){y0();if(S.alive&&S.age>=12&&!S.cap&&ch(.002)){const L=SILLY_DEATH.filter(x=>x[0]!=='!'||S.age>=16);die(pick(L).replace(/^!/,''))}}}
 /* ===== Chuyện vặt lãng xẹt: một dòng mỗi năm (~12%) ===== */
 const SILLY_LOG=[
  ['Con ngỗng nhà hàng xóm đuổi bạn chạy ba vòng quanh giếng làng. Cả xóm đứng xem.',{happy:-1}],
