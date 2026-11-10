@@ -440,7 +440,7 @@ const CATS={
 /* Thiên phú theo đường cong chuông: đa số ở khoảng giữa, người cực giỏi rất hiếm; thường dân có mức trung bình thấp hơn */
 const TAL_MU={serf:35,craft:35,merchant:35,noble:45,royal:50};
 const randTalent=cls=>{const g=Math.sqrt(-2*Math.log(1-Math.random()))*Math.cos(2*Math.PI*Math.random());const mu=TAL_MU[cls]||40,sd=mu<40?17:20;return Math.max(1,Math.min(100,Math.round(mu+g*sd)))};
-const talentWord=v=>v<30?'tầm thường':v<55?'khá':v<75?'xuất chúng':v<90?'thiên tài':'huyền thoại';
+const talentWord=v=>v<40?'tầm thường':v<60?'khá':v<75?'xuất chúng':v<90?'thiên tài':'huyền thoại';
 const RACE_TAL={elf:{arcane:15},fiend:{arcane:10},orc:{sword:10},dwarf:{sword:5},beast:{sword:6,arcane:3}};
 function newTalents(race,pa,cls){const t={arcane:randTalent(cls),sword:randTalent(cls)};if(pa){t.arcane=Math.round((t.arcane+pa.arcane)/2+R(-6,6));t.sword=Math.round((t.sword+pa.sword)/2+R(-6,6))}const b=RACE_TAL[race]||{};for(const k in t)t[k]=Math.max(1,Math.min(100,t[k]+(b[k]||0)));return t}
 const heroScore=()=>S.hid.arcane+S.hid.sword;
@@ -991,7 +991,7 @@ const EV=[
   ch:[{t:'Ăn uống thả cửa',f:()=>{mod({happy:8,health:-3});return'Bạn ăn đến khi phải nới thắt lưng.'}},
       {t:'Kết giao với khách quý',f:s=>{mod({honor:6});s.house.prestige+=10;const r=addFriend({cls:'noble',race:'human',age:Math.max(16,s.age+R(-5,15))});return[`${r?r.name+', một':'Một'} vị khách quý nhớ tên bạn và hứa sẽ nói tốt với nhà vua.${r?' Hai người thành bạn.':''}`,'good']}},
       {t:'Ngâm thơ tình cho cả sảnh nghe',f:s=>{if(ch(.4+s.st.looks/200)){mod({looks:3,happy:8,honor:3});return['Các phu nhân vỗ tay rào rào.','good']}mod({honor:-4,happy:-4});return['Bạn quên lời ở khổ thứ hai. Có tiếng cười khúc khích.','bad']}}]},
- {id:'awaken',w:W(30),c:s=>s.age>=8&&s.age<=14&&(s.st.magic>=50||s.hid.arcane>=70)&&!s.flags.awake,title:'Phép thuật thức tỉnh',big:true,art:'gem',
+ {id:'awaken',w:W(30),c:s=>s.age>=8&&s.age<=14&&(s.st.magic>=50||s.hid.arcane>=70)&&!s.flags.awake&&!s.hid.vm,title:'Phép thuật thức tỉnh',big:true,art:'gem',
   text:'Trong cơn giận, bạn làm mọi ngọn nến trong nhà bùng lửa xanh lè. Hôm sau, một con cú mang đến lá thư niêm phong sáp tím của Học viện Tháp Bạc.',
   ch:[{t:'Nhận thư mời của Học viện',f:s=>{s.flags.awake=1;s.flags.academy=1;mod({magic:10,happy:6});return['Bạn được giữ chỗ làm học đồ ở Tháp Bạc khi tròn 14 tuổi (xem mục Nghề).','magic']}},
       {t:'Giấu kín năng lực',f:s=>{s.flags.awake=1;s.flags.suspect=(s.flags.suspect||0)+1;mod({magic:4});return['Bạn đốt lá thư. Nhưng đôi khi ngọn nến vẫn tự bùng lên khi bạn bước vào phòng.','magic']}},
@@ -1736,8 +1736,11 @@ function showNext(){
   const e=EVB[id];if(!e||(e.c&&!(e.prep&&S.tmp)&&!e.c(S))){S.pend.shift();save();showNext();return}
   if(e.prep&&!S.tmp){e.prep(S);save()}
   const t=typeof e.text==='function'?e.text(S):e.text;
-  evCard(e,`Năm ${S.year} · ${S.age} tuổi`,`<p>${esc(t)}</p>`,e.ch.map((c,i)=>c.hide&&c.req&&!c.req(S)?'':`<button class="btn" data-ec="${i}" ${(c.cost&&S.money<c.cost)||(c.req&&!c.req(S))?'disabled':''}>${typeof c.t==='function'?c.t(S):c.t}</button>`).join(''));
+  let H=e.ch.map((c,i)=>c.hide&&c.req&&!c.req(S)?'':`<button class="btn" data-ec="${i}" ${(c.cost&&S.money<c.cost)||(c.req&&!c.req(S))?'disabled':''}>${typeof c.t==='function'?c.t(S):c.t}</button>`).join('');
+  if(!/<button class="btn" data-ec="\d+" >/.test(H))H+='<button class="btn" data-evskip>Đành đứng nhìn mọi chuyện trôi qua</button>';
+  evCard(e,`Năm ${S.year} · ${S.age} tuổi`,`<p>${esc(t)}</p>`,H);
 }
+function evSkip(){const e=EVB[S.pend[0]];if(!e)return showNext();log(`${et(e)}: Bạn không thể làm gì, đành đứng nhìn mọi chuyện trôi qua.`);S.pend.shift();S.tmp=null;S.tmpEnemy=null;save();render();showNext()}
 function choose(i){
   const e=EVB[S.pend[0]],c=e.ch[i],title=et(e),im0=e.big?eimg(e):null;const[t,tone]=arr(c.f(S));
   S.pend.shift();S.tmp=null;S.tmpEnemy=null;if(S.house&&S.house.dom)S.house.dom.sat=Math.max(0,Math.min(100,Math.round(S.house.dom.sat)));log(`${title}: ${t}`,tone);healthCheck();save();render();
@@ -2858,7 +2861,7 @@ function inherit(id){
   }
   if(old.flags.ptitle&&old.flags.ptitle>title&&(!holder)){title=old.flags.ptitle;notes.push([`Bạn thừa hưởng tước ${titleName(title,p.sex)} mà cha mẹ được phong riêng.`,'good'])}
   const house={...old.house,title,holder};if(title<2)delete house.dom;
-  S={v:4,first:p.first,surname:p.sur,name:p.name,sex:p.sex,race,cls:old.house.title>=2||old.flags.knight?'noble':old.cls,by:old.year-p.age,age:p.age,year:old.year,realm:old.realm,village:old.village,st,money,own,job:null,fam:[],flags:{her:0},done:{},pend:[],ann:[],log:[],alive:true,gen:(old.gen||1)+1,bag:mine,tree:[...(old.tree||[]),rec],spHist:[],house,roots:old.roots,hid:newTalents(race,old.hid),world:{...old.world},rel:(old.rel||[]).filter(r=>r.alive&&r.kind==='enemy'&&r.hate>=60).map(r=>({...r,hate:r.hate-15,d:0,why:`Mối thù truyền từ đời ${old.first}`}))};
+  S={v:4,first:p.first,surname:p.sur,name:p.name,sex:p.sex,race,cls:old.house.title>=2||old.flags.knight?'noble':old.cls,by:old.year-p.age,age:p.age,year:old.year,realm:old.realm,village:old.village,st,money,own,job:null,fam:[],flags:{her:0},done:{},pend:[],ann:[],log:[],alive:true,gen:(old.gen||1)+1,bag:mine,tree:[...(old.tree||[]),rec],spHist:[],house,roots:old.roots,hid:newTalents(race,old.hid,old.house.title>=2||old.flags.knight?'noble':old.cls),world:{...old.world},rel:(old.rel||[]).filter(r=>r.alive&&r.kind==='enemy'&&r.hate>=60).map(r=>({...r,hate:r.hate-15,d:0,why:`Mối thù truyền từ đời ${old.first}`}))};
   if(old.flags.dark){S.flags.darkBlood=1;S.world.cat=null;S.world.last=old.year}
   if(old.flags.hcat){S.world.cat=null;S.world.last=old.year;S.flags.darkBlood=1}
   if(title>=6&&!holder)S.flags.king=1;
@@ -3316,7 +3319,7 @@ const KNIGHT_EV=[
       {t:'Tài trợ hậu cần (60 xu)',cost:60,f:s=>{s.money-=60;s.world.cru.sup+=25;fac(6,0);return'Xe lương mang dấu gia tộc bạn lăn bánh về phía Bắc.'}},
       {t:'Yêu cầu cứu dân trước',f:s=>{s.world.cru.prog-=5;mod({honor:5});return['Giáo chủ đồng ý dành một phần quân lực sơ tán dân chúng.','good']}},
       {t:'Từ chối',f:s=>{fac(-6,0);if(s.kn&&s.kn.t==='orth')s.kn.rep=Math.max(0,s.kn.rep-15);return'Bạn ở lại. An toàn, nhưng có người nhìn bạn khinh miệt.'}}]},
- {id:'cru_news',queued:true,art:'holy',c:s=>!!s.world.cru,title:s=>`Đại Chinh Phạt · ${CRUPH[Math.min(4,s.world.cru.ph+1)]}`,text:'Tin tức từ đạo quân Thánh Quang về tới làng. Có người đi quyên góp từng nhà.',
+ {id:'cru_news',queued:true,art:'holy',c:s=>!!s.world.cru&&s.age>=12,title:s=>`Đại Chinh Phạt · ${CRUPH[Math.min(4,s.world.cru.ph+1)]}`,text:'Tin tức từ đạo quân Thánh Quang về tới làng. Có người đi quyên góp từng nhà.',
   ch:[{t:'Quyên góp (15 xu)',cost:15,f:s=>{s.money-=15;s.world.cru.sup+=8;fac(3,0);return'Bạn góp tiền cho đạo quân.'}},{t:'Nhận người tị nạn vào nhà',f:s=>{mod({honor:4,happy:-2});s.money-=Math.min(Math.max(s.money,0),5);return['Một gia đình tị nạn ở nhờ nhà bạn suốt mùa đông.','good']}},{t:'Buôn bán tiếp tế cho quân',f:s=>{const g=R(10,40);s.money+=g;s.world.cru.sup+=4;return`Bạn bán lương khô cho đạo quân, lời ${g} xu.`}}]},
  {id:'cru_gather',queued:true,big:true,art:'banner',c:s=>s.world.cru&&s.world.cru.j,title:'Đại Chinh Phạt · Tập hợp lực lượng',text:'Đạo quân Thánh Quang đóng trại dưới chân núi. Bạn được giao một nhiệm vụ trước khi hành quân.',
   ch:[{t:'Đi quyên tiền và lương thực',f:s=>{s.world.cru.sup+=20;mod({honor:3});return['Bạn đi khắp các trang viên, mang về hai mươi xe lương.','good']}},{t:'Huấn luyện tân binh',f:s=>{s.world.cru.army+=20;mod({health:-4});return['Tân binh học được cách giữ hàng khiên.','good']}},{t:'Tìm thánh tích cổ',f:s=>{if(ch(.4)){s.world.cru.prog+=15;gainItem('relic');return['Bạn tìm được thánh tích của vị thánh đầu tiên. Cả đạo quân phấn chấn.','good']}return'Bạn tìm mãi không thấy.'}},{t:'Cầu nguyện cùng các giáo sĩ',f:s=>{mod({piety:8});s.world.cru.prog+=6;return'Lời cầu nguyện vang suốt đêm.'}}]},
@@ -4480,7 +4483,7 @@ function forestAct(s){
 }
 const FOREST_EV=[
  {id:'fo_lumber',queued:true,art:'tree',c:s=>s.alive,title:'Người tiều phu bị thương',text:'Một người tiều phu nằm rên bên gốc cây, chân bị rìu chém sâu.',
-  ch:[{t:'Băng bó và cõng về làng (2 xu thuốc)',f:s=>{s.money-=2;mod({honor:2});rep('d',1);return['Vợ người tiều phu khóc mãi không thôi khi thấy bạn cõng chồng bà về.','good']}},{t:'Bỏ đi',f:()=>'Bạn giả vờ không nghe thấy tiếng kêu.'}]},
+  ch:[{t:'Băng bó và cõng về làng (2 xu thuốc)',cost:2,f:s=>{s.money-=2;mod({honor:2});rep('d',1);return['Vợ người tiều phu khóc mãi không thôi khi thấy bạn cõng chồng bà về.','good']}},{t:'Bỏ đi',f:()=>'Bạn giả vờ không nghe thấy tiếng kêu.'}]},
  {id:'fo_song',queued:true,art:'flower',c:s=>s.alive,title:'Tiếng hát trong cổ thụ',text:'Tiếng hát lại vang lên. Lần này có những đốm sáng nhảy múa thành vòng tròn quanh gốc cây.',
   ch:[{t:'Bước vào vòng sáng',f:s=>{if(ch(.6)){mod({magic:3,happy:6});rep('m',2);return['Bạn nhảy múa với các tinh linh đến sáng. Khi tỉnh dậy, bạn thấy mình hiểu được tiếng chim.','magic']}mod({happy:-4,health:-4});return['Bạn bước ra khỏi vòng sáng và thấy trời đã sang mùa khác. Cả làng tưởng bạn chết.','bad']}},{t:'Lùi lại và đi về',f:()=>'Bạn biết chuyện các tinh linh hay bắt người. Tốt nhất là không dính vào.'}]},
  {id:'fo_gate',queued:true,art:'door',c:s=>s.flags.foGate,title:'Cổng đá phủ rêu',text:'Bạn quay lại cổng đá. Những ký tự khắc trên vòm đá phát sáng mờ khi bạn đến gần.',
@@ -5242,7 +5245,7 @@ const V19_EV=[
       {t:'Lão già lẩm cẩm',f:s=>{qStart('famine',{});qNext('famine','qf_famine',1);return'Bạn vỗ vai lão rồi đi tiếp.'}}]},
  {id:'qf_famine',queued:true,big:true,art:'sack',img:'plague',c:s=>qOn('famine',1)&&s.alive,prep:s=>{myRealm().fam=2;mkPush('grain',120);MK().i.grain=Math.max(MK().i.grain,170);news(`Mất mùa lớn ở ${s.realm}. Lúa mạch đen vết lan khắp các cánh đồng.`,'bad',true);s.tmp=1},title:'Mùa màng thất bát',text:s=>`Lão nông đã đúng. Lúa mạch đen vết lan khắp ${s.realm}, giá một lô lúa lên ${mkP('grain')} xu. Trẻ con bắt đầu đi đào rễ cây.`,
   ch:[{t:'Bán lúa tích trữ với giá cao',req:s=>MKH().grain&&MKH().grain.n>0,f:s=>{const x=MKH().grain;const g=mkSell('grain')*x.n;s.money+=g;rep('d',-3*x.n);S.q.famine.d.sold=1;delete MKH().grain;qNext('famine','qf_riot',1);return[`Bạn bán ${x.n} lô lúa được ${g} xu. Ai cũng biết nhà bạn có lúa khi cả làng đói.`,'bad']}},
-      {t:'Phát lúa và bánh cho dân',f:s=>{const x=MKH().grain;const n=x?x.n:0;if(x)delete MKH().grain;const c=Math.min(Math.max(s.money,0),n?0:20);s.money-=c;rep('d',4+n*3);mod({honor:4+n,piety:3});dsat(5+n*2);S.q.famine.d.gave=1;qNext('famine','qf_riot',1);return[n?`Bạn mở kho phát ${n} lô lúa. Cả làng sống qua mùa đông nhờ bạn.`:`Bạn bỏ ra ${c} xu mua bánh mì phát cho lũ trẻ.`,'good']}},
+      {t:'Phát lúa và bánh cho dân',f:s=>{const x=MKH().grain;const n=x?x.n:0;if(x)delete MKH().grain;const c=Math.min(Math.max(s.money,0),n?0:20);s.money-=c;rep('d',4+n*3);mod({honor:4+n,piety:3});dsat(5+n*2);S.q.famine.d.gave=1;qNext('famine','qf_riot',1);return[n?`Bạn mở kho phát ${n} lô lúa. Cả làng sống qua mùa đông nhờ bạn.`:c?`Bạn bỏ ra ${c} xu mua bánh mì phát cho lũ trẻ.`:'Bạn không còn đồng nào, nên chia phần bánh của chính nhà mình cho lũ trẻ.','good']}},
       {t:'Đóng cửa, lo cho nhà mình',f:s=>{rep('d',-1);qNext('famine','qf_riot',1);return'Bạn cài then cửa. Đêm nào cũng nghe tiếng trẻ con khóc ngoài ngõ.'}}]},
  {id:'qf_riot',queued:true,big:true,art:'flame',img:'revolt',c:s=>qOn('famine',2)&&s.alive,title:'Cơn giận của người đói',text:s=>{const d=S.q.famine.d;return d.sold?'Đám đông đói khát vây nhà bạn. Họ gọi bạn là kẻ đầu cơ hút máu.':d.gave?`Đám đông kéo đến kho hàng của Hội Thương nhân Muối Bạc, nơi người ta nói đang giấu hàng trăm bao lúa. Họ ngừng lại trước cửa nhà bạn: "Người đã cứu chúng tôi. Người đi cùng chúng tôi chứ?"`:'Người đói từ khắp vùng kéo về chợ, đập phá các quầy hàng.'},
   ch:[{t:s=>S.q.famine.d.sold?'Chia lại tiền cho dân (một nửa tiền lời)':S.q.famine.d.gave?'Dẫn đầu đám đông':'Đứng ra trấn an đám đông',f:s=>{const d=S.q.famine.d;
@@ -5517,7 +5520,8 @@ const CR_EV=[
   ch:[{t:'Chỉ huy phòng thủ',req:s=>isMil(s)||isKing()||s.house.title>=3,f:s=>{const p=.4+(s.co?s.co.ab.cmd:50)/250+(CR().fl.walls?.15:0);if(ch(p)){CR().reb-=25;if(s.co)s.co.merit+=25;mod({honor:4});return['Ba đợt công thành vỡ dưới chân tường. Quân Thú Nhân lùi về bìa rừng.','good']}CR().reb+=10;mod({health:-R(10,25)});return['Cổng phụ bị phá. Bạn phải bỏ khu chợ ngoài thành.','bad']}},
       {t:'Lên tường thành chiến đấu',req:s=>s.age>=16&&s.race!=='beast',f:s=>{if(ch(.05)){die('trận vây thành của Thú Nhân');return['Một ngọn giáo bay qua lỗ châu mai.','bad']}if(ch(.5+(s.blade||0)/300)){CR().reb-=8;mod({honor:5});return['Bạn giữ một đoạn tường suốt đêm.','good']}mod({health:-R(10,25)});return['Bạn bị móng vuốt cào rách vai.','bad']}},
       {t:'Mở cổng phụ cho Thú Nhân',req:s=>CR().side==='beast'||s.race==='beast',f:s=>{CR().side='beast';CR().reb+=20;rep('d',-5);if(isCourt(s))s.co.sus=100;return['Bạn rút then cổng phụ lúc nửa đêm.','']}},
-      {t:'Mở kho phát lương cho dân trong thành',req:s=>s.money>=25,f:s=>{s.money-=25;rep('d',4);CR().pts+=1;return['Dân trong thành cầm cự được thêm một tháng nhờ kho của bạn.','good']}}]},
+      {t:'Mở kho phát lương cho dân trong thành',req:s=>s.money>=25,f:s=>{s.money-=25;rep('d',4);CR().pts+=1;return['Dân trong thành cầm cự được thêm một tháng nhờ kho của bạn.','good']}},
+      {t:'Trốn dưới hầm cùng dân thường',f:s=>{mod({happy:-4});return'Bạn ngồi trong hầm rượu cùng đàn bà và trẻ nhỏ, nghe tiếng trống da dội qua lớp đá suốt ba đêm.'}}]},
  {id:'cr_bs3',queued:true,big:true,art:'scroll',img:'beastwood',c:s=>CR()&&CR().id==='beast',title:'Hiệp Ước Thánh Lâm',text:s=>{const C=CR();return C.pts>=4?`Hai bên đều kiệt sức. ${C.lead} đồng ý gặp phái đoàn của thành dưới gốc sồi ngàn năm.`:C.reb>=55?`Quân Thú Nhân vẫn vây chặt. ${C.lead} đòi trả lại toàn bộ rừng phía Nam.`:'Quân Thú Nhân rút dần. Thành phố có thể đuổi theo, hoặc dừng lại.'},
   ch:[{t:'Ký hiệp ước bảo vệ rừng',f:s=>{const C=CR();const p=.3+C.pts*.08+(C.fl.envoy?.15:0)+(C.fl.agent?.1:0);if(ch(p)){s.flags.peace=1;rgAdd('beastwood',12);mkPush('wood',20);remember('Liên minh bộ tộc Thú Nhân',20,'cùng ký Hiệp Ước Thánh Lâm');crEnd('auto','Liên bang Vạn Thú và các vương quốc loài người ký Hiệp Ước Thánh Lâm, rừng thiêng được bảo vệ.','good');return['Hai bên cắm cành sồi xuống đất thay cho chữ ký. Rừng thiêng được bảo vệ, đổi lại đường buôn gỗ mở lại ở bìa rừng.','good']}if(C.reb>=55){crEnd('free','Thú Nhân giữ được rừng phía Nam, vùng biên bị chia cắt.','bad');mkPush('wood',40);return['Hội nghị đổ vỡ. Thú Nhân chiếm rừng phía Nam, vương quốc mất một vùng biên.','bad']}crEnd('repelled','quân Thú Nhân bị đẩy lùi về rừng sâu.','');return'Hội nghị đổ vỡ, nhưng quân Thú Nhân đã quá yếu. Họ rút về rừng sâu.'}},
       {t:'Truy kích đến tận rừng sâu',req:s=>s.age>=16,f:s=>{const C=CR();if(C.reb<50||ch(.4)){rgAdd('beastwood',-25);remember('Liên minh bộ tộc Thú Nhân',-30,'bị truy sát trong rừng');crEnd('repelled','quân Thú Nhân bị truy kích, rừng thiêng bị đốt.','');mkPush('wood',-20);mod({honor:2});return['Lửa cháy suốt ba ngày trong Đại Sâm Lâm. Thành phố thắng, nhưng tiếng hú trong rừng giờ nghe như tiếng khóc.','']}mod({health:-R(15,30)});crEnd('free','quân truy kích bị phục kích, Thú Nhân giữ được rừng.','bad');return['Quân truy kích lạc vào rừng và bị phục kích tan tác.','bad']}},
@@ -7071,7 +7075,7 @@ function vhAct(a,id){mnEnsure();if(!S.alive)return;let t='',tone='';
     if(r<.18){const b=cbBook(1,'Kẹp giữa hai cuốn sổ thuế, bạn tìm thấy một tập giấy cũ.');t=b||'Bạn tìm mãi mà không thấy cuốn nào hay.';tone=b?'item':''}
     else if(r<.42){const g=R(2,4);mod({smarts:g});t=pick([`Bạn đọc hết một cuốn biên niên sử. Trí tuệ +${g}.`,`Bạn học được cách tính lãi suất của thương nhân Lombard. Trí tuệ +${g}.`,`Bạn đọc một cuốn sách về thảo dược và ghi chép kín ba trang. Trí tuệ +${g}.`]);tone='good'}
     else if(r<.62){const g=R(3,6);mod({happy:g});t=pick(['Bạn đọc một cuốn truyện kỵ sĩ diệt rồng và cười một mình giữa thư viện.','Bạn tìm được một tập thơ tình của một tu sĩ, viết rất vụng mà rất thật.','Bạn đọc truyện cổ Thú Nhân về con cáo lừa cả bầy sói.'])+` Vui vẻ +${g}.`;tone='good'}
-    else if(r<.72){if(!mnOn()&&S.age>=10&&!S.pend.includes('mn_wake')&&ch(.5)){S.pend.push('mn_wake');t='Bạn đọc một cuốn sách về các mệnh ẩn. Đọc tới đâu, tay bạn ngứa ran tới đó.'}else{mod({magic:2});t='Bạn đọc về các trường phái ma pháp. Ma lực +2.'}tone='magic'}
+    else if(r<.72){if(!mnOn()&&!(S.hid&&S.hid.vm)&&S.age>=10&&!S.pend.includes('mn_wake')&&ch(.5)){S.pend.push('mn_wake');t='Bạn đọc một cuốn sách về các mệnh ẩn. Đọc tới đâu, tay bạn ngứa ran tới đó.'}else{mod({magic:2});t='Bạn đọc về các trường phái ma pháp. Ma lực +2.'}tone='magic'}
     else{t=pick(LIBNO);if(ch(.3))mod({smarts:1})}}
   else if(a==='tr'){if(!S.mv[id]||!vhLeft())return;S.done.vh=(S.done.vh||0)+1;const M=MV[id],P=S.mv[id];
     const tal=M.src==='kiem'?(S.hid.sword||0):M.src[0]==='m'?((S.hid.arcane||0)+S.st.magic)/2:60;let g=Math.round(R(8,14)*(.6+tal/125));if(M.src[0]==='m')g=Math.max(1,Math.round(g*mvArcF(id)));
@@ -7093,7 +7097,7 @@ function vhAct(a,id){mnEnsure();if(!S.alive)return;let t='',tone='';
 function vhRow(id,act){const M=MV[id],P=S.mv[id];return gRow(act,mvIc(M),`${M.n}${P?` · cấp ${P.lv}/5`:''}`,`${MVTY[M.ty]}${M.sv.length?' · khắc '+M.sv.map(t=>CBTN[t]).join(', '):''}${M.mp?` · ${M.mp} ma lực`:''}${M.hp?` · ${M.hp} sức khỏe`:''}`,S.mvL.includes(id)?'Đang mang':'',!S.alive)}
 const mvSrcN=M=>M.src==='kiem'?'Kiếm thuật':M.src[0]==='c'?`Mệnh Lộ Ẩn ${CD_CLASSES[M.src.slice(2)][0]}`:M.src[0]==='p'?`Mệnh Lộ ${PP[M.src.slice(2)].n}`:M.src[0]==='m'?`${MENH[M.src.slice(2)].n} mệnh`:M.src[0]==='r'?{hero:'Anh Hùng',saint:'Thánh Nữ',dark:'Ma Vương'}[M.src.slice(2)]:`Nghề ẩn ${HC[M.src.slice(2)].n}`;
 function vhView(v){mnEnsure();const id=v.split(':')[1];if(id&&MV[id])return vhMove(id);const dis=!S.alive,m=MENH[S.hid.menh];let b='';
-  b+=mnOn()?gRow('',m.ic,`${m.n} mệnh`,m.d,'',false,true):S.hid&&S.hid.vm?gRow('','star','Vô Mệnh','Không mang mệnh nào. Ma lực không tăng (cảm nhận ma pháp từ 40 thì tăng rất chậm). Chỉ học được chiêu kiếm','',false,true):gRow('','star','Mệnh ẩn: chưa thức tỉnh','','',false,true);
+  b+=mnOn()?gRow('',m.ic,`${m.n} mệnh`,m.d,'',false,true):S.hid&&S.hid.vm?gRow('','star','Vô Mệnh','Không mang mệnh nào. Ma lực không vượt quá mức bẩm sinh (cảm nhận ma pháp từ 40 thì tăng rất chậm). Chỉ học được chiêu kiếm','',false,true):gRow('','star','Mệnh ẩn: chưa thức tỉnh','','',false,true);
   b+=statGrid([['Kiếm thuật',`${S.blade||0}/100`],['Ma lực',`${S.st.magic}/100`]]);if(S.flags.seenS||S.flags.seenA)b+=`<p class="note">Thiên phú: ${[S.flags.seenS?'kiếm '+talentWord(S.hid.sword):'',S.flags.seenA?'phép '+talentWord(S.hid.arcane):''].filter(Boolean).join(', ')}.</p>`;
   b+=`<p class="sec">Mang vào trận · ${S.mvL.length}/4</p>`;b+=S.mvL.length?S.mvL.map(x=>vhRow(x,`data-open="vh:${x}"`)).join(''):'<p class="note">Chưa có chiêu nào.</p>';
   const rest=mvList().filter(x=>!S.mvL.includes(x));if(rest.length)b+='<p class="sec">Chiêu khác đã học</p>'+rest.map(x=>vhRow(x,`data-open="vh:${x}"`)).join('');
@@ -7134,7 +7138,7 @@ for(const e of MN_EV){EV.push(e);EVB[e.id]=e;if(e.img)EIMG[e.id]=e.img}
 Object.defineProperty(EIMG,'mq_call',{get(){return S&&S.mqK&&HQ[S.mqK]?HQ[S.mqK].img:null},set(v){},configurable:true,enumerable:true});
 function mvYear(){mnEnsure();if(!S.alive)return;
   if(S.hc&&HCMV[S.hc.k]&&(S.hc.rk||0)>=1){const[a,b]=HCMV[S.hc.k];if(!S.mv[a])mvLearn(a,true);if(S.hc.rk>=3&&!S.mv[b])mvLearn(b,true)}
-  if(!mnOn()&&S.age>=12&&S.age<=45&&!(S.flags.mnNo&&S.year-S.flags.mnNo<5)&&!S.pend.includes('mn_wake')&&ch(.05+S.st.magic/800+((S.hid.arcane||0)>=60?.05:0)))S.pend.push('mn_wake');
+  if(!mnOn()&&!(S.hid&&S.hid.vm)&&S.age>=12&&S.age<=45&&!(S.flags.mnNo&&S.year-S.flags.mnNo<5)&&!S.pend.includes('mn_wake')&&ch(.05+S.st.magic/800+((S.hid.arcane||0)>=60?.05:0)))S.pend.push('mn_wake');
   if(S.age>=16&&!S.pend.includes('mq_call')){if(!S.mqNo)S.mqNo={};const m=S.hid.menh,k='mq_'+m;
     if(mnOn()&&!(S.hq&&S.hq[k])&&!S.mqNo[k]&&!S.mv[MQ[m].mv]&&S.st.magic>=40&&['1','2','3','4'].filter(i=>S.mv[m+i]).length>=3&&ch(.15)){S.mqK=k;S.pend.push('mq_call')}
     else if(!S.mv.kkt&&!(S.hq&&S.hq.mq_kiem)&&!S.mqNo.mq_kiem&&(S.blade||0)>=55&&S.mv.chem&&S.mv.chem.lv>=3&&ch(.12)){S.mqK='mq_kiem';S.pend.push('mq_call')}}}
@@ -7727,8 +7731,9 @@ const isRed=s=>(s.flags.her||0)>=1;
 SHOPS.push({id:'redshop',n:'Mục Hồng Giáo',ic:'night',d:'Chỉ tín đồ Hồng Nguyệt mới tìm được lối vào',vis:isRed,items:[['p_hong',300,isRed,'Chỉ dành cho tín đồ Hồng Nguyệt'],['rx_amulet',300,isRed,'Chỉ dành cho tín đồ'],['rh_mask',350,isRed,'Chỉ dành cho tín đồ'],['rx_ring',400,isRed,'Chỉ dành cho tín đồ'],['rw_twin',450,isRed,'Chỉ dành cho tín đồ'],['rx_chain',450,isRed,'Chỉ dành cho tín đồ'],['ra_robe',500,isRed,'Chỉ dành cho tín đồ'],['rw_scythe',600,isRed,'Chỉ dành cho tín đồ'],['rw_staff',700,isRed,'Chỉ dành cho tín đồ'],['rh_crown',800,isRed,'Chỉ dành cho tín đồ'],['ra_plate',900,isRed,'Chỉ dành cho tín đồ']]});
 const POT={p_tinh:{g:6,tox:1},p_ma:{g:10,tox:2},p_than:{g:15,tox:0},p_hong:{g:12,tox:1}};
 function thanArc(){talSync();const d=Math.min(R(2,3),100-S.tal.arcane);if(d<=0)return'';S.tal.arcane+=d;S.hid.arcane=S.tal.arcane;return` Cảm nhận ma pháp +${d}.`}
-function potGain(base){talSync();const f=t=>Math.max(.4,1.5-t/100);const b=Math.max(1,Math.round(base*f(S.tal.sword)*(1-(S.blade||0)/140))),m=Math.max(1,Math.round(base*f(S.tal.arcane)*(1-S.st.magic/140)));
-  S.blade=Math.min(100,(S.blade||0)+b);S.st.magic=Math.min(100,S.st.magic+m);return`Kiếm thuật +${b}, ma lực +${m}.`}
+function potGain(base){talSync();const f=t=>Math.max(.4,1.5-t/100);const b=Math.max(1,Math.round(base*f(S.tal.sword)*(1-(S.blade||0)/140)));let m=Math.max(1,Math.round(base*f(S.tal.arcane)*(1-S.st.magic/140)));
+  const vm=!!(S.hid&&S.hid.vm);if(vm)m=vmGain(m);
+  S.blade=Math.min(100,(S.blade||0)+b);S.st.magic=Math.min(100,S.st.magic+m);if(vm)S.hid.vmM=Math.max(S.hid.vmM||0,S.st.magic);return m?`Kiếm thuật +${b}, ma lực +${m}.`:`Kiếm thuật +${b}. Ma lực không đổi vì bạn là Vô Mệnh.`}
 function potBack(){const r=R(0,2);if(r===0){const d=R(8,18);mod({health:-d});return` Phản phệ: máu trong người bạn sôi lên, mất ${d} sức khỏe.`}if(r===1){const d=R(2,6);S.blade=Math.max(0,(S.blade||0)-d);mod({health:-R(3,8)});return` Phản phệ: tay chân bạn run rẩy suốt một tháng, kiếm thuật giảm ${d}.`}const d=R(2,6);S.st.magic=Math.max(0,S.st.magic-d);mod({health:-R(3,8)});return` Phản phệ: ma lực trong người bạn rối loạn, giảm ${d}.`}
 {const u0=useItem;useItem=function(id){const i=S.bag.findIndex(x=>x.id===id),it=S.bag[i];if(!it||!POT[it.k])return u0(id);const k=it.k,P=POT[k];S.bag.splice(i,1);sel=null;let t,tone='magic';
   if(k==='p_than'&&isRed(S)){const d=R(25,40);mod({health:-d,magic:0});S.st.magic=Math.max(0,S.st.magic-R(5,10));t=`Thánh quang trong Thần Dược thiêu đốt máu trăng đỏ trong người bạn. Bạn quằn quại ba ngày, mất ${d} sức khỏe.`;tone='bad'}
@@ -8127,6 +8132,7 @@ document.addEventListener('click',e=>{
   else if('close'in d)closeSheet();
   else if('age'in d)ageUp();
   else if(d.ec!==undefined)choose(+d.ec);
+  else if('evskip'in d)evSkip();
   else if('next'in d)showNext();
   else if('annok'in d){S.ann.shift();save();showNext()}
   else if(d.act)doAct(d.act);
@@ -11639,9 +11645,10 @@ function vmRoll(){if(!S||!S.hid)return;S.vm40=1;if(S.race==='skeleton')return;ta
 {const i0=inherit;inherit=function(id){const r=i0(id);if(S&&S.alive){vmRoll();save()}return r}}
 /* Vô Mệnh: ma lực không tăng; nếu cảm nhận ma pháp từ 40 (nhờ Thần Dược) thì mỗi lần chỉ tăng 1-2 */
 const vmArc=()=>{talSync();return S.tal.arcane||0};
-{const m0=mod;mod=function(c){if(vmOn()&&c&&c.magic>0){const ok=vmArc()>=40;c={...c,magic:ok?Math.min(c.magic,R(1,2)):0};const r=m0(c);if(ok)S.hid.vmM=Math.max(S.hid.vmM||0,S.st.magic);return r}return m0(c)}}
+const vmGain=g=>vmArc()>=40?Math.min(g,R(1,2)):Math.max(0,Math.min(g,(S.hid.vmM||0)-S.st.magic));
+{const m0=mod;mod=function(c){if(vmOn()&&c&&c.magic>0){c={...c,magic:vmGain(c.magic)};const r=m0(c);S.hid.vmM=Math.max(S.hid.vmM||0,S.st.magic);return r}return m0(c)}}
 {const y0=extYear3;extYear3=function(){y0();if(vmOn()&&S.st.magic>(S.hid.vmM||0))S.st.magic=S.hid.vmM||0;
-  if(vmOn()&&S.alive&&S.age>=10&&!S.flags.vmR&&!S.pend.includes('vm_rev')&&ch(.4)){S.flags.vmR=1;S.pend.push('vm_rev')}}}
+  if(vmOn()&&S.alive&&S.age>=10&&!S.flags.vmR&&!S.pend.includes('vm_rev')&&ch(.4)){S.flags.vmR=1;S.flags.seenA=1;S.pend.push('vm_rev')}}}
 {const c0=EVB.mn_wake.c;EVB.mn_wake.c=s=>!vmOn()&&c0(s)}
 EV.push(EVB.vm_rev={id:'vm_rev',queued:true,big:true,art:'star',img:'manatest',c:s=>vmOn(),title:'Viên đá không sáng',
   text:'Thầy pháp của giáo xứ đặt tay bạn lên viên đá thử mệnh. Với mọi đứa trẻ khác, đá sáng lên màu đỏ, xanh hay vàng. Với bạn, đá vẫn xám như đá ven đường. Thầy lắc đầu: "Vô Mệnh. Không mang mệnh nào, ma lực của con khó mà lớn lên được."',
@@ -12395,7 +12402,7 @@ function ivGrp(id){const g=JGRP.find(x=>x[2].includes(id));return g?g[0]:'khac'}
 function ivStart(id){const L=IVQ[id]&&IVQ[id].length?IVQ[id]:IVQ._any,k=IVQ[id]&&IVQ[id].length?id:'_any';S.iv={id,q:[[k,R(0,L.length-1)]],i:0,sc:0,who:IVWHO[id]||IVWHO._,ord:[0,1,2].sort(()=>Math.random()-.5)};S.pend.push('job_iv')}
 const ivCur=()=>{const I=S.iv;if(!I)return null;const[k,n]=I.q[I.i];return IVQ[k][n]};
 function ivEnd(){const I=S.iv,J=JOBS[I.id];S.iv=null;const p=Math.max(.08,Math.min(.95,.45+I.sc*.2+(S.st.honor-50)/400+(CLASSES[S.cls].rk>=2?.08:0)));
-  if(ch(p)){if(S.job)log(`Bạn thôi làm ${jt().toLowerCase()}.`);S.job={id:I.id,rank:0,yr:0,ry:0,perf:40+I.sc*4};log(`Bạn được nhận vào làm ${jt().toLowerCase()}.`,'good');
+  if(ch(p)){const _as=afterSheetAction,n0=note;afterSheetAction=function(){};try{joinJob(I.id)}finally{afterSheetAction=_as}note=n0;if(S.job&&S.job.id===I.id)S.job.perf=40+I.sc*4;
     return[`${I.sc>=2?'"Ngươi khá lắm. Sáng mai tới sớm."':I.sc>=1?'"Được, ta cho ngươi thử."':'"Ta còn nhiều nghi ngờ, nhưng đang thiếu người."'} Bạn được nhận vào làm ${(S.sex==='f'&&J.tf?J.tf:J.t)[0].toLowerCase()}.`,'good']}
   S.ivNo=S.ivNo||{};S.ivNo[I.id]=S.year;return[`${I.sc<=0?'"Ngươi không hợp với việc này."':'"Ta đã chọn được người khác."'} Bạn trượt phỏng vấn. Năm sau bạn có thể thử lại.`,'bad']}
 EV.push(EVB.job_iv={id:'job_iv',queued:true,big:false,art:'scroll',c:s=>!!(s.alive&&s.iv&&JOBS[s.iv.id]),
@@ -12800,7 +12807,7 @@ const VMQ=[
   [['Chờ người được tiên tri',0,'Gần sáng thì nước rút. Người được tiên tri không bao giờ tới. Cuốn sổ vẫn để trống dòng ký tên.'],
    ['Bước ra đứng vào chỗ của người ấy',1,'Bạn lội xuống trước, dò từng chỗ nước nông, gọi người theo sau. Không ai viết cho bạn vai này. Khi người cuối cùng lên tới bờ bên kia, bạn mở sổ ra và thấy tên mình đã nằm trên dòng kẻ.',s=>mod({health:-R(5,12),honor:6})],
    ['Ký tên người khác vào dòng trống',0,'Bạn viết tên trưởng làng. Ông không dẫn được ai. Đến sáng thì nét chữ đã chảy nhòe như bị nước xóa.']]]];
-const vmqWhy=()=>!S.vmq?'':S.pp?'Đã bước lên Mệnh Lộ':S.age<14?'Còn quá nhỏ':S.done.vmq?'Đã viết một trang năm nay':'';
+const vmqWhy=()=>!S.vmq?'':S.pp?'Đã bước lên Mệnh Lộ':clsHas(S)?'Bạn đang đi một Mệnh Lộ Ẩn':S.age<14?'Còn quá nhỏ':S.done.vmq?'Đã viết một trang năm nay':'';
 const VMQ_EV={id:'vmq_ev',queued:true,big:true,art:'scroll',img:'manatest',c:s=>!!(s.alive&&s.vmq&&!s.pp&&VMQ[s.vmq.c]),title:s=>VMQ[s.vmq.c][0],text:s=>VMQ[s.vmq.c][1]};
 Object.defineProperty(VMQ_EV,'ch',{get:()=>{const Q=S&&S.vmq&&VMQ[S.vmq.c];if(!Q)return[];return Q[2].map(([t,ok,res,fx])=>({t,f:s=>{if(fx)fx(s);const win=ok===2?ch(.6):!!ok;
   if(!win)return[res+(ok===2?' Nhưng trang giấy vẫn chưa hiện chữ. Năm sau hãy thử lại.':' Năm sau hãy thử lại.'),ok===2?'':'bad'];
