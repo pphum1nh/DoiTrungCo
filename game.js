@@ -11641,8 +11641,8 @@ PROPH.push('Hai mặt trăng sẽ cùng soi lên ngày cưới của ngươi.','
 /* ===== Vô Mệnh: không thức tỉnh mệnh nào, ma lực không tăng ===== */
 const vmOn=()=>!!(S&&S.hid&&S.hid.vm);
 function vmRoll(){if(!S||!S.hid)return;S.vm40=1;if(S.race==='skeleton')return;talSync();S.hid.vm=(S.hid.arcane||0)<40?1:0;if(S.hid.vm)S.hid.vmM=S.st.magic}
-{const n0=newLife;newLife=function(o){n0(o);if(S){vmRoll();save()}}}
-{const i0=inherit;inherit=function(id){const r=i0(id);if(S&&S.alive){vmRoll();save()}return r}}
+{const n0=newLife;newLife=function(o){n0(o);if(S){chRoll();vmRoll();save()}}}
+{const i0=inherit;inherit=function(id){const r=i0(id);if(S&&S.alive){chRoll();vmRoll();save()}return r}}
 /* Vô Mệnh: ma lực không tăng; nếu cảm nhận ma pháp từ 40 (nhờ Thần Dược) thì mỗi lần chỉ tăng 1-2 */
 const vmArc=()=>{talSync();return S.tal.arcane||0};
 const vmGain=g=>vmArc()>=40?Math.min(g,R(1,2)):Math.max(0,Math.min(g,(S.hid.vmM||0)-S.st.magic));
@@ -12818,6 +12818,93 @@ EV.push(VMQ_EV);EVB.vmq_ev=VMQ_EV;EIMG.vmq_ev='manatest';
   return`<p class="sec">Đạo Mệnh</p>`+gRow('data-x="vmq:go"','scroll',`Cuốn Sổ Không Có Tên · Trang ${S.vmq.c+1}/3`,why||VMQ[S.vmq.c][0],'',!S.alive||!!why)+b}}
 {const x0=extAct3;extAct3=function(x){if(x==='vmq:go'){if(vmqWhy()||S.pend.includes('vmq_ev'))return;S.done.vmq=1;S.pend.push('vmq_ev');return afterSheetAction()}return x0(x)}}
 {const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.vmq&&(typeof r.vmq!=='object'||!VMQ[r.vmq.c]))r.vmq=null;return r}}
+
+/* ===== Đứa trẻ được chọn: ~1% con nhà thường dân sinh ra với thiên phú đột biến ===== */
+function chRoll(){if(!S||!S.hid||S.race==='skeleton'||!['serf','craft','merchant'].includes(S.cls)||!ch(.01))return;talSync();
+  const k=pick(['sword','arcane']),o=k==='sword'?'arcane':'sword';S.tal[k]=S.hid[k]=R(90,99);S.tal[o]=S.hid[o]=Math.min(100,S.tal[o]+R(5,15));S.flags.chosen=k}
+EV.push(EVB.chosen_sign={id:'chosen_sign',queued:true,big:true,art:s=>s.flags.chosen==='sword'?'sword':'star',img:'manatest',c:s=>!!(s.alive&&s.flags.chosen),title:'Đứa Trẻ Được Chọn',
+  text:s=>s.flags.chosen==='sword'?'Mùa gặt năm ấy, bạn cầm cây gậy tre đuổi một con chó dữ khỏi chuồng gà. Ba nhát, nhanh và gọn tới mức ông lão gác cổng làng đánh rơi cả tẩu thuốc. Ông nắm vai bạn, nhìn rất lâu, rồi nói khẽ: "Trời đặt nhầm một thanh kiếm vào nhà nông."':'Đêm ấy giông to. Bạn sợ quá, nắm chặt tay lại, và mọi ngọn nến trong nhà cùng bùng lên một màu trắng bạc. Mẹ bạn làm rơi bát cháo. Sáng hôm sau, cả làng kéo tới xem đứa trẻ con nhà nông mà đom đóm cứ bay theo.',
+  ch:[{t:'Kể cho cha mẹ nghe',f:s=>{if(s.flags.chosen==='sword')s.flags.seenS=1;else s.flags.seenA=1;mod({happy:4});return['Cha bạn im lặng cả buổi tối, rồi đem bán con bê để mua cho bạn một thanh kiếm gỗ tốt và một cuốn sách cũ. "Nhà mình chưa từng có ai như con."','good']}},
+      {t:'Giữ cho riêng mình',f:s=>{if(s.flags.chosen==='sword')s.flags.seenS=1;else s.flags.seenA=1;mod({smarts:2});return['Bạn không kể với ai. Nhưng từ hôm đó, bạn biết mình khác những đứa trẻ khác trong làng.','magic']}}]});
+EIMG.chosen_sign='manatest';
+{const y0=extYear3;extYear3=function(){y0();if(S&&S.alive&&S.flags.chosen&&!S.flags.chosenS&&S.age>=6&&S.age<=12&&ch(.5)){S.flags.chosenS=1;S.pend.push('chosen_sign')}}}
+
+/* ===== Thương tật và bệnh mãn tính ===== */
+const INJ_COMBAT=['soldier','knight','hunter','orcwar','pitfighter','merc','shadowblade','demonhunter','shieldguard','nightwatch','assassin'];
+const INJ={
+ que:{n:'Què chân',d:'Đi khập khiễng suốt đời. Không theo nổi các nghề cầm vũ khí. Vui vẻ -1 mỗi năm.',on:()=>{S.blade=Math.max(0,(S.blade||0)-5)},yr:()=>mod({happy:-1}),
+  cure:['Nhờ thầy thuốc bẻ lại và nẹp xương (60 xu)',60,.5,'Thầy thuốc bẻ gãy chỗ xương liền lệch rồi nẹp lại. Ba tháng nằm liệt, nhưng bạn đi lại được như xưa.','Xương liền lệch lần nữa. Bạn vẫn đi khập khiễng.'],off:()=>{}},
+ mu:{n:'Mù một mắt',d:'Mất một bên mắt. Kiếm thuật và dung mạo giảm, làm nghề cầm vũ khí khó thăng tiến.',on:()=>{S.blade=Math.max(0,(S.blade||0)-8);mod({looks:-8})},yr:()=>{},
+  cure:['Xin pháp sư chữa lành (150 xu)',150,.4,'Pháp sư đặt tay lên mắt bạn và đọc chú suốt một đêm. Sáng ra, bạn nhìn thấy bằng cả hai mắt.','Pháp sư lắc đầu: vết thương đã quá cũ. Bạn được một chiếc bịt mắt bằng da.'],off:()=>mod({looks:6})},
+ tay:{n:'Tay liền lệch',d:'Xương tay liền lệch sau trận đánh. Kiếm thuật giảm, làm nghề cầm vũ khí khó thăng tiến.',on:()=>{S.blade=Math.max(0,(S.blade||0)-12)},yr:()=>{},
+  cure:['Nhờ thợ cạo nắn lại xương (30 xu)',30,.5,'Thợ cạo bẻ, nắn, rồi bó nẹp. Bạn hét to tới mức cả xóm nghe thấy. Nhưng cánh tay thẳng lại.','Thợ cạo nắn mãi không được. Bạn mất tiền mà tay vẫn lệch.'],off:()=>{S.blade=Math.min(100,(S.blade||0)+6)}},
+ seo:{n:'Sẹo lớn trên mặt',d:'Một vết sẹo dài vắt ngang mặt. Dung mạo giảm.',on:()=>mod({looks:-15}),yr:()=>{},
+  cure:['Đắp thuốc của người tiên trong rừng (100 xu)',100,.4,'Thứ thuốc xanh như rêu làm da bạn rát suốt một tuần. Khi bóc ra, vết sẹo chỉ còn mờ như vết chỉ.','Thuốc tiên chỉ làm vết sẹo đỏ hơn.'],off:()=>mod({looks:12})},
+ lao:{n:'Ho lao',d:'Bệnh ho dai dẳng ăn mòn thân thể. Sức khỏe -3, vui vẻ -1 mỗi năm.',on:()=>mod({health:-8}),yr:()=>{mod({health:-3,happy:-1});if(S.st.health<10&&ch(.3))die('ho lao')},
+  cure:['Lên núi tĩnh dưỡng một mùa (80 xu)',80,.55,'Khí núi trong lành và bát sữa dê mỗi sáng. Tới cuối mùa, bạn không còn ho ra máu nữa.','Bạn trở về từ núi, cơn ho vẫn theo về cùng.'],off:()=>mod({health:5})}};
+const injHas=k=>!!(S&&S.inj&&S.inj[k]);
+const injN=()=>S&&S.inj?Object.keys(S.inj).length:0;
+let injBusy=false;
+function injGain(k){if(!S||!S.alive||injHas(k)||!INJ[k])return;S.inj=S.inj||{};S.inj[k]=S.year;injBusy=true;try{INJ[k].on()}finally{injBusy=false}S.flags.injMax=Math.max(S.flags.injMax||0,injN());log(`Di chứng: ${INJ[k].n}. ${INJ[k].d}`,'bad')}
+{const m0=mod;mod=function(c){const r=m0(c);if(!injBusy&&c&&c.health<=-15&&S&&S.alive&&S.age>=14&&injN()<3&&ch(.2)){const L=['que','mu','tay','seo'].filter(k=>!injHas(k));if(L.length)injGain(pick(L))}return r}}
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||S.cap)return;
+  if(S.inj)for(const k of Object.keys(S.inj))if(INJ[k]&&S.alive)INJ[k].yr();
+  if(!S.alive)return;
+  if(!injHas('lao')&&S.age>=12&&S.st.health<35&&ch(.04))injGain('lao');
+  if(S.job&&INJ_COMBAT.includes(S.job.id)&&['que','mu','tay'].some(injHas))S.job.perf=Math.max(0,(S.job.perf||40)-10)}}
+for(const id of INJ_COMBAT){const J=JOBS[id];if(!J)continue;const r0=J.req,w0=Object.getOwnPropertyDescriptor(J,'why');
+  J.req=s=>!(s.inj&&s.inj.que)&&(r0?r0(s):true);
+  Object.defineProperty(J,'why',{get(){return S&&S.inj&&S.inj.que?'Chân què, không theo nổi nghề cầm vũ khí':w0?(w0.get?w0.get.call(J):w0.value):''},configurable:true,enumerable:true})}
+{const a0=actExtra3;actExtra3=function(){const b=a0();if(!S||!S.inj||!injN())return b;const used=!!S.done.inj;
+  let h='<p class="sec">Thương tật · chữa một lần mỗi năm</p>';
+  for(const k of Object.keys(S.inj)){const D=INJ[k];if(!D)continue;h+=gRow('',k==='lao'?'skull':'medical-kit',D.n,`Từ năm ${S.inj[k]} · ${D.d}`,'',false,true);
+    h+=gRow(`data-x="inj:${k}"`,'potion',D.cure[0],used?'Đã chữa năm nay':`Khả năng khỏi khoảng ${Math.round(D.cure[2]*100)}%`,'',!S.alive||!!S.cap||used||S.money<D.cure[1])}
+  return h+b}}
+{const x0=extAct3;extAct3=function(x){if(x.startsWith('inj:')){const k=x.slice(4),D=INJ[k];if(!D||!injHas(k)||S.done.inj||S.money<D.cure[1]||!S.alive)return;S.done.inj=1;S.money-=D.cure[1];let t,tone;
+    if(ch(D.cure[2])){delete S.inj[k];D.off();S.flags.injCure=1;t=`${D.n}: ${D.cure[3]}`;tone='good'}else{t=`${D.n}: ${D.cure[4]}`;tone='bad'}
+    log(t,tone);note={t,tone};return afterSheetAction()}return x0(x)}}
+
+/* ===== Thành tựu và Sổ Tay Chết Bựa: lưu qua mọi đời trên trình duyệt này ===== */
+const ACH_KEY=KEY+'-ach';
+function achLoad(){try{const o=JSON.parse(localStorage.getItem(ACH_KEY)||'{}');return{sd:o.sd||{},t5:o.t5||{},cls:o.cls||{},a:o.a||{}}}catch(e){return{sd:{},t5:{},cls:{},a:{}}}}
+function achSave(A){try{localStorage.setItem(ACH_KEY,JSON.stringify(A))}catch(e){}}
+const ACH_CLS={...Object.fromEntries(Object.entries(CD_CLASSES).filter(([k])=>CE_K.includes(k)).map(([k,v])=>[k,v[0]])),nb:'Người Ẩn Mình Dưới Bóng Mặt Trăng',wt:'Người Nghe Nước'};
+const SD_ALL=()=>SILLY_DEATH.map(x=>x.replace(/^!/,''));
+const ACH=[
+ ['old','Tuổi Già Đáng Ghen Tị','Sống tới 80 tuổi (theo tuổi loài người)',s=>s.age/lifeOf(s.race)>=80],
+ ['chosen','Trời Đặt Nhầm Chỗ','Sinh ra là Đứa Trẻ Được Chọn',s=>!!s.flags.chosenS],
+ ['hero','Anh Hùng Định Mệnh','Đánh bại một Thảm Họa',s=>!!s.flags.legend],
+ ['rk5','Chạm Tới Bậc Cuối','Đạt Danh Xưng bậc 5 của một Mệnh Lộ',s=>!!(s.pp&&s.pp.rk>=5)],
+ ['branch','Ngã Rẽ','Rẽ sang một nhánh Mệnh Lộ mới ở bậc 2',s=>!!(s.pp&&s.pp.br&&s.pp.br!=='giữ')],
+ ['vmlo','Người Tự Viết','Người Vô Mệnh bước lên Mệnh Lộ',s=>!!(s.pp&&s.pp.k==='vm')],
+ ['hidden','Con Đường Không Ai Chỉ','Mở một Mệnh Lộ Ẩn',s=>Object.keys(ACH_CLS).some(k=>s[k])],
+ ['king','Ngồi Lên Ngai Vàng','Trở thành vua hoặc nữ vương',s=>{try{return isKing()}catch(e){return false}}],
+ ['rich','Rương Đầy Vàng','Có 1000 xu trong tay',s=>s.money>=1000],
+ ['gen5','Dòng Họ Bền Bỉ','Gia tộc truyền tới đời thứ năm',s=>(s.gen||1)>=5],
+ ['bard','Thi Bá','Hát trước nhà vua và trở thành Thi bá',s=>!!(s.job&&s.job.id==='bard'&&s.job.rank>=2)],
+ ['scars','Người Lính Già','Sống với ba di chứng cùng lúc',s=>(s.flags.injMax||0)>=3],
+ ['cure','Hồi Sinh Từ Vết Thương','Chữa khỏi một di chứng',s=>!!s.flags.injCure],
+ ['edge','Bên Bờ Vực','Lý trí xuống dưới 10 mà vẫn còn là người',s=>s.alive&&s.lt!=null&&s.lt<10],
+ ['sd5','Sưu Tầm Viên','Ghi 5 kiểu chết bựa vào Sổ Tay',(s,A)=>Object.keys(A.sd).length>=5],
+ ['sdall','Thần Chết Cũng Phải Cười','Ghi đủ mọi kiểu chết bựa',(s,A)=>SD_ALL().every(x=>A.sd[x])]];
+function achCheck(){if(!S)return;const A=achLoad();let ch0=false;const who=`${S.first} ${S.surname||''}`.trim();
+  if(S.pp&&S.pp.rk>=5){const k=PP[S.pp.k]?`${PP[S.pp.k].n}: ${ppT(S.pp,5)}`:null;if(k&&!A.t5[k]){A.t5[k]={who,y:S.year};ch0=true;toast(`Danh Xưng bậc 5 mới: ${ppT(S.pp,5)}`)}}
+  for(const[k,n]of Object.entries(ACH_CLS)){const x=S[k];if(!x)continue;const c=A.cls[k]||(A.cls[k]={who,y:S.year,rk:0});if(!A.cls[k].seen){c.seen=1;ch0=true}const rk=+x.rk||0;if(rk>(c.rk||0)){c.rk=rk;ch0=true}}
+  for(const[id,n,,f]of ACH){if(A.a[id])continue;let ok=false;try{ok=f(S,A)}catch(e){}if(ok){A.a[id]={who,y:S.year};ch0=true;toast(`Thành tựu: ${n}`);log(`Thành tựu mới: ${n}.`,'good')}}
+  if(ch0)achSave(A)}
+let sdNew=null;
+{const d0=die;die=function(cause){const was=S&&S.alive;d0(cause);if(!was||!S)return;sdNew=null;if(SD_ALL().includes(cause)){const A=achLoad();if(!A.sd[cause]){A.sd[cause]={who:`${S.first} ${S.surname||''}`.trim(),y:S.year};achSave(A);sdNew=cause}}achCheck()}}
+{const y0=extYear3;extYear3=function(){y0();if(S&&S.alive)achCheck()}}
+{const s0=showDeath;showDeath=function(){s0();if(sdNew){const A=achLoad(),el=$('#modal .epi');if(el)el.insertAdjacentHTML('afterend',`<p class="note" style="text-align:center">Sổ Tay Chết Bựa có thêm một trang mới · ${Object.keys(A.sd).length}/${SD_ALL().length}</p>`)}}}
+function achView(){const A=achLoad();const nA=Object.keys(A.a).length,sd=SD_ALL(),nS=sd.filter(x=>A.sd[x]).length;
+  let b=`<p class="note">Lưu qua mọi đời trên trình duyệt này.</p><p class="sec">Thành tựu · ${nA}/${ACH.length}</p>`;
+  b+=ACH.map(([id,n,d])=>{const x=A.a[id];return gRow('',x?'trophy':'scroll',x?n:'???',x?`${d} · ${x.who}, năm ${x.y}`:d,'',!x,true)}).join('');
+  const t5=Object.entries(A.t5);b+=`<p class="sec">Danh Xưng bậc 5 · ${t5.length}</p>`+(t5.length?t5.map(([k,x])=>gRow('','star',k.split(': ')[1],`Mệnh Lộ ${k.split(': ')[0]} · ${x.who}, năm ${x.y}`,'',false,true)).join(''):'<p class="note">Chưa ai trong các đời của bạn chạm tới bậc 5.</p>');
+  const cl=Object.keys(ACH_CLS);b+=`<p class="sec">Mệnh Lộ Ẩn đã mở · ${cl.filter(k=>A.cls[k]).length}/${cl.length}</p>`+cl.map(k=>{const x=A.cls[k];return gRow('',x?'crown':'scroll',x?ACH_CLS[k]:'???',x?`${x.who}, năm ${x.y} · cao nhất bậc ${x.rk||1}`:'Chưa mở','',!x,true)}).join('');
+  b+=`<p class="sec">Sổ Tay Chết Bựa · ${nS}/${sd.length}</p>`+sd.map(c=>{const x=A.sd[c];return gRow('',x?'skull':'scroll',x?c[0].toUpperCase()+c.slice(1):'??? ??? ???',x?`${x.who}, năm ${x.y}`:'Chưa ai chết kiểu này','',!x,true)}).join('');
+  return['Sổ Tay Thành Tựu',b,'act']}
+{const d0=drawExt3;drawExt3=function(v){if(v==='ach')return achView();return d0(v)}}
+{const a0=actExtra3;actExtra3=function(){const b=a0();if(!S)return b;const A=achLoad();return b+'<p class="sec">Qua mọi đời</p>'+gRow('data-open="ach"','trophy','Sổ Tay Thành Tựu',`${Object.keys(A.a).length}/${ACH.length} thành tựu · ${SD_ALL().filter(x=>A.sd[x]).length}/${SD_ALL().length} kiểu chết bựa`,'',false)}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
