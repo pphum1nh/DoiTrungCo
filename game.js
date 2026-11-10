@@ -12954,6 +12954,150 @@ function petGetView(){let b='<p class="note">Thú cưng cho một chút lợi í
     const t=K.yr(P);if(t)log(t,'good');else if(ch(.4))log(nm(pick(K.silly)))}}}
 {const i0=inherit;inherit=function(id){const pets=S&&S.pets;const r=i0(id);if(S&&S.alive&&pets&&pets.length&&!S.pets){S.pets=pets.map(p=>({...p,bond:30}))}return r}}
 
+/* ===== Mệnh Phong và Mệnh Lộ Thiên Phong ===== */
+P.wind='<path d="M3 8h10a3 3 0 1 0-3-3"/><path d="M3 12h15a3 3 0 1 1-3 3"/><path d="M3 16h8"/>';
+MENH.phong={n:'Phong',ic:'wind',d:'Luồng khí, hơi thở và phương hướng: nhanh, né đòn tầm xa, giỏi thoát thân và dẫn đường',w:'Đêm ấy mọi cánh cửa trong nhà cùng mở toang, dù không ai chạm vào then. Gió lùa qua tóc bạn rồi dừng lại, như đang chờ bạn nói nó nên đi đâu.'};
+MENHR.beast=[...MENHR.beast,'phong'];
+CBTN.xa='đánh tầm xa';
+{const t0=cbTags;cbTags=function(n){const t=t0(n);if(/cung|nỏ|tên|ném|xạ thủ/.test(n.toLowerCase())&&!t.includes('xa'))t.push('xa');return t}}
+CBF.cung={n:'Toán cung thủ mai phục',tg:['xa','nguoi','dong'],d:.08,dm:[8,16],ic:'dagger',intro:'Một mũi tên cắm phập vào thân cây ngay cạnh đầu bạn. Trên sườn đồi, năm cung thủ đã lên dây.',
+  win:()=>{const g=R(8,25);S.money+=g;mod({honor:2});return`Bạn áp sát được sườn đồi. Bọn cung thủ bỏ chạy, để lại ${g} xu và một bó tên.`},lose:()=>'Bạn phải nằm rạp sau tảng đá tới tối mới bò ra được.'};
+Object.assign(MV,{
+  phong1:mv('Phong Nhận','m:phong','atk',.07,{mp:3,sv:['nhanh','phep'],wk:['giap'],d:'Lưỡi gió mỏng như tơ, cắt nhanh hơn mắt kịp thấy',x:'một lưỡi gió vô hình rạch qua không khí'}),
+  phong2:mv('Tường Gió','m:phong','def',.07,{mp:4,sv:['xa','dong'],mg:30,pre:['phong1',2],d:'Bức tường gió xoáy, mũi tên và vật ném đều bị thổi lệch',x:'gió cuộn lên thành vòng quanh bạn, mũi tên bay chệch sang bên'}),
+  phong3:mv('Bước Theo Gió','m:phong','esc',.12,{mp:5,sv:['truy','nhanh','xa'],mg:45,pre:['phong1',3],d:'Mượn một luồng gió để lướt đi, kẻ truy đuổi chỉ kịp thấy bụi',x:'bạn lướt đi trên một luồng gió, bỏ lại đối thủ giữa đám bụi'}),
+  phong4:mv('Lốc Xoáy','m:phong','ctl',.14,{mp:7,sv:['dong','thu','xa'],wk:['giap'],mg:50,bk:1,d:'Gọi một cột lốc nhấc bổng cả đám đông',x:'một cột lốc xoáy nhấc bổng đối thủ lên khỏi mặt đất'}),
+  phongU:mv('Thiên Phong Phá Vân','m:phong','ult',.28,{mp:12,sv:['dong','rong','xa','phep'],q:1,u:1,d:'Chiêu độc nhất của Phong mệnh: một nhát gió xé toạc tầng mây',x:'bầu trời tách đôi, một luồng gió từ tầng mây đổ thẳng xuống đối thủ'}),
+  mkP:mv('Phong Kiếm','h:mks','atk',.12,{mp:5,imb:'phong',sv:['nhanh','xa'],wk:['giap'],d:'Phủ gió lên kiếm, lưỡi kiếm nhanh và chém xa hơn tầm tay. Ba đòn kiếm thuật kế tiếp mạnh hơn',x:'lưỡi kiếm cuốn gió, nhát chém bay xa hơn tầm tay'}),
+  pqPhong:mv('Nghịch Phong','p:phong','def',.16,{mp:6,sv:['xa','phep'],d:'Chiêu riêng của Mệnh Lộ Thiên Phong: xả một Hơi Gió từ Tiêu Gió Rỗng để bẻ lệch đòn tầm xa đang nhắm vào bạn. Cần tiêu đã nạp; đòn cận chiến và diện rộng vẫn như thường',x:'bạn thổi một hơi vào ống tiêu, luồng gió quặt ngược bẻ lệch đòn đánh'})});
+IMBN.phong='cuốn gió';MKS_MV.phong='mkP';
+HQB.mks.phong={t:['Ma Kiếm Sĩ','Ma Kiếm Sư','Phong Ma Kiếm Sư'],d:'Nguyên tố Phong theo mệnh',on:s=>{mvLearn('mk4',true);mvLearn('mkP',true);return`Lưỡi kiếm của bạn từ nay ${IMBN.phong} mỗi khi bạn rút ra.`}};
+MQ.phong={mv:'phongU',n:'Gió Trên Đỉnh Trời',op:'Cánh Cửa Tự Mở',img:'orcsteppe',ic:'wind',men:{t:'bà lão thả diều trên đồi cỏ',race:'human',sx:'f'},riv:'một kẻ săn mây muốn nhốt gió bán cho thuyền buôn',art:'sợi dây diều không bao giờ đứt',
+  x:q=>`Ba ngày liền, mọi con diều trong làng đều bay về phía bạn. Bà lão thả diều ${QM(q)} kéo một sợi dây trống không, đầu bên kia mất hút trong mây: "Trên đó có một luồng gió chưa từng chạm đất. Nó đang tìm người dám lên gặp."`,
+  ch:[{n:'Sợi Dây Không Đứt',d:'Học cách nghe gió qua một sợi dây diều.',clue:'Gió trên cao nói chậm hơn gió dưới đất. Phải giữ dây đủ lâu mới nghe hết một câu.',
+       o:[oT('Giữ sợi dây diều mỗi năm',2,'Bạn nghe ra nhịp gió trên cao, chậm như hơi thở người ngủ.'),oR('Thả diều giữa cơn giông','magic',.4,'Con diều bay thẳng vào mây đen mà không rách.','Sợi dây giật mạnh, kéo bạn ngã sấp xuống bãi cỏ.',{pen:{health:-5}})],
+       ev:{img:null,x:q=>`${QM(q)} buộc đầu dây vào cổ tay bạn: "Giờ ngươi phải lên chỗ cao nhất mà gió đi qua."`,c:[{t:'Nhận sợi dây',f:q=>['Sợi dây nhẹ như không có gì, nhưng kéo về một hướng duy nhất.','magic']}]}},
+      {n:'Thảo Nguyên Không Có Cây',d:'Đi tới nơi gió không gặp vật cản nào.',clue:'Gió chỉ nói thật ở nơi không có gì để nó vòng qua.',
+       o:[oG('Đến Hãn quốc Nanh Đá, nơi gió chạy suốt ngày đêm','fangsteppe','Gió thảo nguyên quất vào mặt bạn như muốn thử xem bạn có đứng vững không.'),oF('Đuổi kẻ săn mây đang giăng lưới bắt gió',.4,'Tấm lưới của hắn rách tung, gió ùa ra thành một tiếng hú dài.','Hắn quăng lưới trùm lên bạn rồi bỏ chạy.',{at:'fangsteppe'})],
+       ev:{img:'orcsteppe',x:q=>'Giữa thảo nguyên, sợi dây diều dựng thẳng đứng lên trời, căng như dây đàn.',c:[{t:'Leo theo sợi dây',f:q=>{mod({health:-3,magic:3});return['Bạn leo tới khi mặt đất chỉ còn là một tấm thảm nâu.','magic']}},{t:'Ngồi chờ gió xuống',f:q=>{mod({smarts:2});return'Bạn chờ tới đêm. Gió xuống ngồi cạnh bạn như một người khách lạ.'}}]}},
+      {n:'Phá Vân',d:'Mở một đường xuyên qua tầng mây.',clue:'Đừng đẩy mây đi. Hãy chỉ cho gió chỗ cần đi qua.',
+       o:[oR('Chỉ cho gió một đường xuyên mây','magic',.35,'Tầng mây tách đôi, ánh nắng rơi xuống thành một dải dài trên thảo nguyên.','Mây chỉ gợn lên rồi khép lại.'),oM('Nghe bà lão kể về lần cuối có người phá mây','Bà kể rằng người ấy là bà nội của bà, và bà ấy chưa bao giờ ở yên một chỗ.')],
+       ev:{img:'orcsteppe',x:q=>'Một luồng gió chưa từng chạm đất đổ xuống quanh bạn, xoay ba vòng, rồi tan vào hơi thở của bạn.',c:[{t:'Đón nhận',f:q=>['Từ nay bầu trời sẽ mở ra mỗi khi bạn gọi.','magic']}]}}]};
+{const D=MQ.phong,k='mq_phong';HQ[k]={...D,mv:true,mvId:D.mv,cc:()=>true};HC[k]={n:'Phong Mệnh',ic:D.ic,jobs:[]};hqReg(k)}
+
+/* Mệnh Lộ */
+const TP=()=>S.pp.ph||(S.pp.ph={route:0,ally:0,gio:0,drill:0,kids:0,whistle:0,vil:0,seen:{}});
+const tpOn=()=>!!(ppOn()&&S.pp.k==='phong');
+const tpFlute=()=>!!(S&&S.bag&&S.bag.some(x=>x.k==='pq_flute'));
+const tpGio=()=>!!(S&&S.pp&&S.pp.ph&&S.pp.ph.gio&&tpFlute());
+const TPA_ALL=[
+ [1,'flag','Treo dải vải đầu đèo','Bậc 1 · theo dõi một lối qua đèo, khi có bão hay cháy sẽ biết còn đi được không',s=>{TP().route=s.year;return['Bạn buộc một dải vải đỏ lên cọc đá đầu đèo và ngồi xem nó bay suốt buổi chiều. Từ nay bạn đọc được lối ấy như đọc mặt người quen.','good']}],
+ [2,'coins','Nhận chuyển thư qua khe núi','Bậc 2 · có tiền',s=>{const g=R(6,14);s.money+=g;return[`Đường bộ bị lở, bạn thả lá thư theo luồng gió qua khe núi. Người bên kia nhận được trước bữa tối. Bạn được ${g} xu.`,'good']}],
+ [2,'mail','Gửi thư giúp, không lấy tiền','Bậc 2 · Danh dự, kết thân với người giữ đường bên kia',s=>{const T=TP();T.ally=(T.ally||0)+1;mod({honor:2});return['Bạn chuyển giúp lá thư của một bà mẹ gửi con đi lính. Người giữ đường bên kia nhắn lại: "Lần sau cần gì cứ gọi qua khe."','good']}],
+ [3,'wind','Nạp Tiêu Gió Rỗng','Bậc 3 · leo lên chỗ gió mạnh để giữ một Hơi Gió',s=>{if(!tpFlute())return['Bạn không có Tiêu Gió Rỗng trong túi.',''];const T=TP();if(T.gio)return['Tiêu đã giữ một Hơi Gió rồi. Ống tiêu lạnh buốt trong tay bạn.',''];T.gio=1;return['Bạn đứng trên mỏm đá đầu đèo, giơ ống tiêu lên. Lỗ thổi lạnh đi trong một nhịp thở. Tiêu đã giữ một Hơi Gió.','magic']}],
+ [4,'user-group','Tập mở lối cùng dân làng','Bậc 4 · khi gặp nạn, dân làng tự dẫn đoàn qua tuyến đã tập',s=>{TP().drill=s.year;mod({honor:2});return['Bạn dẫn cả làng tập sơ tán qua cây cầu dây ba lần. Lần thứ ba, bọn trẻ tự dẫn được người già qua mà không cần bạn.','good']}]];
+const TP_TIT=['Người Nghe Gió Qua Khe Cửa','Kẻ Bước Theo Cánh Chim','Người Giữ Hơi Thở Trời Cao','Kẻ Mở Đường Giữa Bão','Nơi Gió Cúi Đầu'];
+PP.phong={n:'Thiên Phong',ic:'wind',t:TP_TIT,
+  d:'Gió đi khắp thiên hạ. Người đi Mệnh Lộ này bắt đầu bằng việc nghe gió qua khe cửa, và tới bậc cuối thì mở được một lối đi giữa bão. Cái giá là càng đi xa, họ càng khó ở yên một chỗ, và có những đêm gió mang về tiếng người thân gọi cửa.',
+  loss:['Bạn ngồi ăn tối với cả nhà mà chân cứ muốn đứng dậy đi đâu đó.','Gió mang về tiếng mẹ bạn gọi ngoài hiên, trong khi bà đang ngồi ngay cạnh bạn.','Bạn không nhớ nổi lần cuối mình ngủ hai đêm liền trên cùng một chiếc giường.'],
+  pas:rk=>{if(rk>=3)mod({health:1})},
+  low:()=>{const p=spouse()||pick(S.fam.filter(x=>x.alive));if(p){p.bond=clamp(p.bond-8);log(`Bạn bỏ đi theo gió suốt một mùa mà không nói với ${p.first}. Lúc về, người ấy không hỏi bạn đã đi đâu.`,'bad')}else{mod({happy:-3});log('Bạn đi theo một tiếng gọi suốt đêm, tới sáng mới biết đó chỉ là gió.','magic')}}};
+Object.defineProperty(PP.phong,'acts',{enumerable:true,get(){const rk=S&&S.pp&&S.pp.k==='phong'?S.pp.rk:1;return TPA_ALL.filter(a=>rk>=a[0]&&(a[0]!==3||tpFlute())).map(a=>a.slice(1))}});
+{const v0=ppView;ppView=function(){const r=v0();if(!S.pp||S.pp.k!=='phong')return r;const T=TP(),rk=S.pp.rk;
+  const st=[T.route?'Đã treo dải vải đầu đèo':'Chưa theo dõi lối qua đèo',tpFlute()?(T.gio?'Tiêu Gió Rỗng: đang giữ một Hơi Gió':'Tiêu Gió Rỗng: chưa nạp'):'',T.drill?'Dân làng đã tập sơ tán':'',T.ally?`Người giữ đường bên kia đèo: ${T.ally} lần giúp`:''].filter(Boolean).join(' · ');
+  const nx=TPA_ALL.filter(a=>a[0]>rk).map(a=>`${a[2]} (bậc ${a[0]})`);
+  r[1]=r[1].replace('<p class="sec">Việc hợp vai',`<p class="note">${st}.${rk>=2?' Gió đỡ bạn khi ngã: mất ít sức khỏe hơn khi bị đánh mạnh.':''}${rk>=5?' Mỗi tai họa lớn, bạn mở được Đường Qua Tâm Bão một lần.':''}${nx.length?` Sắp mở: ${nx.join(', ')}.`:''}</p><p class="sec">Việc hợp vai`);return r}}
+/* bậc 2: mượn gió giảm thương tích */
+{const m0=mod;mod=function(c){if(c&&c.health<=-10&&tpOn()&&S.pp.rk>=2)c={...c,health:Math.round(c.health*.8)};return m0(c)}}
+
+/* Chuỗi bảo vật: Ngọn Tháp Quay Mặt Vào Núi */
+ITEMS.pq_flute={n:'Tiêu Gió Rỗng',r:3,ic:'horn',cb:3,fx:{magic:1},v:0,ev:1,sl:'acc',d:'Ống tiêu bằng xương chim núi, viền bạc xỉn. Lỗ thổi luôn lạnh dù phơi giữa nắng. Giữ được một Hơi Gió, nạp ở đèo hoặc giữa bão.'};
+MISC_ART.add('pq_flute');
+const tqf=()=>{const T=TP();return T.q||(T.q={})};
+PPQ.phong={n:'Ngọn Tháp Quay Mặt Vào Núi',it:'pq_flute',mv:'pqPhong',ch:[
+ {t:'Lá Thư Bay Ngược Gió',x:'Sau trận bão, bạn nhặt được một lá thư cứ bay ngược gió về phía ngọn tháp bỏ hoang trên đèo. Thư chỉ có một câu: "Khi chuông ngừng kêu, hãy đóng cửa phía đông."',
+  c:[['Mang thư đi hỏi người già trong làng',s=>{tqf().who=1;return{ok:1,t:'Ông lão kéo chuông nhà thờ kể rằng ngọn tháp có một người giữ, đã ở trên đó từ hồi ông còn bé. Không ai thấy ông ấy xuống núi.'}}],
+   ['Trèo lên đèo xem chuông',s=>{if(ch(.55+s.st.health/300)){tqf().survey=1;return{ok:1,t:'Bạn lên tới chân tháp trước giờ ngọ. Chuông đã ngừng. Cánh cửa phía đông bị kẹt, còn cửa phía tây thông ra một sườn núi trống.'}}mod({health:-5});return{t:'Gió quật bạn ngã trên đoạn dốc đá. Bạn phải lết về làng.'}}],
+   ['Giúp dân chằng mái trước rồi mới đi',s=>{tqf().help=1;mod({honor:2});return{ok:1,t:'Bạn đi muộn hai ngày. Nhưng hai thanh niên trong làng xin đi cùng, vì bạn đã giúp nhà họ giữ được mái.'}}]]},
+ {t:'Ngọn Tháp Không Có Tiếng Gió',x:'Bên trong tháp, bụi đứng im giữa không trung. Người giữ tháp đã nhốt một luồng gió trong một ống tiêu xương để bảo vệ làng dưới chân đèo. Nhiều năm không được thả, gió dồn ép lên mọi cánh cửa. Ông trao ống tiêu cho bạn: "Cửa nào mở trước, ngươi chọn."',
+  c:[['Mở cửa thông ra sườn trống (cần đã lên đèo khảo sát)',s=>tqf().survey?{ok:1,t:'Bạn biết cửa nào thông ra sườn núi trống. Gió ùa ra phía đó, quét sạch tuyết đọng mà không chạm tới mái nhà nào.'}:{t:'Bạn chưa biết cửa nào thông ra đâu. Người giữ tháp lắc đầu, bảo bạn đi xem lại đường đèo.'}],
+   ['Nhờ người đi cùng xuống báo dân trước (cần có người đi cùng)',s=>tqf().help?{ok:1,t:'Hai thanh niên chạy xuống gõ cửa từng nhà. Khi bạn mở cửa tháp, cả làng đã kịp vào hầm. Chỉ có đàn gà là bay sang làng bên.'}:{t:'Không có ai đi cùng để xuống báo dân. Bạn không dám mở cửa.'}],
+   ['Mở cửa phía đông như lá thư dặn',s=>{if(ch(.4+(tqf().who?.2:0))){return{ok:1,t:'Bạn mở cửa phía đông. Gió lao ra như một con ngựa vừa sổ chuồng, rồi lặng dần trên đèo.'}}mod({health:-6});return{t:'Cửa phía đông vừa hé, gió hất bạn văng vào tường tháp.'}}]]},
+ {t:'Người Còn Đứng Trên Cầu',x:'Bão tràn qua đèo. Một đoàn người đã sang được bờ bên kia, nhưng người dẫn đường vẫn mắc lại giữa cây cầu dây đang lắc như võng. Phía dưới, khói từ những mái nhà bị sét đánh đang tràn lên đường sơ tán.',
+  c:[['Để dân làng kéo dây giữ cầu, còn bạn dọn khói (cần có người đi cùng hoặc đã tập sơ tán)',s=>(tqf().help||TP().drill)?(TP().vil=(TP().vil||0)+2,{ok:1,t:'Dân làng bám chặt dây cầu như đã tập. Bạn thổi tan màn khói trên đường sơ tán. Người dẫn đường bò được sang bờ.'}):{t:'Không ai ở đó để kéo dây. Bạn phải chọn cách khác.'}],
+   ['Xả Hơi Gió để giữ cầu áp vào vách (cần tiêu đã nạp)',s=>tpGio()?(TP().gio=0,TP().vil=(TP().vil||0)+1,{ok:1,t:'Bạn thổi một hơi dài. Luồng gió trong tiêu ép cây cầu sát vào vách đá đủ lâu cho người dẫn đường chạy qua.'}):{t:'Ống tiêu trống rỗng. Bạn phải nạp một Hơi Gió trước đã.'}],
+   ['Đi một mình, cứu người dẫn đường trước',s=>{if(ch(.4+s.st.health/400)){TP().vil=(TP().vil||0)-1;return{ok:1,t:'Bạn kéo được người dẫn đường về bờ. Nhưng khói đã kịp tràn vào hai ngôi nhà cuối đường sơ tán.'}}mod({health:-8});return{t:'Gió quật bạn vào thành cầu. Bạn chỉ kịp bám lại, chưa cứu được ai.'}}],
+   ['Đi một mình, thổi khói khỏi đường sơ tán trước',s=>{if(ch(.45+s.st.magic/400)){return{ok:1,t:'Đường sơ tán thông. Người dẫn đường tự cắt dây đu sang bờ, gãy một chân nhưng còn sống.'}}mod({health:-6});return{t:'Khói quá dày. Bạn phải lùi lại.'}}]]}]};
+PQB.push('phong');
+{const t0=mvTal;mvTal=function(id){const v=t0(id);return id==='pqPhong'&&!tpGio()?v-.25:v}}
+{const l0=cbLabel;cbLabel=function(id,tags){const t=l0(id,tags);return id==='pqPhong'?t+(tpGio()?' · Hơi Gió sẵn':' · tiêu chưa nạp'):t}}
+const tpAfter=(id,had,r)=>{if(id!=='pqPhong'||!r)return r;if(had){S.pp.ph.gio=0;r[0]+=' Tiêu Gió Rỗng đã xả hết hơi.'}else r[0]='Tiêu không có Hơi Gió, Nghịch Phong chỉ là một cơn gió nhẹ. '+r[0];return r};
+{const u0=cbUse;cbUse=function(id){const had=id==='pqPhong'&&tpGio();return tpAfter(id,had,u0(id))}}
+{const f0=fightMv;fightMv=function(id){const had=id==='pqPhong'&&tpGio();return tpAfter(id,had,f0(id))}}
+
+/* Sự kiện nhỏ */
+const TPE=[
+ {id:'tp_roof',c:s=>tpFlute(),title:'Mái Nhà Xin Đi Xa',text:'Bạn tập thổi Tiêu Gió Rỗng ngoài sân. Một hơi hơi mạnh tay, và cả mái chuồng gà bay sang đậu gọn gàng trên sân nhà trưởng làng. Đàn gà vẫn ở nguyên chỗ, nhìn trời.',
+  ch:[{t:'Ở lại sửa mái',f:s=>{TP().kids=1;mod({happy:3});return['Đám trẻ kéo tới xem rồi xúm vào giúp, tìm xem gió lọt qua khe nào mạnh nhất. Từ đó, lần nào bạn về làng chúng cũng hỏi hôm nay bạn định cho thứ gì bay.','good']}},
+      {t:'Trả tiền cho trưởng làng rồi lánh mặt (10 xu)',cost:10,f:s=>{s.money-=10;return'Trưởng làng nhận tiền, nhưng giữ lại cái mái làm kỷ niệm.'}},
+      {t:'Bảo là do bão',f:s=>{mod({honor:-2});return['Trời hôm đó nắng đẹp. Không ai tin bạn.','bad']}}]},
+ {id:'tp_kite',c:s=>s.pp.rk>=2,title:'Con Diều Đòi Qua Biên Giới',text:'Con diều mang lời chúc sinh nhật bạn thả cho đứa cháu bị gió cuốn sang trạm gác bên kia đèo. Lính gác tưởng đó là mật thư, giờ đang họp bàn rất nghiêm trọng.',
+  ch:[{t:'Sang tận nơi giải thích',f:s=>{if(ch(.6)){mod({honor:2});return['Viên đội trưởng đọc lại lời chúc ba lần, rồi bật cười. Bạn được mời ở lại ăn tối.','good']}mod({happy:-3});return['Bạn bị giữ lại hai ngày để thẩm vấn về chữ "con yêu".','bad']}},
+      {t:'Nhờ người quen ở trạm lấy giúp',req:s=>(TP().ally||0)>=1,f:s=>{mod({happy:2});return['Người giữ đường bạn từng giúp chuyển thư cầm con diều trả lại, kèm một lời chúc của chính anh ta.','good']}},
+      {t:'Thả thêm một con diều mang lời giải thích',f:s=>{if(ch(.5)){mod({happy:5});return['Hôm sau, gió đưa về cả hai con diều. Con thứ hai có thêm một dòng của viên đội trưởng: "Chúc mừng sinh nhật cháu."','good']}return'Con diều thứ hai cũng bị giữ lại. Trạm gác bên kia giờ có một bộ sưu tập.'}}]},
+ {id:'tp_chimney',c:s=>s.pp.rk>=1,title:'Tiếng Sáo Trong Ống Khói',text:'Cả nhà tin là có ma, vì ống khói cứ hú lên đúng lúc dọn bữa tối. Bạn biết đó là gió, nhưng nói ra cũng chẳng ai tin.',
+  ch:[{t:'Bịt khe lại cho yên',f:s=>{mod({happy:2});return'Ống khói im bặt. Cả nhà ăn tối trong yên lặng, hơi buồn.'}},
+      {t:'Sửa lại đường thoát khói',f:s=>{mod({health:2});return['Bếp hết ám khói. Mẹ bạn bảo đó là phép màu, bạn để bà tin vậy.','good']}},
+      {t:'Chỉnh nó thành còi báo gió đổi chiều',f:s=>{TP().whistle=1;return['Giờ mỗi khi gió sắp đổi chiều, ống khói hú một tiếng dài. Cả nhà có thêm một dấu hiệu báo bão.','good']}}]},
+ {id:'tp_voice',c:s=>s.pp.rk>=2,title:'Tiếng Gọi Sau Cánh Cửa',text:'Nửa đêm, bạn nghe người thân gọi tên mình ngoài hiên, giọng rất rõ. Nhưng người ấy đang ngủ ngay bên cạnh bạn.',
+  ch:[{t:'Ra xem',f:s=>{ltHit(-3);if(ch(.5))return['Ngoài hiên không có ai. Chỉ có gió, và tiếng gọi tắt ngay khi bạn bước ra. Lý trí -3.','bad'];return['Bạn đi theo tiếng gọi tới tận bờ suối mới tỉnh ra. Lý trí -3.','bad']}},
+      {t:'Gọi người ấy dậy',f:s=>{const p=spouse()||pick(s.fam.filter(x=>x.alive));if(p)p.bond=clamp(p.bond+5);return['Hai người ngồi nghe tiếng gọi tới sáng. Người ấy chỉ ra rằng gió gọi sai tên lót của bạn. Từ đó bạn biết cách phân biệt.','good']}},
+      {t:'Nằm yên nghe hết',f:s=>{s.pp.dg=Math.min(100,s.pp.dg+8);ltHit(-2);return['Tiếng gọi kể chuyện cả đêm, bằng đúng giọng người thân của bạn. Bạn hiểu thêm về gió, và thấy sợ chính mình. Lý trí -2.','magic']}}]},
+ {id:'tp_two',c:s=>tpGio(),title:'Một Hơi Gió, Hai Người Xin',text:'Người chữa bệnh xin bạn thổi khói khỏi phòng bệnh đang ngạt. Cùng lúc đó, người đưa tin cần phát tín hiệu qua đèo báo đường lở. Ống tiêu chỉ còn một Hơi Gió.',
+  ch:[{t:'Thổi khói khỏi phòng bệnh',f:s=>{TP().gio=0;mod({honor:3});if(TP().route)return['Phòng bệnh thông thoáng. Còn người đưa tin, bạn chỉ cho anh ta lối qua đèo đã treo dải vải. Anh ta tới kịp.','good'];return['Phòng bệnh thông thoáng. Người đưa tin phải đi đường vòng, tới muộn nửa ngày.','']}},
+      {t:'Phát tín hiệu qua đèo',f:s=>{TP().gio=0;mod({honor:3});if(TP().kids)return['Tín hiệu bay qua đèo. Còn phòng bệnh, đám trẻ bạn từng dạy mang quạt tới quạt khói ra, quạt rất hăng.','good'];return['Tín hiệu bay qua đèo. Người chữa bệnh phải mở toang cửa sổ, chịu lạnh suốt đêm.','']}}]}];
+for(const e of TPE){const E={...e,queued:true,art:'wind',c:s=>!!(s.alive&&tpOn()&&e.c(s))};EV.push(E);EVB[e.id]=E}
+/* Hai sự kiện lớn */
+EV.push(EVB.tp_lamps={id:'tp_lamps',queued:true,big:true,art:'wind',img:'sword_stone',c:s=>!!(s.alive&&tpOn()&&s.pp.rk>=3),title:'Đêm Ba Ngọn Đèn Tắt',
+  text:'Ba trạm gác trên đèo lần lượt tắt đèn. Trạm thứ nhất bị tốc mái, trạm thứ hai còn người nhưng dây chuông đã đứt, còn trạm thứ ba đang giữ một đoàn khách lỡ đường. Trong màn mưa, bạn chỉ nghe được tiếng gọi từ một phía.',
+  ch:[{t:'Xả Hơi Gió gửi tín hiệu về làng',req:s=>tpGio(),f:s=>{TP().gio=0;mod({honor:5});return['Đội cứu hộ thấy tín hiệu và lên đèo ngay trong đêm. Hai trạm dưới được cứu. Khi bạn tới trạm trên cùng thì tiêu đã hết hơi, bạn phải cõng từng người xuống. Sáng ra, không ai chết.','good']}},
+      {t:'Giữ Hơi Gió, một mình lên trạm trên cùng',f:s=>{if(tpGio()){TP().gio=0;mod({honor:4});return['Bạn dùng tiêu ở khúc dốc nguy hiểm nhất, giữ được đoàn khách. Nhưng dân làng không biết trạm nào còn người. Một người gác ở trạm thứ nhất chết cóng trước khi có ai tới.','']}mod({health:-8,honor:2});return['Không có Hơi Gió, bạn chỉ còn đôi chân. Bạn tới được trạm thứ ba, nhưng hai trạm dưới phải chờ tới sáng.','bad']}},
+      {t:'Giao tuyến thấp cho người đã tập sơ tán',req:s=>!!TP().drill,f:s=>{mod({honor:6});s.house.prestige+=10;return['Dân làng tự lên cứu hai trạm dưới, đúng như đã tập. Bạn lên thẳng trạm thứ ba. Vài năm sau, những người sống sót trở thành người giữ trạm, và vẫn dùng tín hiệu bạn dạy họ đêm ấy.','good']}}]});
+EV.push(EVB.tp_storm={id:'tp_storm',queued:true,big:true,art:'wind',img:'sword_stone',c:s=>!!(s.alive&&tpOn()&&s.pp.rk>=5),title:'Cơn Bão Đòi Một Con Đường',
+  text:s=>`Bão đi vòng quanh làng suốt một đêm. Tới sáng, cả thung lũng im đến mức nghe được tiếng một chiếc bát rơi ở nhà bên kia sông. Người giữ tháp nhìn lên: "Nó đang lấy hơi." Bạn sẽ mở Đường Qua Tâm Bão, nhưng gió phải thoát về đâu đó.${TP().route?' Nhờ dải vải đầu đèo, bạn biết trước thứ gì nằm trên mỗi đường gió mới: cây cầu, sườn núi trống, và cánh đồng lúa sắp gặt.':''}`,
+  ch:[{t:'Giữ lối cho dân vượt cầu',f:s=>{mod({honor:5});return[`Cả làng qua cầu an toàn. Gió thoát sang sườn bên kia và cuốn mất trạm cứu hộ cũ.${TP().drill?' Đoàn đã tập sơ tán tự đi trước, không ai bị bỏ lại.':''}`,'good']}},
+      {t:'Đẩy gió lên sườn núi trống',f:s=>{mod({honor:4});return['Khu dân cư nguyên vẹn. Nhưng sườn núi sạt xuống, chôn mất con đường mòn lên đèo. Phải mười năm sau người ta mới mở lại được.','']}},
+      {t:'Cho bão thoát qua cánh đồng',f:s=>{if(TP().route){mod({honor:6});s.money+=10;return['Biết trước đường gió, bạn cho dân lùa gia súc và gặt vội lúa trước khi ra tay. Cây cầu và trạm cứu hộ còn nguyên, đồng ruộng thì tan hoang nhưng không ai đói. Làng nhớ cả nơi bạn cứu lẫn nơi đã chịu thiệt.','good']}mod({honor:1});return['Cây cầu và trạm cứu hộ còn nguyên. Nhưng cả mùa lúa bị cuốn sạch, và mùa đông năm ấy cả làng phải ăn cháo.','bad']}}]});
+EIMG.tp_lamps=EIMG.tp_storm='sword_stone';
+/* Thảm họa rồng: làng cháy */
+EV.push(EVB.tp_fire={id:'tp_fire',queued:true,big:true,art:'fire',img:'sword_stone',c:s=>!!(s.alive&&tpOn()&&s.world.cat&&s.world.cat.id==='dragon'),title:'Khói Trên Đường Sơ Tán',
+  text:'Rồng bay qua, mái rạ cả làng bốc cháy. Khói đen cuộn xuống con đường duy nhất ra khỏi thung lũng, và gió đang đổi chiều.',
+  ch:[{t:'Báo hướng khói, dẫn dân ra',f:s=>{mod({honor:3});if(ch(.3))mod({health:-6});return['Bạn đọc được chiều gió và dẫn đoàn đi trước khi khói bọc kín đường. Sau lưng, cả làng cháy rụi, nhưng người thì còn.','good']}},
+      {t:'Để đoàn đã tập tự sơ tán, bạn đi cứu khu còn kẹt',req:s=>!!TP().drill,f:s=>{mod({honor:6});return['Dân làng tự dẫn nhau qua tuyến đã tập. Bạn dành sức cho dãy nhà cuối làng, kéo được ba đứa trẻ ra khỏi kho thóc.','good']}},
+      {t:'Mở Đường Qua Tâm Bão',req:s=>s.pp.rk>=5,f:s=>{mod({honor:8});s.house.prestige+=15;return['Bạn giữ một dải không khí lặng xuyên qua màn khói, đủ lâu cho cả đoàn đi qua. Người ta kể rằng hôm ấy khói tách làm đôi như biển trong kinh thánh.','good']}}]});
+EIMG.tp_fire='sword_stone';
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||!tpOn()||S.age<12)return;const T=TP(),P=S.pp;T.seen=T.seen||{};
+  if(S.world.cat&&T.route&&ch(.5))log(ch(.6)?'Dải vải đầu đèo bay thẳng về phía nam: lối qua đèo vẫn còn đi được.':'Dải vải đầu đèo quấn chặt vào cọc đá: nên đổi đường.','magic');
+  if(T.whistle&&S.world.cat&&ch(.3)){mod({health:2});log('Ống khói hú lên một tiếng dài. Cả nhà kịp đóng cửa trước khi gió đổi chiều.','good')}
+  if(P.rk>=3&&ch(.2)){const p=spouse();if(p)p.bond=clamp(p.bond-3);log('Bạn lại bỏ nhà đi một mùa, theo một luồng gió không biết từ đâu tới.','magic')}
+  if(S.pend.some(x=>x&&x.startsWith('tp_')))return;
+  const L=[...TPE.map(e=>e.id),'tp_lamps','tp_storm','tp_fire'].filter(id=>EVB[id].c(S)&&!(T.seen[id]&&(!['tp_lamps','tp_storm','tp_fire','tp_voice','tp_two'].includes(id)||S.year-T.seen[id]<(id==='tp_fire'?3:8))));
+  const big=L.filter(id=>id==='tp_lamps'||id==='tp_storm'||id==='tp_fire'),sm=L.filter(id=>!big.includes(id));
+  const pickId=big.includes('tp_fire')?'tp_fire':big.length&&ch(.1)?pick(big):sm.length&&ch(.3)?pick(sm):null;
+  if(pickId){T.seen[pickId]=S.year;S.pend.push(pickId)}}}
+
+/* Hoạt động trong thảm họa */
+{const a0=dhActs;dhActs=function(){const L=a0();const W=dhC();if(!W||!tpOn())return L;const rk=S.pp.rk,T=TP();const A=(id,i,n,d,f,dis)=>L.push({id,ic:i,n,d,f,dis});
+  const hi=()=>{if(tpGio()){T.gio=0;return'Hơi Gió'}if(rk>=5&&!W.tpU){W.tpU=1;return'Đường Qua Tâm Bão'}return null};
+  const hiWhy=rk<4?'Cần bậc 4':tpGio()||(rk>=5&&!W.tpU)?'':'Tiêu chưa nạp Hơi Gió';
+  if(W.id==='sleep'){A('tpbell','wind','Lần theo tiếng chuông tìm nhà còn người thức','Thiên Phong · tìm người còn tỉnh để cùng cứu',()=>{W.wp+=3;return['Bạn đi theo tiếng chuông và tiếng gõ trong gió, tìm được bốn căn nhà còn người thức. Họ cùng bạn khiêng người ngủ ra khỏi vùng sương.','good']});
+    A('tplane','wind','Giữ một tuyến qua vùng sương','Thiên Phong bậc 4 · dùng Hơi Gió hoặc Đường Qua Tâm Bão',()=>{const u=hi();if(!u)return[hiWhy,''];W.wp+=7;return[`Bạn dùng ${u} đưa tín hiệu tới các nhóm cứu hộ rồi giữ một dải không khí sạch xuyên qua vùng sương. Cả một dãy phố người ngủ được khiêng ra ngoài.`,'good']},!!hiWhy)}
+  if(W.id==='crystal'){A('tpread','wind','Đọc hướng hạt tinh thể đang bay','Thiên Phong · báo dân tránh tuyến cuối gió',()=>{W.wp+=2;W.sp=Math.max(0,W.sp-2);return['Bạn đứng trên tháp chuông đọc chiều gió, báo cho dân tránh những con đường cuối gió. Ít người bị bụi tinh thể chạm vào hơn.','good']});
+    A('tpcorr','wind','Mở hành lang cho đoàn sơ tán','Thiên Phong bậc 4 · dồn bụi tinh thể ra bãi trống',()=>{const u=hi();if(!u)return[hiWhy,''];W.wp+=6;W.sp=Math.max(0,W.sp-3);return[`Bạn dùng ${u} dồn bụi tinh thể về một bãi trống, mở hành lang cho đoàn sơ tán. Bãi trống ấy giờ ngân lên như chuông mỗi khi có gió.`,'good']},!!hiWhy)}
+  if(W.id==='returned'){A('tpcall','wind','Nghe tiếng gọi giữa sương tìm người lạc','Thiên Phong · có thể bị giọng quen dẫn đi xa',()=>{W.wp+=3;W.pw=Math.max(0,(W.pw||0)-2);if(!T.route&&ch(.25)){ltHit(-4);return['Một giọng quen dẫn bạn đi xa dần khỏi đường. Bạn chỉ dừng lại khi nhận ra người ấy đã chết từ mười năm trước. Lý trí -4.','bad']}return[T.route?'Một giọng quen dẫn bạn lệch khỏi đường, nhưng bạn nhìn dải vải đã buộc và quay lại kịp. Bạn tìm được hai đứa trẻ lạc.':'Bạn lần theo tiếng gọi và tìm được hai đứa trẻ lạc giữa sương.','good']});
+    A('tpmeet','wind','Giữ sương tách một tuyến cho hai bên gặp nhau','Thiên Phong bậc 4 · người sống và người trở về gặp tại nơi đã hẹn',()=>{const u=hi();if(!u)return[hiWhy,''];W.pw=Math.max(0,(W.pw||0)-5);mod({happy:-2});return[`Bạn dùng ${u} giữ sương tách khỏi một tuyến. Người sống và người trở về gặp nhau ở nơi đã hẹn. Họ xin bạn giữ thêm một lượt để kịp nói lời từ biệt.`,'good']},!!hiWhy)}
+  return L}}
+
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
