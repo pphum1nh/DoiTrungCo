@@ -1574,6 +1574,7 @@ function drawSheet(){
   if(view.startsWith('p:')){
     const p=S.fam.find(x=>x.id===view.slice(2));back=p===spouse()?'rel:love':'rel:fam';title=esc(p.first);
     b+=`<div class="row"><div><b>${esc(p.name)}</b><small>${p.rel} · ${p.age} tuổi · ${RACES[p.race||S.race].n} · tình cảm ${p.bond}/100</small><div class="bond"><i style="width:${p.bond}%"></i></div></div></div>`;
+    if(p.disown)b+='<p class="note bad">Người này đã từ mặt bạn. Trò chuyện hay tặng quà hiếm khi khiến họ mở cửa trở lại.</p>';
     const dn=p.d?'Đã gặp năm nay':'';
     b+=rowBtn(`data-pa="${p.id}|talk"`,p.age<3?'Bế ẵm':'Trò chuyện',dn||'Tình cảm tăng','',!!dn);
     b+=rowBtn(`data-pa="${p.id}|gift"`,'Tặng quà',dn||(S.money<5?'Không đủ tiền':'5 xu'),'',!!dn||S.money<5);
@@ -8081,7 +8082,7 @@ function genView(i){const gens=[...(S.tree||[]),genRecord()],g=gens[i];if(!g)ret
 {const d0=drawExt3;drawExt3=function(v){if(v&&v.startsWith('gen:'))return genView(+v.slice(4));return d0(v)}}
 
 /* ---------- V36: Anh Hùng của thiên hạ; Anh Hùng cũ được mời ra trận lần nữa ---------- */
-const heroEligible2=()=>heroEligible()||!!(S.flags.legend&&!S.flags.dark&&!S.flags.her&&!S.flags.hcat&&S.alive&&S.age/lifeOf(S.race)<=60);
+const heroEligible2=()=>!(S&&S.trai)&&(heroEligible()||!!(S.flags.legend&&!S.flags.dark&&!S.flags.her&&!S.flags.hcat&&S.alive&&S.age/lifeOf(S.race)<=60));
 function heroAdd(name,cat,k,extra){const W0=S.world;if(!W0.heroes)W0.heroes=[];W0.heroes.push({name,y:S.year,cat,k,...(extra||{})});W0.heroes=W0.heroes.slice(-30)}
 {const h0=heroWin;heroWin=function(sac){const id=S.world.cat&&S.world.cat.id,n=S.flags.legend?((S.flags.legN||1)+1):1;h0(sac);S.flags.legN=n;if(id)heroAdd(`${S.first} ${S.surname}`,id,sac?'sac':'me',{gen:S.gen,n})}}
 {const e0=endCat;endCat=function(){const c=S.world.cat,res=c?(c.res||0)+(isMil(S)&&S.co&&S.co.rk>=3?2:0):0;e0();if(c&&res>=4)heroAdd(`${S.first} ${S.surname}`,c.id,'lead',{gen:S.gen})}}
@@ -13707,6 +13708,156 @@ function affView(){const A=S.lvAff;if(!A||!spouse())return['Người tình','<p 
     if(S.trt&&S.trt.includes('honest'))strAdd(5);
     if(A.bond<20){S.lvAff=null;log(`${A.first} chán cảnh lén lút và bỏ đi sang vùng khác. Mối tình vụng trộm khép lại.`)}
     else if(ch(.05)){rlBastard(A.n);A.risk=Math.min(90,A.risk+15);log(`Bạn và ${A.first} có với nhau một đứa con. Đứa bé được gửi nuôi ở làng bên, không mang họ bạn.`,'bad')}}}}
+
+/* ===== Phe Bóng Tối: theo Ma Vương / Vua Bất Tử, và Kỷ Bóng Tối khi Anh Hùng thất bại ===== */
+const TR_CAT=['demon','undead'];
+const TRK={demon:['Tay sai Vực Sâu','Đội trưởng quỷ binh','Quỷ Tướng','Cánh Tay Phải của Ma Vương'],undead:['Tay sai của Morvain','Đội trưởng đạo quân xương','Hiệp Sĩ Tử Thần','Cánh Tay Phải của Vua Bất Tử']};
+const TR_M=[0,30,70,130];
+const lordN=k=>k==='demon'?'Ma Vương':'Vua Bất Tử';
+const trOn=()=>!!(S&&S.trai&&S.world.cat&&S.world.cat.y===S.trai.y&&S.world.cat.id===S.trai.c);
+const dkOn=()=>!!(S&&S.world.cat&&S.world.cat.win);
+const trName=()=>TRK[S.trai.c][S.trai.rk];
+function trCan(){const c=S.world.cat;return!!(c&&TR_CAT.includes(c.id)&&S.alive&&S.age>=16&&!S.trai&&!isHeroNow()&&!S.flags.saint&&!S.flags.dark&&S.flags.trEx!==c.y&&S.house.title<6&&!S.cap)}
+/* gây hại cho loài người: lúc chiến tranh giảm sức kháng cự, lúc Kỷ Bóng Tối giảm quân kháng chiến */
+function trHarm(v){const c=S.world.cat;if(!c)return;if(c.win)c.rs=Math.max(0,(c.rs||0)-v);else catPr(-v)}
+function trM(v){const T=S.trai;if(!T)return'';T.m=Math.max(0,T.m+v);let t='';while(T.rk<3&&T.m>=TR_M[T.rk+1]){T.rk++;mod({magic:5,health:5});t+=` ${lordN(T.c)} phong bạn làm ${trName()}.`;if(T.rk===2&&!hasItem('arm_dark'))gainItem('arm_dark');log(`Bạn được phong làm ${trName()}.`,'magic')}return t}
+function trJoin(){const c=S.world.cat;S.trai={c:c.id,y:c.y,rk:0,m:0};mod({honor:-25,piety:-15,magic:5});trHarm(5);
+  if(S.job&&['church','mission','soldier','knight'].includes(S.job.id))S.job=null;
+  const gone=[];
+  for(const p of S.fam){if(!p.alive||p.bast||p.disown)continue;if(/^(Vợ|Chồng)/.test(p.rel)||p.age<10)continue;
+    if(ch(/^(Cha|Mẹ)/.test(p.rel)?.9:.85)){p.disown=1;p.bond=0;gone.push(p.first)}else p.bond=clamp(p.bond-30)}
+  for(const r of(S.rel||[]).slice())if(r.alive&&r.kind==='friend'&&ch(r.soul?.4:.8)){r.soul=0;addEnemy('Bạn cũ khinh bỉ kẻ phản bội',{id:r.id,hate:R(40,60)})}
+  const L=lover()||spouse();news(`Có kẻ tên ${S.first} ${S.surname} đã quỳ gối trước ${lordN(c.id)}.`,'bad');
+  return[`Bạn quỳ xuống trước ${CATS[c.id].boss} và nhận tấm áo choàng đen. Từ nay bạn là ${trName()}.${gone.length?` ${gone.join(', ')} tuyên bố từ mặt bạn, coi như trong nhà chưa từng có người này.`:''}${L?` Chỉ có ${L.first} vẫn ở lại bên bạn.`:''}`,'bad']}
+
+/* ---------- sự kiện ---------- */
+const trImg=()=>{const c=S.world.cat;return c&&c.id==='undead'?'undead':'demon'};
+const TREV=[
+ {id:'tr_envoy',queued:true,big:true,art:'skull',c:s=>trCan(),title:'Sứ Giả Bóng Tối',
+  text:s=>s.world.cat.id==='demon'?`Một kẻ mặc áo choàng đen gõ cửa lúc nửa đêm, sừng giấu dưới mũ trùm. "${CATS.demon.boss} để ý tới ngươi. Theo Người, ngươi sẽ có sức mạnh, vàng bạc và đất đai khi thế giới này sụp đổ. Từ chối, ngươi chết cùng nó."`:`Một hiệp sĩ xương đứng trước cổng nhà bạn, hốc mắt cháy lửa xanh. Giọng nó khô như lá mục: "${CATS.undead.boss} không quên ai cả. Phục vụ Người, ngươi sẽ không bao giờ phải chết."`,
+  ch:[{t:'Nhận lời, đầu quân (người thân sẽ từ mặt)',f:s=>trJoin()},
+      {t:'Đuổi sứ giả đi',f:s=>'Bạn đóng sầm cửa. Kẻ ngoài kia cười khẽ rồi tan vào bóng đêm.'},
+      {t:'Báo cho Giáo hội',f:s=>{mod({honor:4,piety:3});catPr(3);if(ch(.25)){addEnemy(`Sứ giả của ${lordN(s.world.cat.id)}`,{hate:R(50,70)});return['Giáo hội bắt hụt sứ giả. Từ đó bạn thường thấy bóng ai đứng ngoài cửa sổ.','bad']}return['Các hiệp sĩ dòng Thánh Quang phục kích và thiêu sứ giả giữa quảng trường.','good']}}]},
+ {id:'tr_year',queued:true,big:true,art:'skull',c:s=>trOn()&&!dkOn(),title:s=>`Lệnh của ${lordN(s.trai.c)}`,
+  text:s=>`${CATS[s.trai.c].boss} truyền lệnh xuống cho ${trName().toLowerCase()} ${s.first}. Quân của loài người đang co cụm sau tường thành, và chúa tể muốn thấy lửa.`,
+  ch:[{t:'Dẫn quân đốt phá làng',f:s=>{trHarm(4);mod({honor:-6});s.money+=R(10,40);const t=trM(10);if(ch(.15)){mod({health:-R(10,20)});return[`Dân làng chống trả quyết liệt hơn bạn tưởng. Bạn mang về vết thương và một túi bạc.${t}`,'bad']}return[`Làng bên sông cháy suốt đêm. Bạn mang về một túi bạc.${t}`,'bad']}},
+      {t:'Lùng bắt người của Giáo hội',f:s=>{trHarm(3);mod({piety:-5,honor:-3});s.money+=R(10,30);return[`Bạn lôi ba tu sĩ ra khỏi hầm nhà thờ.${trM(8)}`,'bad']}},
+      {t:'Giả vờ thi hành, lén tha người',f:s=>{mod({honor:3});trM(-5);if(ch(.25)){mod({health:-R(15,25)});return[`${lordN(s.trai.c)} biết chuyện. Hình phạt khiến bạn nằm liệt nửa tháng.`,'bad']}return['Bạn đốt mấy kho thóc trống cho có khói, để dân làng chạy vào rừng.','good']}}]},
+ {id:'tr_hunt',queued:true,big:true,art:'sword',img:'herocomes',c:s=>trOn(),title:s=>dkOn()?'Quân Kháng Chiến Phục Kích':'Tổ Đội Anh Hùng Truy Sát',
+  text:s=>dkOn()?'Mũi tên cắm phập vào thân cây cạnh đầu bạn. Quân kháng chiến đã lần ra chỗ bạn ngủ đêm nay.':`Tổ đội của Anh Hùng ${S.world.cat.hn||(S.world.cat.hn=`${pick(MN)} ${pick(HERO_EP)}`)} chặn đường bạn ở khúc quanh rừng. Họ biết bạn là ai.`,
+  ch:[{t:'Đánh trả',f:s=>{const p=.3+(s.blade||0)/200+s.st.health/400+cbB()/250+s.st.magic/400+s.trai.rk*.05;if(ch(p)){trHarm(4);return[`Bạn đánh tan bọn họ.${trM(15)}`,'magic']}mod({health:-R(20,35)});if(s.alive&&ch(.15)){die(dkOn()?'dưới tay quân kháng chiến':'dưới tay tổ đội Anh Hùng');return['Một lưỡi kiếm ánh sáng xuyên qua giáp của bạn.','bad']}return['Bạn thoát được, nhưng máu chảy ướt yên ngựa.','bad']}},
+      {t:'Bỏ chạy',f:s=>{s.money=Math.floor(Math.max(0,s.money)*2/3);trM(-5);return['Bạn quất ngựa chạy, bỏ lại hành lý và một phần ba số bạc.','bad']}},
+      {t:'Dụ họ vào bẫy',f:s=>{if(ch(.3+s.st.smarts/250)){trHarm(6);return[`Bạn dụ cả tổ đội vào khe núi nơi quân của chúa tể đang chờ.${trM(18)}`,'magic']}mod({health:-R(15,25)});return['Họ không mắc bẫy. Bạn phải đánh một mình và suýt mất mạng.','bad']}}]},
+ {id:'tr_fall',queued:true,big:true,art:'skull',img:'inquisition',c:s=>!!(s.trai&&s.alive&&!(s.world.cat&&s.world.cat.y===s.trai.y)),title:'Chúa Tể Sụp Đổ',
+  text:s=>`${CATS[s.trai.c].boss} đã bị đánh bại. Quân của ${lordN(s.trai.c)} tan rã, và giờ người ta đi lùng những kẻ từng theo hắn. Tên ${s.first} đứng đầu danh sách.`,
+  ch:[{t:'Trốn ra nước ngoài',f:s=>{s.money=Math.floor(Math.max(0,s.money)/2);mod({honor:-5,happy:-10});s.flags.trPast=1;s.trai=null;return['Bạn vượt biên trong đêm, mang theo nửa số bạc. Từ nay bạn sống dưới một cái tên khác.','bad']}},
+      {t:'Ra đầu thú, xin khoan hồng',f:s=>{s.flags.trPast=1;const rk=s.trai.rk;s.trai=null;if(ch(.45-rk*.08)){s.money=Math.floor(Math.max(0,s.money)/2);mod({honor:8,piety:5});return['Tòa án tha chết cho bạn, chỉ tịch thu nửa gia sản. Bạn phải quỳ ở cổng nhà thờ suốt bốn mươi ngày.','']}die('bị xử tử vì tội theo phe Bóng Tối');return['Tòa án không khoan hồng. Bạn bị đưa lên giàn hỏa.','bad']}},
+      {t:'Chiến đấu đến hơi thở cuối cùng',f:s=>{s.flags.trPast=1;s.trai=null;if(ch(.3+(s.blade||0)/300+cbB()/300)){mod({honor:-5});return['Bạn chém đường máu thoát ra, trốn vào núi cùng đám tàn quân.','magic']}die('trong trận chiến cuối cùng của tàn quân Bóng Tối');return['Bạn ngã xuống giữa đám tàn quân.','bad']}}]},
+ {id:'dk_fall',queued:true,big:true,art:'skull',img:'fallenhero',c:s=>dkOn(),title:'Anh Hùng Đã Ngã Xuống',
+  text:s=>{const c=s.world.cat;return`Anh Hùng ${c.hn} gục ngã trước ${CATS[c.id].boss}. Quân đội ${s.realm} tan rã trong ba ngày, kinh đô mở cổng đầu hàng. Trên tháp cao nhất giờ treo cờ của ${lordN(c.id)}. Kỷ Bóng Tối bắt đầu.`},
+  ch:[{t:'Nhận phần thưởng từ chúa tể',hide:true,req:s=>trOn(),f:s=>{const g=R(150,300);s.money+=g;if(s.house.title<5)grantTitle(Math.max(2,s.house.title+1));return[`${lordN(s.trai.c)} ban cho bạn ${g} xu và một vùng đất. Người từng là hàng xóm của bạn giờ phải nộp thuế cho bạn.${trM(20)}`,'magic']}},
+      {t:'Quỳ gối trước chúa tể mới (người thân sẽ từ mặt)',hide:true,req:s=>trCan(),f:s=>trJoin()},
+      {t:'Thề kháng chiến đến cùng',hide:true,req:s=>!s.trai&&s.age>=14,f:s=>{const c=s.world.cat;c.rs=(c.rs||0)+5;s.flags.dkR=(s.flags.dkR||0)+2;mod({honor:5});if(s.house.title>=2&&s.house.title<6){s.house.title--;return['Bạn đốt trang viên của mình để không rơi vào tay quỷ, rồi dẫn người vào rừng. Bạn mất tước đất, nhưng giữ được danh dự.','']}return['Bạn mài lại thanh kiếm cũ và đi tìm những người còn dám đứng lên.','']}},
+      {t:'Lẩn trốn, chờ thời',hide:true,req:s=>!s.trai,f:s=>{mod({happy:-8});return'Bạn đóng cửa, kéo rèm, và cố không nghe tiếng vó ngựa ngoài đường.'}}]},
+ {id:'dk_year',queued:true,big:true,art:'skull',c:s=>dkOn()&&!trOn(),title:s=>`Kỷ Bóng Tối · năm ${s.year-s.world.cat.wy+1}`,
+  text:s=>s.world.cat.id==='demon'?'Quỷ binh đi từng nhà thu thuế bằng thóc, bằng bạc, và đôi khi bằng máu. Trên tường nhà thờ cũ, ai đó vẽ một thanh kiếm sáng bằng than.':'Mỗi làng phải nộp người chết của mình cho Vua Bất Tử. Đêm đêm, những người hàng xóm đã khuất đi tuần trên phố. Trong rừng, có tin quân kháng chiến đang tập hợp.',
+  ch:[{t:'Cúi đầu nộp cống',f:s=>{const n=Math.max(5,Math.floor(Math.max(0,s.money)/4));s.money-=n;mod({happy:-4});return[`Bạn nộp ${n} xu và cúi đầu khi bọn chúng đi qua.`,'bad']}},
+      {t:'Giấu người kháng chiến trong nhà',req:s=>s.age>=14,f:s=>{const c=s.world.cat;c.rs=(c.rs||0)+6;s.flags.dkR=(s.flags.dkR||0)+1;if(ch(.12)){mod({health:-R(15,25)});s.money=Math.floor(Math.max(0,s.money)*.8);return['Có kẻ tố giác. Bọn chúng lôi bạn ra sân và đánh trước mặt cả xóm. Nhưng người kháng chiến đã kịp trốn.','bad']}return['Ba người kháng chiến trú trong kho thóc nhà bạn suốt mùa đông, rồi biến mất vào một đêm không trăng.','good']}},
+      {t:'Cầm vũ khí theo quân kháng chiến',req:s=>s.age>=16,f:s=>{const c=s.world.cat,p=.35+(s.blade||0)/200+s.st.health/400+cbB()/250;if(ch(p)){c.rs=(c.rs||0)+10;s.flags.dkR=(s.flags.dkR||0)+2;mod({honor:6});return['Đội của bạn phục kích một đoàn quân lương của địch. Lần đầu tiên sau nhiều năm, người trong làng dám cười.','good']}if(ch(.08)){die('trong một trận đánh của quân kháng chiến');return['Bạn ngã xuống trong rừng.','bad']}mod({health:-R(15,30)});return['Trận phục kích thất bại. Bạn lết về được tới làng.','bad']}},
+      {t:'Quy phục, làm tay sai cho chúa tể (người thân sẽ từ mặt)',hide:true,req:s=>trCan(),f:s=>trJoin()}]},
+ {id:'tr_dom',queued:true,big:true,art:'crown',img:'throne',c:s=>dkOn()&&trOn(),title:s=>`${trName()} · Cai Quản Đất Được Ban`,
+  text:s=>`Vùng đất quanh ${s.village} giờ do bạn cai quản thay ${lordN(s.trai.c)}. Dân chúng cúi đầu khi bạn đi qua, nhưng không ai nhìn vào mắt bạn.`,
+  ch:[{t:'Vắt kiệt cống nạp',f:s=>{const g=R(40,100);s.money+=g;s.world.cat.rs=(s.world.cat.rs||0)+5;mod({honor:-5});return[`Bạn thu được ${g} xu. Dân làng căm ghét bạn hơn, và nhiều thanh niên bỏ vào rừng.${trM(5)}`,'bad']}},
+      {t:'Cai trị khoan dung',f:s=>{const g=R(10,25);s.money+=g;trHarm(3);mod({honor:3});return[`Bạn chỉ thu ${g} xu và để dân làng giữ lại thóc giống. Ít người bỏ đi theo quân kháng chiến hơn.`,'good']}},
+      {t:'Săn lùng quân kháng chiến',f:s=>{if(ch(.4+(s.blade||0)/250+s.trai.rk*.05)){trHarm(8);return[`Bạn đốt trại của quân kháng chiến trong rừng phía Đông.${trM(10)}`,'magic']}mod({health:-R(10,25)});return['Bạn bị dẫn vào ổ phục kích, phải bỏ lại nửa đội quân.','bad']}}]}];
+for(const e of TREV){EV.push(e);EVB[e.id]=e}
+for(const id of['tr_envoy','tr_year','dk_year'])Object.defineProperty(EVB[id],'img',{get:trImg});
+
+/* ---------- vòng năm ---------- */
+let trInWY=false;
+function domStart(){const c=S.world.cat;c.win=1;c.wy=S.year;c.rs=0;c.hn=c.hn||`${pick(MN)} ${pick(HERO_EP)}`;heroAdd(`Anh Hùng ${c.hn}`,c.id,'fallen');
+  news(`Anh Hùng ${c.hn} tử trận trước ${CATS[c.id].boss}. ${S.realm} thất thủ.`,'bad',true);
+  announce('Anh Hùng Đã Ngã Xuống',`${CATS[c.id].boss} đã thắng. Kỷ Bóng Tối bắt đầu.`,'skull',CATIMG[c.id]);log(`Anh Hùng ${c.hn} gục ngã. ${lordN(c.id)} chiếm trọn ${S.realm}.`,'bad');S.pend.push('dk_fall')}
+function domFree(){const c=S.world.cat,h=`${pick(MN)} ${pick(HERO_EP)}`;
+  announce('Ngày Giải Phóng',`Quân kháng chiến và Anh Hùng mới ${h} đã đánh bại ${CATS[c.id].boss} sau ${S.year-c.wy} năm Kỷ Bóng Tối.`,'sword');
+  news(`Anh Hùng ${h} cùng quân kháng chiến đánh bại ${CATS[c.id].boss}. Kỷ Bóng Tối chấm dứt.`,'good',true);log(`Kỷ Bóng Tối chấm dứt. ${S.realm} được giải phóng.`,'good');
+  if(!S.trai&&(S.flags.dkR||0)>=3){mod({honor:15,happy:10});S.house.prestige+=50;log('Tên bạn được khắc trên bia tưởng niệm những người kháng chiến.','good')}
+  S.world.cat=null;S.world.last=S.year;S.flags.hero=null}
+{const e0=endCat;endCat=function(){const c=S.world.cat;
+  if(trInWY&&c&&TR_CAT.includes(c.id)&&!c.win&&!isHeroNow()){const T=S.trai&&S.trai.y===c.y?S.trai:null;const p=Math.max(.05,Math.min(.5,.15-(c.pr||0)/100+(T?.1+T.m/1000:0)));if(ch(p)){domStart();return}}
+  return e0()}}
+{const w0=worldYear;worldYear=function(){const c=S.world.cat;
+  if(S.trai&&!(c&&c.y===S.trai.y)&&!S.pend.includes('tr_fall'))S.pend.push('tr_fall');
+  if(c&&c.win){
+    if(c.fallPend){delete c.fallPend;S.pend.push('dk_fall');return}
+    if(S.flags.hero&&S.flags.hero.cat===c.y){trInWY=true;try{w0()}finally{trInWY=false}return}
+    c.rs=Math.min(100,(c.rs||0)+R(2,6));
+    if(c.rs>=100||S.year-c.wy>=15){domFree();if(S.trai)S.pend.push('tr_fall');return}
+    if(heroEligible2()&&!S.flags['callD'+c.y]){S.flags['callD'+c.y]=1;S.pend.push('callhero');return}
+    S.pend.push(trOn()?'tr_dom':'dk_year');if(trOn()&&ch(.12))S.pend.push('tr_hunt');return}
+  trInWY=true;try{w0()}finally{trInWY=false}
+  const n=S.world.cat;
+  if(S.trai&&c&&S.trai.y===c.y&&(!n||n.y!==c.y)){if(!S.pend.includes('tr_fall'))S.pend.push('tr_fall');return}
+  if(trOn()&&!n.win){const i=S.pend.indexOf('catyear');if(i>=0)S.pend[i]='tr_year';if(ch(.15)&&!S.pend.includes('tr_hunt'))S.pend.push('tr_hunt')}
+  else if(n&&!n.win&&trCan()&&!S.flags['tre'+n.y]&&ch(.08+(['fiend','orc','skeleton'].includes(S.race)?.1:0)+(S.st.honor<30?.08:0)+(S.st.piety<25?.05:0))){S.flags['tre'+n.y]=1;S.pend.push('tr_envoy')}}}
+/* Anh Hùng là người chơi mà tử trận trước chúa tể: đời sau sống trong Kỷ Bóng Tối */
+{const d0=die;die=function(cause){const c=S.world&&S.world.cat;
+  if(S.alive&&c&&TR_CAT.includes(c.id)&&!c.win&&isHeroNow()&&String(cause||'').includes(CATS[c.id].boss)){c.win=1;c.wy=S.year;c.rs=0;c.hn=`${S.first} ${S.surname}`;c.fallPend=1;heroAdd(`Anh Hùng ${c.hn}`,c.id,'fallen');news(`Anh Hùng ${c.hn} tử trận trước ${CATS[c.id].boss}. ${S.realm} thất thủ.`,'bad',true)}
+  return d0.apply(this,arguments)}}
+
+/* ---------- lựa chọn đầu quân trong năm Thảm Họa ---------- */
+EVB.catyear.ch.push({t:s=>`${s.world.cat.id==='demon'?'Đầu quân cho Ma Vương':'Thần phục Vua Bất Tử'} (người thân sẽ từ mặt)`,hide:true,req:s=>trCan(),f:s=>trJoin()});
+
+/* ---------- Hoạt động: phe Bóng Tối và Kỷ Bóng Tối ---------- */
+function trView(){const T=S.trai,c=S.world.cat,dn=(S.done.trn||0)>=2?'Đã làm 2 việc năm nay':'',dis=!S.alive||!!S.cap,D=c.win;
+  let b=`<p class="note bad">Bạn là ${trName()}, phục vụ ${CATS[T.c].boss}.</p>`;
+  b+=statGrid([['Danh xưng',trName()],['Công trạng',T.rk<3?`${T.m}/${TR_M[T.rk+1]}`:`${T.m}`],[D?'Quân kháng chiến':'Sức kháng cự của loài người',D?`${c.rs||0}/100`:`${(c.pr||0)>0?'+':''}${c.pr||0}`]]);
+  b+=`<p class="note">${D?'Quân kháng chiến đủ mạnh sẽ lật đổ chúa tể, và kẻ phản bội sẽ bị truy lùng.':'Mỗi việc làm cho Thảm Họa kéo dài. Nếu Anh Hùng thất bại, Kỷ Bóng Tối bắt đầu và chúa tể sẽ chia đất cho bạn.'}</p><p class="sec">Phục vụ chúa tể · ${2-Math.min(2,S.done.trn||0)} lượt còn lại năm nay</p>`;
+  b+=gRow('data-x="tr:sab"','hood',D?'Truy lùng thủ lĩnh kháng chiến':'Phá đám tổ đội Anh Hùng',dn||'Dựa vào trí tuệ · gây hại lớn · công trạng +12','',dis||!!dn);
+  b+=gRow('data-x="tr:raid"','flame','Tấn công làng mạc',dn||'Kiếm thuật, sức khỏe · công trạng +8 · được chia chiến lợi phẩm','',dis||!!dn);
+  b+=gRow('data-x="tr:loot"','coins','Cướp bóc đoàn buôn và nhà thờ',dn||'Nhiều bạc · công trạng +4','',dis||!!dn);
+  const ML=catMlr();if(ML)b+=gRow('data-x="tr:ml"',ML.k?PP[ML.k].ic:'star','Dùng sức mạnh Mệnh Lộ cho chúa tể',dn||(S.st.magic<6?'Cần 6 ma lực':`Bậc ${ML.r} · gây hại +${3+2*ML.r} · 6 ma lực`),'',dis||!!dn||S.st.magic<6);
+  b+='<p class="sec">Quay đầu</p>'+gRow('data-x="tr:quit"','heart','Bỏ trốn khỏi phe Bóng Tối','Người của chúa tể sẽ truy sát bạn · không thể quay lại','',dis);
+  return[`${D?'Kỷ Bóng Tối':'Thảm Họa'} · Phe Bóng Tối`,b,'act']}
+function dkView(){const c=S.world.cat,dn=S.age<14?'Từ 14 tuổi':(S.done.dkn||0)>=2?'Đã góp sức 2 lần năm nay':'',dis=!S.alive||!!S.cap;
+  let b=`<p class="note bad">Anh Hùng ${esc(c.hn)} đã ngã xuống. ${S.realm} nằm dưới ách ${lordN(c.id)} đã ${S.year-c.wy} năm.</p>`;
+  b+=statGrid([['Quân kháng chiến',`${c.rs||0}/100`],['Bạn đã góp sức',`${S.flags.dkR||0} lần`]]);
+  b+=`<p class="note">Khi quân kháng chiến đủ mạnh, họ sẽ cùng một Anh Hùng mới lật đổ ${CATS[c.id].boss}.</p><p class="sec">Kháng chiến · ${2-Math.min(2,S.done.dkn||0)} lượt còn lại năm nay</p>`;
+  b+=gRow('data-x="dk:fight"','sword','Đánh du kích cùng quân kháng chiến',dn||'Kiếm thuật, sức khỏe · thắng thì kháng chiến +6','',dis||!!dn);
+  b+=gRow('data-x="dk:hide"','home','Che giấu người kháng chiến',dn||'Kháng chiến +4 · có thể bị tố giác','',dis||!!dn);
+  b+=gRow('data-x="dk:aid"','coins','Góp lương cho quân kháng chiến (20 xu)',dn||(S.money<20?'Không đủ tiền':'Kháng chiến +3'),'',dis||!!dn||S.money<20);
+  const ML=catMlr();if(ML)b+=gRow('data-x="dk:ml"',ML.k?PP[ML.k].ic:'star','Dùng sức mạnh Mệnh Lộ cho kháng chiến',dn||(S.st.magic<6?'Cần 6 ma lực':`Bậc ${ML.r} · kháng chiến +${3+2*ML.r} · 6 ma lực`),'',dis||!!dn||S.st.magic<6);
+  return['Kỷ Bóng Tối',b,'act']}
+{const d0=drawExt3;drawExt3=function(v){if(v==='cat'&&catOn()){if(trOn())return trView();if(dkOn()&&!isHeroNow())return dkView()}return d0(v)}}
+{const a0=actExtra3;actExtra3=function(){let b=a0();if(catOn()&&S.alive){if(trOn())b=b.replace('Góp sức đẩy lùi thảm họa',`${trName()} · phá đám, tấn công, cướp bóc`);else if(dkOn())b=b.replace('Góp sức đẩy lùi thảm họa','Kỷ Bóng Tối · góp sức kháng chiến')}return b}}
+{const x0=extAct3;extAct3=function(x){
+  if(x.startsWith('tr:')){if(!trOn()||!S.alive||S.cap)return;const a=x.slice(3),c=S.world.cat;let t,tone='bad';
+    if(a==='quit'){const k=S.trai.c;S.trai=null;S.flags.trEx=c.y;mod({honor:5});addEnemy(`${TRK[k][2]} truy sát kẻ đào ngũ`,{hate:R(70,85)});t=`Bạn xé tấm áo choàng đen và trốn đi trong đêm. ${lordN(k)} sẽ không quên chuyện này.`}
+    else{if((S.done.trn||0)>=2)return;S.done.trn=(S.done.trn||0)+1;
+      if(a==='sab'){if(ch(.35+S.st.smarts/300+S.trai.rk*.05)){trHarm(6);t=(c.win?'Bạn tìm ra chỗ ẩn náu của một thủ lĩnh kháng chiến và dẫn quân tới.':pick(['Bạn bỏ thuốc mê vào rượu của tổ đội Anh Hùng. Họ lỡ mất trận đánh quan trọng nhất mùa.','Bạn đưa tin giả cho tổ đội Anh Hùng. Họ đi lạc ba tuần trong đầm lầy.','Bạn mua chuộc người dẫn đường của tổ đội Anh Hùng. Một nửa số người không trở về.']))+trM(12);tone='magic'}
+        else{mod({health:-R(10,20)});t='Bạn bị phát hiện và phải đánh tháo chạy.';if(ch(.04)){die('khi bị bắt quả tang phá hoại');t='Bạn bị bắt quả tang và xử tử ngay tại chỗ.'}}}
+      if(a==='raid'){if(ch(.4+(S.blade||0)/200+S.st.health/400+cbB()/250)){trHarm(4);const g=R(10,40);S.money+=g;mod({honor:-4});t=`Bạn dẫn quân tràn qua một ngôi làng, mang về ${g} xu.`+trM(8);tone='magic'}else{mod({health:-R(8,18)});t='Dân quân giữ được cổng làng. Bạn rút về với mấy vết thương.'}}
+      if(a==='loot'){const g=R(30,90);S.money+=g;mod({honor:-3,piety:-3});trHarm(2);t=`Bạn chặn một đoàn buôn và vét sạch nhà thờ trên đường, được ${g} xu.`+trM(4);if(ch(.15)){mod({health:-R(5,12)});t+=' Đám hộ vệ đoàn buôn để lại cho bạn vài vết chém.'}}
+      if(a==='ml'){const ML=catMlr();if(!ML||S.st.magic<6){S.done.trn--;return}mod({magic:-6});trHarm(3+2*ML.r);t=`Bạn dùng sức mạnh Mệnh Lộ xé toạc hàng ngũ của loài người.`+trM(6+2*ML.r);tone='magic'}}
+    log(t,tone);note={t,tone};return afterSheetAction()}
+  if(x.startsWith('dk:')){if(!dkOn()||trOn()||!S.alive||S.cap||S.age<14||(S.done.dkn||0)>=2)return;const a=x.slice(3),c=S.world.cat;let t,tone='good';
+    if(a==='aid'&&S.money<20)return;
+    S.done.dkn=(S.done.dkn||0)+1;
+    if(a==='fight'){if(ch(.35+(S.blade||0)/200+S.st.health/400+cbB()/250)){c.rs+=6;S.flags.dkR=(S.flags.dkR||0)+1;mod({honor:4});t='Bạn cùng quân kháng chiến phục kích một toán quỷ binh trên đường núi. Kháng chiến +6.'}else{tone='bad';if(ch(.03)){die('trong một trận đánh du kích');t='Bạn ngã xuống trong rừng.'}else{mod({health:-R(8,18)});t='Trận phục kích thất bại. Bạn rút về với mấy vết thương.'}}}
+    if(a==='hide'){c.rs+=4;S.flags.dkR=(S.flags.dkR||0)+1;t='Bạn giấu hai người kháng chiến dưới hầm suốt một tháng. Kháng chiến +4.';if(ch(.12)){mod({health:-15});S.money=Math.floor(Math.max(0,S.money)*.8);tone='bad';t+=' Có kẻ tố giác, bạn bị đánh một trận thừa sống thiếu chết.'}}
+    if(a==='aid'){S.money-=20;c.rs+=3;S.flags.dkR=(S.flags.dkR||0)+1;mod({honor:2});t='Bạn lén gửi lương thực vào rừng. Kháng chiến +3.'}
+    if(a==='ml'){const ML=catMlr();if(!ML||S.st.magic<6){S.done.dkn--;return}mod({magic:-6});c.rs+=3+2*ML.r;S.flags.dkR=(S.flags.dkR||0)+1;mod({honor:3});t=`Bạn dùng sức mạnh Mệnh Lộ giúp quân kháng chiến. Kháng chiến +${3+2*ML.r}.`}
+    c.rs=Math.min(100,c.rs);log(t,tone);note={t,tone};return afterSheetAction()}
+  return x0(x)}}
+
+/* ---------- người thân từ mặt ---------- */
+{const p0=personAct;personAct=function(sx){const[id,a]=sx.split('|');const p=S.fam.find(x=>x.id===id);
+  if(!p||!p.disown||!['talk','gift','ask'].includes(a))return p0(sx);
+  p.d=1;let t,tone='bad';if(a==='gift'){if(S.money<5)return;S.money-=5}
+  if(ch((S.trai?.05:.25)+(a==='gift'?.1:0))){p.disown=0;p.bond=15;tone='good';t=`${p.first} đứng lặng ở cửa rất lâu, rồi cuối cùng cũng cho bạn vào nhà.`}
+  else t=pick([`${p.first} đóng sầm cửa: "Nhà này không có kẻ theo ${S.trai?lordN(S.trai.c):'phe Bóng Tối'}."`,`${p.first} nhìn bạn như nhìn người lạ rồi quay đi.`,`Bạn để quà trước cửa. Sáng hôm sau nó nằm ngoài bãi rác.`]);
+  log(t,tone);note={t,tone};afterSheetAction()}}
+{const i0=inherit;inherit=function(){const r=i0.apply(this,arguments);if(S&&S.fam)for(const p of S.fam)delete p.disown;return r}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
