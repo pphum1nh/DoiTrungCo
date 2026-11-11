@@ -12542,7 +12542,7 @@ const PPQ={
 };
 const PQB=['hoa','moc','thuy','tho','hac','quang','huyet','vm'];
 const ppQ=()=>S.pp&&!S.pp.off&&PQB.includes(S.pp.k)?PPQ[S.pp.k]:null;
-const ppQwhy=()=>{const Q=ppQ(),P=S.pp;if(!Q)return'Chỉ dành cho Mệnh Lộ gốc';const q=P.q||0;if(q>=3)return'Đã hoàn thành';if(!ppCan())return'Cần cảm nhận ma pháp 40';if(P.rk<q+2)return`Cần đạt bậc ${q+2}`;if(S.done.ppq)return'Đã thử một chương năm nay';if(S.age<14)return'Còn quá nhỏ';return''};
+const ppQwhy=()=>{const Q=ppQ(),P=S.pp;if(!Q)return'Chỉ dành cho Mệnh Lộ gốc';const q=P.q||0;if(q>=3)return'Đã hoàn thành';if(!ppCan())return'Cần cảm nhận ma pháp 40';{const nd=P.k==='phong'&&q===1?2:q+2;if(P.rk<nd)return`Cần đạt bậc ${nd}`}if(S.done.ppq)return'Đã thử một chương năm nay';if(S.age<14)return'Còn quá nhỏ';return''};
 EV.push(EVB.pp_q={id:'pp_q',queued:true,big:true,art:'star',img:'manatest',c:s=>!!(s.alive&&ppQ()&&(s.pp.q||0)<3),
   title:s=>`${PPQ[s.pp.k].n} · ${PPQ[s.pp.k].ch[s.pp.q||0].t}`,text:s=>PPQ[s.pp.k].ch[s.pp.q||0].x});
 Object.defineProperty(EVB.pp_q,'ch',{get:()=>{const Q=S&&ppQ();if(!Q)return[];const n=S.pp.q||0,C=Q.ch[n];if(!C)return[];
@@ -13151,6 +13151,135 @@ function catView(){const C=CATS[S.world.cat.id],c=S.world.cat,yrs=S.year-c.y,dis
 {const e=EVB.herobattle;for(const i of[0,1]){const f0=e.ch[i].f;e.ch[i].f=s=>{const r=f0(s);const w=(s.flags.hero&&s.flags.hero.weak)||0;if(s.fight&&w){s.fight.hp=Math.max(1,s.fight.hp-w);s.fight.max=Math.max(s.fight.max,s.fight.hp)}return r}}}
 /* bỏ chạy hay theo phe địch làm thảm họa kéo dài */
 {const e=EVB.catyear;if(e){const f1=e.ch[1].f;e.ch[1].f=s=>{catPr(-2);return f1(s)};const f3=e.ch[3].f;e.ch[3].f=s=>{catPr(-5);return f3(s)};const f0=e.ch[0].f;e.ch[0].f=s=>{const r=arr(f0(s));if(r[1]==='good')catPr(3);return r}}}
+
+/* ===== Lộ Vãn Ca: nhánh của Mệnh Phong, rẽ ở bậc 3 ===== */
+CBTN.hon='linh hồn';
+{const t0=cbTags;cbTags=function(n){const t=t0(n);if(/hồn|bóng ma|u linh|oan|vong/.test(n.toLowerCase())&&!t.includes('hon'))t.push('hon');return t}}
+Object.assign(MV,{
+  pqVc1:mv('Lắng Nghe Lời Cuối','p:vanca','ctl',.10,{mp:5,sv:['hon','xac'],d:'Nghe điều một linh hồn đang cố nói giữa sợ hãi và hỗn loạn. Linh hồn kể theo trí nhớ của họ, nên vẫn cần đối chiếu với người sống',x:'bạn áp ống tiêu lên tai, nghe ra lời cuối của kẻ đang gào thét, và gọi đúng tên nó'}),
+  pqVc2:mv('Dẫn Khách Qua Hoàng Hôn','p:vanca','ctl',.18,{mp:8,sv:['hon','xac','quy'],d:'Mở một lối ngắn cho linh hồn đã sẵn sàng an nghỉ. Trong trận đánh, giải thoát linh hồn bị trói buộc khi kẻ điều khiển đã suy yếu',x:'một vệt nắng chiều mở ra giữa trận, linh hồn bị trói buộc buông vũ khí bước vào đó'}),
+  pqVcU:mv('Khép Cửa Sau Vãn Ca','p:vanca','ult',.26,{mp:12,sv:['hon','xac','dong'],d:'Dẫn nhiều linh hồn đi cùng lúc, rồi ở lại khép lối để người sống tiếp tục cuộc đời',x:'khúc vãn ca vang lên, từng bóng người lần lượt bước qua cánh cửa, và bạn khép nó lại sau lưng họ'})});
+ITEMS.pq_vanca={n:'Tiêu Vãn Ca',r:3,ic:'horn',cb:3,fx:{magic:1,piety:1},v:0,ev:1,sl:'acc',d:'Tiêu Gió Rỗng sau khi dẫn linh hồn đầu tiên qua ngưỡng cửa. Một vòng bạc trên thân sẫm lại, soi kỹ thì mang hình một cánh cửa khép hờ. Giữ được một Dư Âm: câu hát, lời nhắn hay ký ức mà người đã khuất gửi lại.'};
+const VC=()=>{const P=S.pp;return P.vc||(P.vc={c:0,so:[],ds:0,notes:0,prep:{}})};
+const vcOn=()=>!!(ppOn()&&S.pp.k==='vanca');
+const vcSo=(n,t)=>{const V=VC();const o=V.so.find(x=>x.n===n);if(o)o.t=t;else V.so.push({n,t,y:S.year})};
+const vcDs=v=>{const V=VC();V.ds=Math.max(0,Math.min(100,(V.ds||0)+v))};
+const VC_TIT=['Người Nghe Gió Qua Khe Cửa','Kẻ Bước Theo Cánh Chim','Người Nghe Khúc Biệt Ly','Người Đưa Khách Qua Hoàng Hôn','Khúc Hát Cho Những Người Đã Ngủ Yên'];
+const VC_GHOST=['một người lính giữ cầu','cô thợ dệt chết trong trận lở tuyết','một đứa trẻ chăn dê','người lái buôn muối','một thầy tu đi lạc','bà đỡ của làng bên'];
+const VCA_ALL=[
+ [3,'wind','Thổi tiêu nghe gió đêm','Nghe tiếng người đã khuất · có thể nhận một Dư Âm · Dư Sầu +5',s=>{const V=VC();vcDs(5);if(!V.echo&&ch(.6)){const g=pick(VC_GHOST);V.echo=g;vcSo(g[0].toUpperCase()+g.slice(1),'Gửi lại một Dư Âm, chờ được trao');return[`Giữa đêm, Tiêu Vãn Ca ngân lên giọng của ${g}. Người ấy gửi lại một lời nhắn cho người thân. Tiêu đang giữ một Dư Âm.`,'magic']}return['Bạn thổi tiêu tới khuya. Gió mang về nhiều giọng nói, nhưng không ai gửi lại điều gì.','']}],
+ [3,'mail','Trao Dư Âm cho đúng người','Cần đang giữ một Dư Âm · Danh dự, Dư Sầu -6',s=>{const V=VC();if(!V.echo)return['Tiêu không giữ Dư Âm nào.',''];const g=V.echo;V.echo=null;vcDs(-6);mod({honor:3});vcSo(g[0].toUpperCase()+g.slice(1),'Dư Âm đã trao tới người thân');return[`Bạn tìm tới nhà người thân của ${g} và trao lại lời nhắn. Người ấy khóc, rồi pha cho bạn một ấm trà. Tiêu nhẹ đi, sẵn sàng cho một Dư Âm mới.`,'good']}],
+ [3,'house','Về thăm gia đình, nghỉ giữa các chuyến','Dư Sầu -12',s=>{vcDs(-12);const p=spouse()||pick(s.fam.filter(x=>x.alive));if(p)p.bond=clamp(p.bond+5);mod({happy:3});return['Bạn ở nhà trọn một mùa, không thổi tiêu lần nào. Tiếng cười của người sống nghe lạ tai, rồi quen dần.','good']}],
+ [3,'book','Ghi chép Sổ Người Qua Gió','Đối chiếu lời người chết với người sống · trí tuệ',s=>{const V=VC();V.notes=(V.notes||0)+1;mod({smarts:1});return['Bạn ngồi đối chiếu lời kể của linh hồn với sổ hộ tịch nhà thờ. Có hai chỗ linh hồn nhớ sai năm, và một chỗ người sống nhớ sai tên.','good']}],
+ [4,'ghost','Dẫn một linh hồn qua hoàng hôn','Cần chiêu Dẫn Khách Qua Hoàng Hôn · Danh dự · Dư Sầu +6',s=>{if(!S.mv.pqVc2)return['Bạn chưa học được Dẫn Khách Qua Hoàng Hôn.',''];vcDs(6);mod({honor:3,piety:2});const g=pick(VC_GHOST);vcSo(g[0].toUpperCase()+g.slice(1),'Đã được dẫn qua hoàng hôn');return[`Bạn dẫn ${g} qua ngưỡng cửa lúc chạng vạng. Người ấy quay lại cúi đầu một lần, rồi không còn ở đó nữa.`,'good']}],
+ [5,'scroll','Tìm danh sách người chết ở chiến trường cũ','Chuẩn bị cho Khúc Hát Cho Người Không Được Chôn',s=>{VC().prep.list=1;mod({smarts:1});return['Bạn lục kho lưu trữ của ba tu viện và hai doanh trại, chép lại được bốn trăm cái tên. Vẫn còn những người không có tên.','good']},'list'],
+ [5,'chest','Đưa di vật về nhà','Chuẩn bị cho Khúc Hát Cho Người Không Được Chôn',s=>{VC().prep.relic=1;mod({honor:2});vcDs(4);return['Bạn đi khắp các làng trả lại thẻ bài, nhẫn cưới và một chiếc tẩu thuốc. Ở mỗi nhà, người ta mời bạn ở lại ăn cơm.','good']},'relic'],
+ [5,'church','Xin dựng nơi tưởng niệm (40 xu)','Chuẩn bị cho Khúc Hát Cho Người Không Được Chôn',s=>{if(s.money<40)return['Không đủ 40 xu.',''];s.money-=40;VC().prep.memo=1;mod({piety:3});return['Lãnh chúa cho phép dựng một tấm bia đá ở đầu chiến trường cũ. Dân làng góp đá, bạn góp tiền.','good']},'memo']];
+PP.vanca={root:'phong',n:'Vãn Ca',ic:'ghost',t:VC_TIT,
+  d:'Gió qua đèo chẳng giữ chân ai, sao người nằm xuống còn hoài đứng đây? Người theo Lộ Vãn Ca nghe điều linh hồn còn vướng mắc, giúp họ gặp người cần gặp, và mở đường khi họ sẵn lòng đi. Cái giá là Dư Sầu: nghe quá nhiều lời cuối, bạn mang theo nỗi buồn và thói quen của người đã mất.',
+  loss:['Bạn bắt đầu ngân nga bài hát của người đưa thư mà không nhận ra.','Bạn đặt thừa một cái bát trên bàn ăn, cho một người không còn ở đây.','Bạn gọi nhầm vợ mình bằng tên của một linh hồn.'],
+  pas:rk=>{if(rk>=4)mod({piety:1})},
+  low:()=>{vcDs(6);log('Tiêu Vãn Ca ngân lên giữa ban ngày, bằng giọng của chính bạn.','magic')}};
+Object.defineProperty(PP.vanca,'acts',{enumerable:true,get(){const rk=S&&S.pp&&S.pp.k==='vanca'?S.pp.rk:3,V=S&&S.pp&&S.pp.vc;return VCA_ALL.filter(a=>rk>=a[0]&&!(a[5]&&(S.mv&&S.mv.pqVcU||(V&&V.prep&&V.prep[a[5]])))).map(a=>a.slice(1,5))}});
+CAT_STR.undead=[...CAT_STR.undead,'vanca'];
+CAT_MLT.vanca=['Dẫn những linh hồn bị trói buộc về nơi an nghỉ','Bạn thổi Tiêu Vãn Ca giữa chiến trường. Những xác sống ngừng lại, nghe, rồi từng kẻ một gục xuống như người được phép đi ngủ.'];
+{const m0=catMlr;catMlr=function(){const r=m0();if(r&&S.pp&&S.pp.k==='vanca'&&!S.pp.off)r.g='vanca';return r}}
+
+/* Chuỗi mở nhánh: Sổ Người Qua Gió, 4 chương, mỗi năm một chương */
+const VCC=[
+ {t:'Bài Hát Thiếu Một Câu',x:'Bạn vừa đặt Tiêu Gió Rỗng xuống thì nó tự ngân lên. Một giọng người hát từ đầu tiêu, nhỏ đến mức phải nín thở mới nghe rõ. Bài hát dừng giữa câu. Ngoài cửa, có tiếng ai đó hỏi đường về làng.',
+  c:[['Thổi lại đúng giai điệu ấy',s=>{s.pp.dg=Math.min(100,s.pp.dg+6);vcSo('Giọng hát trong tiêu','Chưa rõ tên, hát một bài thiếu câu cuối');return'Bạn thổi lại giai điệu. Giọng hát đáp lại thêm nửa câu rồi im. Tiếng hỏi đường ngoài cửa cũng tắt.'}],
+   ['Hỏi dân quanh đèo ai nhận ra bài hát',s=>{VC().song=1;vcSo('Giọng hát trong tiêu','Bài hát có hai phiên bản. Giọng hát nhớ một thời xa hơn người sống');return'Một bà lão nhớ rằng ngày nhỏ mẹ bà thường hát bài ấy, nhưng câu cuối khác với giọng trong tiêu. Vậy là bài hát có ít nhất hai phiên bản, và người hát trong tiêu còn nhớ một thời xa hơn cả bà.'}],
+   ['Cất tiêu, đêm sau nghe tiếp',s=>{mod({smarts:1});vcSo('Giọng hát trong tiêu','Chưa rõ tên');return'Đêm sau, bài hát bắt đầu lại từ đầu, lần này bạn nghe rõ được tên một trạm gác trên đèo.'}]]},
+ {t:'Người Đợi Dưới Mái Hiên',x:'Lần theo giai điệu, bạn gặp một người đưa thư ngồi dưới mái trạm gác đổ. Áo ông khô ráo dù mưa xuyên qua người. "Ta còn một lá thư chưa trao, đường về đã mất tự bao giờ." Ông nhớ tên người nhận và một ngôi nhà có cây lê trước cửa. Bạn tìm được căn nhà, nhưng người nhận đã mất nhiều năm. Cháu của bà còn giữ một bức thư trả lời chưa từng gửi.',
+  c:[['Mang thư trả lời lên đèo',s=>{VC().letter=2;vcSo('Người đưa thư dưới mái hiên','Đã nghe thư trả lời, biết mình được tha thứ vì về muộn');return'Ông đọc thư rất lâu. "Bà ấy không giận ta," ông nói, rồi lần đầu tiên đứng dậy khỏi mái hiên.'}],
+   ['Mời người cháu cùng đi',s=>{VC().letter=2;VC().witness=1;mod({happy:-2});vcSo('Người đưa thư dưới mái hiên','Đã gặp cháu của người nhận thư');return'Người cháu run tay khi thấy ông. Nhưng chính anh đọc bức thư trả lời thành tiếng. Từ nay bạn có thêm một nhân chứng sống.'}],
+   ['Chỉ nói rằng thư đã trao',s=>{VC().letter=1;vcSo('Người đưa thư dưới mái hiên','Được bảo là thư đã trao, chưa hiểu chuyện gì đã xảy ra');return'Ông đứng dậy ngay, cảm ơn bạn rồi đi mất. Bạn có cảm giác ông sẽ còn quay lại.'}]]},
+ {t:'Ngôi Mộ Gọi Sai Tên',x:'Trên đường xuống, người đưa thư dừng cạnh một ngôi mộ vô danh. Ông nhận ra chiếc cúc áo chôn dưới đất là của một người từng đi cùng mình. "Nếu chẳng còn ai nhớ tên người, xin gọi người bằng điều người đã sống."',
+  c:[['Tìm trong sổ trạm',s=>{const ok=ch(.45+s.st.smarts/300+((VC().notes||0)>0?.1:0));VC().name=ok?2:1;vcSo('Người nằm dưới ngôi mộ vô danh',ok?'Đã tìm được tên thật, khắc lại bia':'Chỉ tìm được tên thường gọi');return ok?'Trong sổ trạm cũ, bạn tìm được tên thật của người ấy, viết bằng nét chữ của chính người đưa thư.':'Sổ trạm bị mối ăn mất nửa trang. Bạn chỉ tìm được tên thường gọi: "Người Hay Hát".'}],
+   ['Hỏi các gia đình quanh đèo',s=>{VC().name=1;VC().twofam=1;vcSo('Người nằm dưới ngôi mộ vô danh','Hai gia đình cùng nhận là thân nhân');return'Hai gia đình cùng nhận người ấy là con mình. Bạn chưa biết ai đúng. Bia mộ sẽ được khắc lại nếu sau này có thêm chứng cứ.'}],
+   ['Khắc lời tưởng niệm theo điều đã biết',s=>{VC().name=1;mod({piety:2});vcSo('Người nằm dưới ngôi mộ vô danh','Khắc lời tưởng niệm: "Người đi cùng người đưa thư"');return'Bạn khắc lên bia: "Người đã đi cùng người đưa thư qua đèo, và không về." Người đưa thư đứng nhìn rất lâu.'}]]},
+ {t:'Người Sống Chưa Chịu Buông Tay',x:'Một người thân của linh hồn bắt đầu chờ bạn đến thổi tiêu hằng đêm. Những cuộc gặp đem lại bình yên lúc đầu, rồi khiến họ bỏ bê người đang sống cùng mình. Linh hồn cũng do dự: họ biết mình nên đi, nhưng sợ người ở lại không chịu nổi. "Người đi xin để đèn ở lại, cho kẻ còn về biết ngõ nhà."',
+  c:[['Hẹn một cuộc gặp cuối có cả gia đình',s=>{vcSo('Người thân còn chờ mỗi đêm','Đã có cuộc gặp cuối cùng cả gia đình');return'Cả nhà ngồi quanh bếp lửa. Người sống kể chuyện, người chết lắng nghe. Gần sáng, linh hồn đứng dậy, để lại ngọn đèn trên bậc cửa.'}],
+   ['Giúp họ làm xong một việc từng hứa (15 xu)',s=>{if(s.money<15)return{fail:'Bạn không đủ 15 xu để sửa lại mái nhà như linh hồn từng hứa.'};s.money-=15;mod({honor:3});vcSo('Người thân còn chờ mỗi đêm','Lời hứa sửa mái nhà đã được làm xong');return'Bạn sửa lại mái nhà mà linh hồn từng hứa sẽ sửa. Hôm mái xong, người thân thôi không chờ bạn nữa.'}],
+   ['Tiếp tục cho họ gặp nhau',s=>{vcDs(10);VC().linger=(VC().linger||0)+1;return{fail:'Bạn để họ gặp thêm một mùa. Nỗi lưu luyến lớn dần, và linh hồn khó nghe được lời gọi từ bên kia. Dư Sầu +10. Năm sau hãy quay lại chương này.'}}]]}];
+const vcWhy=()=>{const P=S.pp;if(!P||P.k!=='phong'||P.off)return'x';const V=P.vc;if(V&&V.dec)return'x';if(P.rk!==2)return'x';if(!tpFlute())return'x';if(V&&V.c>=4)return'x';if(S.done.vcc)return'Đã viết một chương năm nay';if(S.age<14)return'Còn quá nhỏ';return''};
+const VCC_EV={id:'vc_ch',queued:true,big:true,art:'ghost',img:'sword_stone',c:s=>!!(s.alive&&s.pp&&s.pp.k==='phong'&&s.pp.rk===2&&tpFlute()&&VCC[VC().c]),title:s=>`Sổ Người Qua Gió · ${VCC[VC().c].t}`,text:s=>VCC[VC().c].x};
+Object.defineProperty(VCC_EV,'ch',{get:()=>{if(!S||!S.pp||S.pp.k!=='phong')return[];const C=VCC[VC().c];if(!C)return[];return C.c.map(([t,f])=>({t,f:s=>{const r=f(s);if(r&&r.fail)return[r.fail,'bad'];const V=VC();V.c++;ppJ(`${s.year}: Sổ Người Qua Gió, chương "${C.t}".`);
+  return[r+(V.c>=4?' Sổ Người Qua Gió đã đủ bốn chương. Lần tới khi bạn uống Ma Dược để lên bậc 3, gió sẽ dẫn bạn tới Bến Không Có Thuyền.':` Còn ${4-V.c} chương nữa.`),'magic']}}))}});
+EV.push(VCC_EV);EVB.vc_ch=VCC_EV;EIMG.vc_ch='sword_stone';
+const vcNeed=()=>{const P=S.pp;return!!(P&&P.k==='phong'&&P.rk===2&&P.vc&&P.vc.c>=4&&!P.vc.dec&&!P.vcC&&ppCan()&&S.bag.some(x=>x.k===ppNeed()))};
+EV.push(EVB.vc_ferry={id:'vc_ferry',queued:true,big:true,art:'ghost',img:'sword_stone',c:s=>!!(s.alive&&vcNeed()),title:'Bến Không Có Thuyền',
+  text:s=>{const V=VC();return`Một đêm cuối thu, giọng hát trong tiêu trở nên trọn vẹn. Gió dẫn bạn tới một con đường chỉ hiện ra giữa hai tiếng chuông. Những linh hồn bạn đã gặp lần lượt đứng chờ. Có người đã sẵn sàng.${V.name===1?' Có người vẫn hỏi vì sao tên mình chưa được tìm thấy.':''}${V.letter===2?' Người đưa thư đứng đầu hàng, gọi từng người một bằng tên.':' Người đưa thư đứng lẫn trong đám đông, vẫn chưa hiểu mình đang ở đâu.'}`},
+  ch:[{t:'"Đêm nay ta xin ngồi cùng họ. Đường xa, để sáng rồi hay."<small style="display:block;font-weight:400;opacity:.7;margin-top:3px">Ở lại bậc 2, có thể quay lại sau</small>',f:s=>{ppJ(`${s.year}: Ngồi cùng các linh hồn ở Bến Không Có Thuyền, chưa chọn đường.`);return['Bạn ngồi với họ tới khi trời hửng. Không ai đi, và cũng không ai trách bạn. Lọ dược vẫn còn nguyên.','']}},
+      {t:'"Ta còn những ngọn đèn trên đèo chưa thắp. Xin gió đưa họ đến người biết đường."<small style="display:block;font-weight:400;opacity:.7;margin-top:3px">Lên bậc 3 · Thiên Phong</small>',f:s=>{s.pp.vcC='phong';const r=ppDrink();const[t,tone]=r?arr(r):['',''];return['Bạn nhờ được một người dẫn hồn già đưa họ đi. Gió quay về phía những ngọn đèn trên đèo. '+t,tone||'magic']}},
+      {t:'"Xin cho ta nghe hết khúc ca. Người cuối cùng bước qua, ta mới quay về."<small style="display:block;font-weight:400;opacity:.7;margin-top:3px">Lên bậc 3 · Rẽ sang Lộ Vãn Ca</small>',f:s=>{s.pp.vcC='vanca';const r=ppDrink();const[t,tone]=r?arr(r):['',''];return['Bạn thổi tiêu tới khi người cuối cùng bước qua. '+t,tone||'magic']}}]});
+EIMG.vc_ferry='sword_stone';
+{const u0=ppUp;ppUp=function(){u0();const P=S.pp;if(!P||P.rk!==3||!P.vcC)return;const c=P.vcC;delete P.vcC;const V=VC();V.dec=c;
+  if(c==='phong'){ppJ(`${S.year}: Ở Bến Không Có Thuyền, chọn tiếp tục Mệnh Lộ Thiên Phong.`);return}
+  P.k='vanca';P.br='phong';const it=S.bag.find(x=>x.k==='pq_flute');if(it)it.k='pq_vanca';else gainItem('pq_vanca');mvLearn('pqVc1',true);
+  ppJ(`${S.year}: Rẽ sang Lộ Vãn Ca. Tiêu Gió Rỗng hóa thành Tiêu Vãn Ca.`);log('Tiêu Gió Rỗng sẫm lại một vòng bạc, mang hình một cánh cửa khép hờ. Nó đã thành Tiêu Vãn Ca. Bạn học được Lắng Nghe Lời Cuối.','magic')}}
+{const x0=extAct3;extAct3=function(x){if(x==='pp:up'&&vcNeed()){if(!S.pend.includes('vc_ferry'))S.pend.push('vc_ferry');return afterSheetAction()}
+  if(x==='vc:ch'){if(vcWhy()||S.pend.includes('vc_ch'))return;S.done.vcc=1;S.pend.push('vc_ch');return afterSheetAction()}
+  if(x==='vc:q'){if(vcqWhy()||S.pend.includes('vc_q'))return;S.done.vcq=1;S.pend.push('vc_q');return afterSheetAction()}
+  return x0(x)}}
+
+/* Nhiệm vụ bậc 4 và bậc 5 của Lộ Vãn Ca */
+const vcqStage=()=>!vcOn()?-1:!S.mv.pqVc2?0:!S.mv.pqVcU?1:2;
+const vcqWhy=()=>{const st=vcqStage();if(st<0||st>=2)return'x';if(st===0&&S.pp.rk<4)return'Cần đạt bậc 4';if(st===1){if(S.pp.rk<5)return'Cần đạt bậc 5';const p=VC().prep,n=['list','relic','memo'].filter(k=>p[k]).length;if(n<2)return`Cần chuẩn bị ít nhất 2 việc (đã có ${n}/3) trong Việc hợp vai`}if(S.done.vcq)return'Đã thử năm nay';return''};
+const VCQ=[{t:'Chuyến Đò Lúc Chạng Vạng',x:'Bạn được nhờ đưa một nhóm linh hồn qua ngưỡng cửa trước khi trời sáng. Trong nhóm có một người còn sống, đang đi theo người thân đã mất. Nếu không nhận ra người ấy trước cửa cuối, họ sẽ bước qua cùng.',
+  c:[['Lắng nghe hơi thở từng người',s=>s.mv.pqVc1?{ok:1,t:'Giữa những bóng người im lặng, có một tiếng thở rất khẽ. Bạn nắm tay cô gái ấy, dẫn cô quay về trước khi chuyến đò rời bến.'}:{t:'Bạn chưa đủ tĩnh để nghe được hơi thở.'}],
+   ['Nhìn dấu chân trên bãi cát ướt',s=>{if(ch(.45+s.st.smarts/300))return{ok:1,t:'Chỉ một người để lại dấu chân. Bạn tìm ra người ấy giữa đường.'};if(s.st.magic>=15){mod({magic:-15});return{ok:1,t:'Tới cửa cuối bạn mới nhận ra người còn sống. Bạn phải dồn 15 ma lực để kéo cô ấy quay về.'}}return{t:'Bạn nhận ra quá muộn, và không còn đủ ma lực để kéo người ấy về. Cô tỉnh dậy trên bãi cát, nhưng chuyến đò đã tan.'}}],
+   ['Hỏi từng người tên của mẹ họ',s=>((VC().notes||0)>=2||ch(.4))?{ok:1,t:'Linh hồn nhớ tên mẹ mình theo cách người chết nhớ: chậm và đầy đủ. Chỉ có một người trả lời nhanh, và người ấy còn sống.'}:{t:'Câu trả lời của ai cũng giống nhau. Bạn chưa đối chiếu đủ để phân biệt.'}]],
+  done:s=>{mvLearn('pqVc2');return' Bạn học được Dẫn Khách Qua Hoàng Hôn.'}},
+ {t:'Khúc Hát Cho Người Không Được Chôn',x:s=>{const p=VC().prep;return`Một chiến trường cũ vang tiếng bước chân mỗi đêm. Người chết ở đó thuộc nhiều phe: có người vẫn chờ lệnh, có người còn tìm đồng đội, có người chỉ mong gia đình biết họ nằm ở đâu. Đêm nay, bạn phải giữ lối mở trong lúc người sống đọc tên họ.${p.list?' Bạn có danh sách tên.':''}${p.relic?' Di vật đã về tới nhà.':''}${p.memo?' Tấm bia tưởng niệm đã dựng.':''}${VC().witness?' Người cháu của người nhận thư đến làm nhân chứng.':''}`},
+  c:[['Giữ lối mở trong lúc người sống đọc tên',s=>{const p=VC().prep,n=['list','relic','memo'].filter(k=>p[k]).length+(VC().witness?1:0);if(n>=3)return{ok:1,t:'"Tên người xin gửi lại đời, đường xa từ đây để gió đưa người." Từng cái tên được đọc lên, từng bóng người bước qua. Tới sáng, chiến trường im lặng.'};VC().linger=(VC().linger||0)+1;return{ok:1,t:'Phần lớn đã đi. Nhưng vài người không có tên trong danh sách vẫn đứng lại, và họ sẽ còn tìm đến bạn.'}}],
+   ['Hát khúc vãn ca một mình',s=>{if(ch(.5)){mod({health:-10});vcDs(10);return{ok:1,t:'Bạn hát tới khản giọng. Họ đi, từng người một. Bạn ngã quỵ khi người cuối cùng bước qua. Dư Sầu +10.'}}mod({health:-8});return{t:'Giọng bạn lạc đi giữa chừng. Lối khép lại khi mới một nửa số người bước qua.'}}],
+   ['Hoãn sang mùa sau để chuẩn bị thêm',s=>({t:'Bạn hứa với họ sẽ quay lại. Bước chân trên chiến trường vẫn vang lên mỗi đêm.'})]],
+  done:s=>{mvLearn('pqVcU');news(`${s.first} ${s.surname} đã dẫn những người không được chôn ở chiến trường cũ về nơi an nghỉ.`,'',false);mod({honor:8,piety:4});return' Bạn học được Khép Cửa Sau Vãn Ca.'}}];
+EV.push(EVB.vc_q={id:'vc_q',queued:true,big:true,art:'ghost',img:'sword_stone',c:s=>!!(s.alive&&vcqStage()>=0&&vcqStage()<2),title:s=>VCQ[vcqStage()].t,text:s=>{const x=VCQ[vcqStage()].x;return typeof x==='function'?x(s):x}});
+EIMG.vc_q='sword_stone';
+Object.defineProperty(EVB.vc_q,'ch',{get:()=>{const st=S&&vcqStage();if(st==null||st<0||st>=2)return[];const Q=VCQ[st];return Q.c.map(([t,f])=>({t,f:s=>{const r=f(s)||{};if(!r.ok)return[r.t,''];ppJ(`${s.year}: Hoàn thành "${Q.t}".`);return[r.t+Q.done(s),'magic']}}))}});
+
+/* Hiển thị trong Đạo Mệnh */
+{const v0=ppView;ppView=function(){const r=v0();const P=S.pp;if(!P||(P.k!=='phong'&&P.k!=='vanca')||!P.vc&&P.k!=='vanca'&&!(P.k==='phong'&&P.rk===2&&tpFlute()))return r;const V=VC();let h='';
+  if(P.k==='phong'&&!V.dec&&P.rk===2&&tpFlute()){h+=`<p class="sec">Sổ Người Qua Gió · rẽ nhánh Lộ Vãn Ca</p>`;
+    if(V.c<4){const w=vcWhy();h+=gRow('data-x="vc:ch"','ghost',`Chương ${V.c+1}/4: ${VCC[V.c].t}`,w||'Mỗi năm một chương','',!S.alive||!!S.cap||!!w||S.pend.includes('vc_ch'))+'<p class="note">Chỉ rẽ được khi còn ở bậc 2. Uống Ma Dược lên bậc 3 trước khi xong bốn chương thì sẽ đi tiếp Thiên Phong.</p>'}
+    else h+='<p class="note magic">Đã đủ bốn chương. Khi uống Ma Dược lên bậc 3, bạn sẽ đứng trước Bến Không Có Thuyền và chọn đường.</p>'}
+  if(P.k==='vanca'){const ds=V.ds||0;h+=`<p class="note">Dư Sầu: ${ds}/100${ds>=75?' · Tiêu Vãn Ca ngân cả những giọng bạn chưa từng gặp':ds>=50?' · bạn mang theo nỗi buồn và thói quen của người đã mất':''} · Dư Âm: ${V.echo?`đang giữ lời nhắn của ${V.echo}`:'trống'}</p>`;
+    const st=vcqStage();if(st<2){const w=vcqWhy();h+=`<p class="sec">Nhiệm vụ Mệnh Lộ</p>`+gRow('data-x="vc:q"','ghost',VCQ[st].t,w||(st===0?'Phần thưởng: chiêu Dẫn Khách Qua Hoàng Hôn':'Phần thưởng: chiêu Khép Cửa Sau Vãn Ca'),'',!S.alive||!!S.cap||!!w||S.pend.includes('vc_q'))}
+    else h+='<p class="note magic">Đã hoàn thành các nhiệm vụ của Lộ Vãn Ca. Mỗi tai họa lớn, bạn dùng được Khép Cửa Sau Vãn Ca một lần.</p>'}
+  if(V.so&&V.so.length)h+=`<p class="sec">Sổ Người Qua Gió · ${V.so.length} người</p>`+V.so.map(x=>gRow('','ghost',x.n,`${x.t} · năm ${x.y}`,'',false,true)).join('');
+  const i=r[1].indexOf('<p class="sec">Việc hợp vai');r[1]=i>=0?r[1].slice(0,i)+h+r[1].slice(i):r[1]+h;return r}}
+
+/* Sự kiện nhỏ và Dư Sầu */
+const VCE=[
+ {id:'vc_linger',c:s=>(VC().linger||0)>0,title:'Linh Hồn Còn Lưu Luyến',text:'Một linh hồn từ đêm ở chiến trường cũ, hay từ căn nhà có người thân chờ mỗi đêm, lại đứng trước cửa nhà bạn. Họ vẫn chưa đi được.',
+  ch:[{t:'Giúp họ tìm điều còn vướng',f:s=>{VC().linger--;vcDs(3);mod({honor:3});return['Bạn mất cả tháng tìm cho ra người họ cần gặp. Lần này họ đi thật. Dư Sầu +3.','good']}},
+      {t:'Trao cho họ Dư Âm đang giữ',req:s=>!!VC().echo,f:s=>{VC().linger--;VC().echo=null;vcDs(-5);return['Hóa ra lời nhắn trong tiêu là gửi cho chính họ. Họ nghe xong, mỉm cười, rồi tan vào gió.','good']}},
+      {t:'Bảo họ quay lại sau',f:s=>{vcDs(4);return'Họ gật đầu và đứng chờ ngoài hiên. Đêm nào bạn cũng thấy họ ở đó. Dư Sầu +4.'}}]},
+ {id:'vc_strange',c:s=>(VC().ds||0)>=60,title:'Giọng Hát Chưa Từng Gặp',text:'Tiêu Vãn Ca ngân lên giữa đêm, bằng một giọng bạn chưa từng nghe. Nó gọi tên bạn, và nhắc những chuyện chỉ người trong nhà mới biết.',
+  ch:[{t:'Ngồi nghe hết',f:s=>{vcDs(5);s.pp.dg=Math.min(100,s.pp.dg+10);ltHit(-3);return['Bạn nghe tới sáng. Bạn hiểu thêm về lối đi bên kia, và bắt đầu sợ chính mình. Lý trí -3.','magic']}},
+      {t:'Bọc tiêu vào khăn, cất xuống đáy rương',f:s=>{vcDs(-3);return'Giọng hát nhỏ dần, rồi im. Nhưng bạn biết nó vẫn ở đó.'}},
+      {t:'Đánh thức người nhà, ra sân ngắm trăng cùng họ',f:s=>{vcDs(-10);mod({happy:4});return['Cả nhà ngồi ngoài sân tới khuya, nói những chuyện không đâu. Tiêu im lặng cả đêm. Dư Sầu -10.','good']}}]},
+ {id:'vc_grave',c:s=>VC().name===1,title:'Bia Mộ Được Khắc Lại',text:'Một người lạ tìm đến, mang theo chiếc cúc áo giống hệt chiếc dưới ngôi mộ vô danh trên đèo. Ông ấy nói đó là con trai mình.',
+  ch:[{t:'Dẫn ông lên đèo và khắc lại bia',f:s=>{VC().name=2;mod({honor:4,piety:2});vcSo('Người nằm dưới ngôi mộ vô danh','Đã tìm được tên thật nhờ người cha tìm đến');return['Bạn khắc lại bia mộ bằng tên thật. Người cha ngồi bên mộ tới tối. Trên đường xuống, gió đột nhiên êm hẳn.','good']}},
+      {t:'Đối chiếu kỹ với Sổ Người Qua Gió trước',f:s=>{if((VC().notes||0)>=1){VC().name=2;vcSo('Người nằm dưới ngôi mộ vô danh','Đã xác minh tên thật');mod({honor:5});return['Sổ ghi rằng người ấy hay hát một bài thiếu câu cuối. Người cha hát nốt câu ấy. Đúng là con ông.','good']}return'Bạn chưa ghi chép đủ để đối chiếu. Người cha hẹn sẽ quay lại.'}}]}];
+for(const e of VCE){const E={...e,queued:true,art:'ghost',c:s=>!!(s.alive&&vcOn()&&e.c(s))};EV.push(E);EVB[e.id]=E}
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||!S.pp||S.pp.off||S.age<12)return;const P=S.pp;
+  if(P.k==='phong'&&P.rk===2&&tpFlute()&&(!P.vc||(!P.vc.c&&!P.vc.auto&&!P.vc.dec))&&ch(.5)){VC().auto=1;if(!S.pend.includes('vc_ch')){S.done.vcc=1;S.pend.push('vc_ch')}return}
+  if(P.k!=='vanca')return;const V=VC();vcDs(-2);
+  if(V.ds>=50){mod({happy:-2});if(ch(.4))log(pick(PP.vanca.loss),'magic')}
+  if(V.ds>=75){ltHit(-2);if(ch(.5))log('Tiêu Vãn Ca ngân cả những giọng mà bạn chưa từng gặp.','magic')}
+  if(S.pend.some(x=>x&&x.startsWith('vc_')))return;V.seen=V.seen||{};
+  const L=VCE.map(e=>e.id).filter(id=>EVB[id].c(S)&&!(V.seen[id]&&S.year-V.seen[id]<4));if(L.length&&ch(.3)){const id=pick(L);V.seen[id]=S.year;S.pend.push(id)}}}
+
+/* Trong các tai họa lớn */
+{const a0=dhActs;dhActs=function(){const L=a0();const W=dhC();if(!W||!vcOn())return L;const V=VC(),A=(id,i,n,d,f,dis)=>L.push({id,ic:i,n,d,f,dis});
+  const big=()=>!!S.mv.pqVcU&&!W.vcU;
+  if(W.id==='returned'||W.id==='sleep'){A('vclisten','ghost','Lắng nghe lời cuối giữa sương','Lộ Vãn Ca · giúp người lạc và người đã khuất tìm được nhau',()=>{if(W.id==='returned')W.pw=Math.max(0,(W.pw||0)-3);else W.wp+=3;vcDs(4);return['Bạn đi giữa sương, nghe từng lời cuối và đối chiếu với người sống. Có ba người tìm được nhau trước khi trời sáng.','good']});
+    A('vcclose','ghost','Khép Cửa Sau Vãn Ca','Lộ Vãn Ca bậc 5 · dùng một lần trong mỗi tai họa lớn',()=>{if(!big())return['Cần chiêu Khép Cửa Sau Vãn Ca, và chỉ dùng được một lần mỗi tai họa.',''];W.vcU=1;if(W.id==='returned')W.pw=Math.max(0,(W.pw||0)-12);else W.wp+=10;vcDs(8);mod({honor:6});return['Bạn hát khúc vãn ca trên tháp chuông. Từng bóng người lần lượt bước qua cánh cửa, và bạn ở lại khép nó sau lưng họ. Người sống thức dậy trong một buổi sáng yên tĩnh lạ thường.','good']},!big())}
+  return L}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
