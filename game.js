@@ -576,7 +576,7 @@ function relYear(){
   for(const r of S.rel||[]){
     if(!r.alive)continue;r.age++;r.d=0;
     const a=r.age/lifeOf(r.race),d=a<40?.006:a<55?.025:a<65?.06:a<75?.14:.3;
-    if(ch(d)){r.alive=false;if(r.kind==='enemy'){mod({happy:2});log(`Kẻ thù ${r.name} đã chết. Bạn thấy nhẹ nhõm lạ thường.`)}else{mod({happy:-Math.round(r.bond/8)});log(`${r.kind==='lover'?'Người yêu':'Bạn'} ${r.first} qua đời ở tuổi ${r.age}.`,'bad')}continue}
+    if(ch(d)){r.alive=false;if(r.kind==='enemy'){mod({happy:2});log(`Kẻ thù ${r.name} đã chết. Bạn thấy nhẹ nhõm lạ thường.`)}else{mod({happy:-Math.round(r.bond/8)});log(`${r.kind==='lover'?'Người yêu':r.kind==='rival'?'Đối thủ':r.soul?'Tri kỷ':'Bạn'} ${r.first} qua đời ở tuổi ${r.age}.`,'bad')}continue}
     if(r.kind==='friend'){r.bond-=R(0,4);if(r.bond<8){r.alive=false;r.gone=1;log(`Bạn và ${r.first} dần xa cách, không còn qua lại nữa.`)}else if(r.bond>=70&&ch(.08)){const g=R(5,25);S.money+=g;log(`${r.first} ghé thăm, mang theo ${g} xu và một giỏ táo.`,'good')}}
     if(r.kind==='lover'){r.bond-=R(1,5);if(r.bond<15){r.alive=false;r.gone=1;mod({happy:-8});log(`${r.first} chia tay bạn. Tình yêu đã nguội lạnh.`,'bad')}else if(r.bond>=85&&ch(.3)&&!S.pend.includes('loverask'))S.pend.push('loverask')}
     if(r.kind==='enemy'){r.hate-=R(0,3);if(r.hate<15){r.alive=false;r.gone=1;log(`Mối thù với ${r.first} đã nguôi ngoai theo năm tháng.`)}}
@@ -1422,7 +1422,7 @@ function render(){
   $('#ageBtn').disabled=!S.alive;
 }
 function famIcon(p){return p.rel==='Cha'?'male':p.rel==='Mẹ'?'female':p.rel==='Vợ'||p.rel==='Chồng'?'rings':p.rel.startsWith('Con')&&p.age<6?'baby':p.sex==='f'?'female':'user'}
-function relIcon(r){return r.kind==='enemy'?(r.hate>=70?'skull':'rival'):r.kind==='lover'?'lover':r.sex==='f'?'female':r.sex==='m'?'male':'user'}
+function relIcon(r){return r.kind==='enemy'?(r.hate>=70?'skull':'rival'):r.kind==='lover'?'lover':r.kind==='rival'?'rival':r.sex==='f'?'female':r.sex==='m'?'male':'user'}
 function famRow(p){return`<button class="row" data-p="${p.id}"><span class="ri">${ic(famIcon(p),24)}</span><div><b>${esc(p.first)}</b><small>${p.rel} · ${p.age} tuổi${p.race&&p.race!==S.race?' · '+RACES[p.race].n:''}</small><div class="bond"><i style="width:${p.bond}%"></i></div></div><span class="tag">${p.bond}</span></button>`}
 function relRow(r){const E=r.kind==='enemy';return`<button class="row" data-r="${r.id}"><span class="ri${E?' foe':''}">${ic(relIcon(r),24)}</span><div><b>${esc(r.first)}</b><small>${r.age} tuổi · ${r.sex==='f'?'Nữ':r.sex==='m'?'Nam':''}${r.sex?' · ':''}${RACES[r.race].n}${E&&r.why?' · '+esc(r.why):''}</small><div class="bond${E?' hate':''}"><i style="width:${E?r.hate:r.bond}%"></i></div></div><span class="tag">${E?'Hận '+r.hate:r.bond}</span></button>`}
 function gRow(data,icn,title,sub,tag,dis,static_,rc){const inner=`<span class="ri ${rc||''}">${ic(icn,24)}</span><div><b>${title}</b>${sub?`<small>${sub}</small>`:''}</div>${tag?`<span class="tag">${tag}</span>`:''}`;return static_?`<div class="row">${inner}</div>`:`<button class="row" ${data} ${dis?'disabled':''}>${inner}</button>`}
@@ -1498,6 +1498,7 @@ function drawSheet(){
     b+=gRow('data-open="rel:friend"','friends','Bạn bè',rels('friend').length?rels('friend').map(r=>r.first).slice(0,4).join(', '):'Chưa có bạn',`${rels('friend').length} người`,false);
     b+=gRow('data-open="rel:love"',sp?'rings':'heart-arrow',sp?'Hôn nhân':'Người yêu',sp?`${sp.rel} ${sp.first}`:lv?`Đang hẹn hò với ${lv.first}`:'Độc thân',sp?'Đã kết hôn':lv?'Đang yêu':'',false);
     b+=gRow('data-open="rel:enemy"','enemy','Kẻ thù',rels('enemy').length?rels('enemy').map(r=>r.first).slice(0,4).join(', '):'Chưa có kẻ thù',`${rels('enemy').length} người`,false);
+    if(typeof relXRows==='function')b+=relXRows();
     if(typeof petRel==='function')b+=petRel();
     b+='<p class="sec">Sum vầy</p>'+gRow('data-x="allrel"','user-group','Dành thời gian cho tất cả người thân',S.age<5?'Từ 5 tuổi':S.done.allrel?'Đã sum vầy năm nay':'Gia đình, bạn bè, người yêu · tình cảm và niềm vui tăng','',S.age<5||!!S.done.allrel||!S.alive);
     if(kids().some(k=>k.age>=3&&!k.vow))b+=gRow('data-x="kc:all"','church','Cả nhà cùng đi lễ Chủ nhật',S.done.kcall?'Đã đi lễ năm nay':'Vợ chồng con cái cùng đến nhà thờ · tình cảm, lòng đạo của các con tăng','',!!S.done.kcall||!S.alive);
@@ -1544,9 +1545,9 @@ function drawSheet(){
   if(view.startsWith('r:')){
     const r=S.rel.find(x=>x.id===view.slice(2));
     if(!r||!r.alive){view='rel';return drawSheet()}
-    back={friend:'rel:friend',lover:'rel:love',enemy:'rel:enemy'}[r.kind];title=esc(r.first);
+    back={friend:'rel:friend',lover:'rel:love',enemy:'rel:enemy',rival:'rival'}[r.kind];title=esc(r.first);
     const dn=r.d?'Đã gặp năm nay':'',E=r.kind==='enemy';
-    b+=`<div class="row"><span class="ri">${ic(relIcon(r),24)}</span><div><b>${esc(r.name)}</b><small>${{friend:'Bạn',lover:'Người yêu',enemy:'Kẻ thù'}[r.kind]} · ${r.age} tuổi · ${RACES[r.race].n} · ${CLASSES[r.cls].n}</small>${E&&r.why?`<small>${esc(r.why)}</small>`:''}<div class="bond${E?' hate':''}"><i style="width:${E?r.hate:r.bond}%"></i></div></div><span class="tag">${E?'Hận '+r.hate:r.bond}</span></div>`;
+    b+=`<div class="row"><span class="ri">${ic(relIcon(r),24)}</span><div><b>${esc(r.name)}</b><small>${r.soul&&r.kind==='friend'?'Tri kỷ':{friend:'Bạn',lover:'Người yêu',enemy:r.nem?'Tử thù':'Kẻ thù',rival:'Đối thủ'}[r.kind]} · ${r.age} tuổi · ${RACES[r.race].n} · ${CLASSES[r.cls].n}</small>${(E||r.kind==='rival')&&r.why?`<small>${esc(r.why)}</small>`:''}<div class="bond${E||r.kind==='rival'?' hate':''}"><i style="width:${E?r.hate:r.kind==='rival'?r.riv:r.bond}%"></i></div></div><span class="tag">${E?'Hận '+r.hate:r.kind==='rival'?'Ganh đua '+r.riv:r.bond}</span></div>`;
     if(r.kind==='friend'){
       b+=gRow(`data-ra="${r.id}|talk"`,'message','Trò chuyện',dn||'Tình bạn thêm thân','',!!dn);
       if(S.age>=14)b+=gRow(`data-ra="${r.id}|drink"`,'mug','Đi uống bia',dn||(S.money<2?'Không đủ tiền':'2 xu · vui vẻ và thân thiết hơn'),'',!!dn||S.money<2);
@@ -1567,6 +1568,7 @@ function drawSheet(){
       b+=gRow(`data-ra="${r.id}|plot"`,'hood','Bày mưu hạ bệ',dn||(S.age<14?'Từ 14 tuổi':'Dựa vào trí tuệ · thất bại sẽ mất danh dự'),'',!!dn||S.age<14);
       b+=gRow(`data-ra="${r.id}|hire"`,'assassin','Thuê sát thủ',dn||(S.age<18?'Từ 18 tuổi':S.money<80?'Không đủ tiền':'80 xu · rủi ro bị lộ'),'',!!dn||S.age<18||S.money<80);
     }
+    if(typeof relXActs==='function')b+=relXActs(r);
     b+=npHTML(r);
   }
   if(view.startsWith('p:')){
@@ -2161,7 +2163,7 @@ function jobAct(i){
 function allRel(){
   S.done.allrel=1;let n=0;
   for(const p of S.fam)if(p.alive){p.bond=clamp(p.bond+R(3,8));n++}
-  for(const r of S.rel)if(r.alive&&r.kind!=='enemy'){r.bond=clamp(r.bond+R(3,8));n++}
+  for(const r of S.rel)if(r.alive&&r.kind!=='enemy'&&r.kind!=='rival'){r.bond=clamp(r.bond+R(3,8));n++}
   const cost=Math.min(Math.max(S.money,0),Math.round(n*1.5));S.money-=cost;mod({happy:R(5,10)});
   const t=n?`Bạn mở một bữa tối ấm cúng, mời cả ${n} người thân và bạn bè${cost?`, tốn ${cost} xu`:''}. Ai cũng thấy gần nhau hơn.`:'Bạn chẳng còn ai để sum vầy.';
   log(t,n?'good':'');note={t,tone:n?'good':''};afterSheetAction();
@@ -11630,7 +11632,7 @@ const LOVE_EV=[
       {t:'Buông tay',f:s=>{const L=lover();L.alive=false;L.gone=1;mod({happy:-10});return['Bạn viết lá thư cuối cùng. Một năm sau, người ấy cưới người khác theo ý cha mẹ.','bad']}}]}
 ];
 for(const e of LOVE_EV){EV.push(e);EVB[e.id]=e}
-{const y0=extYear3;extYear3=function(){y0();if(S.alive&&S.lvAff){if(!spouse())S.lvAff=null;else if(S.year>S.lvAff.y&&!S.pend.includes('sp_found')&&ch(.3))S.pend.push('sp_found')}}}
+{const y0=extYear3;extYear3=function(){y0();if(S.alive&&S.lvAff){if(!spouse()){const A=S.lvAff;S.lvAff=null;if(canLove()&&!lover()){S.rel.push(npc('lover',{sex:A.sex,race:A.race,cls:A.cls,age:A.age,sur:A.sur,first:A.first,bond:Math.max(40,A.bond??60)}));log(`Giờ đây bạn không còn phải giấu giếm. ${A.first} trở thành người yêu công khai của bạn.`,'good')}}else if(S.year>S.lvAff.y&&!S.pend.includes('sp_found')&&ch(Math.min(.6,(S.lvAff.risk??30)/100)))S.pend.push('sp_found')}}}
 
 /* ===== Thêm lời tiên tri ===== */
 PROPH.push('Hai mặt trăng sẽ cùng soi lên ngày cưới của ngươi.','Kẻ ngươi cứu hôm nay sẽ đứng sau lưng ngươi với con dao.','Thứ ngươi đánh mất dưới nước sẽ trở về trong lửa.','Đứa con thứ ba của ngươi sẽ hiểu được tiếng rồng.',
@@ -13594,6 +13596,116 @@ let legGain=0;
 {const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||!S.house)return;const h=S.house;
   if(S.st.honor>=70&&S.age>=16&&ch(.5))h.rn=(h.rn||0)+1;
   const tr=legT('trade');if(tr)S.money+=[0,3,6,10][tr];const fm=legT('fame');if(fm)h.prestige+=2*fm;const lo=legT('long');if(lo&&S.age>=40)mod({health:lo})}}
+
+/* ===== Quan hệ đặc biệt: Tri kỷ, Đối thủ, Người tình ===== */
+const soulmate=()=>(S.rel||[]).find(r=>r.alive&&r.kind==='friend'&&r.soul);
+const RVD={job:'Tranh chức',love:'Tranh người thương',fame:'Tranh danh tiếng'};
+const rvTarget=()=>lover()||spouse();
+function rvDom(r){if(r.dom==='job'&&S.job)return'job';if(r.dom==='love'&&rvTarget())return'love';return'fame'}
+const rvById=id=>(S.rel||[]).find(x=>x.id===id&&x.alive&&x.kind==='rival');
+function rvMe(d){const s=S.st;if(d==='job')return(S.job&&S.job.perf||40)/100*.6+s.smarts/250;if(d==='love')return s.looks/150+s.happy/400;return s.health/250+(S.blade||0)/300+s.honor/400}
+function rvP(r,d,bonus=0){return Math.max(.1,Math.min(.9,.5+(rvMe(d)-r.pw/100)*.8+bonus))}
+function rvPush(t,dom,riv){t.kind='rival';t.bond=0;t.riv=riv;t.dom=dom;t.pw=R(30,60)+(S.age>=30?10:0);t.w=0;t.l=0;t.why=RVD[dom];S.rel.push(t);return t}
+/* kết quả một lần ganh đua; how: fair | dirty | yield */
+function rvRes(r,how){const d=rvDom(r),F=r.first,L=rvTarget();let win,t,tone;
+  if(how==='dirty'){if(ch(.45+S.st.smarts/300)){win=true;r.pw=Math.max(10,r.pw-10);r.riv+=15;mod({honor:-2})}else{win=false;r.riv+=20;mod({honor:-10});t=`Trò bẩn của bạn bị lộ. Cả làng biết bạn chơi xấu ${F}. `}}
+  else if(how==='yield'){win=false;r.riv=Math.max(0,r.riv-8)}
+  else{win=ch(rvP(r,d));r.riv+=win?5:8}
+  r.riv=Math.min(100,r.riv);
+  if(win){r.w++;r.pw=Math.max(10,r.pw-R(2,5));tone='good';
+    if(d==='job'){S.job.perf=Math.min(100,(S.job.perf||40)+15);mod({honor:2});t=(t||'')+`Cấp trên chọn giao việc lớn cho bạn chứ không phải ${F}. Bạn được để ý hơn hẳn.`}
+    else if(d==='love'){L.bond=clamp(L.bond+10);mod({happy:5});t=(t||'')+`${L.first} chỉ nhìn bạn. ${F} đành ra về tay không.`}
+    else{mod({honor:6,happy:4});S.house.prestige+=3;t=(t||'')+`Cả làng reo hò tên bạn. ${F} lặng lẽ bỏ về trước khi hội tan.`}}
+  else{r.l++;r.pw=Math.min(95,r.pw+R(2,5));tone='bad';const k=how==='yield'?.5:1;
+    if(d==='job'){S.job.perf=Math.max(0,(S.job.perf||40)-Math.round(10*k));mod({happy:-Math.round(5*k)});t=(t||'')+`Lần này ${F} được cất nhắc. Bạn phải chúc mừng mà miệng đắng ngắt.`}
+    else if(d==='love'){L.bond=clamp(L.bond-Math.round(15*k));t=(t||'')+`${L.first} có vẻ xao lòng trước ${F}.`;if(L.kind==='lover'&&L.bond<20){L.alive=false;L.gone=1;mod({happy:-10});t+=` Rồi một ngày, ${L.first} đi theo ${F}.`}}
+    else{mod({honor:-Math.round(4*k),happy:-Math.round(4*k)});t=(t||'')+`${F} hơn bạn trước mặt cả làng. Người ta bàn tán suốt mùa đông.`}}
+  if(r.riv>=80&&!S.pend.includes('rv_nem')){S.tmpRv=r.id;S.pend.push('rv_nem')}
+  return[t,tone]}
+function toNemesis(r){r.kind='enemy';r.hate=95;r.nem=1;r.why=`Tử thù, từng là đối thủ ${RVD[r.dom].toLowerCase()}`;delete r.riv;log(`${r.name} trở thành tử thù của bạn.`,'bad')}
+
+EV.push(EVB.rv_new={id:'rv_new',w:W(4),c:s=>s.age>=14&&s.age<=60&&rels('rival').length<3,
+  prep:s=>{const dom=s.job?'job':lover()&&ch(.6)?'love':'fame';s.tmp=npc('rival',{age:Math.max(14,s.age+R(-3,3)),sex:dom==='love'?s.sex:undefined});s.tmp.dom=dom},
+  title:'Kẻ Ngang Hàng',
+  text:s=>{const t=s.tmp;return t.dom==='job'?`${t.name} vào làm cùng chỗ với bạn. ${t.first} giỏi, tham vọng, và nói thẳng trước mặt mọi người rằng người được cất nhắc tiếp theo sẽ là ${t.first}, không phải bạn.`
+    :t.dom==='love'?`${t.name} cũng đem lòng thương ${lover().first}. Ngày nào ${t.first} cũng tìm cớ ghé qua nhà ${lover().first}, và lần nào gặp bạn cũng nhếch mép cười.`
+    :`Từ hội làng năm ấy, bạn và ${t.name} bị đem ra so sánh với nhau suốt: ai khỏe hơn, ai giỏi hơn, ai được trọng hơn. Người ta bắt đầu cá cược xem ai sẽ hơn ai.`},
+  ch:[{t:'Bắt tay, cạnh tranh sòng phẳng',f:s=>{const r=rvPush(s.tmp,s.tmp.dom,20);mod({honor:2});return`${r.first} siết tay bạn hơi chặt quá mức cần thiết. Từ nay hai người là đối thủ.`}},
+      {t:'Coi thường ra mặt',f:s=>{const r=rvPush(s.tmp,s.tmp.dom,40);return[`${r.first} nghiến răng. Từ nay hai người là đối thủ, và ai cũng biết chuyện này sẽ còn dài.`,'bad']}}]});
+EV.push(EVB.rv_clash={id:'rv_clash',queued:true,c:s=>!!rvById(s.tmpRv),title:s=>RVD[rvDom(rvById(s.tmpRv))],
+  text:s=>{const r=rvById(s.tmpRv),d=rvDom(r);return d==='job'?`Một chỗ cao hơn vừa trống. Cả bạn và ${r.name} đều nhắm tới nó, và cấp trên sẽ chọn trước mùa đông.`
+    :d==='love'?`${r.name} lại mang quà tới tìm ${rvTarget().first}, lần này còn hát dưới cửa sổ. Cả xóm đang chờ xem bạn làm gì.`
+    :`Hội làng năm nay có thi vật, bắn cung và đố chữ. ${r.name} ghi tên đầu tiên rồi quay sang nhìn bạn.`},
+  ch:[{t:s=>{const d=rvDom(rvById(s.tmpRv));return d==='job'?'Làm thêm ngày đêm để hơn đối thủ':d==='love'?'Ra sức chiều chuộng người thương':'Đối mặt thi tài trước cả làng'},f:s=>rvRes(rvById(s.tmpRv),'fair')},
+      {t:'Bịa chuyện bôi nhọ đối thủ',f:s=>rvRes(rvById(s.tmpRv),'dirty')},
+      {t:'Nhường lần này',f:s=>rvRes(rvById(s.tmpRv),'yield')}]});
+EV.push(EVB.rv_nem={id:'rv_nem',queued:true,big:true,art:'skull',c:s=>!!rvById(s.tmpRv),title:'Tử Thù',
+  text:s=>{const r=rvById(s.tmpRv);return`Sau ${r.w+r.l} lần ganh đua, ${r.name} không còn coi bạn là đối thủ nữa. Người ta thấy ${r.first} mài dao ở sân sau và nói với ai cũng một câu: "Trên đời này chỉ có chỗ cho một trong hai chúng tôi."`},
+  ch:[{t:'Thề không đội trời chung',f:s=>{const r=rvById(s.tmpRv);toNemesis(r);return[`Bạn nhổ nước bọt xuống đất trước mặt ${r.first}. Từ đây, chỉ cái chết mới kết thúc được chuyện này.`,'bad']}},
+      {t:'Tìm gặp, nói thật lòng mình',f:s=>{const r=rvById(s.tmpRv);if(ch(.3+s.st.honor/300)){r.riv=45;mod({honor:3});return[`Hai người ngồi uống với nhau tới khuya. Ganh đua vẫn còn đó, nhưng ${r.first} không còn muốn bạn chết nữa.`,'good']}toNemesis(r);return[`${r.first} đuổi bạn ra khỏi cổng: "Muộn rồi."`,'bad']}}]});
+EV.push(EVB.soul_vow={id:'soul_vow',queued:true,art:'heart',c:s=>{const r=(s.rel||[]).find(x=>x.id===s.tmpSoul);return!!(r&&r.alive&&r.kind==='friend'&&!soulmate())},title:'Lời Thề Tri Kỷ',
+  text:s=>{const r=s.rel.find(x=>x.id===s.tmpSoul);return`Một chiều cuối hạ, ${r.first} rủ bạn lên đỉnh đồi sau làng. Ngồi nhìn mặt trời lặn hồi lâu, ${r.first} bảo: "Cả đời này, mình chỉ tin được mỗi cậu. Mình kết nghĩa đi, sống chết có nhau."`},
+  ch:[{t:'Kết nghĩa tri kỷ',f:s=>{const r=s.rel.find(x=>x.id===s.tmpSoul);r.soul=1;r.bond=clamp(r.bond+5);mod({happy:8});return[`Hai người cắt tay, nhỏ máu vào chung một chén rượu. Từ nay ${r.first} là tri kỷ của bạn.`,'good']}},
+      {t:'Cười trừ cho qua',f:s=>{const r=s.rel.find(x=>x.id===s.tmpSoul);r.bond=clamp(r.bond-3);return`${r.first} cười theo, nhưng đường về hôm ấy hai người im lặng hơn mọi khi.`}}]});
+
+function soulMake(r){r.soul=1;r.bond=clamp(r.bond+5);mod({happy:8})}
+{const a0=relAct;relAct=function(sx){const[id,a]=sx.split('|');const r=(S.rel||[]).find(x=>x.id===id);
+  if(!r||!['soul','rvchal','rvsab','rvpeace','cut'].includes(a)||(a==='cut'&&!r.soul))return a0(sx);
+  r.d=1;let t,tone='';const F=r.first;
+  if(a==='cut'){r.soul=0;addEnemy('Tri kỷ bị bạn phản bội',{id:r.id,hate:R(70,85)});mod({happy:-10});strAdd(10);t=`Bạn quay lưng với ${F}. Người từng thề sống chết có nhau giờ hận bạn hơn ai hết.`;tone='bad'}
+  if(a==='soul'){if(ch(.25+(r.bond-75)/50)){soulMake(r);t=`${F} ôm chầm lấy bạn. Hai người nhỏ máu vào chung một chén rượu, kết nghĩa tri kỷ.`;tone='good'}else{r.bond=clamp(r.bond-5);t=`${F} cười xòa: "Mình là bạn tốt rồi còn gì." Có lẽ chưa đến lúc.`}}
+  if(a==='rvchal'||a==='rvsab')[t,tone]=rvRes(r,a==='rvchal'?'fair':'dirty');
+  if(a==='rvpeace'){if(ch(.3+S.st.honor/300)){r.kind='friend';r.bond=R(35,50);r.why='';delete r.riv;mod({honor:3,happy:4});t=`Bạn và ${F} bắt tay trước mặt cả làng. Hai đối thủ cũ giờ lại hay ngồi uống với nhau.`;tone='good'}else{r.riv=Math.max(0,r.riv-5);t=`${F} nhận lời chào nhưng không đáp lại. Mối ganh đua dịu đi một chút.`}}
+  log(t,tone);note={t,tone};afterSheetAction()}}
+function relXActs(r){const dn=r.d?'Đã gặp năm nay':'';let b='';
+  if(r.kind==='friend'&&r.soul)b+='<p class="note">Tri kỷ: tình bạn không phai theo năm tháng, giúp bạn vơi căng thẳng và đôi khi ra tay giúp đỡ lúc khó khăn.</p>';
+  if(r.kind==='friend'&&!r.soul&&!soulmate()&&S.age>=12)b+=gRow(`data-ra="${r.id}|soul"`,'friends','Kết nghĩa tri kỷ',dn||(r.bond<75?'Cần tình bạn từ 75':'Mỗi người chỉ có một tri kỷ'),'',!!dn||r.bond<75||!S.alive);
+  if(r.kind==='rival'){const d=rvDom(r);
+    b+=statGrid([['Lĩnh vực',RVD[d]],['Thắng / thua',`${r.w} / ${r.l}`],['Ganh đua',`${r.riv}/100`]]);
+    b+='<p class="note">Đối thủ đi theo bạn suốt đời. Mỗi lần ganh đua, mối thù lại sâu thêm, đến 80 có thể thành tử thù.</p>';
+    b+=gRow(`data-ra="${r.id}|rvchal"`,'crossed','Thách thức công khai',dn||(S.age<12?'Từ 12 tuổi':`Thắng khoảng ${Math.round(rvP(r,d)*100)}% · ganh đua tăng`),'',!!dn||S.age<12||!S.alive);
+    b+=gRow(`data-ra="${r.id}|rvsab"`,'hood','Chơi xấu sau lưng',dn||'Dựa vào trí tuệ · bị lộ sẽ mất danh dự','',!!dn||S.age<12||!S.alive);
+    b+=gRow(`data-ra="${r.id}|rvpeace"`,'peace','Bắt tay làm hòa',dn||(r.riv>=50?'Mối ganh đua còn quá gắt (cần dưới 50)':'Có thể thành bạn'),'',!!dn||r.riv>=50||!S.alive)}
+  return b}
+function rvRow(r){return`<button class="row" data-r="${r.id}"><span class="ri foe">${ic('rival',24)}</span><div><b>${esc(r.first)}</b><small>${r.age} tuổi · ${RVD[rvDom(r)]} · thắng ${r.w}, thua ${r.l}</small><div class="bond hate"><i style="width:${r.riv}%"></i></div></div><span class="tag">Ganh đua ${r.riv}</span></button>`}
+function relXRows(){let b='';const sm=soulmate(),rv=rels('rival');
+  if(sm)b+=gRow(`data-r="${sm.id}"`,'friends','Tri kỷ',`${sm.name} · thân thiết ${sm.bond}`,'',false);
+  b+=gRow('data-open="rival"','rival','Đối thủ',rv.length?rv.map(r=>r.first).join(', '):'Chưa có ai ganh đua với bạn',`${rv.length} người`,false);
+  if(S.lvAff&&spouse()){const A=S.lvAff;b+=gRow('data-open="aff"','lover','Người tình',`${A.first} · lén lút qua lại`,`Lộ ${A.risk??30}%`,false)}
+  return b}
+function affView(){const A=S.lvAff;if(!A||!spouse())return['Người tình','<p class="note">Không còn mối tình vụng trộm nào.</p>','rel'];const bd=A.bond??60,rk=A.risk??30,dn=S.done.aff?'Đã gặp năm nay':'';
+  let b=statGrid([['Người tình',esc(A.n)],['Tình cảm',`${bd}/100`],['Nguy cơ bị phát hiện',`${rk}% mỗi năm`],['Bắt đầu',`năm ${A.y}`]]);
+  b+=`<p class="note">${esc(spouse().first)} chưa biết gì. Gặp nhau càng nhiều, càng dễ bị lộ. Tình cảm nguội dần nếu bỏ bê.</p>`;
+  b+=gRow('data-x="aff:meet"','lover','Hẹn gặp lén',dn||'Tình cảm, niềm vui tăng, căng thẳng giảm · nguy cơ lộ +8','',!!dn||!S.alive);
+  b+=gRow('data-x="aff:gift"','gift','Gửi quà kín đáo',dn||(S.money<8?'Không đủ tiền':'8 xu · tình cảm +12 · nguy cơ lộ +4'),'',!!dn||S.money<8||!S.alive);
+  b+=gRow('data-x="aff:lay"','hood','Tạm lánh mặt',dn||'Nguy cơ lộ -15 · tình cảm giảm','',!!dn||!S.alive);
+  b+=gRow('data-x="aff:end"','heart-break','Chấm dứt','Người ấy có thể oán hận bạn','',!S.alive);
+  return['Người tình',b,'rel']}
+{const d0=drawExt3;drawExt3=function(v){if(v==='rival'){const rv=rels('rival');return['Đối thủ',(rv.map(rvRow).join('')||'<p class="note">Chưa có ai ganh đua với bạn. Đối thủ sẽ xuất hiện ở chỗ làm, trong chuyện tình, hoặc trong hội làng.</p>'),'rel']}if(v==='aff')return affView();return d0(v)}}
+{const x0=extAct3;extAct3=function(x){if(!x.startsWith('aff:'))return x0(x);const A=S.lvAff;if(!A||!spouse())return;const a=x.slice(4);A.bond=A.bond??60;A.risk=A.risk??30;let t,tone='';
+  if(a==='end'){S.lvAff=null;mod({happy:-4});t=`Bạn viết cho ${A.first} lá thư cuối cùng.`;if(A.bond>=60&&ch(.4)){addEnemy('Người tình bị bạn bỏ rơi',{first:A.first,sex:A.sex,race:A.race,cls:A.cls,age:A.age,sur:A.sur,hate:R(40,60)});t+=' Người ấy xé thư, thề sẽ khiến bạn hối hận.';tone='bad'}else t+=' Người ấy khóc, nhưng hiểu.'}
+  else{if(S.done.aff)return;S.done.aff=1;
+    if(a==='meet'){A.bond=clamp(A.bond+R(8,14));A.risk=Math.min(90,A.risk+8);mod({happy:R(4,7)});strAdd(-6);t=pick([`Bạn và ${A.first} gặp nhau trong căn phòng trên gác quán trọ.`,`Hai người hẹn nhau ở cối xay bỏ hoang ngoài làng.`]);tone='good'}
+    if(a==='gift'){S.money-=8;A.bond=clamp(A.bond+12);A.risk=Math.min(90,A.risk+4);t=`Bạn nhờ người bán hàng rong chuyển cho ${A.first} một chiếc trâm bạc.`;tone='good'}
+    if(a==='lay'){A.risk=Math.max(5,A.risk-15);A.bond=clamp(A.bond-8);t=`Bạn ở nhà suốt mấy phiên chợ, chăm chỉ lạ thường. ${spouse().first} bắt đầu bớt nghi ngờ.`}}
+  log(t,tone);note={t,tone};return afterSheetAction()}}
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive)return;
+  /* tri kỷ */
+  const sm=soulmate();if(sm){sm.bond=clamp(sm.bond+4);mod({happy:2});strAdd(-5);
+    if(ch(.1)){if(S.money<20){const g=R(10,30);S.money+=g;log(`Tri kỷ ${sm.first} biết bạn túng thiếu, lặng lẽ để lại ${g} xu dưới gối.`,'good')}else if(S.st.health<50){mod({health:5});log(`${sm.first} sang chăm bạn suốt những ngày ốm.`,'good')}else{mod({honor:2});log(`${sm.first} đi đâu cũng nói tốt về bạn.`,'good')}}}
+  for(const r of S.rel||[]){if(!r.alive&&r.soul&&!r.soulD&&!r.gone){r.soulD=1;mod({happy:-10});strAdd(25);log(`Tri kỷ ${r.first} đã ra đi. Bạn có cảm giác một nửa đời mình được chôn theo.`,'bad')}
+    if(!r.alive&&r.nem&&!r.nemD){r.nemD=1;mod({happy:8});strAdd(-30);log(`Tử thù ${r.first} đã chết. Mối thù cả đời cuối cùng cũng khép lại.`,'good')}
+    if(r.alive&&r.nem&&r.kind==='enemy')r.hate=Math.max(r.hate,80);
+    if(r.alive&&r.kind==='rival')r.pw=Math.max(10,Math.min(95,r.pw+R(-1,2)))}
+  if(!sm&&S.age>=12&&!S.pend.includes('soul_vow')){const c=rels('friend').filter(r=>r.bond>=85);if(c.length&&ch(.12)){S.tmpSoul=pick(c).id;S.pend.push('soul_vow')}}
+  /* đối thủ */
+  const rv=rels('rival');if(rv.length&&S.age>=12&&!S.pend.includes('rv_clash')&&ch(.35)){S.tmpRv=pick(rv).id;S.pend.push('rv_clash')}
+  const nm=(S.rel||[]).find(r=>r.alive&&r.nem&&r.kind==='enemy');if(nm&&S.age>=12&&!S.pend.includes('enemyact')&&ch(.25)){S.tmpE=nm.id;S.tmpEA=pick(['ambush','arson','rumor']);S.pend.push('enemyact')}
+  /* người tình */
+  const A=S.lvAff;if(A&&spouse()){A.bond=(A.bond??60)-R(2,5);A.risk=Math.min(90,(A.risk??30)+3);
+    if(S.trt&&S.trt.includes('honest'))strAdd(5);
+    if(A.bond<20){S.lvAff=null;log(`${A.first} chán cảnh lén lút và bỏ đi sang vùng khác. Mối tình vụng trộm khép lại.`)}
+    else if(ch(.05)){rlBastard(A.n);A.risk=Math.min(90,A.risk+15);log(`Bạn và ${A.first} có với nhau một đứa con. Đứa bé được gửi nuôi ở làng bên, không mang họ bạn.`,'bad')}}}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
