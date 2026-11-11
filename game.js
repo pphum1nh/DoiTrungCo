@@ -1404,7 +1404,7 @@ function portrait(race,sex,alive=true){
 }
 
 /* ---------- rendering ---------- */
-const HOT=[['job','anvil','Nghề','1'],['act','torch','Hoạt động','2'],['bag','backpack','Túi đồ','3'],['rel','friends','Quan hệ','4'],['house','flag','Gia tộc','5'],['shop','shop','Mua sắm','6']];
+const HOT=[['job','anvil','Nghề','1'],['act','torch','Hoạt động','2'],['bag','backpack','Tài sản','3'],['rel','friends','Quan hệ','4'],['house','flag','Gia tộc','5'],['shop','shop','Mua sắm','6']];
 function render(){
   if(!S)return;
   $('#name').textContent=prefix()+S.name;
@@ -1588,9 +1588,10 @@ function drawSheet(){
     b+='<p class="note">Nhà càng sang càng khó nhận lời. Tước vị của gia tộc giúp bạn dễ được chấp thuận hơn.</p>';
   }
   if(view==='bag'){
-    title='Túi đồ';
+    title='Tài sản';
     const it=sel&&S.bag.find(x=>x.id===sel);
-    b+=eqHTML()+`<p class="sec">Túi đồ · ${S.bag.length}/${BAGMAX}</p><div class="bag">`;
+    if(typeof assetsTop==='function')b+=assetsTop();
+    b+=`<p class="sec">Trang bị và túi đồ</p>`+eqHTML()+`<p class="sec">Túi đồ · ${S.bag.length}/${BAGMAX}</p><div class="bag">`;
     for(let i=0;i<BAGMAX;i++){const x=S.bag[i];b+=x?`<button class="slot r${ITEMS[x.k].r} ${sel===x.id?'sel':''} ${eqHas(x.id)?'eqd':''}" data-sel="${x.id}" aria-label="${esc(ITEMS[x.k].n)}">${itemIcon(x.k,256)}</button>`:'<div class="slot empty"></div>'}
     b+=`</div><p class="note" style="margin-top:2px">Sức chiến đấu từ trang bị: <b>${cbB()}</b>/60</p>`;
     if(it){const I=ITEMS[it.k];b+=`<div class="tip"><h4 class="c-r${I.r}">${I.n}</h4><span class="rk">${RARE[I.r]}${islot(it.k)?' · ô '+EQN[islot(it.k)].toLowerCase()+(eqHas(it.id)?' · đang mang':''):''}${I.ev?' · chỉ có qua sự kiện':''}${I.use?' · dùng một lần':' · truyền cho đời sau'}</span><ul>${I.cb?`<li>+${I.cb} Sức chiến đấu</li>`:''}${fxList(I.fx)}</ul><p><i>${I.d}</i></p><p>Nguồn gốc: ${esc(it.origin)}</p><div class="acts">${islot(it.k)?(eqHas(it.id)?`<button class="btn sm" data-x="eq:off:${it.id}">Tháo ra</button>`:`<button class="btn sm pri" data-x="eq:on:${it.id}">Trang bị</button>`):''}${I.use?`<button class="btn sm pri" data-use="${it.id}">Dùng</button>`:''}${I.v?`<button class="btn sm" data-sellit="${it.id}">Bán · ${I.v} xu</button>`:'<span class="rk">Bảo vật của gia tộc, không thể bán</span>'}</div></div>`}
@@ -1601,7 +1602,7 @@ function drawSheet(){
     if(view==='shop'){
       title='Mua sắm';
       const nOwn=Object.entries(S.own).filter(([k,n])=>n>0&&ASSETS[k]).reduce((a,[,n])=>a+n,0);
-      b+=gRow('data-open="owned"','house','Tài sản của bạn',`${nOwn} tài sản · thu ${inc}${domOn()&&S.house.dom?' + lãnh địa '+domCalc().net:''} xu mỗi năm`,'',false);
+      b+=`<p class="note">Bạn đang có ${nOwn} tài sản, thu ${inc} xu mỗi năm. Xem và quản lý trong tab Tài sản.</p>`;
       b+='<p class="sec">Chợ và cửa hàng</p>';
       for(const g of SHOPS){if(g.vis&&!g.vis(S))continue;b+=gRow(`data-open="shop:${g.id}"`,g.ic,g.n,g.d,'',false)}
     }else if(view==='owned'){
@@ -13346,6 +13347,80 @@ EIMG.auc_owner='fair';
 {const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||!S.bag)return;
   for(const it of S.bag){if(it.auc==='fake'&&ch(.5)){const n=ITEMS[it.k].n;log(AUC_FAKE[it.k]||`${n} hóa ra là đồ giả. Người bán đã biến mất khỏi kinh thành.`,'bad');it.k='au_fake';delete it.auc;const E=S.eq;if(E)for(const sl in E){if(Array.isArray(E[sl]))E[sl]=E[sl].map(x=>x===it.id?null:x);else if(E[sl]===it.id)E[sl]=null}}}
   if(S.bag.some(x=>x.auc==='stolen')&&ch(.35)&&!S.pend.includes('auc_owner'))S.pend.push('auc_owner')}}
+
+/* ===== Tài sản: túi đồ + tài sản + nhà cửa (nâng cấp, nghỉ ngơi, cho thuê) ===== */
+const PROP_K=['house','manor'];
+const PROP_BASE={house:18,manor:120};
+const PROP_UP={
+ house:[['hearth','Lò sưởi lớn',60,'Ngồi bên lò sưởi hồi sức khỏe nhiều hơn mỗi mùa đông'],['garden','Vườn sau nhà',40,'Mở lựa chọn dạo vườn, vui vẻ'],['bath','Phòng tắm hơi',90,'Mở lựa chọn tắm hơi, hồi nhiều sức khỏe'],['cellar','Hầm rượu',70,'Thêm 4 xu mỗi năm, khách thuê trả cao hơn'],['bed','Giường lông ngỗng',30,'Nghỉ ngơi ở nhà hồi thêm sức khỏe']],
+ manor:[['chapel','Nhà nguyện riêng',150,'Mở lựa chọn cầu nguyện, Đức tin'],['spring','Bể nước nóng',220,'Mở lựa chọn ngâm nước nóng, hồi nhiều sức khỏe'],['herb','Vườn thảo dược',120,'Mỗi năm hồi thêm sức khỏe, chữa bệnh vặt'],['hall','Đại sảnh yến tiệc',260,'Thêm 20 xu mỗi năm, Danh dự, khách thuê trả cao hơn'],['library','Thư viện',180,'Mở lựa chọn đọc sách, Trí tuệ']]};
+const TEN_FIN=[['Giàu có',1.25,.97],['Khá giả',1.05,.9],['Bấp bênh',.9,.72],['Túng thiếu',.7,.5]];
+const TEN_JOB={house:['một thợ may và vợ','gia đình người thợ thuộc da','một học giả từ Tháp Bạc','bà góa bán nến','hai anh em lính đánh thuê','một thương nhân muối phương nam','ông thầy thuốc già','cô ca sĩ quán rượu'],manor:['một bá tước sa cơ cùng gia nhân','đoàn sứ thần Tiên quốc','một nhà buôn len giàu có','dòng tu Thánh Áo Xám','gia đình một hiệp sĩ mới phong']};
+const TEN_TR=[['Cẩn thận','Giữ nhà như nhà mình',{cond:2}],['Ồn ào','Hàng xóm hay phàn nàn',{honor:-1}],['Hay nhậu','Đồ đạc dễ hỏng',{cond:-6}],['Đông con','Nhà xuống cấp nhanh',{cond:-3}],['Kín tiếng','Không ai biết họ làm gì',{risk:.12}],['Đúng hẹn','Hiếm khi trả chậm',{pay:.06}],['Hào phóng','Đôi khi biếu thêm quà',{gift:1}]];
+const pNm=k=>ASSETS[k].n;
+function propSync(){S.props=S.props||[];for(const k of PROP_K){const n=S.own[k]||0;let L=S.props.filter(p=>p.k===k);while(L.length<n){S.props.push({id:'p'+Date.now().toString(36)+R(0,9999),k,up:{},cond:80,ten:null,cands:null,y:S.year});L=S.props.filter(p=>p.k===k)}
+  while(L.length>n){const v=L.find(p=>!p.ten)||L[L.length-1];S.props.splice(S.props.indexOf(v),1);L=S.props.filter(p=>p.k===k)}}}
+const propGet=id=>(S.props||[]).find(p=>p.id===id);
+function tenGen(P){const fin=pick(TEN_FIN),tr=pick(TEN_TR),up=Object.keys(P.up).length;const ask=Math.round(PROP_BASE[P.k]*fin[1]*(.6+P.cond/250)*(1+up*.06+(P.up.cellar||P.up.hall?.1:0))*(.85+Math.random()*.3));
+  return{n:pick(TEN_JOB[P.k]),fin:fin[0],fp:fin[2]+((tr[2].pay)||0),tr:tr[0],td:tr[1],fx:tr[2],rent:ask,y:S.year,owe:0}}
+const PROP_REST={hearth:['Ngồi bên lò sưởi suốt mùa đông',{health:6,happy:2}],garden:['Dạo vườn mỗi chiều',{health:3,happy:5}],bath:['Tắm hơi',{health:10}],bed:null,
+  chapel:['Cầu nguyện trong nhà nguyện riêng',{piety:4,happy:3,health:3}],spring:['Ngâm mình trong bể nước nóng',{health:14,happy:3}],herb:['Uống thuốc từ vườn thảo dược',{health:8}],library:['Đọc sách trong thư viện',{smarts:3,health:2}],cellar:null,hall:null};
+function propView(id){const P=propGet(id);if(!P)return['Nhà cửa','<p class="note">Không còn bất động sản này.</p>','bag'];const A=ASSETS[P.k],T=P.ten,dis=!S.alive||!!S.cap;
+  let b=statGrid([['Thu nhập cố định',`${A.inc+(P.up.cellar?4:0)+(P.up.hall?20:0)} xu/năm`],['Tình trạng nhà',`${P.cond}/100`],['Người thuê',T?`${T.rent} xu/năm`:'Đang bỏ trống']]);
+  b+=`<p class="note">${A.d}.${P.cond<40?' Nhà đã xuống cấp, người thuê sẽ trả ít hơn.':''}</p>`;
+  b+='<p class="sec">Nghỉ ngơi trong nhà · mỗi năm một lần</p>';
+  if(T)b+=`<p class="note">Nhà đang cho ${T.n} thuê, bạn không ở được.</p>`;
+  else{const rw=S.done['rest'+P.id]?'Đã nghỉ ở đây năm nay':'';const bh=P.up.bed?4:0;
+    b+=gRow(`data-x="pr:rest:${P.id}:base"`,'house','Nghỉ ngơi một mùa ở nhà',rw||`Sức khỏe +${4+bh}, vui vẻ +2`,'',dis||!!rw);
+    for(const[k]of PROP_UP[P.k]){const R0=PROP_REST[k];if(!R0||!P.up[k])continue;b+=gRow(`data-x="pr:rest:${P.id}:${k}"`,'heart',R0[0],rw||Object.entries(R0[1]).map(([a,v])=>`${SL[a]} +${v+(a==='health'?bh:0)}`).join(', '),'',dis||!!rw)}}
+  b+='<p class="sec">Nâng cấp</p>';
+  for(const[k,n,c,d]of PROP_UP[P.k]){if(P.up[k]){b+=gRow('',  'star',n,`Đã xây · ${d}`,'',false,true);continue}b+=gRow(`data-x="pr:up:${P.id}:${k}"`,'anvil',n,S.money<c?'Không đủ tiền':d,`${c} xu`,dis||S.money<c)}
+  const rc=Math.max(10,Math.round((100-P.cond)*(P.k==='manor'?3:.8)));if(P.cond<100)b+=gRow(`data-x="pr:fix:${P.id}"`,'anvil','Tu sửa nhà cửa',S.money<rc?'Không đủ tiền':'Tình trạng về 100',`${rc} xu`,dis||S.money<rc);
+  b+='<p class="sec">Cho thuê</p>';
+  if(T){b+=gRow('','user-group',T.n,`Tài chính: ${T.fin} · ${T.tr}: ${T.td} · thuê từ năm ${T.y}${T.owe?` · đang nợ ${T.owe} xu`:''}`,`${T.rent} xu/năm`,false,true);
+    if(T.owe)b+=gRow(`data-x="pr:dun:${P.id}"`,'coins','Đòi khoản nợ tiền thuê',`Họ đang nợ ${T.owe} xu`,'',dis);
+    b+=gRow(`data-x="pr:evict:${P.id}"`,'door','Chấm dứt hợp đồng, mời người thuê đi',T.owe?'Khoản nợ có thể mất luôn':'Nhà sẽ bỏ trống','',dis)}
+  else{if(!P.cands||P.cands.y!==S.year)b+=gRow(`data-x="pr:find:${P.id}"`,'user-group','Tìm người thuê','Môi giới giới thiệu ba người, mỗi năm một lần','',dis);
+    else b+='<p class="note">Môi giới giới thiệu ba người. Tài chính càng vững thì càng chắc trả đủ tiền, nhưng người túng thiếu thường chịu trả ít hơn.</p>'+P.cands.L.map((c,i)=>gRow(`data-x="pr:rent:${P.id}:${i}"`,'user-group',c.n,`Tài chính: ${c.fin} · ${c.tr}: ${c.td}`,`${c.rent} xu/năm`,dis)).join('')}
+  b+='<p class="sec">Bán</p>'+gRow(`data-x="pr:sell:${P.id}"`,'coins',`Bán ${pNm(P.k).toLowerCase()}`,T?'Người thuê sẽ phải dọn đi':'Mất luôn các nâng cấp',`${Math.round(A.p*.6+Object.keys(P.up).length*15)} xu`,dis);
+  return[pNm(P.k),b,'bag']}
+function assetsTop(){propSync();const inc=Object.entries(S.own).reduce((a,[k,n])=>a+((ASSETS[k]&&ASSETS[k].inc)||0)*n,0)+(S.props||[]).reduce((a,p)=>a+(p.up.cellar?4:0)+(p.up.hall?20:0)+(p.ten?p.ten.rent:0),0);
+  let b=`<p class="note">Thu từ tài sản khoảng ${inc}${domOn()&&S.house.dom?' + lãnh địa '+domCalc().net:''} xu mỗi năm. Mua thêm ở mục Mua sắm.</p>`;
+  const P=S.props||[];if(P.length)b+='<p class="sec">Nhà cửa</p>'+P.map(p=>{const A=ASSETS[p.k];return gRow(`data-open="prop:${p.id}"`,A.ic,A.n,`${p.ten?'Đang cho '+p.ten.n+' thuê':'Bỏ trống, có thể ở'} · tình trạng ${p.cond}/100${Object.keys(p.up).length?` · ${Object.keys(p.up).length} nâng cấp`:''}`,p.ten?`+${p.ten.rent} xu/năm`:'',false)}).join('');
+  const mine=Object.entries(S.own).filter(([k,n])=>n>0&&ASSETS[k]&&!PROP_K.includes(k));
+  if(mine.length)b+='<p class="sec">Gia súc, ruộng đất</p>'+mine.map(([k,n])=>{const A=ASSETS[k];return A.nosell?gRow('',A.ic,A.n,A.d,'+1 danh dự/năm',false,true):gRow(`data-sell="${k}"`,A.ic,`${A.n} × ${n}`,`Chạm để bán một con/thửa · ${Math.round(A.p*.6)} xu`,A.inc?`+${A.inc*n} xu/năm`:'',false)}).join('');
+  if(!P.length&&!mine.length)b+='<p class="note">Chưa có nhà cửa, gia súc hay ruộng đất nào.</p>';
+  if(ensureDom())b+=gRow('data-open="dom"','castle',domName(),`Thuế lãnh địa sau chi phí · lòng dân ${S.house.dom.sat}`,`${domCalc().net>=0?'+':''}${domCalc().net} xu/năm`,false);
+  return b}
+{const d0=drawSheet;drawSheet=function(){if(view==='owned')view='bag';return d0.apply(this,arguments)}}
+{const d0=drawExt3;drawExt3=function(v){if(v&&v.startsWith('prop:'))return propView(v.slice(5));return d0(v)}}
+{const x0=extAct3;extAct3=function(x){if(!x.startsWith('pr:'))return x0(x);const[,a,id,k]=x.split(':'),P=propGet(id);if(!P||!S.alive||S.cap)return;const A=ASSETS[P.k];let t,tone='good';
+  if(a==='rest'){if(P.ten||S.done['rest'+P.id])return;S.done['rest'+P.id]=1;const bh=P.up.bed?4:0;if(k==='base'){mod({health:4+bh,happy:2});t='Bạn ở nhà trọn một mùa, ngủ dậy muộn và ăn uống đàng hoàng. Người khỏe hẳn ra.'}
+    else{const R0=PROP_REST[k];if(!R0||!P.up[k])return;const fx={...R0[1]};if(fx.health)fx.health+=bh;mod(fx);t=`${R0[0]}. ${({hearth:'Hơi ấm ngấm vào tận xương.',garden:'Mùi đất ẩm và tiếng chim làm bạn quên hết mọi chuyện.',bath:'Mồ hôi ra như tắm, bao nhiêu mệt mỏi trôi đi.',chapel:'Trong nhà nguyện chỉ có bạn và tiếng nến cháy.',spring:'Nước nóng bốc hơi giữa trời lạnh, bạn ngâm tới khi da nhăn nheo.',herb:'Bà vú pha cho bạn một ấm thuốc đắng nghét, nhưng sáng hôm sau người nhẹ hẳn.',library:'Bạn đọc hết ba cuốn sách mà chưa từng ai trong nhà mở ra.'})[k]||''}`}}
+  else if(a==='up'){const U=PROP_UP[P.k].find(u=>u[0]===k);if(!U||P.up[k]||S.money<U[2])return;S.money-=U[2];P.up[k]=S.year;if(k==='hall')mod({honor:5});t=`Bạn cho xây ${U[1].toLowerCase()} ở ${A.n.toLowerCase()}.`}
+  else if(a==='fix'){const rc=Math.max(10,Math.round((100-P.cond)*(P.k==='manor'?3:.8)));if(S.money<rc)return;S.money-=rc;P.cond=100;t=`Thợ đến sửa lại mái, trát lại tường. ${A.n} sạch sẽ như mới.`}
+  else if(a==='find'){if(P.ten)return;const L=[];for(let g=0;g<20&&L.length<3;g++){const c=tenGen(P);if(!L.some(x=>x.n===c.n))L.push(c)}P.cands={y:S.year,L};note=null;return afterSheetAction()}
+  else if(a==='rent'){const c=P.cands&&P.cands.L[+k];if(!c||P.ten)return;P.ten={...c,y:S.year};P.cands=null;t=`Bạn cho ${c.n} thuê ${A.n.toLowerCase()} với giá ${c.rent} xu mỗi năm.`}
+  else if(a==='dun'){const T=P.ten;if(!T||!T.owe)return;if(ch(T.fp)){S.money+=T.owe;t=`${T.n} trả nốt ${T.owe} xu tiền nợ.`;T.owe=0}else{const g=Math.floor(T.owe/2);S.money+=g;T.owe-=g;t=g?`${T.n} chỉ gom được ${g} xu, hứa trả nốt sau.`:`${T.n} khóc lóc xin khất thêm. Bạn không lấy được đồng nào.`;tone=g?'':'bad'}}
+  else if(a==='evict'){const T=P.ten;if(!T)return;P.ten=null;t=`${T.n} dọn đi.${T.owe?` Khoản nợ ${T.owe} xu coi như mất.`:''}`;tone=''}
+  else if(a==='sell'){const g=Math.round(A.p*.6+Object.keys(P.up).length*15);S.money+=g;S.own[P.k]=Math.max(0,(S.own[P.k]||0)-1);S.props.splice(S.props.indexOf(P),1);t=`Bạn bán ${A.n.toLowerCase()} được ${g} xu.`;tone='';view='bag'}
+  else return;
+  if(t){log(t,tone);note={t,tone}}return afterSheetAction()}}
+{const b0=buyAsset;buyAsset=function(k){b0(k);if(PROP_K.includes(k))propSync()}}
+{const s0=sellAsset;sellAsset=function(k){s0(k);if(PROP_K.includes(k))propSync()}}
+{const i0=inherit;inherit=function(id){const props=S&&S.props;const r=i0(id);if(S&&S.alive&&props){S.props=props.map(p=>({...p,cands:null}));propSync()}return r}}
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive)return;propSync();
+  for(const P of S.props){const T=P.ten;P.cond=Math.max(0,Math.min(100,P.cond-(T?2:1)+((T&&T.fx.cond)||0)));
+    if(P.up.herb&&!T)mod({health:2});
+    const extra=(P.up.cellar?4:0)+(P.up.hall?20:0);if(extra)S.money+=extra;
+    if(!T)continue;const A=ASSETS[P.k];
+    if(ch(T.fp)){S.money+=T.rent;if(T.fx.gift&&ch(.25)){const g=R(3,10);S.money+=g;log(`${T.n} biếu thêm ${g} xu cùng một giỏ trứng.`,'good')}}
+    else{T.owe+=T.rent;log(`${T.n} không trả nổi tiền thuê ${A.n.toLowerCase()} năm nay. Họ đang nợ ${T.owe} xu.`,'bad')}
+    if(T.fx.honor&&ch(.3)){mod({honor:T.fx.honor});log(`Hàng xóm phàn nàn với bạn về ${T.n}.`)}
+    if(T.fx.risk&&ch(T.fx.risk)){mod({honor:-4});S.money=Math.max(0,S.money-15);log(`Lính tuần soát khám ${A.n.toLowerCase()} và tìm thấy hàng lậu của ${T.n}. Bạn phải nộp phạt 15 xu.`,'bad')}
+    if(T.owe>=T.rent*3&&ch(.5)){log(`${T.n} bỏ trốn trong đêm, để lại khoản nợ ${T.owe} xu.`,'bad');P.ten=null;continue}
+    if(ch(.06)){log(`${T.n} trả nhà, dọn đi nơi khác.`);P.ten=null}}}}
+{const n0=normalizeSave;normalizeSave=function(s){const r=n0(s);if(r&&typeof r==='object'&&r.props&&!Array.isArray(r.props))r.props=[];return r}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
