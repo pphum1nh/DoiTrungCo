@@ -1624,7 +1624,7 @@ function drawSheet(){
   }
   if(view==='house'){
     const h=S.house;title='Gia tộc';
-    b+=`<div class="house">${crest(h,64)}<div><h3>Gia tộc ${esc(h.name)}</h3><i>"${esc(h.motto)}"</i></div></div>`+gRow('data-open="crest"','palette','Chỉnh huy hiệu','Đổi màu nền, kiểu chia ô, biểu tượng và châm ngôn','',false);
+    b+=`<div class="house">${crest(h,64)}<div><h3>Gia tộc ${esc(h.name)}</h3><i>"${esc(h.motto)}"</i></div></div>`+gRow('data-open="crest"','palette','Chỉnh huy hiệu','Đổi màu nền, kiểu chia ô, biểu tượng và châm ngôn','',false)+(typeof legRow==='function'?legRow():'');
     if(h.title>=2&&!rules())b+=`<p class="note">Tước vị và đất đai do ${esc(holderName())} nắm giữ. Bạn đứng thứ ${lineOrder().findIndex(x=>x.id==='me')+1} trong hàng thừa kế.</p>`;
     b+=`<div class="hgrid"><div><span>Tước hiệu</span><b>${h.title>=2?titleName(h.title,S.sex):'Thường dân'}</b></div><div><span>Uy danh</span><b>${h.prestige.toLocaleString('vi-VN')}</b></div><div><span>Thế hệ</span><b>Đời thứ ${S.gen}</b></div><div><span>Lập tộc</span><b>Năm ${h.founded}</b></div></div>`;
     b+='<p class="sec">Cây gia phả</p>'+treeHTML()+memHTML();
@@ -1687,7 +1687,7 @@ function drawSheet(){
   }
   if(view==='menu'){
     title='Sổ đời';
-    b+=(typeof achRow==='function'?achRow():'')+`<div class="row"><div><b>${esc(S.name)}</b><small>Đời thứ ${S.gen} · sinh năm ${S.by} · ${RACES[S.race].n} · ${CLASSES[S.cls].n}${S.flags.literate?' · biết chữ':''}${S.flags.dragonslayer?' · Kẻ Diệt Rồng':''}</small></div></div>`;
+    b+=(typeof achRow==='function'?achRow():'')+(typeof trtRow==='function'?trtRow():'')+`<div class="row"><div><b>${esc(S.name)}</b><small>Đời thứ ${S.gen} · sinh năm ${S.by} · ${RACES[S.race].n} · ${CLASSES[S.cls].n}${S.flags.literate?' · biết chữ':''}${S.flags.dragonslayer?' · Kẻ Diệt Rồng':''}</small></div></div>`;
     b+=`<p class="sec">Thiên phú ẩn</p><div class="hgrid"><div><span>Cảm nhận ma pháp</span><b>${S.flags.seenA?talentWord(S.hid.arcane):'Chưa rõ'}</b></div><div><span>Thiên phú kiếm thuật</span><b>${S.flags.seenS?talentWord(S.hid.sword):'Chưa rõ'}</b></div></div>`;
     if(!S.flags.seenA||!S.flags.seenS)b+='<p class="note">Thiên phú ẩn lộ dần qua luyện kiếm, luyện phép, thử quả cầu pha lê hoặc gặp cao nhân. Cả hai càng cao, bạn càng có thể là Anh Hùng trong Lời Tiên Tri.</p>';
     if(S.flags.legend)b+='<p class="note item">Bạn là Anh Hùng trong Lời Tiên Tri. Triều đình cấp lương hưu mỗi năm.</p>';
@@ -13506,6 +13506,88 @@ for(const e of PRE){const E={id:e.id,queued:true,art:'house',c:s=>{const P=propG
     if(S.year>=T.end){const stay=T.sat>=45&&(fx.stay||ch(.5+T.sat/250));if(stay){T.end=S.year+1;T.sat=Math.max(0,T.sat-2);log(`${T.n} gia hạn thêm một năm ở ${A.n.toLowerCase()}.`)}else{log(tenEnd(P,'khi hết hợp đồng'));continue}}
     if(!evDone&&ch(.18)){const L=PRE.filter(e=>e.id!=='pr_fire'&&e.c(P));if(L.length){S.tmpProp=P.id;S.pend.push(pick(L).id);evDone=true}}}
   if(!evDone){const L=(S.props||[]).filter(P=>!P.up.wall&&ch(P.cond<40?.06:.015));if(L.length){S.tmpProp=L[0].id;S.pend.push('pr_fire')}}}}
+
+/* ===== Tính cách và Căng thẳng ===== */
+const TRT={
+ brave:{n:'Gan dạ',op:'craven',like:['brave'],hate:['flee']},craven:{n:'Nhút nhát',op:'brave',like:['flee'],hate:['brave']},
+ honest:{n:'Thành thật',op:'deceit',like:['truth'],hate:['lie']},deceit:{n:'Dối trá',op:'honest',like:['lie'],hate:['truth']},
+ kind:{n:'Nhân từ',op:'cruel',like:['kind'],hate:['cruel']},cruel:{n:'Tàn nhẫn',op:'kind',like:['cruel'],hate:['kind']},
+ generous:{n:'Hào phóng',op:'greedy',like:['give'],hate:['greed']},greedy:{n:'Tham lam',op:'generous',like:['greed'],hate:['give']},
+ diligent:{n:'Siêng năng',op:'lazy',like:['work'],hate:['idle']},lazy:{n:'Lười biếng',op:'diligent',like:['idle'],hate:['work']},
+ pious:{n:'Mộ đạo',op:'cynic',like:['pray'],hate:['heresy']},cynic:{n:'Hoài nghi',op:'pious',like:['heresy'],hate:['pray']}};
+const ACT_RX=[['lie',/nói dối|bịa chuyện|bịa ra|giả vờ|lừa |lừa gạt|giả làm|(?<!từ )chối |chối bay|vu khống|khai man|đổ tội/],['truth',/thú nhận|nói thật|thừa nhận|khai thật|kể hết sự thật/],
+ ['brave',/xông vào|xông lên|xông ra|lao vào|thách đấu|đánh lại|chống trả|ra trận|cầm vũ khí|đứng ra|tử chiến|một mình lên|đối mặt/],['flee',/bỏ chạy|chạy trốn|trốn |trốn đi|lánh mặt|lẩn|rút lui|đầu hàng|giả chết/],
+ ['kind',/giúp|cứu|tha cho|tha thứ|chăm sóc|an ủi|nhận nuôi|chữa cho|băng bó/],['cruel',/giết|hành quyết|tra tấn|đánh đập|treo cổ|xử tử|thiêu|trả thù|bỏ mặc/],
+ ['give',/tặng|biếu|quyên|bố thí|cho không|phát lương|phát bánh|chia cho|góp lương|không lấy tiền/],['greed',/hối lộ|ăn chặn|lấy hết|bán đứng|đòi thêm|ăn cắp|ăn cướp|đi cướp|cướp lấy|cướp của|chiếm lấy|tống tiền/],
+ ['work',/làm thêm|luyện tập|chăm chỉ|tăng ca|học thêm|miệt mài/],['idle',/mặc kệ|lờ đi|đi ngủ|làm ngơ|bỏ qua|nằm nghỉ/],
+ ['pray',/cầu nguyện|thánh lễ|xưng tội|hành hương|đi lễ/],['heresy',/hồng nguyệt|tà giáo|báng bổ|chế nhạo thần/]];
+const COPE={drink:{n:'Nghiện rượu',d:'Sức khỏe -2 mỗi năm, căng thẳng giảm nhanh',fx:{health:-2}},glut:{n:'Ăn uống vô độ',d:'Sức khỏe -1, dung mạo -1 mỗi năm, căng thẳng giảm nhanh',fx:{health:-1,looks:-1}},
+ walk:{n:'Ưa cô độc',d:'Vui vẻ -1 mỗi năm, căng thẳng giảm nhanh',fx:{happy:-1}},ascetic:{n:'Khổ hạnh',d:'Đức tin +1, sức khỏe -1 mỗi năm, căng thẳng giảm nhanh',fx:{piety:1,health:-1}},journal:{n:'Viết nhật ký',d:'Trí tuệ +1 mỗi năm, căng thẳng giảm',fx:{smarts:1}}};
+const actTags=t=>{const s=String(t||'').replace(/<[^>]+>/g,' ').toLowerCase();return ACT_RX.filter(([,rx])=>rx.test(s)).map(([k])=>k)};
+const trtOn=()=>!!(S&&S.alive&&S.trt&&S.trt.length);
+function trtJudge(c){if(!trtOn()||!c)return null;const tg=actTags(typeof c.t==='function'?c.t(S):c.t);if(!tg.length)return null;let d=0;const hate=[],like=[];
+  for(const k of S.trt){const T=TRT[k];if(T.hate.some(x=>tg.includes(x))){d+=14;hate.push(T.n)}else if(T.like.some(x=>tg.includes(x))){d-=6;like.push(T.n)}}
+  return d?{d,hate,like}:null}
+const strLv=v=>v>=100?3:v>=75?2:v>=50?1:0;
+function strAdd(v,why){if(!trtOn())return;const o=S.stress||0;S.stress=Math.max(0,Math.min(130,o+v));const a=strLv(o),b=strLv(S.stress);if(b>a&&b>(S.strLv||0)){S.strLv=b;if(!S.pend.includes('str_break'))S.pend.push('str_break')}if(b<(S.strLv||0))S.strLv=b}
+function trtAssign(){if(S.trt)return;const s=S.st,w={brave:1+(S.blade||0)/50,craven:1,honest:1+s.honor/60,deceit:1+(S.flags.suspect||0)*.5,kind:1+s.happy/80,cruel:1+(S.flags.kill||0),generous:1,greedy:1+S.money/400,diligent:1+s.smarts/80,lazy:1,pious:1+s.piety/60,cynic:1+(S.flags.red?2:0)};
+  const pairs=[['brave','craven'],['honest','deceit'],['kind','cruel'],['generous','greedy'],['diligent','lazy'],['pious','cynic']].sort(()=>Math.random()-.5).slice(0,3);
+  S.trt=pairs.map(([a,b])=>Math.random()*(w[a]+w[b])<w[a]?a:b);S.stress=S.stress||0;S.cope=S.cope||[]}
+EV.push(EVB.trt_grow={id:'trt_grow',queued:true,art:'scroll',c:s=>!!(s.alive&&s.trt),title:'Con Người Bạn Đã Thành',
+  text:s=>`Những năm tháng tuổi thơ đã nặn nên con người bạn. Ai quen bạn cũng bảo bạn là người ${s.trt.map(k=>TRT[k].n.toLowerCase()).join(', ')}. Từ nay, làm trái với tính cách của mình sẽ khiến bạn căng thẳng, còn sống đúng với nó thì lòng nhẹ nhõm hơn.`,
+  ch:[{t:'Đó là con người tôi',f:s=>['Bạn nhìn lại mình trong mặt nước giếng, và nhận ra người trong đó.','']}]});
+EV.push(EVB.str_break={id:'str_break',queued:true,big:false,art:'skull',c:s=>!!(s.alive&&s.trt),title:s=>s.stress>=100?'Gục Ngã':'Quá Sức Chịu Đựng',
+  text:s=>`Đã quá lâu bạn sống trái với chính mình. Đêm nào cũng trằn trọc, tay run khi cầm bát cơm. ${s.stress>=100?'Bạn biết nếu không tìm được lối thoát, cơ thể sẽ gục trước.':'Bạn cần một cách để trút bỏ gánh nặng này.'}`,
+  ch:[{t:'Tìm tới rượu',f:s=>copeAdd('drink','Bạn uống tới khi mọi thứ mờ đi. Sáng hôm sau đầu nhức như búa bổ, nhưng lòng nhẹ hơn.')},
+      {t:'Ăn cho quên',f:s=>copeAdd('glut','Bạn ăn hết nửa con ngỗng quay một mình. Cũng đỡ.')},
+      {t:'Đi một mình vào rừng',f:s=>copeAdd('walk','Bạn đi bộ suốt ba ngày, không nói với ai câu nào.')},
+      {t:'Cầu nguyện, nhịn ăn',f:s=>copeAdd('ascetic','Bạn quỳ trong nhà thờ từ tối tới sáng, nhịn ăn suốt tuần chay.')},
+      {t:'Viết hết ra giấy',req:s=>lit(s),f:s=>copeAdd('journal','Bạn viết kín mười trang giấy. Viết xong, bạn đốt đi và ngủ một giấc dài.')}]});
+function copeAdd(k,t){S.stress=Math.max(0,(S.stress||0)-25);S.strLv=strLv(S.stress);S.cope=S.cope||[];if(!S.cope.includes(k)&&S.cope.length<2){S.cope.push(k);return[`${t} Bạn mắc thói quen mới: ${COPE[k].n}. Căng thẳng -25.`,'']}return[`${t} Căng thẳng -25.`,'']}
+{const s0=showNext;showNext=function(){s0();try{if(!trtOn())return;const e=EVB[S.pend[0]];const M=$('#modal');if(!e||!M||M.hidden||!Array.isArray(e.ch))return;
+  for(const bt of M.querySelectorAll('button[data-ec]')){const j=trtJudge(e.ch[+bt.dataset.ec]);if(!j||bt.querySelector('.trt'))continue;
+    bt.insertAdjacentHTML('beforeend',`<small class="trt" style="display:block;font-weight:400;opacity:.75;margin-top:3px;color:${j.d>0?'#d9826b':'#9fc59a'}">${j.d>0?`Trái tính cách ${j.hate.join(', ')} · căng thẳng +${j.d}`:`Hợp tính cách ${j.like.join(', ')} · căng thẳng ${j.d}`}</small>`)}}catch(e){}}}
+{const c0=choose;choose=function(i){let j=null;try{const e=EVB[S.pend[0]];if(e&&e.id!=='str_break'&&e.id!=='trt_grow')j=trtJudge(e.ch[i])}catch(e){}c0(i);if(j&&S&&S.alive){strAdd(j.d);if(S.pend.includes('str_break')&&$('#modal').hidden)showNext()}}}
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive)return;
+  if(!S.trt&&S.age>=16){trtAssign();S.pend.push('trt_grow');return}
+  if(!trtOn())return;const lg=legT('calm');let dec=4+lg*2+(S.cope||[]).length*6;const H=typeof propHome==='function'&&propHome();if(H&&!H.ten)dec+=2;
+  for(const k of S.cope||[])mod(COPE[k].fx);
+  if(S.trt.includes('pious'))mod({piety:1});if(S.trt.includes('diligent')&&S.job)S.job.perf=(S.job.perf||40)+3;if(S.trt.includes('lazy'))mod({happy:1});
+  if((S.stress||0)>=100){mod({health:-6});log('Căng thẳng dồn nén làm bạn kiệt sức. Sức khỏe -6.','bad')}
+  S.stress=Math.max(0,(S.stress||0)-dec);if(strLv(S.stress)<(S.strLv||0))S.strLv=strLv(S.stress)}}
+{const a0=actExtra3;actExtra3=function(){const b=a0();if(!trtOn()||(S.stress||0)<15)return b;const w=S.done.relax?'Đã giải tỏa năm nay':'';
+  return b+'<p class="sec">Tâm trí</p>'+gRow('data-x="trt:relax"','heart','Dành thời gian cho bản thân',w||`Căng thẳng ${S.stress}/100 · giảm 12`,'',!S.alive||!!S.cap||!!w)}}
+{const x0=extAct3;extAct3=function(x){if(x!=='trt:relax')return x0(x);if(!trtOn()||S.done.relax)return;S.done.relax=1;S.stress=Math.max(0,S.stress-12);if(strLv(S.stress)<(S.strLv||0))S.strLv=strLv(S.stress);mod({happy:2});
+  const t=pick(['Bạn ra suối câu cá cả ngày, không câu được con nào, nhưng về nhà nhẹ cả người.','Bạn ngồi trên đồi nhìn mây trôi tới tận chiều.','Bạn ngủ một giấc thật dài, không ai đánh thức.']);log(t,'good');note={t,tone:'good'};return afterSheetAction()}}
+const trtRow=()=>{if(!S||!S.trt)return'';return gRow('','scroll',`Tính cách: ${S.trt.map(k=>TRT[k].n).join(', ')}`,`Căng thẳng ${S.stress||0}/100${(S.cope||[]).length?` · thói quen: ${S.cope.map(k=>COPE[k].n).join(', ')}`:''}`,'',false,true)};
+
+/* ===== Di sản dòng họ ===== */
+const LEG={war:{n:'Võ Gia',ic:'sword',d:t=>`Người kế thừa được cộng ${5*t} thiên phú kiếm thuật`},arc:{n:'Huyết Mạch Mệnh',ic:'star',d:t=>`Người kế thừa được cộng ${5*t} cảm nhận ma pháp`},
+ trade:{n:'Thương Gia',ic:'coins',d:t=>`Người kế thừa nhận thêm ${[0,60,150,300][t]} xu, cả nhà thu thêm ${[0,3,6,10][t]} xu mỗi năm`},long:{n:'Trường Thọ',ic:'heart',d:t=>`Từ 40 tuổi, sức khỏe +${t} mỗi năm`},
+ fame:{n:'Danh Môn',ic:'crown',d:t=>`Người kế thừa bắt đầu với danh dự +${5*t}, uy danh gia tộc +${2*t} mỗi năm`},calm:{n:'Tâm Tĩnh',ic:'heart',d:t=>`Căng thẳng tự giảm thêm ${2*t} mỗi năm`}};
+const LEG_COST=[100,250,500];
+const legT=k=>(S&&S.house&&S.house.leg&&S.house.leg[k])||0;
+function legView(){const h=S.house,rn=h.rn||0;let b=`<p class="note">Mỗi đời người để lại cho dòng họ một phần danh vọng: sống lâu, giữ danh dự, giàu có, lên bậc cao trên Mệnh Lộ, làm Anh Hùng. Danh vọng dùng để mở di sản, có hiệu lực với mọi đời sau.</p>`+statGrid([['Danh vọng dòng họ',rn],['Đời hiện tại',`Đời thứ ${S.gen||1}`]]);
+  for(const[k,L]of Object.entries(LEG)){const t=legT(k);b+=`<p class="sec">${L.n}${t?` · bậc ${t}/3`:''}</p>`;if(t)b+=`<p class="note">${L.d(t)}.</p>`;
+    if(t<3){const c=LEG_COST[t];b+=gRow(`data-x="leg:${k}"`,L.ic,`Mở bậc ${t+1}`,L.d(t+1),`${c} danh vọng`,!S.alive||rn<c)}}
+  return['Di sản dòng họ',b,'house']}
+const legRow=()=>gRow('data-open="legacy"','crown','Di sản dòng họ',`${(S.house.rn||0)} danh vọng · ${Object.values(S.house.leg||{}).reduce((a,v)=>a+v,0)} bậc di sản đã mở`,'',false);
+{const d0=drawExt3;drawExt3=function(v){if(v==='legacy')return legView();return d0(v)}}
+{const x0=extAct3;extAct3=function(x){if(!x.startsWith('leg:'))return x0(x);const k=x.slice(4),L=LEG[k],h=S.house;if(!L)return;const t=legT(k),c=LEG_COST[t];if(t>=3||(h.rn||0)<c)return;h.rn-=c;h.leg=h.leg||{};h.leg[k]=t+1;
+  const tx=`Dòng họ ${h.name} mở di sản ${L.n} bậc ${t+1}: ${L.d(t+1).toLowerCase()}.`;log(tx,'good');note={t:tx,tone:'good'};return afterSheetAction()}}
+function legLife(){let v=Math.floor(S.age/5)+Math.floor(Math.max(0,S.st.honor-40)/6)+(S.pp?S.pp.rk*6:0)+(S.flags.legend?40:0)+((S.house.title||0)>=2?S.house.title*6:0)+Math.min(30,Math.floor(Math.max(0,S.money)/100))+((S.fam||[]).filter(p=>p.alive&&/^Con /.test(p.rel)).length*2);
+  return Math.max(3,v)}
+let legGain=0;
+{const d0=die;die=function(c){const was=S&&S.alive;d0(c);if(!was||!S||!S.house)return;legGain=legLife();S.house.rn=(S.house.rn||0)+legGain}}
+{const s0=showDeath;showDeath=function(){s0();if(legGain){const el=$('#modal .epi');if(el)el.insertAdjacentHTML('afterend',`<p class="note" style="text-align:center">Đời người này để lại cho dòng họ ${legGain} danh vọng.</p>`)}}}
+{const i0=inherit;inherit=function(id){const r=i0(id);if(!S||!S.alive||!S.house)return r;legGain=0;talSync();
+  const w=legT('war'),a=legT('arc'),tr=legT('trade'),fm=legT('fame');
+  if(w){S.tal.sword=S.hid.sword=Math.min(100,S.tal.sword+5*w)}
+  if(a){S.tal.arcane=S.hid.arcane=Math.min(100,S.tal.arcane+5*a);if(S.hid.vm&&S.hid.arcane>=40&&!S.pp){S.hid.vm=0;delete S.hid.vmM}}
+  if(tr)S.money+=[0,60,150,300][tr];if(fm)mod({honor:5*fm});save();return r}}
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||!S.house)return;const h=S.house;
+  if(S.st.honor>=70&&S.age>=16&&ch(.5))h.rn=(h.rn||0)+1;
+  const tr=legT('trade');if(tr)S.money+=[0,3,6,10][tr];const fm=legT('fame');if(fm)h.prestige+=2*fm;const lo=legT('long');if(lo&&S.age>=40)mod({health:lo})}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
