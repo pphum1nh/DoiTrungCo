@@ -14067,6 +14067,16 @@ function migView(v){const rest=v.slice(7);
 /* người ngoại tộc mới đến: mấy năm đầu bị dè chừng */
 {const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||!S.flags.migFor)return;if(S.year>=S.flags.migFor){S.flags.migFor=0;log(`Sau mấy năm, hàng xóm ở ${S.village} đã quen mặt bạn. Không ai còn gọi bạn là "người lạ" nữa.`,'good');return}if(ch(.3)){mod({happy:-3});log(pick(['Người bán hàng ngoài chợ hét giá gấp đôi khi thấy bạn là người ngoại tộc.','Lũ trẻ trong làng chạy theo bạn, nhại giọng nói của bạn.','Bạn đến muộn một buổi họp làng, và không ai nhích ghế cho bạn ngồi.']),'bad')}}}
 
+/* ===== Chiếm được Thánh quốc Lumaris thì mua được Thần Dược ===== */
+const LUM='Thánh quốc Lumaris';
+const lumSt=()=>{const r=S&&S.kd&&S.kd.realms&&S.kd.realms[LUM];return r&&(r.st==='annexed'||r.st==='vassal')?r.st:''};
+{const g=SHOPS.find(x=>x.id==='magic'),it=g&&g.items.find(x=>x[0]==='p_than');if(it){const c0=it[2],base=it[1];
+  it[2]=s=>c0(s)||(!!lumSt()&&!isRed(s));it[3]='Chỉ bán ở Thánh quốc Lumaris, hoặc khi Thánh quốc thuộc về bạn (người theo Hồng Nguyệt không mua được)';
+  Object.defineProperty(it,1,{get:()=>S&&!c0(S)&&lumSt()==='vassal'?Math.round(base*1.2):base,set:()=>{},enumerable:true})}}
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive)return;const st=lumSt();
+  if(st&&!S.flags.lumHad){S.flags.lumHad=1;fac(-12,0);log(`Giáo hội phẫn nộ khi ${LUM} rơi vào tay bạn. Uy tín Chính Giáo giảm mạnh. Nhưng giờ tiệm bùa phép ${st==='annexed'?'trong lãnh thổ của bạn':'của nước chư hầu'} bán Thần Dược cho bạn.`,'bad')}
+  if(!st&&S.flags.lumHad)S.flags.lumHad=0;
+  if(st==='vassal'&&!isRed(S)){const r=S.kd.realms[LUM];if(ch(.04+Math.max(0,r.rel)/1000)&&gainItem('p_than'))log(`Cùng với cống nạp năm nay, ${r.ruler} dâng thêm một lọ Thần Dược, kính dâng đấng bảo hộ.`,'item')}}}
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
