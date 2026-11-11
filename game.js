@@ -1613,7 +1613,7 @@ function drawSheet(){
       const g=SHOPS.find(x=>x.id===view.slice(5));back='shop';title=g.n;
       if(g.assets)for(const k of g.assets){const A=ASSETS[k];const why=S.age<14?'Từ 14 tuổi':A.req&&!A.req(S)?A.why:S.money<A.p?'Không đủ tiền':'';
         b+=gRow(`data-buy="${k}"`,A.ic,A.n,(why||A.d)+(S.own[k]?` · đang có ${S.own[k]}`:''),`${A.p} xu`,!!why||!S.alive)}
-      if(g.id==='exotic'){const M=merStock();b+=`<p class="note">Đoàn thương nhân từ ${M.from} ghé chợ năm nay. Nhẫn, vòng và quyền trượng chỉ bán ở đây, hàng đổi mỗi năm.</p>`;
+      if(g.id==='auction')b+=aucView();else if(g.id==='exotic'){const M=merStock();b+=`<p class="note">Đoàn thương nhân từ ${M.from} ghé chợ năm nay. Nhẫn, vòng và quyền trượng chỉ bán ở đây, hàng đổi mỗi năm.</p>`;
         for(const[k,pr]of M.items){const I=ITEMS[k];const why=S.age<12?'Từ 12 tuổi':k==='tome'&&!lit(S)?'Phải biết chữ':S.money<pr?'Không đủ tiền':S.bag.length>=BAGMAX?'Túi đồ đã đầy':'';
           b+=gRow(`data-x="mer:${k}"`,"item:"+k,`<span class="c-r${I.r}">${I.n}</span>`,why||[I.cb?`Chiến đấu +${I.cb}`:'',Object.entries(I.fx||{}).map(([a,v])=>`${v>0?'+':''}${v} ${SL[a]}/năm`).join(', '),I.use?I.d:''].filter(Boolean).join(' · ')||I.d,`${pr} xu`,!!why||!S.alive,false,'r'+I.r)}
         if(!M.items.length)b+='<p class="note">Thương nhân đã bán hết hàng năm nay. Hãy quay lại vào năm sau.</p>'}
@@ -13280,6 +13280,71 @@ for(const e of VCE){const E={...e,queued:true,art:'ghost',c:s=>!!(s.alive&&vcOn(
   if(W.id==='returned'||W.id==='sleep'){A('vclisten','ghost','Lắng nghe lời cuối giữa sương','Lộ Vãn Ca · giúp người lạc và người đã khuất tìm được nhau',()=>{if(W.id==='returned')W.pw=Math.max(0,(W.pw||0)-3);else W.wp+=3;vcDs(4);return['Bạn đi giữa sương, nghe từng lời cuối và đối chiếu với người sống. Có ba người tìm được nhau trước khi trời sáng.','good']});
     A('vcclose','ghost','Khép Cửa Sau Vãn Ca','Lộ Vãn Ca bậc 5 · dùng một lần trong mỗi tai họa lớn',()=>{if(!big())return['Cần chiêu Khép Cửa Sau Vãn Ca, và chỉ dùng được một lần mỗi tai họa.',''];W.vcU=1;if(W.id==='returned')W.pw=Math.max(0,(W.pw||0)-12);else W.wp+=10;vcDs(8);mod({honor:6});return['Bạn hát khúc vãn ca trên tháp chuông. Từng bóng người lần lượt bước qua cánh cửa, và bạn ở lại khép nó sau lưng họ. Người sống thức dậy trong một buổi sáng yên tĩnh lạ thường.','good']},!big())}
   return L}}
+
+/* ===== Phiên đấu giá cổ vật (trong Mua sắm) ===== */
+Object.assign(ITEMS,{
+ au_compass:{n:'La bàn chỉ về nhà',r:1,ic:'compass',sl:'acc',fx:{happy:1},v:40,d:'Kim không chỉ hướng bắc mà chỉ về nơi bạn sinh ra. Mang theo thì chẳng bao giờ lạc, chỉ hơi nhớ nhà.'},
+ au_mirror:{n:'Gương không chịu soi',r:2,ic:'gem',sl:'acc',fx:{smarts:1,looks:1},v:90,d:'Chỉ phản chiếu người đứng sau lưng bạn. Rất tiện để biết ai đang nói xấu mình.'},
+ au_spoon:{n:'Muỗng bạc của vị vua bị đầu độc',r:1,ic:'chalice',sl:'acc',fx:{health:1},v:50,d:'Đen lại khi chạm vào thuốc độc. Vị vua cũ không kịp dùng tới nó.'},
+ au_boot:{n:'Một chiếc ủng bảy dặm',r:2,ic:'horse',sl:'acc',cb:1,fx:{happy:1},v:80,d:'Chỉ có một chiếc. Đi nhanh gấp bảy, nhưng toàn đi lệch về bên phải.'},
+ au_bell:{n:'Chuông gọi mèo của phù thủy',r:1,ic:'lantern',sl:'acc',fx:{magic:1},v:35,d:'Lắc một cái, mèo khắp làng kéo tới. Không có cách nào bảo chúng về.'},
+ au_paper:{n:'Vương miện giấy của vua hề',r:1,ic:'crown',sl:'hat',fx:{happy:2,honor:-1},v:20,d:'Từng được đội trong ba mươi năm hội giả trang. Ai đội vào cũng bắt đầu nói vần.'},
+ au_tooth:{n:'Răng của một người khổng lồ',r:1,ic:'skull',sl:'acc',fx:{health:1},v:45,d:'To bằng cái gối. Người bán thề là răng hàm, không phải răng cửa.'},
+ au_hourglass:{n:'Đồng hồ cát chảy ngược',r:3,ic:'gem',sl:'acc',fx:{health:2,smarts:1},v:220,d:'Cát rơi lên trên. Người giữ nó bảo mình già chậm hơn, nhưng không ai đếm được.'},
+ au_quill:{n:'Bút lông tự viết',r:2,ic:'scroll',sl:'acc',fx:{smarts:2},v:110,d:'Tự chép lại mọi điều nó nghe được, kể cả những gì bạn lẩm bẩm lúc ngủ.'},
+ au_skull:{n:'Chén sọ của tướng Orc',r:2,ic:'chalice',sl:'acc',fx:{honor:1,health:1},v:100,d:'Uống rượu bằng chén này thì người Orc gọi bạn là anh em. Người khác thì gọi lính canh.'},
+ au_feather:{n:'Lông phượng hoàng',r:2,ic:'flame',sl:'acc',fx:{magic:2},v:150,d:'Ấm như vừa rời khỏi lửa. Hoặc là lông gà nhuộm đỏ, tùy người bán.'},
+ au_rust:{n:'Thanh kiếm gỉ không ai rút ra được',r:2,ic:'broadsword',sl:'weapon',cb:4,fx:{honor:1},v:120,d:'Vỏ và kiếm đã gỉ dính làm một. Đánh cả vỏ cũng đau như thường.'},
+ au_hand:{n:'Bàn tay khô của vị thánh vô danh',r:2,ic:'holy',sl:'acc',fx:{piety:2},v:130,d:'Ba tu viện cùng nhận đây là thánh tích của mình. Không ai nói nó được đem ra chợ thế nào.'},
+ au_dice:{n:'Xúc xắc của Thần May Rủi',r:2,ic:'gem',use:true,v:60,d:'Gieo một lần duy nhất. Sáu mặt, không mặt nào giống nhau, có mặt khắc hình một cái quan tài.'},
+ au_egg:{n:'Trứng rồng',r:3,ic:'egg',use:true,v:300,d:'Vỏ đá xám, sờ vào thấy ấm. Đem ấp bên lò sưởi xem sao.'},
+ au_scream:{n:'Chai đựng một tiếng hét',r:1,ic:'potion',use:true,v:25,d:'Ai đó đã hét vào chai rồi nút lại. Không rõ là hét vì sợ hay vì vui.'},
+ au_dmap:{n:'Bản đồ hầm ngục chưa ai vào',r:2,ic:'map',use:true,v:80,d:'Mực mới, giấy cũ. Có một chữ ký: "Người cuối cùng còn sống."'},
+ au_letter:{n:'Thư tình chưa gửi của hoàng hậu',r:1,ic:'scroll',use:true,v:40,d:'Gửi cho một người không phải nhà vua. Có kẻ sẽ trả rất nhiều tiền để đọc nó.'},
+ au_fake:{n:'Đồ giả',r:0,ic:'gem',v:3,d:'Cổ vật mua ở phiên đấu giá, hóa ra là hàng giả. Giữ lại làm bài học.'}});
+const AUC_POOL=['au_compass','au_mirror','au_spoon','au_boot','au_bell','au_paper','au_tooth','au_hourglass','au_quill','au_skull','au_feather','au_rust','au_hand','au_dice','au_egg','au_scream','au_dmap','au_letter','tome','scale','wand','map'];
+const AUC_BASE={0:20,1:45,2:90,3:180};
+const AUC_RIV=['Bá tước xứ Merrow','một thương nhân trùm khăn đỏ','bà góa nhà Vellan','một tu sĩ không chịu nói tên','sứ giả của Tiên quốc','gã lùn râu tết bím','một người trùm mũ trùm kín mặt'];
+const AUC_FAKE={au_feather:'Lông phượng hoàng của bạn phai màu sau trận mưa đầu mùa, để lộ ra màu lông gà trắng.',au_egg:'Trứng rồng nứt ra. Bên trong là đá, và một mẩu giấy: "Cảm ơn quý khách."',au_hourglass:'Đồng hồ cát hết chảy ngược khi bạn lật nó lại. Hóa ra người bán dán sẵn keo.',au_hand:'Bàn tay khô của vị thánh có khớp nối bằng dây đồng. Là tay của một con khỉ.',au_tooth:'Răng khổng lồ hóa ra là một khúc xương bò đã được mài.',au_mirror:'Gương bỗng soi bình thường như mọi chiếc gương khác. Bạn vẫn đứng đó, không ai sau lưng.'};
+function aucGet(){const w=S.world;if(!w.auc||w.auc.y!==S.year){const on=ch(.6);const L=[];if(on){const pool=AUC_POOL.slice().sort(()=>Math.random()-.5).slice(0,R(3,4));for(const k of pool){const I=ITEMS[k];const base=Math.round((AUC_BASE[I.r]||40)*(.8+Math.random()*.6));
+  L.push({k,base,auth:ch(.18)?'fake':ch(.15)?'stolen':'real',riv:pick(AUC_RIV),cap:Math.round(base*(1.2+Math.random()*1.3)),sold:0,ap:0})}}w.auc={y:S.year,on,lots:L}}return w.auc}
+function aucView(){const A=aucGet();let b='<p class="note">Phiên đấu giá ở kinh thành bán những món không cửa hàng nào có. Có món thật, có món giả, và có món mà chủ cũ vẫn đang đi tìm. Có thể nhờ người thẩm định trước khi trả giá.</p>';
+  if(!A.on)return b+'<p class="note">Năm nay không có phiên đấu giá nào. Năm sau hãy quay lại.</p>';
+  A.lots.forEach((L,i)=>{const I=ITEMS[L.k];const why=L.sold===1?'Bạn đã mua món này':L.sold===2?`Đã về tay ${L.riv}`:S.age<16?'Từ 16 tuổi':S.bag.length>=BAGMAX?'Túi đồ đã đầy':S.money<L.base?'Không đủ tiền trả giá khởi điểm':'';
+    b+=gRow(`data-x="auc:${i}"`,'item:'+L.k,`<span class="c-r${I.r}">${I.n}</span>`,(why||I.d)+(L.ap===1?' · thẩm định: có vẻ là đồ giả':L.ap===2?' · thẩm định: có dấu ấn của một gia tộc khác':L.ap===3?' · thẩm định: hàng thật':''),`từ ${L.base} xu`,!!why||!S.alive)});
+  return b}
+SHOPS.push({id:'auction',n:'Phiên đấu giá cổ vật',ic:'scroll',d:'Đồ lạ, có thật có giả, mỗi năm một phiên'});
+const aucLot=()=>{const T=S.tmpAuc,A=S.world.auc;return T&&A&&A.y===S.year?A.lots[T.i]:null};
+EV.push(EVB.auc_bid={id:'auc_bid',queued:true,art:'scroll',c:s=>!!(s.alive&&aucLot()&&!aucLot().sold),title:s=>`Đấu giá: ${ITEMS[aucLot().k].n}`,
+  text:s=>{const T=s.tmpAuc,L=aucLot();return T.last?`${T.last} Giá hiện tại: ${T.price} xu.`:`Người điều phối gõ búa: "${ITEMS[L.k].n}, giá khởi điểm ${L.base} xu!" Ở hàng ghế đầu, ${L.riv} đã giơ tay. Bạn đang có ${s.money} xu.`}});
+Object.defineProperty(EVB.auc_bid,'ch',{get:()=>{const T=S&&S.tmpAuc,L=S&&aucLot();if(!T||!L)return[];const step=Math.max(5,Math.round(L.base*.15)),nx=T.started?T.price+step:T.price;
+  const again=t=>{T.last=t;S.pend.splice(1,0,'auc_bid');return[t,'']};
+  return[{t:`Trả ${nx} xu`,req:s=>s.money>=nx,f:s=>{T.started=1;T.price=nx;if(T.price<L.cap&&ch(.75)){T.price+=step;return again(`${L.riv} giơ tay trả ${T.price} xu.`)}
+      if(s.bag.length>=BAGMAX)return['Túi đồ đã đầy, bạn không mang thêm được gì.','bad'];s.money-=T.price;L.sold=1;gainItem(L.k);const it=s.bag[s.bag.length-1];if(it&&L.auth!=='real')it.auc=L.auth;S.tmpAuc=null;
+      return[`Búa gõ xuống. ${ITEMS[L.k].n} thuộc về bạn với giá ${nx} xu. ${L.riv} nhìn bạn một lúc lâu rồi đứng dậy rời phòng.`,'good']}},
+    {t:'Nhờ người thẩm định (10 xu)',req:s=>s.money>=10&&!L.ap,f:s=>{s.money-=10;L.ap=L.auth==='fake'?(ch(.7)?1:3):L.auth==='stolen'?(ch(.6)?2:3):(ch(.9)?3:1);
+      return again(['','Người thẩm định nheo mắt soi rất lâu, rồi lắc đầu: "Đường chạm quá mới."','Người thẩm định lật mặt đáy, chỉ vào một dấu huy hiệu đã bị cạo gần hết.','Người thẩm định gật đầu: "Hàng thật. Hiếm đấy."'][L.ap])}},
+    {t:'Bỏ cuộc',f:s=>{L.sold=2;S.tmpAuc=null;return`Bạn hạ tay xuống. ${ITEMS[L.k].n} về tay ${L.riv}.`}}]}});
+EIMG.auc_bid='fair';
+{const x0=extAct3;extAct3=function(x){if(!x.startsWith('auc:'))return x0(x);const A=aucGet(),i=+x.slice(4),L=A.lots[i];if(!A.on||!L||L.sold||S.age<16||S.money<L.base||S.bag.length>=BAGMAX||!S.alive)return;
+  S.tmpAuc={i,price:L.base,started:0,last:''};if(!S.pend.includes('auc_bid'))S.pend.push('auc_bid');return afterSheetAction()}}
+{const u0=useItem;useItem=function(id){const i=S.bag.findIndex(x=>x.id===id),it=S.bag[i];if(!it||!['au_dice','au_egg','au_scream','au_dmap','au_letter'].includes(it.k))return u0(id);let t,tone='good';
+  if(it.k==='au_dice'){const r=R(1,6);if(r===6){const g=R(150,400);S.money+=g;t=`Xúc xắc dừng ở mặt có hình mặt trời. Sáng hôm sau bạn nhặt được ${g} xu trong giếng.`}else if(r===1){mod({health:-15});t='Xúc xắc dừng ở mặt quan tài. Bạn ngã cầu thang ngay chiều hôm ấy, may mà chỉ gãy hai xương sườn.';tone='bad'}else if(r<=3){mod({happy:-3});t='Xúc xắc dừng ở mặt con mèo đen. Cả năm ấy bạn đi đâu cũng giẫm phải phân.';tone='bad'}else{mod({happy:5,honor:2});t='Xúc xắc dừng ở mặt bông lúa. Mùa ấy mọi chuyện đều trôi chảy lạ thường.'}}
+  if(it.k==='au_egg'){if(it.auc==='fake'){t=AUC_FAKE.au_egg;tone='bad'}else if(S.dragon){t='Bạn đã nuôi một con rồng rồi. Quả trứng nằm im, như biết nhà này không đủ chỗ. Bạn đem bán lại được 150 xu.';S.money+=150}else{S.dragon=newDragon({ey:S.year});t='Bạn đặt quả trứng bên lò sưởi. Đêm thứ ba, vỏ đá rung lên một tiếng rất khẽ. Mở mục Thú cưng trong Quan hệ để chăm sóc nó.';tone='magic'}}
+  if(it.k==='au_scream'){if(ch(.5)){mod({happy:4});t='Bạn mở nút chai giữa bữa tiệc. Tiếng hét vang lên, cả bàn tiệc nhảy dựng rồi cười suốt buổi tối.'}else{mod({honor:2});t='Bạn mở nút chai khi có trộm đột nhập lúc nửa đêm. Tên trộm nhảy qua cửa sổ, bỏ quên cả đôi giày.'}}
+  if(it.k==='au_dmap'){if(ch(.55)){const g=R(100,350);S.money+=g;t=`Hầm ngục đúng như bản đồ vẽ. Bạn mang về ${g} xu và một nỗi sợ bóng tối mới.`}else{mod({health:-R(10,20)});t='Bản đồ vẽ đúng mọi thứ, trừ cái bẫy ở bậc thang thứ ba.';tone='bad'}}
+  if(it.k==='au_letter'){if(ch(.5)){const g=R(40,100);S.money+=g;mod({honor:-4});t=`Một quý tộc phe đối lập trả ${g} xu cho lá thư. Ba tháng sau, hoàng hậu bị đưa về tu viện.`;tone='bad'}else{mod({honor:5});t='Bạn đốt lá thư mà không đọc. Không ai biết, nhưng bạn ngủ ngon hơn hẳn.'}}
+  S.bag.splice(i,1);sel=null;log(t,tone);note={t,tone};afterSheetAction()}}
+/* đồ giả lộ ra, chủ cũ tìm tới */
+EV.push(EVB.auc_owner={id:'auc_owner',queued:true,art:'scroll',c:s=>!!(s.alive&&s.bag.some(x=>x.auc==='stolen')),title:'Chủ Cũ Tìm Đến',
+  text:s=>{const it=s.bag.find(x=>x.auc==='stolen');return`Một người đàn ông mặc áo tang đứng trước cửa nhà bạn. Ông nói ${ITEMS[it.k].n.toLowerCase()} bạn mua ở phiên đấu giá là của gia đình ông, bị trộm trong đêm cha ông mất.`},
+  ch:[{t:'Trả lại cho ông ấy',f:s=>{const i=s.bag.findIndex(x=>x.auc==='stolen');const k=s.bag[i].k;s.bag.splice(i,1);mod({honor:4});return[`Ông nhận lại ${ITEMS[k].n.toLowerCase()}, cúi đầu thật sâu. Vài tuần sau, ông gửi tới một giỏ rượu và lời mời dự lễ giỗ.`,'good']}},
+      {t:'Trả ông một khoản để giữ lại (50 xu)',cost:50,f:s=>{s.money-=50;delete s.bag.find(x=>x.auc==='stolen').auc;return'Ông cầm tiền, im lặng rất lâu, rồi bỏ đi. Bạn giữ được món đồ, nhưng mỗi lần nhìn nó lại nhớ chiếc áo tang.'}},
+      {t:'Đóng cửa lại',f:s=>{delete s.bag.find(x=>x.auc==='stolen').auc;mod({honor:-5});if(ch(.35)){mod({health:-10});return['Đêm ấy có người ném đá vỡ cửa sổ nhà bạn, trúng vào trán.','bad']}return['Ông đứng trước cửa tới tối rồi đi. Hàng xóm kể lại chuyện này suốt cả mùa.','bad']}}]});
+EIMG.auc_owner='fair';
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||!S.bag)return;
+  for(const it of S.bag){if(it.auc==='fake'&&ch(.5)){const n=ITEMS[it.k].n;log(AUC_FAKE[it.k]||`${n} hóa ra là đồ giả. Người bán đã biến mất khỏi kinh thành.`,'bad');it.k='au_fake';delete it.auc}}
+  if(S.bag.some(x=>x.auc==='stolen')&&ch(.35)&&!S.pend.includes('auc_owner'))S.pend.push('auc_owner')}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
