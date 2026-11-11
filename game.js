@@ -13967,6 +13967,71 @@ for(const e of TRPEV){EV.push(e);EVB[e.id]=e}
 
 /* kẻ phản bội không còn được loài người gọi đi lính, phong tước hay mời làm Anh Hùng */
 for(const id of['levy','merit','cru_call','callhero','hn_invite','kn_offer']){const e=EVB[id];if(e&&e.c){const c0=e.c;e.c=s=>!s.trai&&c0(s)}}
+/* ===== Học viện: kỳ thi đa dạng theo năm và lớp, ít trùng lặp giữa các đời ===== */
+const ACX={
+ sword:{lab:['Tấn công mạnh, phá thế','Phòng thủ, chờ sơ hở','Phản đòn, đọc ý đồ'],
+  atk:['Đối thủ của bạn tấn công dồn dập, không cho bạn thở.','Giảng viên đóng vai cuồng chiến sĩ, gầm lên rồi lao thẳng vào bạn.','Đối thủ cầm rìu hai lưỡi, bổ liên tục từ trên xuống.'],
+  def:['Đối thủ phòng thủ rất chặt, không để lộ sơ hở nào.','Giảng viên đứng yên sau tấm khiên lớn, chờ bạn tự đánh mệt.','Đối thủ mặc giáp nặng, cứ thế tiến từng bước chậm rãi.'],
+  dodge:['Đối thủ di chuyển nhanh, chạy vòng quanh bạn.','Hai đối thủ nhỏ con thay nhau quấy từ hai phía.','Đối thủ dùng giáo dài, luôn giữ khoảng cách.']},
+ mage:{lab:['Dồn ma lực, phá thẳng','Giữ nhịp, ổn định dòng phép','Đọc cấu trúc phép, hóa giải từ gốc'],
+  atk:['Đề thi là một kết giới nhiều lớp đan chéo nhau, đánh thẳng vào là bị dội ngược.','Đề thi là một phong ấn có cài bẫy phản phép.','Đề thi là một con golem đất được yểm bùa hấp thụ phép.'],
+  def:['Đề thi là một bức tường băng dày ba thước. Chỉ có sức mạnh thuần túy mới phá nổi.','Đề thi: nâng một tảng đá nặng lên đỉnh tháp bằng ma lực.','Đề thi: thắp lại ngọn đèn ma pháp đã tắt từ trăm năm trước.'],
+  dodge:['Đề thi là một phép đang mất kiểm soát trong lồng kính.','Đề thi: giữ ngọn lửa phép ổn định suốt một canh giờ.','Đề thi: dẫn dòng nước phép qua chín khúc ống pha lê mà không làm tràn.']},
+ sage:{lab:['Giải ngay bằng trực giác','Kiểm tra cẩn thận từng bước','Tìm cách tiếp cận từ góc khác'],
+  atk:['Đề thi là một bia đá cổ ngữ, đọc theo cách thông thường thì vô nghĩa.','Đề thi là một câu đố mà mọi lời giải thẳng đều sai.','Đề thi là một tấm bản đồ cổ bị vẽ ngược hướng.'],
+  def:['Đề thi: trả lời một trăm câu hỏi trước khi cát trong đồng hồ chảy hết.','Đề thi: tranh luận ứng khẩu với trưởng bộ môn trước cả lớp.','Đề thi: tính nhẩm thuế của ba thái ấp trong một khắc.'],
+  dodge:['Đề thi: giám định ba món cổ vật, một món là đồ giả rất tinh vi.','Đề thi: chép lại một bản thảo cổ không được sai một chữ.','Đề thi: pha thuốc theo một công thức có chín bước, sai một bước là nổ.']},
+ guard:{lab:['Xông lên chặn trước','Che chắn chủ nhân, giữ vị trí','Đọc hướng đánh rồi phản kích'],
+  atk:['Bài sát hạch hộ vệ: một toán thích khách giả ập tới từ ba phía.','Bài sát hạch: kẻ tấn công giả lao vào xe ngựa của "chủ nhân".','Bài sát hạch: một giảng viên cầm hai dao lao ra từ đám đông.'],
+  def:['Bài sát hạch: kẻ địch cố thủ trong căn nhà có con tin.','Bài sát hạch: một toán cung thủ giả nấp sau tường đá, bắn tên cùn.','Bài sát hạch: kẻ địch dựng rào chặn đường đoàn hộ tống.'],
+  dodge:['Bài sát hạch: một đám đông hỗn loạn xô về phía "chủ nhân".','Bài sát hạch: ngựa kéo xe bị hoảng, chạy loạn giữa phố.','Bài sát hạch: khói mù tràn vào sảnh, không thấy gì cả.']}};
+const ACYR=['Kỳ thi nhập môn cuối năm nhất. Hồi hộp nhất là lần đầu.','Kỳ thi thực hành năm hai, có cả học viên năm trên đứng xem.','Kỳ thi chuyên ngành năm ba. Một giảng viên khách mời từ kinh đô ngồi ở hàng ghế giám khảo.','Kỳ thi năm tư. Điểm năm nay sẽ được ghi vào thư giới thiệu.','Kỳ sát hạch cuối cùng trước tốt nghiệp. Cả hội đồng Học viện có mặt.'];
+const acXC=s=>{const c=s.ac.cls||'mix';if(c!=='mix')return ACX[c]?c:'sword';return s.ac.exc||(s.ac.exc=ch(.5)?'sword':'mage')};
+{const e=EVB.ac_exam;
+ e.text=s=>{const A=s.ac;A.ex=A.ex||pick(['atk','def','dodge']);const c=acXC(s),y=Math.min(5,Math.max(1,acY()));A.exu=A.exu||{};const L=ACX[c][A.ex],u=A.exu[c+A.ex]||[];let i=L.findIndex((_,k)=>!u.includes(k));if(i<0)i=R(0,L.length-1);A.exi=i;
+   const last=A.scores&&A.scores.length?` Năm ngoái bạn được ${A.scores[A.scores.length-1]} điểm.`:'';return`${ACYR[y-1]}${last} ${L[i]} Bạn chọn cách nào?`};
+ ['atk2','def2','dodge2'].forEach((k,j)=>{e.ch[j].t=s=>ACX[acXC(s)].lab[j]});
+ for(let j=0;j<4;j++){const f0=e.ch[j].f;e.ch[j].f=s=>{const A=s.ac,c=acXC(s);if(A.ex&&A.exi!=null){A.exu=A.exu||{};(A.exu[c+A.ex]=A.exu[c+A.ex]||[]).push(A.exi)}A.exc=null;return f0(s)}}}
+
+/* Thảm Họa tấn công Học viện: mỗi thảm họa chỉ một lần */
+{const e=EVB.ac_cat,c0=e.c;e.c=s=>c0(s)&&s.ac.catY!==s.world.cat.y;const f=e.ch.map(x=>x.f);e.ch.forEach((x,i)=>{x.f=s=>{s.ac.catY=s.world.cat&&s.world.cat.y;return f[i](s)}})}
+
+/* hai chuỗi lớn (Bí mật dưới Tháp Bạc, Giấc mơ Ác Ma): mỗi khóa học chỉ theo một chuỗi, luân phiên giữa các đời */
+const acArcLoad=()=>{try{return localStorage.getItem(KEY+'-acarc')||''}catch(e){return''}};
+const acArcSave=v=>{try{localStorage.setItem(KEY+'-acarc',v)}catch(e){}};
+{const a0=acYear;acYear=function(){const A=S.ac;if(A&&A.st==='student'&&!A.arc){const l=acArcLoad();A.arc=l==='s'?(ch(.75)?'d':'s'):l==='d'?(ch(.75)?'s':'d'):pick(['s','d']);acArcSave(A.arc)}
+  a0();if(A&&A.st==='student'&&A.arc==='d'&&!A.q.demon&&acY()>=2&&ch(.25)&&!S.pend.includes('acd1'))S.pend.push('acd1')}}
+{const c1=EVB.acs1.c;EVB.acs1.c=s=>c1(s)&&(!s.ac.arc||s.ac.arc==='s')}
+{const c2=EVB.acd1.c;EVB.acd1.c=s=>c2(s)&&(!s.ac.arc||s.ac.arc==='d')}
+
+/* đời thường học đường: thêm sự kiện mới, sự kiện đã gặp ở đời trước ít xuất hiện lại */
+const ACL_NEW=[
+ {id:'acl14',ac:1,w:W(3),c:XAC,title:'Kiểm tra đột xuất môn độc dược',text:'Giảng viên giả kim đặt lên bàn năm chiếc cốc giống hệt nhau: "Bốn cốc là nước. Một cốc làm các trò nói lắp ba ngày. Ai dám nếm để nhận biết?"',
+  ch:[{t:'Ngửi kỹ rồi mới nếm',f:s=>{if(ch(.5+s.st.smarts/250)){acc('grade',5);return['Bạn chỉ đúng chiếc cốc có mùi hạnh nhân đắng. Giảng viên gật đầu.','good']}acc('rep',-2);return['Bạn nói lắp suốt ba ngày. Cả lớp gọi bạn là "Ba Lần Chào".','bad']}},{t:'Đẩy bạn bên cạnh lên trước',f:s=>{acc('rep',-3);acc('disc',-2);return'Bạn bên cạnh nếm trúng ngay cốc thứ hai. Cậu ta không nhìn mặt bạn cả tuần.'}},{t:'Giơ tay xin không tham gia',f:s=>{acc('grade',-1);return'Giảng viên ghi một dấu hỏi bên cạnh tên bạn.'}}]},
+ {id:'acl15',ac:1,w:W(3),c:XAC,title:'Con cú đưa thư lạc đường',text:'Một con cú già đậu trên bậu cửa sổ phòng bạn, chân buộc một phong thư niêm phong sáp đỏ của Hiệu trưởng.',
+  ch:[{t:'Mang thư đến văn phòng Hiệu trưởng',f:s=>{acc('rep',4);acc('disc',3);return['Hiệu trưởng cảm ơn bạn và nhớ tên bạn từ hôm ấy.','good']}},{t:'Bóc trộm xem',f:s=>{acc('disc',-5);if(ch(.5)){mod({smarts:2});return['Trong thư là danh sách học viên được cử đi kinh đô năm sau. Tên bạn không có trong đó, nhưng bạn biết ai có.','']}return['Con cú mổ vào tay bạn rồi bay thẳng đến phòng giám thị.','bad']}}]},
+ {id:'acl16',ac:1,w:W(3),c:XAC,title:'Cuốn sách duy nhất',text:'Thư viện chỉ còn một bản "Nguyên lý Ma pháp Cổ" trước kỳ thi. Bạn và một học viên con nhà quý tộc cùng đặt tay lên gáy sách.',
+  ch:[{t:'Đề nghị đọc chung',f:s=>{if(ch(.6)){const r=addFriend({age:s.age,cls:'noble'});return[r?`Hai người đọc chung đến khuya. ${r.first} hóa ra dễ chịu hơn bạn tưởng.`:'Hai người đọc chung đến khuya.','good']}return'Người kia giật sách đi mất. Bạn ngồi đọc ghi chép cũ.'}},{t:'Giành lấy',f:s=>{acc('grade',3);if(ch(.4))addEnemy('Con nhà quý tộc bị bạn giành sách',{cls:'noble',age:s.age,hate:R(30,45)});return'Bạn ôm sách chạy ra khỏi thư viện. Thủ thư nhìn theo lắc đầu.'}},{t:'Nhường lại',f:s=>{acc('rep',2);return'Bạn nhường sách và học bằng trí nhớ. Có khi thế lại hơn.'}}]},
+ {id:'acl17',ac:1,w:W(3),c:s=>isStu(s)&&s.age>=15,title:'Trốn trường xuống thị trấn',text:'Mấy học viên năm trên rủ bạn trèo tường xuống thị trấn dưới chân tháp uống rượu mật ong. "Một đêm thôi, không ai biết đâu."',
+  ch:[{t:'Đi cùng',f:s=>{mod({happy:6});acc('stress',-8);if(ch(.35)){acc('disc',-8);return['Lúc trèo về, bạn đáp xuống ngay trước mặt thầy giám thị.','bad']}acc('rep',3);return['Đêm ấy vui nhất năm. Bạn về kịp trước khi chuông sáng điểm.','good']}},{t:'Ở lại ôn bài',f:s=>{acc('grade',2);return'Bạn nghe tiếng cười của họ vọng lại từ dưới thị trấn.'}},{t:'Báo giám thị',f:s=>{acc('disc',4);acc('rep',-6);return['Họ bị phạt. Từ đó không ai rủ bạn đi đâu nữa.','bad']}}]},
+ {id:'acl18',ac:1,w:W(2),c:XAC,title:'Tiếng động trong bếp lúc nửa đêm',text:'Đến lượt bạn trực đêm ký túc xá. Trong bếp có tiếng loảng xoảng và tiếng nhai rột roạt.',
+  ch:[{t:'Cầm đuốc vào xem',f:s=>{if(ch(.6)){mod({happy:4});return['Một con yêu tinh lùn đang ăn trộm bánh mật. Nó nhìn bạn, bạn nhìn nó. Rồi bạn đưa thêm cho nó một cái.','good']}mod({health:-4});return['Một con chuột to bằng con mèo lao vào mặt bạn.','bad']}},{t:'Đánh thức giám thị',f:s=>{acc('disc',2);return'Giám thị càu nhàu suốt quãng đường xuống bếp. Bên trong chẳng còn gì, chỉ có vụn bánh.'}}]},
+ {id:'acl19',ac:1,w:W(2),c:XAC,title:'Bài luận bị chép',text:'Bài luận bạn thức trắng ba đêm để viết được trả lại với điểm kém. Giảng viên nói nó giống hệt bài của một học viên khác, và người kia nộp trước.',
+  ch:[{t:'Đưa bản nháp ra làm chứng',f:s=>{if(ch(.55+s.st.smarts/300)){acc('grade',4);acc('rep',3);return['Bản nháp đầy vết gạch xóa của bạn thuyết phục được giảng viên. Kẻ chép bài bị phạt.','good']}return['Giảng viên không tin. "Ai cũng có bản nháp."','bad']}},{t:'Tìm kẻ chép bài nói chuyện riêng',f:s=>{if(ch(.4))addEnemy('Kẻ chép bài của bạn',{age:s.age,hate:R(30,45)});mod({happy:-2});return'Hắn chối. Nhưng ánh mắt hắn thì không.'}},{t:'Bỏ qua, viết bài mới',f:s=>{acc('stress',8);acc('grade',2);return'Bạn viết lại từ đầu. Bài mới còn hay hơn bài cũ.'}}]},
+ {id:'acl20',ac:1,w:s=>S.fam.some(p=>p.alive&&/^(Cha|Mẹ)/.test(p.rel)&&p.age>=45)?3:0,c:s=>isStu(s)&&S.fam.some(p=>p.alive&&/^(Cha|Mẹ)/.test(p.rel)&&p.age>=45),title:'Thư báo tin ốm',text:s=>{const p=S.fam.find(x=>x.alive&&/^(Cha|Mẹ)/.test(x.rel)&&x.age>=45);return`Thư từ quê: ${p.rel.toLowerCase()} ${p.first} ốm nặng, nằm liệt giường đã nửa tháng.`},
+  ch:[{t:'Xin nghỉ về thăm',f:s=>{const p=S.fam.find(x=>x.alive&&/^(Cha|Mẹ)/.test(x.rel)&&x.age>=45);if(p)p.bond=clamp(p.bond+15);acc('grade',-4);mod({happy:2});return['Bạn ngồi bên giường suốt mười ngày. Khi bạn đi, người ấy đã ngồi dậy được.','good']}},{t:'Gửi tiền về (10 xu)',req:s=>s.money>=10,f:s=>{s.money-=10;const p=S.fam.find(x=>x.alive&&/^(Cha|Mẹ)/.test(x.rel)&&x.age>=45);if(p)p.bond=clamp(p.bond+6);return'Bạn gửi tiền về mua thuốc, kèm một lá thư dài.'}},{t:'Ở lại học tiếp',f:s=>{acc('stress',10);mod({happy:-4});return['Bạn ở lại. Đêm nào cũng nằm nghĩ về nhà.','bad']}}]},
+ {id:'acl21',ac:1,w:W(2),c:s=>isStu(s)&&s.ac.grade>=60,title:'Lời mời làm trợ giảng',text:'Giảng viên môn bạn học giỏi nhất hỏi bạn có muốn giúp chấm bài cho học viên năm nhất không. Có thêm chút tiền, nhưng mất thời gian ôn bài.',
+  ch:[{t:'Nhận lời',f:s=>{s.money+=R(8,15);acc('rep',5);acc('stress',6);s.ac.tr=(s.ac.tr||0)+5;return['Bạn chấm ba chồng bài, sửa từng lỗi chính tả. Giảng viên bắt đầu gọi bạn là "đồng nghiệp nhỏ".','good']}},{t:'Từ chối khéo',f:s=>{acc('grade',2);return'Giảng viên gật đầu: "Lo cho bản thân trước cũng được."'}}]},
+ {id:'acl22',ac:1,w:W(2),c:XAC,title:'Mưa sao băng trên tháp thiên văn',text:'Cả trường kéo nhau lên tháp thiên văn xem mưa sao băng trăm năm mới có một lần. Người ta nói ước gì lúc ấy cũng thành.',
+  ch:[{t:'Ước được giỏi hơn',f:s=>{s.hid.arcane=Math.min(100,s.hid.arcane+(ch(.3)?1:0));acc('stress',-5);return'Bạn nhắm mắt ước. Khi mở mắt, bầu trời đã tối trở lại.'}},{t:'Ước cho người thân',f:s=>{mod({happy:4});for(const p of S.fam)if(p.alive&&!p.bast)p.bond=clamp(p.bond+2);return['Bạn ước cho cả nhà bình an. Tự nhiên thấy nhẹ lòng.','good']}},{t:'Rủ một người đặc biệt cùng xem',req:s=>canLove()&&!lover()&&s.age>=15,f:s=>{if(ch(.4)){const c=cand();s.rel.push(npc('lover',{...c,age:s.age,bond:R(55,70)}));return['Dưới mưa sao, người ấy nắm tay bạn. Không ai cần nói gì.','good']}return'Người ấy cảm ơn rồi xuống tháp cùng bạn bè.'}}]},
+ {id:'acl23',ac:1,w:W(2),c:XAC,prep:s=>{s.tmp=pick(Object.keys(RACES).filter(r=>r!==s.race&&!RACES[r].hidden))},title:'Học viên mới lạc lõng',text:s=>`Một học viên ${RACES[s.tmp].n.toLowerCase()} mới chuyển đến ngồi ăn một mình ở góc đại sảnh. Không ai lại gần.`,
+  ch:[{t:'Mang khay đến ngồi cùng',f:s=>{const r=addFriend({race:s.tmp,age:s.age});if(r)r.bond=clamp(r.bond+15);acc('rep',2);return[r?`${r.first} ngạc nhiên rồi mỉm cười. Từ đó hai người hay ngồi cùng nhau.`:'Hai người ăn trưa cùng nhau.','good']}},{t:'Kệ thôi',f:s=>'Bạn quay về bàn của mình. Đến cuối năm, học viên ấy chuyển trường.'}]}];
+for(const e of ACL_NEW){EV.push(e);EVB[e.id]=e}
+const acSeenLoad=()=>{try{return JSON.parse(localStorage.getItem(KEY+'-acseen')||'[]')}catch(e){return[]}};
+const acSeenSave=a=>{try{localStorage.setItem(KEY+'-acseen',JSON.stringify(a))}catch(e){}};
+for(const e of EV)if(e.ac&&!e.queued&&typeof e.w==='function'){const w0=e.w;e.w=s=>w0(s)*(acSeenLoad().includes(e.id)?.3:1)}
+{const c0=choose;choose=function(i){const e=S&&EVB[S.pend[0]];if(e&&e.ac){const L=acSeenLoad();if(!L.includes(e.id)){L.push(e.id);const all=EV.filter(x=>x.ac&&!x.queued).length;acSeenSave(L.length>=all?[]:L)}}return c0.apply(this,arguments)}}
+
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
