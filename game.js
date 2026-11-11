@@ -13302,6 +13302,7 @@ Object.assign(ITEMS,{
  au_dmap:{n:'Bản đồ hầm ngục chưa ai vào',r:2,ic:'map',use:true,v:80,d:'Mực mới, giấy cũ. Có một chữ ký: "Người cuối cùng còn sống."'},
  au_letter:{n:'Thư tình chưa gửi của hoàng hậu',r:1,ic:'scroll',use:true,v:40,d:'Gửi cho một người không phải nhà vua. Có kẻ sẽ trả rất nhiều tiền để đọc nó.'},
  au_fake:{n:'Đồ giả',r:0,ic:'gem',v:3,d:'Cổ vật mua ở phiên đấu giá, hóa ra là hàng giả. Giữ lại làm bài học.'}});
+for(const k of['au_compass','au_mirror','au_spoon','au_boot','au_bell','au_paper','au_tooth','au_hourglass','au_quill','au_skull','au_feather','au_rust','au_hand','au_dice','au_egg','au_scream','au_dmap','au_letter'])MISC_ART.add(k);
 const AUC_POOL=['au_compass','au_mirror','au_spoon','au_boot','au_bell','au_paper','au_tooth','au_hourglass','au_quill','au_skull','au_feather','au_rust','au_hand','au_dice','au_egg','au_scream','au_dmap','au_letter','tome','scale','wand','map'];
 const AUC_BASE={0:20,1:45,2:90,3:180};
 const AUC_RIV=['Bá tước xứ Merrow','một thương nhân trùm khăn đỏ','bà góa nhà Vellan','một tu sĩ không chịu nói tên','sứ giả của Tiên quốc','gã lùn râu tết bím','một người trùm mũ trùm kín mặt'];
@@ -13343,7 +13344,7 @@ EV.push(EVB.auc_owner={id:'auc_owner',queued:true,art:'scroll',c:s=>!!(s.alive&&
       {t:'Đóng cửa lại',f:s=>{delete s.bag.find(x=>x.auc==='stolen').auc;mod({honor:-5});if(ch(.35)){mod({health:-10});return['Đêm ấy có người ném đá vỡ cửa sổ nhà bạn, trúng vào trán.','bad']}return['Ông đứng trước cửa tới tối rồi đi. Hàng xóm kể lại chuyện này suốt cả mùa.','bad']}}]});
 EIMG.auc_owner='fair';
 {const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||!S.bag)return;
-  for(const it of S.bag){if(it.auc==='fake'&&ch(.5)){const n=ITEMS[it.k].n;log(AUC_FAKE[it.k]||`${n} hóa ra là đồ giả. Người bán đã biến mất khỏi kinh thành.`,'bad');it.k='au_fake';delete it.auc}}
+  for(const it of S.bag){if(it.auc==='fake'&&ch(.5)){const n=ITEMS[it.k].n;log(AUC_FAKE[it.k]||`${n} hóa ra là đồ giả. Người bán đã biến mất khỏi kinh thành.`,'bad');it.k='au_fake';delete it.auc;const E=S.eq;if(E)for(const sl in E){if(Array.isArray(E[sl]))E[sl]=E[sl].map(x=>x===it.id?null:x);else if(E[sl]===it.id)E[sl]=null}}}
   if(S.bag.some(x=>x.auc==='stolen')&&ch(.35)&&!S.pend.includes('auc_owner'))S.pend.push('auc_owner')}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
