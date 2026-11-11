@@ -14032,6 +14032,41 @@ const acSeenSave=a=>{try{localStorage.setItem(KEY+'-acseen',JSON.stringify(a))}c
 for(const e of EV)if(e.ac&&!e.queued&&typeof e.w==='function'){const w0=e.w;e.w=s=>w0(s)*(acSeenLoad().includes(e.id)?.3:1)}
 {const c0=choose;choose=function(i){const e=S&&EVB[S.pend[0]];if(e&&e.ac){const L=acSeenLoad();if(!L.includes(e.id)){L.push(e.id);const all=EV.filter(x=>x.ac&&!x.queued).length;acSeenSave(L.length>=all?[]:L)}}return c0.apply(this,arguments)}}
 
+/* ===== Di cư: chuyển hẳn sang sống ở nước khác ===== */
+const migNat=r=>NATIONS[r]||null;
+const migCost=r=>{const n=migNat(r);return 30+(n&&n.race!==S.race?40:0)};
+function migWhy(r){if(!S.alive)return'Đã mất';if(S.cap)return'Đang bị giam';if(S.age<16)return'Từ 16 tuổi';if(isStu(S))return'Đang theo học ở Học viện';if(S.house.title>=6)return'Vua chúa không thể bỏ nước ra đi';if(S.trai)return'Chúa tể không cho tay sai bỏ đi';if(S.flags.migY&&S.year-S.flags.migY<5)return`Vừa chuyển đến năm ${S.flags.migY} · chờ thêm ${5-(S.year-S.flags.migY)} năm`;if(S.money<migCost(r))return`Cần ${migCost(r)} xu`;return''}
+function migLoss(r){const L=[];if(S.job&&!JOBS[S.job.id].mobile)L.push(`mất việc ${jt().toLowerCase()}`);if(S.house.title>=2)L.push(`từ bỏ tước ${titleName(S.house.title,S.sex).toLowerCase()} và đất phong`);if(S.kn)L.push('thôi phụng sự lãnh chúa');if(S.co)L.push('mất chức vụ ở triều đình hay quân đội');if(rels('friend').length)L.push('bạn bè ở quê dần xa cách');return L}
+function migView(v){const rest=v.slice(7);
+  if(!rest){let b=`<p class="note">Bạn đang sống ở ${esc(S.realm)}. Chuyển hẳn sang nước khác thì vợ chồng con cái đi theo, nhà cửa ở quê vẫn là của bạn. Mỗi lần di cư phải ở lại ít nhất 5 năm.</p>`;
+    REALMS.forEach((r,i)=>{if(r===S.realm)return;const n=migNat(r),rs=WD().rs&&WD().rs[r],why=migWhy(r);
+      b+=gRow(`data-open="rg:mig:${i}"`,n?'castle':'location',r,`${n?`Quê của ${RACES[n.race].n}${n.race===S.race?' · đồng tộc':''}`:'Vương quốc loài người'}${rs&&rs.war?' · đang có chiến tranh':''}${r==='Thánh quốc Lumaris'?' · tiệm bùa phép bán Thần Dược':''}`,why?'':`${migCost(r)} xu`,false)});
+    return['Di cư sang nước khác',b,'rg']}
+  const r=REALMS[+rest];if(!r||r===S.realm)return['Di cư','<p class="note">Không tìm thấy nước này.</p>','rg:mig'];
+  const n=migNat(r),rs=WD().rs&&WD().rs[r],why=migWhy(r),L=migLoss(r);
+  let b=statGrid([['Trị vì',rs?esc(rs.ruler):'Không rõ'],['Ổn định',rs?rs.stab+'/100':'Không rõ'],['Chiến sự',rs&&rs.war?(rs.war.vs==='nội chiến'?'Nội chiến':'Với '+esc(rs.war.vs.replace(RPFX,''))):'Hòa bình'],['Chi phí',`${migCost(r)} xu`]]);
+  b+=`<p class="note">${n?(n.race===S.race?`Đây là quê hương của tộc ${RACES[n.race].n}. Bạn sẽ được đón như người nhà.`:`Đây là quốc gia của ${RACES[n.race].n}. Người ngoại tộc phải nộp thêm phí nhập cư, và mấy năm đầu sẽ bị nhìn bằng con mắt dè chừng.`):'Một vương quốc của loài người.'}${r==='Thánh quốc Lumaris'?' Tiệm bùa phép ở đây bán Thần Dược.':''}</p>`;
+  if(L.length)b+=`<p class="note bad">Khi đi: ${L.join('; ')}.</p>`;
+  if(trStig()&&!S.trai)b+='<p class="note good">Ở nơi đất khách ít ai biết quá khứ của bạn: tiếng xấu giảm một nửa.</p>';
+  b+=gRow(`data-x="mig:${+rest}"`,'horse',`Chuyển hẳn đến ${r}`,why||'Không thể hoàn tác trong 5 năm','',!!why);
+  return[r,b,'rg:mig']}
+{const v0=rgView;rgView=function(v){if(v==='rg:mig'||v.startsWith('rg:mig:'))return migView(v);const r=v0(v);
+  if(v==='rg'&&S)r[1]=r[1].replace('<p class="sec">Quốc gia của các tộc</p>','<p class="sec">Định cư</p>'+gRow('data-open="rg:mig"','horse','Di cư sang nước khác',`Đang sống ở ${esc(S.realm)}${S.flags.migY?` · chuyển đến năm ${S.flags.migY}`:''}`,'',!S.alive)+'<p class="sec">Quốc gia của các tộc</p>');
+  return r}}
+{const x0=extAct3;extAct3=function(x){if(!x.startsWith('mig:'))return x0(x);const r=REALMS[+x.slice(4)];if(!r||r===S.realm||migWhy(r))return;
+  const old=S.realm,n=migNat(r),L=migLoss(r);S.money-=migCost(r);
+  if(S.job&&!JOBS[S.job.id].mobile){if(S.job.id==='court')S.co=null;S.job=null}
+  if(S.house.title>=2){S.house.title=0;delete S.house.dom;S.kd=null;S.flags.king=0}
+  S.kn=null;S.co=null;
+  for(const f of rels('friend'))f.bond=clamp(f.bond-R(15,25));
+  if(trStig()&&!S.trai)S.flags.trS=S.year+Math.ceil((S.flags.trS-S.year)/2);
+  S.realm=r;S.village=pick(VILL);S.flags.migY=S.year;S.flags.migFor=n&&n.race!==S.race?S.year+3:0;
+  mod({happy:n&&n.race===S.race?4:-3});
+  const t=`Bạn bán bớt đồ đạc, chất phần còn lại lên xe và rời ${old}. Sau nhiều tuần đường, bạn dừng chân ở làng ${S.village} thuộc ${r}.${L.length?` Cái giá phải trả: ${L.join('; ')}.`:''}${n&&n.race!==S.race?` Người ${RACES[n.race].n} ở đây nhìn bạn dè dặt.`:''}`;
+  log(t,'good');note={t,tone:'good'};view='rg';return afterSheetAction()}}
+/* người ngoại tộc mới đến: mấy năm đầu bị dè chừng */
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||!S.flags.migFor)return;if(S.year>=S.flags.migFor){S.flags.migFor=0;log(`Sau mấy năm, hàng xóm ở ${S.village} đã quen mặt bạn. Không ai còn gọi bạn là "người lạ" nữa.`,'good');return}if(ch(.3)){mod({happy:-3});log(pick(['Người bán hàng ngoài chợ hét giá gấp đôi khi thấy bạn là người ngoại tộc.','Lũ trẻ trong làng chạy theo bạn, nhại giọng nói của bạn.','Bạn đến muộn một buổi họp làng, và không ai nhích ghế cho bạn ngồi.']),'bad')}}}
+
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
