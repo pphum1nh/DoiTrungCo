@@ -4876,6 +4876,7 @@ function npcYear(){
     r.ap+=R(1,8)+(r.cls==='noble'?2:0)+(r.kind==='enemy'&&r.hate>=60?2:0);
     if(r.ap>=100){r.ach=r.amb;r.ap=100;
       if(r.kind==='friend'){log(`${r.name} đã ${AMB[r.amb].ach}.`,'good');if(!S.pend.includes('np_up')){S.npT=r.id;S.pend.push('np_up')}if(r.amb==='title')r.cls='noble'}
+      else if(r.kind==='rival'){r.pw=Math.min(95,(r.pw||40)+10);log(`Đối thủ ${r.name} đã ${AMB[r.amb].ach}. Cuộc ganh đua giữa hai người càng khó hơn.`,'bad')}
       else{r.hate=Math.min(100,r.hate+10);log(`Kẻ thù ${r.name} đã ${AMB[r.amb].ach}. Hắn mạnh hơn bao giờ hết.`,'bad');if(!S.pend.includes('np_foe')){S.npT=r.id;S.pend.push('np_foe')}}}
     else if(r.ap>25&&ch(.035)){const old=r.amb;r.ap=R(0,15);if(r.kind==='friend'){r.amb=pick(Object.keys(AMB).filter(k=>!AMB[k].foe&&k!==old));log(`${r.first} thất bại trong việc ${AMB[old].n}. Giờ người ấy quay sang ${AMB[r.amb].n}.`)}else r.amb='revenge'}
     if(r.kind==='enemy'&&r.amb==='revenge'&&r.ap>=60&&ch(.12)&&!S.pend.includes('np_plot')&&S.age>=14){S.npT=r.id;S.pend.push('np_plot')}
