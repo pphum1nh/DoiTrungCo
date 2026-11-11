@@ -13012,7 +13012,7 @@ Object.defineProperty(PP.phong,'acts',{enumerable:true,get(){const rk=S&&S.pp&&S
 
 /* Chuỗi bảo vật: Ngọn Tháp Quay Mặt Vào Núi */
 ITEMS.pq_flute={n:'Tiêu Gió Rỗng',r:3,ic:'horn',cb:3,fx:{magic:1},v:0,ev:1,sl:'acc',d:'Ống tiêu bằng xương chim núi, viền bạc xỉn. Lỗ thổi luôn lạnh dù phơi giữa nắng. Giữ được một Hơi Gió, nạp ở đèo hoặc giữa bão.'};
-MISC_ART.add('pq_flute');
+MISC_ART.add('pq_flute');MISC_ART.add('pq_vanca');
 const tqf=()=>{const T=TP();return T.q||(T.q={})};
 PPQ.phong={n:'Ngọn Tháp Quay Mặt Vào Núi',it:'pq_flute',mv:'pqPhong',ch:[
  {t:'Lá Thư Bay Ngược Gió',x:'Sau trận bão, bạn nhặt được một lá thư cứ bay ngược gió về phía ngọn tháp bỏ hoang trên đèo. Thư chỉ có một câu: "Khi chuông ngừng kêu, hãy đóng cửa phía đông."',
