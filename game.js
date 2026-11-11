@@ -13550,9 +13550,15 @@ function copeAdd(k,t){S.stress=Math.max(0,(S.stress||0)-25);S.strLv=strLv(S.stre
 {const c0=choose;choose=function(i){let j=null;try{const e=EVB[S.pend[0]];if(e&&e.id!=='str_break'&&e.id!=='trt_grow')j=trtJudge(e.ch[i])}catch(e){}c0(i);if(j&&S&&S.alive){strAdd(j.d);if(S.pend.includes('str_break')&&$('#modal').hidden)showNext()}}}
 {const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive)return;
   if(!S.trt&&S.age>=16){trtAssign();S.pend.push('trt_grow');return}
-  if(!trtOn())return;const lg=legT('calm');let dec=4+lg*2+(S.cope||[]).length*6;const H=typeof propHome==='function'&&propHome();if(H&&!H.ten)dec+=2;
+  if(!trtOn())return;const lg=legT('calm');let dec=3+lg*2+(S.cope||[]).length*6;const H=typeof propHome==='function'&&propHome();if(H&&!H.ten)dec+=2;
   for(const k of S.cope||[])mod(COPE[k].fx);
-  if(S.trt.includes('pious'))mod({piety:1});if(S.trt.includes('diligent')&&S.job)S.job.perf=(S.job.perf||40)+3;if(S.trt.includes('lazy'))mod({happy:1});
+  if(S.trt.includes('pious'))mod({piety:1});if(S.trt.includes('diligent')&&S.job)S.job.perf=Math.min(100,(S.job.perf||40)+3);if(S.trt.includes('lazy'))mod({happy:1});
+  {const cl=S.fam.filter(p=>/^(Cha|Mẹ|Vợ|Chồng|Con)/.test(p.rel)&&!p.bast),prev=S.strSeen||[];let up=0;
+   for(const p of cl)if(!p.alive&&prev.includes(p.id)){up+=/^(Vợ|Chồng|Con)/.test(p.rel)?16:12;if(S.trt.includes('kind'))up+=4}
+   S.strSeen=cl.filter(p=>p.alive).map(p=>p.id);
+   if(S.money<0)up+=5;if(S.st.health<30)up+=4;if(S.cap)up+=8;if(S.trt.includes('lazy')&&S.job)up+=3;if(S.trt.includes('greedy')&&S.money<30)up+=3;
+   if(up)strAdd(up)}
+  const sv=S.stress||0;if(sv>=75&&sv<100){mod({happy:-3,health:-2});log('Căng thẳng đè nặng, bạn ăn không ngon, ngủ không yên.','bad')}else if(sv>=50)mod({happy:-2});
   if((S.stress||0)>=100){mod({health:-6});log('Căng thẳng dồn nén làm bạn kiệt sức. Sức khỏe -6.','bad')}
   S.stress=Math.max(0,(S.stress||0)-dec);if(strLv(S.stress)<(S.strLv||0))S.strLv=strLv(S.stress)}}
 {const a0=actExtra3;actExtra3=function(){const b=a0();if(!trtOn()||(S.stress||0)<15)return b;const w=S.done.relax?'Đã giải tỏa năm nay':'';
@@ -13565,7 +13571,7 @@ const trtRow=()=>{if(!S||!S.trt)return'';return gRow('','scroll',`Tính cách: $
 const LEG={war:{n:'Võ Gia',ic:'sword',d:t=>`Người kế thừa được cộng ${5*t} thiên phú kiếm thuật`},arc:{n:'Huyết Mạch Mệnh',ic:'star',d:t=>`Người kế thừa được cộng ${5*t} cảm nhận ma pháp`},
  trade:{n:'Thương Gia',ic:'coins',d:t=>`Người kế thừa nhận thêm ${[0,60,150,300][t]} xu, cả nhà thu thêm ${[0,3,6,10][t]} xu mỗi năm`},long:{n:'Trường Thọ',ic:'heart',d:t=>`Từ 40 tuổi, sức khỏe +${t} mỗi năm`},
  fame:{n:'Danh Môn',ic:'crown',d:t=>`Người kế thừa bắt đầu với danh dự +${5*t}, uy danh gia tộc +${2*t} mỗi năm`},calm:{n:'Tâm Tĩnh',ic:'heart',d:t=>`Căng thẳng tự giảm thêm ${2*t} mỗi năm`}};
-const LEG_COST=[100,250,500];
+const LEG_COST=[60,150,300];
 const legT=k=>(S&&S.house&&S.house.leg&&S.house.leg[k])||0;
 function legView(){const h=S.house,rn=h.rn||0;let b=`<p class="note">Mỗi đời người để lại cho dòng họ một phần danh vọng: sống lâu, giữ danh dự, giàu có, lên bậc cao trên Mệnh Lộ, làm Anh Hùng. Danh vọng dùng để mở di sản, có hiệu lực với mọi đời sau.</p>`+statGrid([['Danh vọng dòng họ',rn],['Đời hiện tại',`Đời thứ ${S.gen||1}`]]);
   for(const[k,L]of Object.entries(LEG)){const t=legT(k);b+=`<p class="sec">${L.n}${t?` · bậc ${t}/3`:''}</p>`;if(t)b+=`<p class="note">${L.d(t)}.</p>`;
@@ -13579,7 +13585,7 @@ function legLife(){let v=Math.floor(S.age/5)+Math.floor(Math.max(0,S.st.honor-40
   return Math.max(3,v)}
 let legGain=0;
 {const d0=die;die=function(c){const was=S&&S.alive;d0(c);if(!was||!S||!S.house)return;legGain=legLife();S.house.rn=(S.house.rn||0)+legGain}}
-{const s0=showDeath;showDeath=function(){s0();if(legGain){const el=$('#modal .epi');if(el)el.insertAdjacentHTML('afterend',`<p class="note" style="text-align:center">Đời người này để lại cho dòng họ ${legGain} danh vọng.</p>`)}}}
+{const s0=showDeath;showDeath=function(){s0();if(legGain){const el=$('#modal .epi');if(el)el.insertAdjacentHTML('afterend',`<p class="note" style="text-align:center">${heirPool().length?`Đời người này để lại cho dòng họ ${legGain} danh vọng.`:`Đời người này để lại ${legGain} danh vọng, nhưng dòng họ không còn ai nối dõi.`}</p>`)}}}
 {const i0=inherit;inherit=function(id){const r=i0(id);if(!S||!S.alive||!S.house)return r;legGain=0;talSync();
   const w=legT('war'),a=legT('arc'),tr=legT('trade'),fm=legT('fame');
   if(w){S.tal.sword=S.hid.sword=Math.min(100,S.tal.sword+5*w)}
