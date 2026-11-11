@@ -13859,6 +13859,42 @@ function dkView(){const c=S.world.cat,dn=S.age<14?'Từ 14 tuổi':(S.done.dkn||
   log(t,tone);note={t,tone};afterSheetAction()}}
 {const i0=inherit;inherit=function(){const r=i0.apply(this,arguments);if(S&&S.fam)for(const p of S.fam)delete p.disown;return r}}
 
+/* ===== Phe Bóng Tối: nghề riêng cho kẻ phản bội; theo Vua Bất Tử thì hóa Bộ Xương ===== */
+const TRJ={
+  tr_raider:{n:'Kỵ binh cướp bóc',min:16,t:['Lính cướp','Thủ lĩnh toán cướp','Chúa cướp vùng biên'],pay:[15,35,70],need:[3,6],risk:.05,riskDie:'trong một trận cướp làng',riskMsg:['Dân làng đặt bẫy chông trên đường vào làng.','Một toán hiệp sĩ đuổi theo toán cướp của bạn suốt hai ngày.'],fx:{health:-1,honor:-1},req:s=>s.st.health>=40,why:'Cần Sức khỏe từ 40'},
+  tr_spy:{n:'Tai mắt của chúa tể',min:16,t:['Tai mắt','Gián điệp','Chủ quản mạng lưới'],pay:[12,30,60],need:[3,6],fx:{smarts:1},req:s=>s.st.smarts>=35,why:'Cần Trí tuệ từ 35'},
+  tr_jailer:{n:'Cai ngục Bóng Tối',min:16,t:['Lính canh ngục','Trưởng ngục','Đại ngục chủ'],pay:[10,24,48],need:[3,6],fx:{happy:-1},req:()=>true,why:''},
+  tr_smith:{n:'Thợ rèn lò đen',min:14,t:['Thợ phụ lò đen','Thợ rèn hắc thiết','Bậc thầy lò đen'],pay:[12,26,52],need:[4,8],fx:{health:-1},req:()=>true,why:''},
+  tr_priest:{n:'Tư tế Hắc Lễ',min:16,t:['Người giữ lửa đen','Tư tế Hắc Lễ','Đại tư tế Bóng Tối'],pay:[10,28,60],need:[3,7],fx:{magic:2,piety:-2},req:s=>s.st.magic>=25,why:'Cần Ma lực từ 25'},
+  tr_beast:{n:'Người chăn quỷ thú',min:16,t:['Người cho quỷ ăn','Quản tượng quỷ thú','Chủ chuồng Vực Sâu'],pay:[12,30,62],need:[3,6],risk:.04,riskDie:'dưới nanh một con quỷ thú',riskMsg:['Một con chó săn địa ngục cắn nát cánh tay bạn.'],fx:{health:-1},req:s=>!!s.trai&&s.trai.c==='demon',why:'Chỉ dành cho người theo Ma Vương'},
+  tr_grave:{n:'Người gọi xác cho Morvain',min:16,t:['Phu đào mộ','Người gọi xác','Chủ nghĩa địa'],pay:[10,26,55],need:[3,6],fx:{magic:1,piety:-2},req:s=>!!s.trai&&s.trai.c==='undead',why:'Chỉ dành cho người theo Vua Bất Tử'}};
+Object.assign(JOBS,TRJ);IV_SKIP.push(...Object.keys(TRJ));
+Object.assign(JIC,{tr_raider:'flame',tr_spy:'hood',tr_jailer:'lock',tr_smith:'anvil',tr_priest:'skull',tr_beast:'demon',tr_grave:'skull'});
+JGRP.splice(JGRP.length-1,0,['bt','Phe Bóng Tối',Object.keys(TRJ),'skull','Nghề của kẻ đã theo chúa tể. Thế giới loài người không còn nhận bạn.']);
+Object.assign(JACT,{
+ tr_raider:[['Đột kích một trang trại','Bạc và lương thực · dân làng có thể chống trả',.65,'Bạn cùng toán cướp vét sạch kho thóc và chuồng gia súc.',{honor:-2},[8,22],'Dân làng chống trả bằng chĩa ba. Bạn rút về tay không.',{health:-6},.06]],
+ tr_spy:[['Trà trộn vào thành của loài người','Tin tức cho chúa tể · bị lộ thì nguy',.6,'Bạn nghe được kế hoạch phòng thủ từ miệng một viên đội trưởng say rượu.',{smarts:1},[6,16],'Một lính gác nhận ra mặt bạn. Bạn phải nhảy xuống hào thành mà trốn.',{health:-5},.07]],
+ tr_jailer:[['Tra hỏi tù binh','Chúa tể cần tên của thủ lĩnh kháng chiến',.7,'Tù binh khai ra một cái tên trước khi trời sáng.',{honor:-2},[5,12],'Tù binh chết mà không nói một lời. Bạn bị cấp trên khiển trách.',{happy:-4},.06]],
+ tr_smith:[['Rèn lưỡi kiếm hắc thiết','Thép đen nóng hơn lửa thường',.7,'Lưỡi kiếm đen nguội đi, vẫn còn rên khe khẽ. Quỷ tướng trả bạn hậu hĩnh.',{},[6,16],'Lò đen phụt lửa, cháy xém nửa mặt bạn.',{health:-6},.06]],
+ tr_priest:[['Cử hành Hắc Lễ dưới trăng non','Ma lực tăng · đôi khi thứ được gọi lên không chịu về',.65,'Ngọn lửa đen bùng lên cao bằng ngọn tháp. Chúa tể hài lòng.',{magic:3,piety:-2},[5,14],'Thứ bạn gọi lên không chịu quay về. Bạn phải trả giá bằng máu.',{health:-8},.06]],
+ tr_beast:[['Huấn luyện một bầy chó săn địa ngục','Quỷ thú vâng lời thì được thưởng',.6,'Bầy chó săn nằm rạp xuống khi bạn huýt sáo.',{},[8,18],'Con đầu đàn quay lại cắn bạn.',{health:-8},.07]],
+ tr_grave:[['Gọi người chết ở một nghĩa địa làng','Thêm quân cho Morvain',.65,'Ba mươi bộ xương đứng dậy và đi theo bạn về hầm mộ.',{magic:2},[6,15],'Một tu sĩ già đang canh mộ. Nước thánh làm bạn bỏng rát.',{health:-6},.06]]});
+const isTrJ=id=>!!TRJ[id];
+/* bảng nghề: kẻ phản bội chỉ thấy nghề Bóng Tối; người thường không thấy nhóm này */
+{const d0=drawSheet;drawSheet=function(){if(!(view==='job'||(view&&view.startsWith('job:'))))return d0();
+  const all={...JOBS},side=S&&S.trai&&S.trai.c,hide=Object.keys(JOBS).filter(k=>(S&&S.trai?!isTrJ(k)||(k==='tr_beast'&&side!=='demon')||(k==='tr_grave'&&side!=='undead'):isTrJ(k))&&!(S&&S.job&&S.job.id===k));
+  for(const k of hide)delete JOBS[k];
+  try{return d0()}finally{for(const k of Object.keys(JOBS))delete JOBS[k];Object.assign(JOBS,all)}}}
+{const j0=joinJob;joinJob=function(id){if(S.trai&&!isTrJ(id)){const t='Không ai trong thế giới loài người chịu nhận một kẻ đã theo chúa tể.';note={t,tone:'bad'};return afterSheetAction()}if(!S.trai&&isTrJ(id))return;return j0(id)}}
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||!S.job)return;
+  if(S.trai&&!isTrJ(S.job.id)){log(`Người ta biết bạn theo phe Bóng Tối. Bạn bị đuổi khỏi chỗ làm.`,'bad');if(S.job.id==='court')S.co=null;S.job=null}
+  else if(!S.trai&&isTrJ(S.job.id)){log('Phe Bóng Tối không còn, công việc của bạn cũng mất theo.','bad');S.job=null}}}
+/* đầu quân: mất việc của loài người; theo Vua Bất Tử thì hóa Bộ Xương */
+{const t0=trJoin;trJoin=function(){const c=S.world.cat;let lost='';if(S.job&&!isTrJ(S.job.id)){lost=` Bạn bị đuổi khỏi chỗ làm ${jt().toLowerCase()}.`;if(S.job.id==='court')S.co=null;S.job=null}
+  const r=t0();let sk='';
+  if(c.id==='undead'){SKX().mor=1;if(S.race!=='skeleton'){skBecome();const A=S.ann[S.ann.length-1];if(A){A.title='Ân Huệ Của Morvain';A.sub=`${S.first} ${S.surname} uống chén rượu đen của Vua Bất Tử. Thịt da rơi rụng, chỉ còn lại bộ xương mang ký ức của người ấy, không bao giờ già, không bao giờ chết.`}sk=' Morvain đặt bàn tay xương lên trán bạn. Thịt da bạn rơi rụng: từ nay bạn là một Bộ Xương.'}}
+  r[0]+=lost+sk+' Nghề của loài người không còn nhận bạn, hãy tìm việc trong nhóm "Phe Bóng Tối".';return r}}
+
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
