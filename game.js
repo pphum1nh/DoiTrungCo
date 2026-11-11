@@ -13895,6 +13895,78 @@ const isTrJ=id=>!!TRJ[id];
   if(c.id==='undead'){SKX().mor=1;if(S.race!=='skeleton'){skBecome();const A=S.ann[S.ann.length-1];if(A){A.title='Ân Huệ Của Morvain';A.sub=`${S.first} ${S.surname} uống chén rượu đen của Vua Bất Tử. Thịt da rơi rụng, chỉ còn lại bộ xương mang ký ức của người ấy, không bao giờ già, không bao giờ chết.`}sk=' Morvain đặt bàn tay xương lên trán bạn. Thịt da bạn rơi rụng: từ nay bạn là một Bộ Xương.'}}
   r[0]+=lost+sk+' Nghề của loài người không còn nhận bạn, hãy tìm việc trong nhóm "Phe Bóng Tối".';return r}}
 
+/* ===== Phe Bóng Tối: sự kiện trong thời phục vụ, tiếng xấu sau khi rời phe ===== */
+const trStig=()=>!!(S&&S.flags&&S.flags.trS&&S.year<S.flags.trS);
+const trStigY=()=>trStig()?S.flags.trS-S.year:0;
+function trStigSet(n){S.flags.trS=Math.max(S.flags.trS||0,S.year+n);S.flags.trPast=1}
+const trStigLess=n=>{if(trStig())S.flags.trS-=n};
+/* rời phe thì mang tiếng xấu: trốn ra nước ngoài 6 năm, đầu thú 10 năm, đánh tháo 12 năm, đào ngũ 8 năm */
+{const e=EVB.tr_fall;[6,10,12].forEach((n,i)=>{const f0=e.ch[i].f;e.ch[i].f=s=>{const r=f0(s);if(s.alive)trStigSet(n);return r}})}
+{const x0=extAct3;extAct3=function(x){const was=x==='tr:quit'&&trOn();const r=x0(x);if(was&&!S.trai)trStigSet(8);return r}}
+/* xin việc của loài người khi còn mang tiếng */
+{const j0=jobApply;jobApply=function(id){if(S.alive&&trStig()&&!isTrJ(id)&&!S.trai&&ch(.6)){S.ivNo=S.ivNo||{};S.ivNo[id]=S.year;const t=pick(['Chủ xưởng nhìn bạn một lúc lâu rồi nói: "Ta nhớ mặt ngươi. Ngươi từng cưỡi ngựa đen đi qua làng ta." Cửa đóng lại.','Người ta vừa nghe tên bạn đã lắc đầu. Chẳng ai muốn thuê kẻ từng theo chúa tể.','Họ nhận đơn của bạn, rồi trả lại sau một ngày với ba chữ: "Không nhận phản tặc."']);note={t,tone:'bad'};log(t,'bad');return afterSheetAction()}return j0(id)}}
+
+const TRPEV=[
+ {id:'tr_pact',queued:true,big:true,art:'demon',img:'demon',c:s=>trOn()&&s.trai.c==='demon'&&s.trai.rk>=2&&!s.trai.pact&&!['fiend','skeleton'].includes(s.race),title:'Khế Ước Máu',
+  text:s=>`${CATS.demon.boss} gọi bạn vào điện sâu nhất của lâu đài đen. Trên bàn đá là một chiếc chén đựng thứ máu đen sôi lăn tăn. "Một ${trName()} mà máu vẫn đỏ như loài người? Uống đi. Ngươi sẽ không bao giờ quay đầu được nữa, nhưng ngươi cũng sẽ không cần quay đầu."`,
+  ch:[{t:'Uống máu quỷ (thành Bán quỷ)',f:s=>{s.trai.pact=1;const old=RACES[s.race].n;s.race='fiend';s.flags.pactFrom=old;mod({magic:15,health:5,looks:-5,piety:-10});announce('Huyết Khế Vực Sâu',`${s.first} ${s.surname} uống máu của ${CATS.demon.boss}. Hai chiếc sừng nhỏ mọc lên trên trán.`,'demon','demon');return[`Máu quỷ chảy khắp người bạn như lửa. Sáng hôm sau, hai chiếc sừng nhỏ nhú lên trên trán. Bạn không còn là ${old.toLowerCase()} nữa.${trM(15)}`,'magic']}},
+      {t:'Xin được giữ lại máu người',f:s=>{s.trai.pact=-1;trM(-10);mod({health:-R(8,15)});return['Ma Vương cười, rồi hất cả chén máu vào mặt bạn. Bỏng rát suốt một tuần. "Ta sẽ nhớ chuyện này."','bad']}}]},
+ {id:'tr_test',queued:true,big:true,art:'skull',img:'inquisition',c:s=>trOn(),
+  prep:s=>{const c=[...(s.rel||[]).filter(r=>r.alive&&(r.kind==='friend'||(r.kind==='enemy'&&/kẻ phản bội/.test(r.why||'')))),...s.fam.filter(p=>p.alive&&p.disown&&p.age>=16)];const p=c.length&&ch(.7)?pick(c):null;s.tmp=p?{id:p.id,n:p.first,fam:!!p.rel,rel:p.rel||''}:{n:`${pick(MN)} xứ ${pick(VILL)}`}},
+  title:'Thử Thách Lòng Trung Thành',
+  text:s=>{const t=s.tmp;return`Quân của chúa tể bắt được một toán người kháng cự. ${t.id?`Trong đám tù binh, bạn nhận ra ${t.fam?`${t.rel.toLowerCase()} ${t.n}`:`${t.n}, người từng là bạn của bạn`}.`:`Thủ lĩnh của họ là ${t.n}, một người trẻ tuổi mắt sáng như dao.`} ${lordN(s.trai.c)} trao thanh kiếm cho bạn: "Chứng minh đi."`},
+  ch:[{t:'Hành quyết',f:s=>{const t=s.tmp;mod({honor:-10});strAdd(t.id?25:10);if(t.id){const p=s.fam.find(x=>x.id===t.id)||s.rel.find(x=>x.id===t.id);if(p)p.alive=false}trHarm(3);return[`Bạn vung kiếm. Không ai trong điện dám nhìn bạn nữa, kể cả những quỷ tướng.${trM(15)}`,'bad']}},
+      {t:'Lén thả người trong đêm',f:s=>{const t=s.tmp;if(ch(.5)){mod({health:-R(15,25)});trM(-10);return[`Bạn bị bắt quả tang ở cổng ngục. ${lordN(s.trai.c)} không giết bạn, nhưng những vết roi sẽ theo bạn tới cuối đời.`,'bad']}mod({honor:6});if(t.id){const p=s.fam.find(x=>x.id===t.id);if(p&&p.disown&&ch(.5)){p.disown=0;p.bond=25}}return[`Bạn mở cửa ngục lúc canh ba. ${t.n} nhìn bạn rất lâu trước khi chạy vào rừng.`,'good']}},
+      {t:'Từ chối thẳng',f:s=>{mod({health:-R(10,20)});trM(-15);return[`Bạn trả lại thanh kiếm. ${lordN(s.trai.c)} sai người khác làm thay, rồi sai đánh bạn trước mặt cả triều.`,'bad']}}]},
+ {id:'tr_rivlt',queued:true,big:true,art:'dagger',c:s=>trOn()&&s.trai.rk>=1,prep:s=>{s.tmp={n:`${pick(MN)} ${pick(['Răng Sắt','Mắt Đỏ','Tay Xương','Lưỡi Đen'])}`}},title:'Kẻ Tranh Sủng',
+  text:s=>`${s.tmp.n}, một ${TRK[s.trai.c][Math.max(1,s.trai.rk)].toLowerCase()} khác, đang thì thầm bên tai chúa tể rằng bạn vẫn còn thương xót loài người. Trong triều đen, lời đồn như thế có thể giết người.`,
+  ch:[{t:'Gài bẫy để hắn thất sủng',f:s=>{if(ch(.4+s.st.smarts/250)){return[`Bạn đặt một lá thư giả của Giáo hội vào phòng ${s.tmp.n}. Sáng hôm sau, đầu hắn treo trên cổng thành.${trM(15)}`,'magic']}addEnemy(`${trName()} tranh sủng với bạn`,{first:s.tmp.n.split(' ')[0],hate:R(60,80)});trM(-8);return['Hắn phát hiện ra trước. Giờ hắn là kẻ thù công khai của bạn.','bad']}},
+      {t:'Thách đấu trước mặt chúa tể',f:s=>{if(ch(.35+(s.blade||0)/200+cbB()/250+s.trai.rk*.05)){return[`Bạn hạ ${s.tmp.n} trong ba hiệp. Chúa tể vỗ tay.${trM(12)}`,'magic']}mod({health:-R(15,30)});trM(-5);return['Bạn thua, nằm trong vũng máu của chính mình. Chúa tể thất vọng.','bad']}},
+      {t:'Nhún nhường, dâng quà cho hắn',f:s=>{const g=Math.min(Math.max(0,s.money),30);s.money-=g;trM(-3);return`Bạn gửi ${g} xu sang phòng ${s.tmp.n}. Hắn im lặng, lần này.`}}]},
+ {id:'tr_love',queued:true,big:true,art:'heart',c:s=>trOn()&&!!(spouse()||lover()),title:'Người Ở Lại',
+  text:s=>{const L=spouse()||lover();return`${L.first} là người duy nhất không bỏ bạn. Đêm ấy, ${L.first} nhìn tấm áo choàng đen treo trên tường rồi hỏi khẽ: "Đến bao giờ thì chúng ta được sống như người bình thường?"`},
+  ch:[{t:'Hứa sẽ bỏ phe khi có dịp',f:s=>{const L=spouse()||lover();L.bond=clamp(L.bond+8);s.flags.trPromise=1;return`${L.first} gật đầu, và tối đó ngủ yên hơn mọi khi.`}},
+      {t:'"Ta làm tất cả vì chúng ta"',f:s=>{const L=spouse()||lover();L.bond=clamp(L.bond-10);return[`${L.first} quay mặt vào tường. Bạn không biết người ấy có tin không.`,'bad']}},
+      {t:'Đưa người ấy vào sống trong lâu đài đen',f:s=>{const L=spouse()||lover();mod({happy:5});L.bond=clamp(L.bond+(ch(.5)?5:-12));return['Lâu đài rộng, ấm, đầy của cải. Nhưng đêm nào cũng nghe tiếng tù binh rên dưới hầm.','']}}]},
+ {id:'tr_shame',queued:true,big:true,art:'skull',c:s=>trStig()&&!s.trai&&s.alive,prep:s=>{s.tmp=R(0,2)},title:'Kẻ Từng Theo Chúa Tể',
+  text:s=>[`Ngoài chợ, một bà lão nhổ nước bọt vào chân bạn: "Con trai ta chết trong trận cháy làng năm ấy."`,`Sáng ra, cửa nhà bạn bị vẽ một chữ "PHẢN TẶC" bằng máu gà. Hàng xóm đứng xa nhìn.`,`Một toán thanh niên chặn bạn ở đầu làng, tay cầm gậy gộc. "Có người chết mà ngươi vẫn sống. Thế là không công bằng."`][s.tmp],
+  ch:[{t:'Cúi đầu chịu đựng',f:s=>{mod({happy:-5,honor:1});trStigLess(1);if(s.tmp===2)mod({health:-R(8,15)});return['Bạn không nói gì. Có lẽ đó là thứ duy nhất bạn còn có thể trả.','']}},
+      {t:'Đền bù cho họ (15 xu)',req:s=>s.money>=15,f:s=>{s.money-=15;mod({honor:2});trStigLess(1);return['Bạn để túi bạc trước cửa nhà họ. Sáng hôm sau, túi bạc vẫn ở đó, nhưng đã mở.','good']}},
+      {t:'Đáp trả',f:s=>{mod({honor:-4});if(s.tmp===2&&!ch(.4+(s.blade||0)/200)){mod({health:-R(15,25)});return['Một chọi năm. Bạn nằm trong mương tới sáng.','bad']}s.flags.trS=(s.flags.trS||s.year)+1;return['Bạn đáp trả. Người ta nói: "Thấy chưa, bản chất không đổi."','bad']}}]},
+ {id:'tr_kin',queued:true,big:true,art:'skull',c:s=>!!s.flags.trKin&&s.alive,title:'Con Cháu Kẻ Phản Bội',
+  text:s=>`Ai trong vùng cũng biết ${s.flags.trKin} từng theo chúa tể. Giờ người ta nhìn bạn, đứa con mang cùng họ ấy, bằng ánh mắt dè chừng.`,
+  ch:[{t:'Ngẩng cao đầu, sống khác người đi trước',f:s=>{s.flags.trKin=0;mod({honor:3});return['Bạn làm việc chăm hơn mọi người, nói ít hơn mọi người. Rồi người ta sẽ quên.','good']}},
+      {t:'Tự hào về dòng máu ấy',f:s=>{s.flags.trKin=0;s.flags.darkBlood=1;mod({honor:-5,magic:3});return['Bạn không cúi đầu vì chuyện người khác đã làm. Có kẻ thì thầm rằng bạn sẽ đi theo vết xe cũ.','']}}]},
+ {id:'dk_trial',queued:true,big:true,art:'scroll',img:'inquisition',c:s=>!s.trai&&s.alive&&s.age>=14,prep:s=>{s.tmp={n:`${pick(MN)} ${surFor('human','craft')}`}},title:'Xét Xử Kẻ Theo Giặc',
+  text:s=>`Sau ngày giải phóng, dân làng lôi ${s.tmp.n} ra quảng trường. Người này từng thu cống cho chúa tể, nhưng cũng từng lén thả hai đứa trẻ. Người ta hỏi ý bạn.`,
+  ch:[{t:'Đòi treo cổ',f:s=>{mod({honor:-1});return'Dây thừng được thả xuống trước khi trời tối.'}},
+      {t:'Xin khoan hồng cho người ấy',f:s=>{mod({honor:4});if(ch(.4))addEnemy('Thân nhân nạn nhân giận bạn bênh kẻ theo giặc',{hate:R(40,55)});return['Người ấy bị đày khỏi làng thay vì bị treo cổ. Không phải ai cũng hài lòng.','good']}},
+      {t:'Không can dự',f:s=>'Bạn quay về nhà. Có những phán xét không phải của bạn.'}]}];
+for(const e of TRPEV){EV.push(e);EVB[e.id]=e}
+
+/* thêm sự kiện trong thời phục vụ và sau ngày giải phóng */
+{const w0=worldYear;worldYear=function(){const hadDom=!!(S.world.cat&&S.world.cat.win);w0();
+  if(trOn()&&ch(.35)){const L=['tr_pact','tr_test','tr_rivlt','tr_love'].filter(id=>!S.pend.includes(id)&&EVB[id].c(S));if(L.length)S.pend.push(pick(L))}
+  if(hadDom&&!S.world.cat&&!S.trai&&S.age>=14)S.pend.push('dk_trial')}}
+/* người mang tiếng xấu: thỉnh thoảng bị làng xóm trả đũa; tiếng xấu nhạt dần */
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive)return;
+  if(trStig()&&!S.trai&&ch(.25)&&!S.pend.includes('tr_shame'))S.pend.push('tr_shame');
+  if(S.flags.trS&&!trStig()&&S.flags.trSDone!==S.flags.trS&&!S.trai&&(S.flags.trSDone=S.flags.trS))log('Người ta bắt đầu quên chuyện bạn từng theo chúa tể. Không phải tất cả, nhưng đủ để bạn đi chợ mà không phải cúi mặt.','good')}}
+/* Hoạt động: chuộc lỗi */
+{const a0=actExtra3;actExtra3=function(){const b=a0();if(!trStig()||S.trai||!S.alive)return b;const dn=S.done.atone?'Đã làm năm nay':'';
+  return b+`<p class="sec">Chuộc lỗi · còn mang tiếng ${trStigY()} năm</p>`+gRow('data-x="atone:build"','house','Góp tiền dựng lại làng bị đốt (30 xu)',dn||(S.money<30?'Không đủ tiền':'Tiếng xấu giảm 2 năm · danh dự'),'',!!dn||S.money<30)
+    +gRow('data-x="atone:work"','church','Làm không công cho nhà thờ một mùa',dn||'Có thể giảm tiếng xấu 1 năm · sùng đạo','',!!dn)
+    +gRow('data-x="atone:door"','heart','Đến từng nhà xin lỗi',dn||'Một nửa số nhà mở cửa · có thể giảm tiếng xấu 1 năm','',!!dn)}}
+{const x0=extAct3;extAct3=function(x){if(!x.startsWith('atone:'))return x0(x);if(!trStig()||S.trai||S.done.atone||!S.alive)return;const a=x.slice(6);let t,tone='good';
+  if(a==='build'){if(S.money<30)return;S.money-=30;trStigLess(2);mod({honor:4});t='Bạn bỏ tiền dựng lại ba nóc nhà ở làng bên sông. Không ai cảm ơn, nhưng cũng không ai đuổi bạn đi.'}
+  if(a==='work'){mod({piety:4,health:-3});if(ch(.6)){trStigLess(1);t='Bạn khuân đá sửa tường nhà thờ suốt mùa hè. Cha xứ bắt đầu chào bạn mỗi sáng.'}else{t='Bạn làm suốt mùa hè. Giáo dân vẫn ngồi tránh xa bạn trong nhà thờ.';tone=''}}
+  if(a==='door'){if(ch(.5)){trStigLess(1);mod({honor:2});t='Một nửa số nhà đóng cửa. Nửa còn lại cho bạn vào, rót cho bạn một cốc nước và nghe bạn nói.'}else{mod({happy:-5});t='Nhà nào cũng đóng cửa. Bạn đứng dưới mưa tới tối.';tone='bad'}}
+  S.done.atone=1;log(t,tone);note={t,tone};return afterSheetAction()}}
+/* con cháu kẻ phản bội mang một phần tiếng xấu */
+{const i0=inherit;inherit=function(){const tr=S&&(S.trai||trStig()),nm=S&&`${S.first} ${S.surname}`;const r=i0.apply(this,arguments);if(tr&&S&&S.alive){S.flags.trS=S.year+5;S.flags.trKin=nm;S.pend.push('tr_kin')}return r}}
+
+/* kẻ phản bội không còn được loài người gọi đi lính, phong tước hay mời làm Anh Hùng */
+for(const id of['levy','merit','cru_call','callhero','hn_invite','kn_offer']){const e=EVB[id];if(e&&e.c){const c0=e.c;e.c=s=>!s.trai&&c0(s)}}
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
