@@ -1596,7 +1596,7 @@ function drawSheet(){
     b+=eqHTML()+`<p class="sec">Túi đồ · ${S.bag.length}/${BAGMAX}</p><div class="bag">`;
     for(let i=0;i<BAGMAX;i++){const x=S.bag[i];b+=x?`<button class="slot r${ITEMS[x.k].r} ${sel===x.id?'sel':''} ${eqHas(x.id)?'eqd':''}" data-sel="${x.id}" aria-label="${esc(ITEMS[x.k].n)}">${itemIcon(x.k,256)}</button>`:'<div class="slot empty"></div>'}
     b+=`</div><p class="note" style="margin-top:2px">Sức chiến đấu từ trang bị: <b>${cbB()}</b>/60</p>`;
-    if(it){const I=ITEMS[it.k];b+=`<div class="tip"><h4 class="c-r${I.r}">${I.n}</h4><span class="rk">${RARE[I.r]}${islot(it.k)?' · ô '+EQN[islot(it.k)].toLowerCase()+(eqHas(it.id)?' · đang mang':''):''}${I.ev?' · chỉ có qua sự kiện':''}${I.use?' · dùng một lần':' · truyền cho đời sau'}</span><ul>${I.cb?`<li>+${I.cb} Sức chiến đấu</li>`:''}${fxList(I.fx)}</ul><p><i>${I.d}</i></p><p>Nguồn gốc: ${esc(it.origin)}</p><div class="acts">${islot(it.k)?(eqHas(it.id)?`<button class="btn sm" data-x="eq:off:${it.id}">Tháo ra</button>`:`<button class="btn sm pri" data-x="eq:on:${it.id}">Trang bị</button>`):''}${I.use?`<button class="btn sm pri" data-use="${it.id}">Dùng</button>`:''}${I.v?`<button class="btn sm" data-sellit="${it.id}">Bán · ${I.v} xu</button>`:'<span class="rk">Bảo vật của gia tộc, không thể bán</span>'}</div></div>`}
+    if(it){const I=ITEMS[it.k];b+=`<div class="tip"><h4 class="c-r${I.r}">${I.n}</h4><span class="rk">${RARE[I.r]}${islot(it.k)?' · ô '+EQN[islot(it.k)].toLowerCase()+(eqHas(it.id)?' · đang mang':''):''}${I.ev?' · chỉ có qua sự kiện':''}${I.use?' · dùng một lần':' · truyền cho đời sau'}</span><ul>${I.cb?`<li>+${I.cb} Sức chiến đấu</li>`:''}${fxList(I.fx)}</ul><p><i>${I.d}</i></p><p>Nguồn gốc: ${esc(it.origin)}</p><div class="acts">${islot(it.k)?(eqHas(it.id)?`<button class="btn sm" data-x="eq:off:${it.id}">Tháo ra</button>`:`<button class="btn sm pri" data-x="eq:on:${it.id}">Trang bị</button>`):''}${I.use?`<button class="btn sm pri" data-use="${it.id}">Dùng</button>`:''}${I.v?`<button class="btn sm" data-sellit="${it.id}">Bán · ${I.v} xu</button>`:'<span class="rk">Bảo vật của gia tộc, không thể bán</span>'}${typeof stoBtn==='function'?stoBtn(it):''}</div></div>`}
     else b+=`<p class="note">${S.bag.length?'Chạm vào một ô để xem bảo vật. Toàn bộ túi đồ sẽ truyền cho người thừa kế khi bạn qua đời.':'Túi còn trống. Bảo vật có được qua sự kiện, thám hiểm hầm mộ, lập công, hoặc mua ở mục Mua sắm.'}</p>`;
   }
   if(view==='shop'||view.startsWith('shop:')||view==='owned'){
@@ -14077,6 +14077,77 @@ const lumSt=()=>{const r=S&&S.kd&&S.kd.realms&&S.kd.realms[LUM];return r&&(r.st=
   if(st&&!S.flags.lumHad){S.flags.lumHad=1;fac(-12,0);log(`Giáo hội phẫn nộ khi ${LUM} rơi vào tay bạn. Uy tín Chính Giáo giảm mạnh. Nhưng giờ tiệm bùa phép ${st==='annexed'?'trong lãnh thổ của bạn':'của nước chư hầu'} bán Thần Dược cho bạn.`,'bad')}
   if(!st&&S.flags.lumHad)S.flags.lumHad=0;
   if(st==='vassal'&&!isRed(S)){const r=S.kd.realms[LUM];if(ch(.04+Math.max(0,r.rel)/1000)&&gainItem('p_than'))log(`Cùng với cống nạp năm nay, ${r.ruler} dâng thêm một lọ Thần Dược, kính dâng đấng bảo hộ.`,'item')}}}
+/* ===== Kho đồ trong nhà: cất đồ thừa ===== */
+const STO_CAP={cottage:6,house:12,manor:24};
+PROP_UP.cottage.push(['vault','Kho đồ',40,'Cất được 6 món đồ thừa, lấy ra bất cứ lúc nào']);
+PROP_UP.house.push(['vault','Kho đồ có khóa',80,'Cất được 12 món đồ thừa, lấy ra bất cứ lúc nào']);
+PROP_UP.manor.push(['vault','Kho báu dưới hầm',200,'Cất được 24 món đồ thừa, lấy ra bất cứ lúc nào']);
+UPV.vault=0;
+const stoCap=()=>(S.props||[]).reduce((a,p)=>a+(p.up&&p.up.vault?STO_CAP[p.k]||0:0),0);
+const stoL=()=>S.sto||(S.sto=[]);
+const stoFree=()=>stoCap()-stoL().length;
+function stoBtn(it){if(!stoCap()||eqHas(it.id))return'';return stoFree()>0?`<button class="btn sm" data-x="sto:in:${it.id}">Cất vào kho</button>`:'<span class="rk">Kho đã đầy</span>'}
+function stoRow(x,out){const I=ITEMS[x.k];return`<button class="row" data-x="sto:${out?'out':'in'}:${x.id}" ${out?(S.bag.length>=BAGMAX?'disabled':''):(stoFree()<=0?'disabled':'')}><span class="ri r${I.r}">${itemIcon(x.k,24)}</span><div><b>${I.n}</b><small>${RARE[I.r]}${I.cb?` · +${I.cb} sức chiến đấu`:''}${I.use?' · dùng một lần':''}</small></div><span class="tag">${out?(S.bag.length>=BAGMAX?'Túi đầy':'Lấy ra'):(stoFree()<=0?'Kho đầy':'Cất vào')}</span></button>`}
+function stoView(){const cap=stoCap(),L=stoL();if(!cap&&!L.length)return['Kho đồ','<p class="note">Bạn chưa có kho đồ. Hãy xây "Kho đồ" trong mục nâng cấp của một căn nhà tranh, nhà phố hoặc trang viên.</p>','bag'];
+  let b=statGrid([['Trong kho',`${L.length}/${cap} món`],['Túi đồ',`${S.bag.length}/${BAGMAX} món`]]);
+  b+='<p class="note">Đồ trong kho không cho chỉ số và không dùng được cho tới khi lấy ra. Kho được truyền lại cho người thừa kế cùng với căn nhà.</p>';
+  b+='<p class="sec">Trong kho</p>'+(L.length?L.map(x=>stoRow(x,true)).join(''):'<p class="note">Kho còn trống.</p>');
+  const B=S.bag.filter(x=>!eqHas(x.id));b+='<p class="sec">Trong túi (chưa trang bị)</p>'+(B.length?B.map(x=>stoRow(x,false)).join(''):'<p class="note">Không có món nào để cất.</p>');
+  return['Kho đồ',b,'bag']}
+{const d0=drawExt3;drawExt3=function(v){if(v==='sto')return stoView();const r=d0(v);
+  if(v==='bag'&&r&&(stoCap()||stoL().length))r[1]=r[1].replace(/(<button class="row" data-open="estate")/,gRow('data-open="sto"','backpack','Kho đồ',stoCap()?'Cất đồ thừa ở nhà, lấy ra bất cứ lúc nào':'Không còn kho, hãy lấy đồ ra',`${stoL().length}/${stoCap()}`,false)+'$1');
+  return r}}
+{const x0=extAct3;extAct3=function(x){if(!x.startsWith('sto:'))return x0(x);const[,a,id]=x.split(':'),L=stoL();if(!S.alive||S.cap)return;let t;
+  if(a==='in'){const i=S.bag.findIndex(y=>y.id===id);if(i<0||eqHas(id)||stoFree()<=0)return;const it=S.bag.splice(i,1)[0];L.push(it);if(sel===id)sel=null;t=`Bạn cất ${ITEMS[it.k].n.toLowerCase()} vào kho.`}
+  else{const i=L.findIndex(y=>y.id===id);if(i<0||S.bag.length>=BAGMAX)return;const it=L.splice(i,1)[0];S.bag.push(it);t=`Bạn lấy ${ITEMS[it.k].n.toLowerCase()} từ kho ra.`}
+  note={t,tone:'item'};if(view!=='sto'&&view!=='items')view='sto';return afterSheetAction()}}
+/* túi đầy mà nhà có kho: tự gửi một món chưa trang bị về kho để lấy chỗ */
+{const g0=gainItem;gainItem=function(k){if(S&&S.bag&&S.bag.length>=BAGMAX&&!S.cap&&stoFree()>0){let i=-1;for(let j=S.bag.length-1;j>=0;j--)if(!eqHas(S.bag[j].id)){i=j;break}
+    if(i>=0){const it=S.bag.splice(i,1)[0];stoL().push(it);log(`Túi đã đầy, bạn gửi ${ITEMS[it.k].n.toLowerCase()} về kho ở nhà.`,'item')}}
+  return g0.apply(this,arguments)}}
+/* kho thu hẹp (bán nhà, cháy nhà): đồ dư trả về túi, hết chỗ thì mất */
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.sto||!S.sto.length)return;const cap=stoCap();const lost=[];while(S.sto.length>cap){const it=S.sto.pop();if(S.bag.length<BAGMAX)S.bag.push(it);else lost.push(ITEMS[it.k].n)}
+  if(lost.length)log(`Kho đồ không còn đủ chỗ. Bạn mất ${lost.join(', ')}.`,'bad')}}
+{const i0=inherit;inherit=function(){const sto=S&&S.sto;const r=i0.apply(this,arguments);if(sto&&sto.length&&S)S.sto=sto;return r}}
+/* ===== Sự kiện nhỏ bổ sung cho các cơ chế mới ===== */
+const SMEV=[
+ {id:'sm_purse',w:W(3),c:s=>s.age>=10,title:'Túi tiền rơi ngoài chợ',text:'Một túi tiền nặng trịch nằm dưới gầm sạp cá. Người đánh rơi, một ông lái buôn béo tốt, đang hớt hải tìm cách đó mươi bước.',
+  ch:[{t:'Gọi ông ta lại, nói thật là mình nhặt được',f:s=>{mod({honor:4,happy:2});if(ch(.5)){const g=R(3,10);s.money+=g;return[`Ông lái buôn mừng rơi nước mắt, dúi vào tay bạn ${g} xu.`,'good']}return['Ông ta giật lấy túi, đếm lại từng đồng rồi bỏ đi không một lời cảm ơn.','']}},
+      {t:'Lấy hết rồi hòa vào đám đông',f:s=>{const g=R(15,40);s.money+=g;mod({honor:-4});if(ch(.2)){addEnemy('Lái buôn bị bạn lấy túi tiền',{hate:R(35,50)});return[`Bạn được ${g} xu. Nhưng có người đã thấy, và ông lái buôn biết mặt bạn.`,'bad']}return`Bạn được ${g} xu. Không ai thấy cả.`}},
+      {t:'Mặc kệ, không phải việc của mình',f:s=>'Bạn bước qua. Lát sau một đứa trẻ ăn mày nhặt được, chạy biến.'}]},
+ {id:'sm_beggar',w:W(3),c:s=>s.age>=14,title:'Tiếng gõ cửa đêm đông',text:'Giữa đêm bão tuyết có tiếng gõ cửa. Một ông lão rách rưới, môi tím tái, xin trú nhờ một đêm.',
+  ch:[{t:'Cho vào, chia cho bát cháo nóng',f:s=>{mod({honor:3,happy:3,piety:1});if(ch(.15)){const k=pick(['amulet','gem']);gainItem(k);return[`Sáng ra ông lão đã đi. Trên bàn là ${ITEMS[k].n.toLowerCase()} và mấy chữ viết bằng than: "Trời nhớ."`,'item']}if(ch(.1)){const g=Math.min(Math.max(0,s.money),R(5,15));s.money-=g;return[`Sáng ra ông lão biến mất, cùng với ${g} xu trong hũ.`,'bad']}return['Ông lão ngủ bên bếp, sáng ra cúi đầu chào rồi đi tiếp.','good']}},
+      {t:'Tặng ít tiền rồi chỉ đường đến nhà thờ',req:s=>s.money>=3,f:s=>{s.money-=3;mod({honor:1});return'Ông lão cầm ba xu, lầm lũi đi vào màn tuyết.'}},
+      {t:'Bỏ mặc, cài then cửa',f:s=>{mod({honor:-2});if(ch(.3)){mod({happy:-4});return['Sáng hôm sau người ta tìm thấy ông lão cứng đờ bên giếng làng.','bad']}return'Tiếng gõ thưa dần rồi tắt.'}}]},
+ {id:'sm_bully',w:W(3),c:s=>s.age>=12&&s.age<=50,title:'Kẻ bắt nạt ở đầu làng',text:'Ba gã thanh niên vây một đứa trẻ chăn dê ở đầu làng, giật túi bánh của nó và xô nó xuống bùn.',
+  ch:[{t:'Đứng ra đối mặt với chúng',f:s=>{if(ch(.4+(s.blade||0)/200+s.st.health/300)){mod({honor:5,happy:3});return['Bạn hạ gã to con nhất bằng một cú đấm. Hai gã kia bỏ chạy. Đứa trẻ nhìn bạn như nhìn hiệp sĩ.','good']}mod({health:-R(5,12),honor:2});return['Bạn ăn đòn thay đứa trẻ. Nhưng nó chạy thoát được.','bad']}},
+      {t:'Gọi người lớn trong làng',f:s=>{mod({honor:1});return'Mấy bác thợ rèn chạy ra, bọn kia tản đi. Lần này thôi.'}},
+      {t:'Lờ đi cho lành',f:s=>{mod({honor:-2});return'Bạn rẽ sang đường khác. Tiếng khóc của đứa trẻ theo bạn một quãng.'}}]},
+ {id:'sm_feast',w:W(2),c:s=>s.age>=12,title:'Ngày lễ Thánh Bảo Hộ',text:'Hôm nay là lễ Thánh Bảo Hộ của làng. Cha xứ kêu gọi mọi người nhịn ăn và dự lễ từ sáng tới tối. Ngoài sông, cá đang vào mùa.',
+  ch:[{t:'Dự thánh lễ cả ngày',f:s=>{mod({piety:4,happy:1});return'Đầu gối bạn tê dại, nhưng tiếng hát của ca đoàn làm bạn nhẹ lòng.'}},
+      {t:'Lẻn ra sông câu cá',f:s=>{mod({happy:5,piety:-2});if(ch(.3)){s.money+=R(2,6);return['Bạn câu được một xâu cá chép béo, đem bán được ít tiền.','good']}return'Một ngày yên ả bên sông. Không ai để ý bạn vắng mặt, có lẽ thế.'}},
+      {t:'Đứng cuối nhà thờ chế nhạo thần thánh với đám bạn',req:s=>s.age>=14,f:s=>{mod({piety:-5,happy:2});if(ch(.3)){mod({honor:-3});return['Cha xứ nghe thấy. Chủ nhật tuần sau, ông giảng cả buổi về "những kẻ cười trong nhà Chúa" và nhìn thẳng vào bạn.','bad']}return'Cả bọn cười rúc rích sau cột đá.'}}]},
+ {id:'sm_harvest',w:W(2),c:s=>s.age>=12&&s.age<=60,title:'Hàng xóm nhờ gặt lúa',text:'Mưa sắp về mà lúa nhà hàng xóm còn đầy đồng. Ông ấy sang gõ cửa nhà bạn, mũ cầm trên tay.',
+  ch:[{t:'Sang làm giúp, chăm chỉ tới tối',f:s=>{mod({health:-2,honor:3,happy:2});if(ch(.4)){s.money+=R(2,6);return['Xong việc, ông ấy mang sang một bao thóc và một con gà.','good']}return['Lúa vào kho trước cơn mưa đúng một canh giờ.','good']}},
+      {t:'Đòi thêm tiền công mới làm',f:s=>{const g=R(4,10);s.money+=g;mod({honor:-2});return`Ông ấy trả ${g} xu, mặt không vui.`}},
+      {t:'Viện cớ đau lưng, nằm nghỉ ở nhà',f:s=>{mod({happy:2,honor:-1});return'Bạn nằm nghe mưa rơi trên mái. Ngoài đồng, lúa nhà hàng xóm đổ rạp.'}}]},
+ {id:'sm_rvhelp',w:s=>rels('rival').length?4:0,c:s=>rels('rival').length>0&&s.age>=14,prep:s=>{s.tmpRv=pick(rels('rival')).id;s.tmp=1},title:'Đối thủ gặp nạn',
+  text:s=>{const r=rvById(s.tmpRv);return`Đêm qua nhà của ${r.name}, đối thủ của bạn, bị cháy. ${r.first} đứng giữa đống tro, tay trắng. Cả làng đang nhìn xem bạn làm gì.`},
+  ch:[{t:'Giúp dựng lại nhà',f:s=>{const r=rvById(s.tmpRv);if(!r)return'Mọi chuyện đã qua.';r.riv=Math.max(0,r.riv-20);mod({honor:5});return[`${r.first} không nói gì suốt buổi. Lúc bạn về, ${r.first} gật đầu một cái rất khẽ. Mối ganh đua dịu đi nhiều.`,'good']}},
+      {t:'Đứng nhìn, không nói gì',f:s=>'Bạn đứng xem một lúc rồi về.'},
+      {t:'Cười vào mặt đối thủ',f:s=>{const r=rvById(s.tmpRv);if(!r)return'Mọi chuyện đã qua.';r.riv=Math.min(100,r.riv+15);mod({honor:-3,happy:3});if(r.riv>=80&&!s.pend.includes('rv_nem'))s.pend.push('rv_nem');return[`${r.first} nhìn bạn bằng ánh mắt mà bạn sẽ còn nhớ lâu.`,'bad']}}]},
+ {id:'sm_soultrip',w:s=>soulmate()?4:0,c:s=>!!soulmate()&&s.age>=14,title:'Chuyến đi với tri kỷ',text:s=>`${soulmate().first} rủ bạn bỏ hết mọi việc, đi bộ ba ngày lên hồ trên núi, "như hồi còn trẻ dại".`,
+  ch:[{t:'Đi ngay',f:s=>{const m=soulmate();m.bond=clamp(m.bond+6);mod({happy:8,health:2});strAdd(-12);return[`Ba ngày không ai nhắc tới tiền bạc hay công việc. Bạn và ${m.first} ngồi câu cá và nói chuyện tới khuya.`,'good']}},
+      {t:'Hẹn dịp khác',f:s=>{const m=soulmate();m.bond=clamp(m.bond-4);return`${m.first} cười: "Lúc nào cậu cũng bận." Rồi đi một mình.`}}]},
+ {id:'sm_homesick',w:s=>s.flags.migY&&s.year-s.flags.migY<=6?4:0,c:s=>!!s.flags.migY&&s.year-s.flags.migY<=6&&s.year>s.flags.migY,title:'Nhớ quê',text:s=>`Một người lái buôn từ quê cũ ghé qua ${s.village}, mang theo mùi bánh mật và giọng nói mà lâu rồi bạn không nghe. Đêm ấy bạn không ngủ được.`,
+  ch:[{t:'Gửi thư và ít quà về cho người quen cũ (5 xu)',req:s=>s.money>=5,f:s=>{s.money-=5;for(const r of rels('friend'))r.bond=clamp(r.bond+8);mod({happy:3});return['Mấy tháng sau có thư hồi âm, chữ nguệch ngoạc, kèm một nhúm đất quê.','good']}},
+      {t:'Mời người lái buôn một bữa, hỏi chuyện quê nhà',f:s=>{mod({happy:4});return'Ông ta kể tới khuya: ai cưới ai, ai mất, cây sồi đầu làng bị sét đánh.'}},
+      {t:'Gạt đi, nơi này mới là nhà',f:s=>{mod({happy:-2});if(s.flags.migFor)s.flags.migFor=Math.max(s.year,s.flags.migFor-1);return'Bạn dậy sớm ra chợ, chào hàng xóm bằng tiếng địa phương.'}}]},
+ {id:'sm_stothief',w:s=>(s.sto||[]).length>=2?3:0,c:s=>(s.sto||[]).length>=2,title:'Kẻ trộm đào kho',text:'Nửa đêm chó sủa dữ dội. Sáng ra, cửa kho đồ của bạn có vết nạy.',
+  ch:[{t:'Kiểm tra kho',f:s=>{const P=(s.props||[]).find(p=>p.up&&p.up.vault);if((P&&P.up.wall)||ch(.6))return['Ổ khóa giữ vững. Kẻ trộm bỏ đi tay không.','good'];const it=s.sto.splice(R(0,s.sto.length-1),1)[0];return[`Kẻ trộm đã lấy mất ${ITEMS[it.k].n.toLowerCase()}. Tường đá chống cháy có lẽ cũng sẽ chống được trộm.`,'bad']}}]}];
+for(const e of SMEV){EV.push(e);EVB[e.id]=e}
+/* di cư thì không còn ở căn nhà cũ */
+{const x0=extAct3;extAct3=function(x){const rl=S&&S.realm;const r=x0(x);if(x.startsWith('mig:')&&S&&S.realm!==rl){const H=propHome();if(H){H.home=false;log(`Căn ${pNm(H.k).toLowerCase()} ở quê cũ giờ để trống. Bạn có thể cho thuê nó.`,'')}}return r}}
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
