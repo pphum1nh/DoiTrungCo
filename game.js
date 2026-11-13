@@ -14157,6 +14157,167 @@ function lumRow(n,r,d2){if(n!==LUM||r.st!=='neutral'&&r.st!=='ally')return'';con
 kdA.than=n=>{const K=S.kd,r=K.realms[n];const pay=c=>{const a=Math.min(K.treas,c);K.treas-=a;S.money-=c-a};
   if(ch(Math.max(.3,Math.min(.95,.55+r.rel/200)))){pay(LUM_ENV);gainItem('p_than');r.rel=Math.min(100,r.rel+2);return`Sứ đoàn trở về sau ba tháng, mang theo một lọ Thần Dược niêm phong bằng sáp trắng của ${r.ruler}.`}
   const g=Math.round(LUM_ENV*.1);pay(g);return`${r.ruler} nhận quà ra mắt trị giá ${g} xu nhưng từ chối bán: "Thần Dược không phải món hàng cho vua chúa mặc cả." Quan hệ tốt hơn thì may ra.`};
+/* ===== Bốn Mệnh Lộ nhánh mới: Kẻ Ủ Độc (Mộc), Kẻ Dệt Mộng (Hắc), Người Giữ Bình Minh (Quang), Kẻ Kết Huyết Thệ (Huyết) ===== */
+Object.assign(PP,{
+ doc:{root:'moc',n:'Kẻ Ủ Độc',ic:'tree',t:['Người Nghe Lá','Kẻ Ủ Độc','Người Trồng Vườn Đêm','Mật Của Rừng Già','Mùa Thu Của Vạn Vật'],
+  d:'Cây cỏ không chỉ chữa lành. Rễ nào cũng giữ một thứ nhựa đắng, và người đi Mệnh Lộ này học cách ủ nó. Lâu dần, họ không còn phân biệt được thuốc với độc, cũng như ân với oán.',
+  loss:['Bạn nếm thử một cây nấm lạ và chỉ thấy tê đầu lưỡi. Người thường thì đã chết từ lâu.','Hoa trong nhà héo mỗi khi bạn buồn.','Bạn bắt đầu nhìn mọi người và tự hỏi: liều bao nhiêu thì vừa.'],
+  acts:[['moon','Hái nấm độc lúc trăng non','Hợp vai mạnh · có thể trúng độc',s=>{s.pp.dg+=8;if(ch(.2)){mod({health:-8});return['Bào tử bay vào mắt bạn. Ba ngày liền bạn nhìn đâu cũng thấy màu tím.','bad']}return['Bạn hái đầy một giỏ nấm tím dưới trăng non. Chúng thì thầm tên của những người đã chết vì chúng.','magic']}],
+   ['coins','Bán thuốc giải cho thợ bắt rắn','Hợp vai · có tiền',s=>{const g=R(7,15);s.money+=g;return[`Bạn ủ nọc rắn thành thuốc giải. Phường bắt rắn trả bạn ${g} xu và một cái nhìn kiêng dè.`,'good']}],
+   ['heart','Cứu đứa trẻ bị rắn cắn','Hợp vai · Danh dự',ppAct('Bạn hút nọc độc ra bằng một lá thuốc còn độc hơn. Đến sáng, đứa trẻ chăn dê mở mắt đòi ăn.',{honor:3})]],
+  pas:rk=>{mod({health:Math.ceil(rk/3)});if(rk>=3)mod({smarts:1})},
+  low:()=>{const p=spouse()||pick(S.fam.filter(x=>x.alive));if(p){p.bond=clamp(p.bond-10);log(`Bát canh bạn nấu khiến ${p.first} nôn suốt đêm. Bạn thề là mình không cố ý, nhưng chính bạn cũng không chắc.`,'bad')}}},
+ mong:{root:'hac',n:'Kẻ Dệt Mộng',ic:'moon',t:['Kẻ Thổi Tắt Nến','Kẻ Dệt Mộng','Người Gác Giấc Ngủ','Kẻ Đi Giữa Thức Và Ngủ','Giấc Mơ Mơ Thấy Mình'],
+  d:'Bóng tối sâu nhất nằm sau mí mắt. Người đi Mệnh Lộ này bước vào giấc mơ của kẻ khác như bước vào nhà hàng xóm, và dần không chắc mình đang thức.',
+  loss:['Bạn kể lại một chuyện cũ, và người nghe bảo chuyện đó chưa từng xảy ra.','Bạn tỉnh dậy ba lần trong một buổi sáng, lần nào cũng trên cùng một chiếc giường.','Có người chào bạn ngoài chợ. Bạn chỉ nhớ đã gặp họ trong mơ.'],
+  acts:[['night','Canh giấc cho đứa trẻ hay gặp ác mộng','Hợp vai · Danh dự',ppAct('Bạn ngồi đầu giường, gỡ từng sợi ác mộng ra khỏi tóc đứa trẻ. Lần đầu tiên sau nhiều tuần, nó ngủ tới sáng.',{honor:3})],
+   ['eye','Bước vào giấc mơ của một lái buôn','Hợp vai · Trí tuệ, có rủi ro',s=>{if(ch(.2)){ltHit(-3);return['Trong mơ, gã lái buôn quay lại nhìn thẳng vào bạn. Bạn tỉnh dậy với cảm giác vừa bị ai đó lục túi. Lý trí -3.','bad']}const g=R(4,10);s.money+=g;mod({smarts:2});return[`Trong mơ, gã lái buôn đếm lại từng món nợ. Sáng ra, bạn biết nên mua gì, bán gì, và kiếm được ${g} xu.`,'good']}],
+   ['moon','Ngủ ba ngày liền để dệt một giấc mơ dài','Hợp vai mạnh · hao Lý trí',s=>{s.pp.dg+=10;ltHit(-2);mod({magic:2});return['Bạn dệt một giấc mơ có núi, có biển, có cả những người chưa từng sinh ra. Khi tỉnh dậy, bạn mất một lúc mới nhớ thế giới nào là thật. Lý trí -2.','magic']}]],
+  pas:rk=>{if(rk>=2)mod({smarts:1});if(rk>=4)mod({magic:1})},
+  low:()=>{const p=spouse()||pick(S.fam.filter(x=>x.alive));if(p){p.bond=clamp(p.bond-10);log(`Bạn gọi ${p.first} bằng tên của một người chỉ có trong giấc mơ của bạn. ${p.first} lặng đi rất lâu.`,'bad')}}},
+ rang:{root:'quang',n:'Người Giữ Bình Minh',ic:'sun',t:['Người Thắp Nến','Người Giữ Bình Minh','Bàn Tay Ấm','Người Đẩy Lùi Đêm Dài','Bình Minh Không Ai Phải Chờ'],
+  d:'Có thứ ánh sáng để soi tội, và có thứ ánh sáng chỉ để sưởi. Người đi Mệnh Lộ này chọn thứ sau. Họ chữa lành mọi vết thương, trừ vết thương của chính mình.',
+  loss:['Bạn chữa xong cho người thứ mười trong ngày và nhận ra mình không nhớ mặt ai.','Bạn không ngủ được khi trong làng còn một người đang đau.','Vết đứt tay của bạn ba tuần chưa lành. Bạn không còn chút ánh sáng nào dành cho mình.'],
+  acts:[['sun','Ngồi bên giường người hấp hối tới sáng','Hợp vai · Danh dự, Sùng đạo',ppAct('Bạn giữ bàn tay ông lão ấm cho tới khi mặt trời lên. Ông đi lúc bình minh, không sợ hãi.',{honor:2,piety:2})],
+   ['heart','Chữa vết thương cho lính gác thành','Hợp vai · có tiền, tốn ma lực',s=>{if(s.st.magic<4)return['Ánh sáng trong tay bạn chỉ còn le lói, không đủ để khép một vết thương.',''];const g=R(6,14);mod({magic:-4});s.money+=g;return[`Vết chém khép lại dưới bàn tay bạn, không để sẹo. Viên đội trưởng trả ${g} xu.`,'good']}],
+   ['star','Xua hồn ma khỏi một ngôi nhà hoang','Hợp vai mạnh · có rủi ro',s=>{s.pp.dg+=8;if(ch(.2)){mod({health:-8});return['Hồn ma không muốn đi. Cái lạnh của nó xuyên qua ngực bạn như một mũi dao băng.','bad']}return['Bạn không đuổi nó. Bạn chỉ ngồi đó cho tới khi trời sáng, và hồn ma nhớ ra rằng mình cũng từng thích bình minh.','magic']}]],
+  pas:rk=>{mod({piety:1});if(rk>=3)mod({honor:1})},
+  low:()=>{const p=spouse()||pick(S.fam.filter(x=>x.alive));if(p){p.bond=clamp(p.bond-8);log(`Bạn bỏ dở bữa cơm với ${p.first} để chạy đi chữa cho một người lạ. Đây là lần thứ mấy rồi, chính bạn cũng không nhớ.`,'bad')}}},
+ the:{root:'huyet',n:'Kẻ Kết Huyết Thệ',ic:'heart-break',t:['Người Nghe Mạch','Kẻ Kết Huyết Thệ','Người Giữ Lời Bằng Máu','Sợi Chỉ Đỏ Nối Trăm Nhà','Lời Thề Không Thể Rút'],
+  d:'Máu không chỉ để uống. Máu còn để hứa. Người đi Mệnh Lộ này buộc lời nói vào huyết quản, của mình và của kẻ khác, và mỗi lời thề lấy đi của họ một chút tự do.',
+  loss:['Bạn buột miệng hứa một câu vu vơ, rồi mất ngủ cả tuần cho tới khi làm xong.','Bạn biết em họ mình bị đứt tay trước khi nó kịp kêu.','Một lời thề cũ nhói lên trong ngực mỗi khi bạn định nói dối.'],
+  acts:[['heart-break','Làm chứng cho một lời thề cắt máu','Hợp vai · có tiền, Danh dự',s=>{const g=R(5,12);s.money+=g;mod({honor:1});return[`Hai nhà buôn nhỏ máu vào bát trước mặt bạn. Từ nay ai bội ước, máu sẽ nhớ. Họ trả bạn ${g} xu tiền làm chứng.`,'good']}],
+   ['eye','Lần theo huyết thống tìm người thất lạc','Hợp vai · Danh dự',s=>{if(ch(.3))return['Sợi chỉ máu đứt giữa chừng ở bến sông. Người ấy đã đi quá xa, hoặc không còn nữa.',''];mod({honor:3,happy:2});return['Bạn nhỏ một giọt máu của người mẹ lên bản đồ. Nó lăn về phía bắc. Ba tuần sau, đứa con thất lạc trở về.','good']}],
+   ['heart','Chia vết thương với một người bệnh','Hợp vai mạnh · mất Sức khỏe',s=>{s.pp.dg+=10;mod({health:-4,honor:3});return['Bạn nắm tay người bệnh và nhận lấy một nửa cơn đau. Cả hai cùng sốt một đêm, và cùng qua khỏi.','magic']}]],
+  pas:rk=>{mod({honor:1});if(rk>=3)mod({health:1})},
+  low:()=>{const p=spouse()||pick(S.fam.filter(x=>x.alive));if(p){p.bond=clamp(p.bond-12);log(`Bạn bắt ${p.first} cắt tay thề chỉ vì một chuyện nhỏ. Vết cắt lành nhanh, ánh mắt của ${p.first} thì không.`,'bad')}}}});
+Object.assign(PPBR,{moc:'doc',hac:'mong',quang:'rang',huyet:'the'});
+Object.assign(IMBN,{doc:'rỉ nhựa độc',mong:'mờ như sương ngủ',rang:'ấm ánh bình minh',the:'quấn chỉ máu'});
+Object.assign(PPTR,{
+ moc:['Khu Rừng Không Còn Tiếng Chim','Bệnh lạ lan qua rừng sồi. Lá đen lại từ mép, và người làng dưới chân núi bắt đầu ho ra thứ bụi đen ấy. Bà lang già đã hết thuốc. Dưới bàn tay bạn, rễ cây kể hai chuyện. Chuyện đầu là mùa xuân rồi sẽ tới, chậm thôi. Chuyện sau nói nhỏ hơn: thứ nấm gây bệnh cũng sợ một thứ nấm khác, đắng và độc hơn nó. Bạn sẽ xin rừng tự lành, hay nấu thứ thuốc mà chính bạn cũng không dám nếm?',
+  [['“Ta đưa người bệnh xuống thung lũng, xa khu rừng. Chuyện của rễ cây xin để sau.”','Bạn cùng dân làng khiêng người bệnh qua đèo.'],
+   ['“Ta sẽ ngồi với từng gốc sồi cho tới khi nhựa chảy lại. Rừng lành thì người lành.”','Mầm xanh nhú ra từ những cành đã đen, và cơn ho trong làng thưa dần.'],
+   ['“Lấy độc trị độc. Đưa ta cái nồi đất, và đừng ai đứng dưới chiều gió.”','Khói thuốc đắng bay qua làng suốt một đêm. Sáng ra, lớp bụi đen rụng khỏi lá như tro.']]],
+ hac:['Ngôi Làng Không Ai Dám Ngủ','Đã bảy đêm cả làng không ngủ. Ai chợp mắt cũng thấy cùng một giấc mơ: một cánh cửa, và thứ gì đó gõ từ phía bên kia. Đêm qua, đứa con út nhà thợ mộc ngủ gục và chưa tỉnh lại. Bóng của bạn dài ra trên vách. Nó biết đường đi trong đêm. Nhưng sâu hơn bóng tối là giấc ngủ, và ở đó có một lối bạn chưa từng bước vào. Bạn sẽ đứng gác ngoài bóng đêm, hay đi vào trong giấc mơ?',
+  [['“Ta thắp đèn khắp làng và thức cùng mọi người. Trời sáng rồi tính.”','Bạn đi từng nhà, giữ cho không ai ngủ gục trước bình minh.'],
+   ['“Ta trải bóng mình trùm lên cả làng. Thứ gì muốn gõ cửa, phải gõ vào ta trước.”','Đêm ấy không ai mơ thấy gì. Bóng tối của bạn nằm chắn trước mọi ngưỡng cửa.'],
+   ['“Ta sẽ ngủ. Đứa trẻ lạc trong giấc mơ thì phải có người vào đó dắt nó về.”','Bạn tìm thấy đứa trẻ ngồi trước cánh cửa, nắm tay nó, và cả hai cùng mở mắt.']]],
+ quang:['Ngọn Đèn Trong Trại Dịch','Trại dịch dựng ngoài cổng thành. Lính gác đã cài then từ bên ngoài, và có kẻ thì thầm rằng người trong trại mắc bệnh vì tội lỗi của chính họ. Ngọn lửa trên tay bạn đủ sáng để soi rõ từng khuôn mặt. Nó có thể soi xem ai đáng tội. Nó cũng có thể chỉ sưởi, không hỏi gì cả. Bên kia tấm vải bạt, một người mẹ đang ru con bằng cái giọng đã khản. Bạn sẽ soi, hay sẽ sưởi?',
+  [['“Ta mang nước và bánh tới cổng trại. Ánh sáng này, ta chưa dám dùng.”','Bạn chuyền thức ăn qua khe cổng suốt đêm.'],
+   ['“Ta soi từng người. Ai sạch tội, ánh sáng tự khắc che chở.”','Ánh đuốc của bạn quét qua trại. Kẻ bỏ xác chuột xuống giếng bị lôi ra giữa sân.'],
+   ['“Ta không hỏi ai có tội. Ai lạnh thì lại gần đây.”','Hơi ấm lan khắp trại. Đến sáng, cơn sốt của đứa trẻ đã lui.']]],
+ huyet:['Hai Dòng Họ Bên Giếng Cạn','Hai dòng họ đứng hai bên cái giếng cạn, tay cầm liềm và chĩa ba. Mối thù của họ già hơn cả cái giếng. Giữa hai bên, một thằng bé nằm chảy máu vì hòn đá không ai chịu nhận là mình ném. Bạn nghe được máu của cả hai họ. Nó đập cùng một nhịp giận dữ, và sâu hơn nữa, nó chảy ra từ cùng một ông tổ. Bạn sẽ dùng sức mạnh của máu để bắt họ dừng lại, hay dùng máu để buộc họ vào một lời hứa?',
+  [['“Ta bế thằng bé đi tìm thầy lang. Chuyện người lớn, người lớn tự lo.”','Bạn ôm đứa trẻ chạy qua giữa hai hàng người.'],
+   ['“Ta nắm lấy mạch máu của tất cả. Ai giơ tay trước, tim kẻ ấy lỡ một nhịp.”','Không ai dám nhúc nhích cho tới khi đứa trẻ được băng bó xong.'],
+   ['“Nhỏ máu hai họ vào chung một bát. Ai phá lời thề hôm nay, máu sẽ nhớ.”','Hai trưởng họ cắt tay trên miệng giếng. Lời thề đỏ thẫm thấm xuống đá.']]]});
+Object.assign(MV,{
+ pqDoc:mv('Vườn Độc Nở Hoa','p:doc','ctl',.19,{mp:7,sv:['nguoi','thu','dong'],wk:['xac'],d:'Chiêu riêng của Mệnh Lộ Kẻ Ủ Độc: hoa độc mọc lên quanh đối thủ, mỗi hơi thở của họ là một liều thuốc mê',x:'những đóa hoa tím nở bung dưới chân đối thủ, phấn hoa bay lên như sương'}),
+ pqMong:mv('Ru Ngủ Ngàn Năm','p:mong','ctl',.2,{mp:8,sv:['nguoi','thu','nhanh'],wk:['xac','hon'],d:'Chiêu riêng của Mệnh Lộ Kẻ Dệt Mộng: kéo đối thủ vào một giấc mơ mà họ không muốn tỉnh',x:'mí mắt đối thủ nặng dần, vũ khí tuột khỏi tay, và họ mỉm cười với một thứ chỉ họ thấy'}),
+ pqRang:mv('Bình Minh Trên Vết Thương','p:rang','heal',.08,{mp:8,h:[22,34],sv:['xac','quy','hon'],d:'Chiêu riêng của Mệnh Lộ Người Giữ Bình Minh: ánh sáng ban mai khép mọi vết thương và làm chùn bước những thứ sợ mặt trời',x:'một vầng sáng ấm như buổi sớm phủ lên bạn, vết thương khép lại, và bóng tối quanh đó lùi một bước'}),
+ pqThe:mv('Huyết Thệ Phản Hồi','p:the','def',.19,{hp:4,sv:['nguoi','dong','giap'],wk:['xac'],d:'Chiêu riêng của Mệnh Lộ Kẻ Kết Huyết Thệ: buộc máu mình vào máu đối thủ, vết thương nào bạn chịu thì họ cũng chịu',x:'một sợi chỉ đỏ nối cổ tay bạn với cổ tay đối thủ, và họ ôm lấy đúng chỗ bạn vừa trúng đòn'})});
+Object.assign(ITEMS,{
+ pq_vial:{n:'Lọ Nhựa Trăm Năm',r:3,ic:'tree',cb:4,fx:{health:1},v:0,ev:1,sl:'acc',d:'Một giọt nhựa của cây độc mộc trăm tuổi, đựng trong lọ đá. Một giọt giết được con bò, nửa giọt cứu được người sắp chết.'},
+ pq_spindle:{n:'Con Thoi Dệt Mộng',r:3,ic:'moon',cb:3,fx:{magic:1,smarts:1},v:0,ev:1,sl:'acc',d:'Con thoi bằng xương trắng, không cần chỉ. Để dưới gối thì đêm nào cũng mơ thấy đúng điều mình cần biết.'},
+ pq_candle:{n:'Nến Rạng Đông',r:3,ic:'sun',cb:3,fx:{piety:1,health:1},v:0,ev:1,sl:'acc',d:'Cây nến đã cháy trăm năm trong một nhà nguyện bỏ hoang mà không ngắn đi. Gió không thổi tắt được nó, nước mắt cũng không.'},
+ pq_knot:{n:'Nút Thắt Chỉ Đỏ',r:3,ic:'heart-break',cb:4,fx:{honor:1,health:1},v:0,ev:1,sl:'acc',d:'Một sợi chỉ nhuộm máu của hai dòng họ, thắt thành nút không ai gỡ được. Người đeo nó khó mà nuốt lời.'}});
+Object.assign(PPQ,{
+ doc:{n:'Khu Vườn Của Người Đã Khuất',it:'pq_vial',mv:'pqDoc',ch:[
+  {t:'Vườn Hoang Sau Tu Viện',x:'Sau tu viện bỏ hoang có một khu vườn không ai chăm mà chẳng cây nào chết. Chim bay ngang qua thì rơi xuống ngủ. Người làng bảo nữ tu trồng vườn năm xưa từng chữa khỏi cả một trận dịch, rồi bị thiêu vì tội dùng độc.',
+   c:[['Nếm thử một chiếc lá',s=>ch(.35+s.st.health/250+(s.hid&&s.hid.arcane||0)/400)?(mod({health:-4}),{ok:1,t:'Lưỡi bạn tê đi, rồi cả khu vườn hiện ra rõ từng đường gân lá. Ở giữa vườn có một cái cây bạn chưa từng thấy trong sách nào.'}):(mod({health:-10}),{t:'Bạn nằm sốt mê man bên bờ rào suốt hai ngày.'})],
+    ['Hỏi bà lão hái thuốc trong làng',s=>ch(.4+s.st.smarts/250)?{ok:1,t:'Bà lão hạ giọng: "Giữa vườn có cây độc mộc. Bà ấy trồng nó bằng nước mắt. Muốn xin nhựa thì đừng mang dao."'}:{t:'Bà lão nhổ nước trầu xuống đất, không nói nửa lời.'}]]},
+  {t:'Cây Độc Mộc Trăm Năm',x:'Cây độc mộc đứng giữa vườn, vỏ đen bóng. Dưới gốc nó không có ngọn cỏ nào mọc được, chỉ có một cái lọ đá bỏ không, như đang chờ ai đó.',
+   c:[['Ngồi dưới gốc ba đêm, xin cây một giọt nhựa',s=>ch(.4+(s.hid&&s.hid.arcane||0)/250)?{ok:1,t:'Đêm thứ ba, một giọt nhựa tự ứa ra từ vỏ cây và rơi đúng vào lọ đá. Cây không cho ai hai lần.'}:{t:'Cây im lặng. Có lẽ nó chưa nghe thấy điều nó cần nghe.'}],
+    ['Đổi một giọt máu lấy một giọt nhựa',s=>(mod({health:-6}),{ok:1,t:'Bạn nhỏ máu xuống gốc. Rễ cây uống lấy, rồi vỏ cây nứt ra một khe nhỏ, ứa đúng một giọt nhựa vào lọ đá.'})],
+    ['Rạch vỏ cây lấy nhựa',s=>{ltHit(-8);mod({honor:-3});return ch(.5)?{ok:1,t:'Bạn rạch một đường dài. Nhựa chảy ra, và cả khu vườn héo rũ trong một đêm. Bạn có cái mình cần, và vừa giết thứ cuối cùng người nữ tu để lại.'}:(mod({health:-12}),{t:'Nhựa bắn vào tay bạn. Cả cánh tay sưng tím suốt một tuần.'})}]]},
+  {t:'Liều Thuốc Đầu Tiên',x:'Một thợ săn được khiêng tới, môi tím đen vì trúng tên tẩm độc. Thầy lang lắc đầu. Lọ nhựa trong túi bạn ấm lên.',
+   c:[['Pha thuốc giải từ chính giọt nhựa độc',s=>ch(.4+s.st.smarts/250)?(mod({honor:4}),{ok:1,t:'Nửa giọt, pha với mật ong và tro bếp. Người thợ săn nôn ra thứ nước đen rồi thở đều lại. Bạn hiểu ra độc và thuốc chỉ khác nhau ở liều. Bạn học được Vườn Độc Nở Hoa.'}):{t:'Bạn chần chừ không dám pha. Thầy lang đành cắt bỏ cánh tay người thợ săn để giữ mạng anh ta.'}],
+    ['Tự uống trước một ngụm để thử liều',s=>ch(.4+s.st.health/300)?(mod({health:-5}),{ok:1,t:'Bạn uống, và sống. Giờ thì bạn biết chính xác bao nhiêu là đủ. Người thợ săn được cứu. Bạn học được Vườn Độc Nở Hoa.'}):(mod({health:-14}),{t:'Bạn gục xuống cạnh người thợ săn. Cả hai được cứu nhờ thầy lang, nhưng bạn chưa nắm được liều.'})]]}]},
+ mong:{n:'Cánh Cửa Trong Giấc Mơ',it:'pq_spindle',mv:'pqMong',ch:[
+  {t:'Người Thợ Dệt Không Ngủ',x:'Ở cuối làng có một bà thợ dệt đã một năm không ngủ. Bà dệt mãi một tấm thảm hình cánh cửa, dệt xong lại tháo ra dệt lại. Bà bảo nếu bà ngủ, cánh cửa sẽ mở.',
+   c:[['Ngủ ngay cạnh khung cửi của bà',s=>ch(.35+(s.hid&&s.hid.arcane||0)/200)?{ok:1,t:'Bạn mơ thấy đúng cánh cửa ấy. Từ khe cửa vọng ra tiếng lách cách của một con thoi đang dệt, nhanh hơn tay người.'}:{t:'Bạn chỉ mơ thấy mình đang đếm cừu.'}],
+    ['Trò chuyện với bà cho tới khi bà ngủ gật',s=>ch(.4+s.st.smarts/300+s.st.piety/400)?{ok:1,t:'Bà gục xuống khung cửi. Trong tiếng ngáy, bà lẩm bẩm: "Nó ngồi sau cánh cửa, dệt ác mộng cho cả làng. Con thoi bằng xương."'}:{t:'Bà tỉnh như sáo. Bạn mới là người ngủ gật trước.'}]]},
+  {t:'Con Thoi Bằng Xương',x:'Sau cánh cửa trong giấc mơ là một căn phòng không có tường. Một thứ mang hình đứa trẻ ngồi trước khung cửi, dệt ác mộng bằng một con thoi xương trắng. Nó ngẩng lên: "Ngươi tới chơi với ta à?"',
+   c:[['Chơi với nó một ván cờ trong mơ',s=>ch(.35+s.st.smarts/220)?{ok:1,t:'Bạn thắng bằng một nước mà khi thức bạn sẽ không bao giờ nghĩ ra. Nó bĩu môi, đẩy con thoi về phía bạn rồi tan thành sương.'}:{t:'Nó thắng, và bạn tỉnh dậy với cảm giác vừa đánh mất một ký ức nhỏ.'}],
+    ['Kể cho nó nghe giấc mơ đẹp nhất của bạn',s=>ch(.3+s.st.happy/200)?{ok:1,t:'Nó nghe, miệng há ra. "Ta chưa từng dệt được thứ gì như thế." Nó đưa con thoi cho bạn: "Ngươi dệt đi. Ta mệt rồi."'}:{t:'Giấc mơ của bạn nhạt quá. Nó ngáp và quay lại khung cửi.'}],
+    ['Giật lấy con thoi',s=>{ltHit(-8);return ch(.45+s.st.magic/300)?{ok:1,t:'Bạn giật được con thoi. Thứ ấy rú lên, và suốt một tháng sau bạn không dám nhắm mắt.'}:(ltHit(-6),{t:'Nó nhanh hơn bạn. Bạn tỉnh dậy, không nhớ nổi tên mẹ mình trong cả buổi sáng.'})}]]},
+  {t:'Dệt Một Giấc Ngủ',x:'Con thoi nằm trong tay bạn, nhẹ như không. Cả làng vẫn sợ ngủ. Muốn họ tin, bạn phải dệt cho họ một giấc ngủ mà sáng ra ai cũng muốn kể lại.',
+   c:[['Dệt một giấc mơ chung cho cả làng trong một đêm',s=>s.st.magic>=12?(mod({magic:-10,honor:4}),{ok:1,t:'Đêm ấy cả làng mơ thấy cùng một cánh đồng lúa chín. Sáng ra, người ta kể cho nhau nghe và nhận ra mình đã ở cùng một chỗ. Bạn học được Ru Ngủ Ngàn Năm.'}):{t:'Ma lực của bạn không đủ để dệt cho nhiều người đến thế.'}],
+    ['Tự ru mình ngủ trước, rồi mới tới người khác',s=>ch(.4+s.st.health/300)?{ok:1,t:'Bạn dệt cho mình một giấc ngủ không mộng mị, lần đầu tiên sau nhiều tháng. Tỉnh dậy, bạn biết cách trao nó cho người khác. Bạn học được Ru Ngủ Ngàn Năm.'}:{t:'Bạn trằn trọc tới sáng. Người đi dệt giấc ngủ lại mất ngủ.'}]]}]},
+ rang:{n:'Ngọn Nến Không Chịu Tắt',it:'pq_candle',mv:'pqRang',ch:[
+  {t:'Nhà Nguyện Trên Chiến Trường Cũ',x:'Trên một chiến trường đã trăm năm cỏ mọc có một nhà nguyện đổ nát. Bên trong vẫn cháy một cây nến. Không ai thắp nó, và nó không ngắn đi.',
+   c:[['Ngồi canh nến một đêm',s=>ch(.35+s.st.piety/200)?{ok:1,t:'Gần sáng, bạn thấy một bàn tay trong suốt khum lại che gió cho ngọn nến. Có người vẫn đang gác ở đây.'}:{t:'Bạn ngủ quên. Sáng ra, ngọn nến vẫn cháy, và bạn không thấy gì khác.'}],
+    ['Đọc những cái tên khắc trên tường',s=>ch(.4+s.st.smarts/250)?{ok:1,t:'Hàng trăm tên lính, khắc bằng mũi dao. Cuối cùng là một dòng khác nét: "Tôi không cứu được ai trong số họ. Tôi chỉ giữ cho họ khỏi lạnh."'}:{t:'Chữ mòn quá. Bạn chỉ đọc được vài cái tên rời rạc.'}]]},
+  {t:'Người Gác Nến',x:'Hồn ma của một nữ y tá chiến trường hiện ra khi bạn gọi tên bà. Một trăm năm nay bà giữ cho ngọn nến cháy, vì đã hứa với những người lính rằng họ sẽ không phải chết trong bóng tối.',
+   c:[['Xin thay bà gác nến',s=>ch(.4+s.st.honor/250)?{ok:1,t:'Bà nhìn bạn rất lâu rồi đặt cây nến vào tay bạn. "Đừng để nó ở yên một chỗ như ta. Mang nó tới chỗ có người đang đau." Rồi bà tan trong ánh sáng buổi sớm.'}:{t:'Bà lắc đầu: "Ngươi chưa hiểu gác nến nghĩa là gì."'}],
+    ['Chữa những vết thương cũ cho hồn ma',s=>s.st.magic>=10?(mod({magic:-8}),{ok:1,t:'Bạn đặt tay lên những vết thương mà bà mang theo từ ngày ấy. Bà khóc, lần đầu sau một trăm năm, rồi trao cho bạn cây nến.'}):{t:'Ánh sáng của bạn chưa đủ ấm để chạm tới một hồn ma.'}],
+    ['Thổi tắt nến để giải thoát cho bà',s=>{ltHit(-6);return ch(.4)?{ok:1,t:'Ngọn nến không tắt. Nhưng bà hiểu ý bạn, và bật cười: "Ta cũng thử rồi." Bà để lại cây nến cho bạn rồi biến mất.'}:{t:'Ngọn nến không tắt. Hồn ma nhìn bạn buồn bã và lùi vào vách.'}}]]},
+  {t:'Mang Bình Minh Đi',x:'Cây nến trong tay bạn ấm như một bàn tay. Dưới thung lũng có một trại thương binh, và đêm nay bão sẽ về.',
+   c:[['Mang nến băng qua bão tới trại thương binh',s=>ch(.4+s.st.health/300)?(mod({honor:4}),{ok:1,t:'Gió giật tung áo choàng của bạn, nhưng ngọn nến không hề chao. Bạn đi qua từng dãy giường, và chỗ nào ánh nến chạm tới, người ta thôi rên. Bạn học được Bình Minh Trên Vết Thương.'}):(mod({health:-10}),{t:'Bão quật bạn ngã xuống khe đá. Bạn phải quay về, cây nến vẫn cháy trong tay.'})],
+    ['Chia lửa cho mọi cây nến trong làng',s=>ch(.4+s.st.piety/250)?{ok:1,t:'Bạn đi từng nhà, mồi lửa từ cây nến của mình. Đêm ấy cả làng sáng như có bình minh sớm. Bạn học được Bình Minh Trên Vết Thương.'}:{t:'Nhiều nhà không mở cửa cho bạn. Người ta vẫn sợ thứ lửa lấy từ chiến trường.'}]]}]},
+ the:{n:'Lời Thề Bị Bỏ Quên',it:'pq_knot',mv:'pqThe',ch:[
+  {t:'Bát Máu Khô Dưới Gốc Đa',x:'Dưới gốc đa đầu làng, người ta đào được một cái bát đá, lòng bát đóng một lớp máu khô đã trăm năm. Từ hôm ấy, cả làng ai cũng đau nhói ở ngực mỗi khi nói dối.',
+   c:[['Nhỏ máu mình vào bát',s=>(mod({health:-4}),ch(.4+(s.hid&&s.hid.arcane||0)/250))?{ok:1,t:'Máu bạn tan vào lớp máu khô, và bạn nghe được lời thề cũ: hai dòng họ từng thề cùng nhau giữ cây cầu đá, cho tới khi cả hai bên cùng đồng ý thôi.'}:{t:'Máu bạn đông lại trên mặt bát. Lời thề cũ không muốn nói chuyện với người lạ.'}],
+    ['Lục sổ họ ở nhà thờ làng',s=>ch(.4+s.st.smarts/250)?{ok:1,t:'Trong sổ họ có một trang bị xé. Mép giấy còn sót mấy chữ: "...thề giữ cầu đá... máu hai nhà..."'}:{t:'Chuột đã gặm mất nửa cuốn sổ.'}]]},
+  {t:'Người Giữ Nợ',x:'Bên cây cầu đá có một ông lão. Cả đời ông chưa từng đi xa khỏi cầu quá một ngày đường: cứ đi xa hơn là máu trào ra miệng. Ông là hậu duệ cuối cùng của một bên lời thề. Bên kia đã bỏ xứ đi từ lâu.',
+   c:[['Tìm hậu duệ của dòng họ bên kia',s=>ch(.35+s.st.smarts/250)?{ok:1,t:'Bạn lần theo sợi chỉ máu tới một người thợ gốm ở thị trấn bên. Hai người cuối cùng của hai họ gặp nhau trên cầu, cùng nói "thôi". Sợi chỉ đỏ rơi xuống tay bạn, thắt sẵn một nút.'}:{t:'Dấu máu nhạt dần ở ngã ba đường. Bạn chưa tìm ra họ.'}],
+    ['Thề thay cho ông lão',s=>ch(.4+s.st.honor/250)?(mod({health:-5}),{ok:1,t:'Bạn nhận lời thề về mình rồi gỡ nó ra từng vòng, như gỡ một cuộn chỉ rối. Ông lão bước qua cầu lần đầu trong đời. Trong tay bạn còn lại một nút thắt đỏ.'}):{t:'Lời thề không nhận bạn. Bạn không cùng dòng máu, và chưa đủ nặng lời.'}],
+    ['Cắt đứt sợi chỉ thề',s=>{ltHit(-8);return ch(.45+s.st.magic/300)?{ok:1,t:'Sợi chỉ đứt. Ông lão ngã xuống, thở dốc, rồi đứng dậy được tự do. Một nửa lời thề văng vào ngực bạn và ở lại đó.'}:(mod({health:-12}),{t:'Sợi chỉ quật ngược lại. Bạn ho ra máu suốt ba ngày.'})}]]},
+  {t:'Thắt Nút',x:'Nút thắt đỏ nằm trong lòng bàn tay bạn. Muốn dùng được nó, bạn phải tự thắt một lời thề của riêng mình, một lời bạn biết mình sẽ không bao giờ rút lại.',
+   c:[['Thề với chính mình một điều không thể rút',s=>ch(.4+s.st.honor/250)?{ok:1,t:'Bạn nói ra lời thề, và nút thắt siết lại quanh cổ tay bạn, vừa khít. Từ nay ai làm bạn đổ máu, máu kẻ đó cũng đổ. Bạn học được Huyết Thệ Phản Hồi.'}:{t:'Lời thề của bạn còn chừa một lối thoát. Nút thắt tuột ra.'}],
+    ['Nối máu với người bạn tin nhất',s=>{const p=soulmate()||spouse()||lover();if(!p)return{t:'Bạn nghĩ mãi mà không ra một cái tên. Nút thắt nằm im.'};if(!ch(.65))return{t:`${p.first} chần chừ. Lời thề máu không phải chuyện nói một lần là xong.`};p.bond=clamp(p.bond+10);return{ok:1,t:`Bạn và ${p.first} cùng cắt tay, buộc chung một sợi chỉ. Từ nay người này đau thì người kia biết. Bạn học được Huyết Thệ Phản Hồi.`}}]]}]}});
+PQB.push('doc','mong','rang','the');
+
+/* ===== Bí mật và mưu đồ (mở rộng hệ điều tra sẵn có): thêm loại bí mật, nối với Đối thủ và Tính cách, và bí mật của chính bạn ===== */
+Object.assign(SECR,{affair:{n:'đang lén lút ngoại tình',w:2},gamble:{n:'nợ sòng bạc ngập đầu',w:2},murder:{n:'từng giết người rồi chôn giấu',w:5}});
+Object.assign(CLUE,{
+ affair:['Người ta thấy {n} hay đi lễ muộn, mà không phải ở nhà thờ làng mình.','Bạn bắt gặp {n} giấu vội một lá thư thơm mùi oải hương vào tay áo.','Chủ quán trọ bên sông kể {n} thuê một phòng trên gác mỗi phiên chợ, lần nào cũng có người đến sau.','Bạn thấy tận mắt {n} hôn một người không phải bạn đời của mình sau cối xay.'],
+ gamble:['Dạo này {n} bán dần đồ đạc trong nhà, bảo là "dọn cho rộng".','Bạn thấy {n} bước ra từ sòng xúc xắc lúc gà gáy, mặt xám như tro.','Một gã đòi nợ có sẹo trên má hỏi thăm nhà {n} khắp chợ.','Bạn cầm được tờ giấy nợ có điểm chỉ của {n}, con số đủ mua nửa cái làng.'],
+ murder:['Có người nhắc tên một lái buôn mất tích năm xưa, và {n} đánh rơi cốc rượu.','Bạn để ý {n} không bao giờ đi qua cái giếng cạn cuối làng.','Một bà lão kể đêm ấy thấy {n} kéo một bao tải nặng ra phía giếng.','Bạn tìm thấy dưới giếng cạn một bộ xương, và chiếc nhẫn của người lái buôn nằm trong hòm nhà {n}.']});
+const SEC_MY={aff:'Bạn đang ngoại tình',bast:'Bạn có con rơi',cult:'Bạn theo Giáo hội Hồng Nguyệt',dark:'Bạn từng theo phe Bóng Tối',bm:'Bạn từng tống tiền người khác'};
+function mySecs(){const L=[];if(S.lvAff&&spouse())L.push('aff');if(S.fam.some(p=>p.bast&&p.alive)&&spouse())L.push('bast');if(isRed(S)&&S.house.title<6)L.push('cult');if(S.flags.trPast&&!S.trai&&!trStig())L.push('dark');if((S.rel||[]).some(r=>r.alive&&r.bm))L.push('bm');return L}
+/* bí mật của bạn bị lộ */
+function secLeak(k){let t='';
+  if(k==='aff'){if(spouse()&&!S.pend.includes('sp_found'))S.pend.push('sp_found');mod({honor:-4});t='Chuyện ngoại tình của bạn đến tai cả làng, và đến tai người bạn đời.'}
+  if(k==='bast'){const sp=spouse();if(sp)sp.bond=clamp(sp.bond-25);mod({honor:-5});t=`Cả làng biết bạn có con rơi.${sp?` ${sp.first} không nói với bạn một lời suốt cả tháng.`:''}`}
+  if(k==='cult'){S.flags.suspect=(S.flags.suspect||0)+2;fac(-6,0);mod({honor:-8});t='Người ta xì xào rằng bạn theo Hồng Nguyệt. Giáo hội bắt đầu để mắt tới bạn.'}
+  if(k==='dark'){trStigSet(4);mod({honor:-10});t='Quá khứ theo phe Bóng Tối của bạn bị khui lại. Tiếng xấu quay về.'}
+  if(k==='bm'){for(const r of S.rel||[])r.bm=0;mod({honor:-6});t='Ai cũng biết bạn sống bằng nghề nắm thóp người khác. Không ai còn dám nói chuyện riêng với bạn.'}
+  log(t,'bad');return t}
+/* điều tra, công bố, tống tiền, giữ kín: thêm hệ quả với Đối thủ và Tính cách */
+{const n0=npAct;npAct=function(a,id){const r=(S.rel||[]).find(x=>x.id===id&&x.alive);if(!r)return n0(a,id);
+  const rv=r.kind==='rival',fr=r.kind==='friend',real=!!r.sec&&r.cl>=3&&!SECR[r.sec].good,T=S.trt||[];
+  if(rv){if(a==='pub'&&real){r.pw=Math.max(10,r.pw-20);r.riv=Math.min(100,r.riv+25)}if(a==='bm'&&r.cl>=3&&r.sec)r.riv=Math.min(100,r.riv+20);if(a==='keep')r.riv=Math.max(0,r.riv-15);if(a==='sab')r.riv=Math.min(100,r.riv+6);
+    if(r.riv>=80&&!S.pend.includes('rv_nem')){S.tmpRv=r.id;S.pend.push('rv_nem')}}
+  if(a==='bm'&&r.cl>=3&&r.sec){if(T.includes('kind'))strAdd(10);if(T.includes('honest'))strAdd(8);if(T.includes('greedy')||T.includes('cruel'))strAdd(-4)}
+  if((a==='pub'||a==='rep')&&fr&&real&&T.includes('kind'))strAdd(10);
+  if(a==='keep'&&T.includes('honest'))strAdd(-4);
+  return n0(a,id)}}
+/* Quan hệ → Bí mật */
+function mySecView(){const L=(S.rel||[]).filter(r=>r.alive&&r.clues&&r.clues.length),M=mySecs();
+  let b='<p class="note">Mở trang của một người bạn, kẻ thù hoặc đối thủ rồi chọn "Điều tra bí mật" để tìm manh mối. Manh mối đủ chắc thì có thể công bố, báo quan, mặc cả lấy tiền, hoặc giữ kín.</p>';
+  b+='<p class="sec">Người bạn đang nắm manh mối</p>'+(L.length?L.map(r=>gRow(`data-r="${r.id}"`,'binoculars',esc(r.name),`${r.clues.length} manh mối · ${clueLvl(r)}`,{friend:'Bạn',enemy:'Kẻ thù',rival:'Đối thủ'}[r.kind]||'',false)).join(''):'<p class="note">Bạn chưa nắm manh mối về ai.</p>');
+  b+='<p class="sec">Bí mật của chính bạn</p>'+(M.length?M.map(k=>gRow('','hood',SEC_MY[k],'Nếu có kẻ biết được, họ sẽ tìm tới bạn đòi tiền','',false,true)).join(''):'<p class="note">Bạn không có gì phải giấu.</p>');
+  return['Bí mật',b,'rel']}
+{const d0=drawExt3;drawExt3=function(v){return v==='mysec'?mySecView():d0(v)}}
+{const r0=relXRows;relXRows=function(){const k=(S.rel||[]).filter(r=>r.alive&&r.clues&&r.clues.length).length,m=mySecs().length;return r0()+gRow('data-open="mysec"','binoculars','Bí mật',k||m?`Nắm manh mối về ${k} người · bạn có ${m} điều phải giấu`:'Chưa nắm manh mối về ai',k?`${k}`:'',false)}}
+/* sự kiện */
+const secPool=s=>(s.rel||[]).filter(r=>r.alive&&r.kind!=='lover'&&r.age>=16);
+const SECEV=[
+ {id:'sec_hear',w:s=>s.age>=14&&secPool(s).length?3:0,c:s=>s.age>=14&&secPool(s).length>0,prep:s=>{s.tmp=pick(secPool(s)).id},title:'Chuyện Nghe Được Ở Quán Rượu',
+  text:s=>{const r=s.rel.find(x=>x.id===s.tmp);return`Một gã say ở bàn bên lè nhè kể chuyện về ${r.name}, người mà bạn quen. Gã hạ giọng, nhưng không đủ nhỏ.`},
+  ch:[{t:'Mời gã thêm một cốc để nghe cho hết (2 xu)',req:s=>s.money>=2,f:s=>{const r=s.rel.find(x=>x.id===s.tmp);s.money-=2;npcInit(r);return[`Gã kể: ${clueRoll(r)} Manh mối đã được ghi lại trong trang của ${r.first}.`,'magic']}},
+      {t:'Bịt tai lại, chuyện người khác không phải việc của mình',f:s=>{mod({honor:1});return'Bạn uống cạn cốc rồi ra về.'}}]},
+ {id:'sec_bm',queued:true,big:true,art:'dagger',c:s=>s.alive&&!!s.tmpSec&&mySecs().includes(s.tmpSec.k),title:'Kẻ Nắm Thóp',
+  text:s=>{const T=s.tmpSec;return`${T.n} hẹn gặp bạn sau nhà thờ lúc chập tối, và nói thẳng: "Ta biết chuyện của ngươi. ${SEC_MY[T.k].replace('Bạn','Ngươi')}. ${T.g} xu, và ta sẽ quên."`},
+  ch:[{t:s=>`Trả ${s.tmpSec.g} xu để mua sự im lặng`,req:s=>s.money>=s.tmpSec.g,f:s=>{s.money-=s.tmpSec.g;s.flags.secCd=s.year+4;return['Kẻ ấy đếm tiền hai lần rồi biến vào bóng tối. Bạn biết rồi sẽ có lần sau, chỉ không biết khi nào.','']}},
+      {t:'Đem bí mật của kẻ ấy ra đáp lễ',hide:true,req:s=>{const r=s.tmpSec.id&&(s.rel||[]).find(x=>x.id===s.tmpSec.id);return!!(r&&r.alive&&r.sec&&r.cl>=3&&!SECR[r.sec].good)},f:s=>{const r=s.rel.find(x=>x.id===s.tmpSec.id);s.flags.secCd=s.year+8;return[`Bạn mỉm cười: "Còn ta thì biết ${r.first} ${SECR[r.sec].n}." ${r.first} đứng lặng một lúc rồi bỏ đi. Hai bên cùng nắm thóp nhau, và cùng im lặng.`,'good']}},
+      {t:'Dọa cho kẻ ấy phải im miệng',f:s=>{const T=s.tmpSec;s.flags.secCd=s.year+4;if(ch(.3+(s.blade||0)/250+s.st.health/400)){mod({honor:-2});return['Bạn túm cổ áo kẻ ấy dí vào tường. Số tiền kia không đáng để mất mấy cái răng.','good']}const t=secLeak(T.k);if(!T.id)addEnemy('Kẻ tống tiền bị bạn dọa',{hate:R(50,70)});return[`Kẻ ấy không sợ. Sáng hôm sau, mọi chuyện vỡ lở. ${t}`,'bad']}},
+      {t:'Mặc kệ, cứ việc nói',f:s=>{s.flags.secCd=s.year+4;return[secLeak(s.tmpSec.k),'bad']}}]}];
+for(const e of SECEV){EV.push(e);EVB[e.id]=e}
+{const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||S.age<16||S.pend.includes('sec_bm'))return;const M=mySecs();if(!M.length||(S.flags.secCd&&S.year<S.flags.secCd))return;
+  const foes=(S.rel||[]).filter(r=>r.alive&&(r.kind==='enemy'||r.kind==='rival'));if(!ch(.05+.03*Math.min(3,foes.length)+.02*M.length))return;
+  const k=pick(M),r=foes.length&&ch(.6)?pick(foes):null;S.tmpSec={k,id:r?r.id:null,n:r?r.name:`Một kẻ lạ mặt tên ${pick(MN)}`,g:Math.max(10,Math.round(Math.max(0,S.money)*.15)+R(10,30))};S.pend.push('sec_bm')}}
+
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
