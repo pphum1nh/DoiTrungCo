@@ -14157,25 +14157,6 @@ function lumRow(n,r,d2){if(n!==LUM||r.st!=='neutral'&&r.st!=='ally')return'';con
 kdA.than=n=>{const K=S.kd,r=K.realms[n];const pay=c=>{const a=Math.min(K.treas,c);K.treas-=a;S.money-=c-a};
   if(ch(Math.max(.3,Math.min(.95,.55+r.rel/200)))){pay(LUM_ENV);gainItem('p_than');r.rel=Math.min(100,r.rel+2);return`Sứ đoàn trở về sau ba tháng, mang theo một lọ Thần Dược niêm phong bằng sáp trắng của ${r.ruler}.`}
   const g=Math.round(LUM_ENV*.1);pay(g);return`${r.ruler} nhận quà ra mắt trị giá ${g} xu nhưng từ chối bán: "Thần Dược không phải món hàng cho vua chúa mặc cả." Quan hệ tốt hơn thì may ra.`};
-/* ===== Chân dung nhân vật người chơi (bộ Free RPG Fantasy Avatars, craftpix.net) ===== */
-const AV={m:{teen:[7,11,5],com:[2,5,11,15,27,30,32,44],nob:[29,37,45,48,50],old:[4,8,9,13,43],oldnob:[24,42,33],king:[26,41]},
-          f:{teen:[40,22,1],com:[1,12,14,22,34,36,47],nob:[3,10,17,18,35,38,49,46],old:[39,36,34],oldnob:[39],king:[25,31]}};
-const AV_RACE={elf:{m:[48,45,37],f:[38,49,17]},dwarf:{m:[32,50,2,15],f:null}};
-const avOK=()=>!!S&&!['orc','beast','skeleton'].includes(S.race);
-function avPick(){const A=AV[S.sex==='f'?'f':'m'],nob=['noble','royal'].includes(S.cls),rr=AV_RACE[S.race]&&AV_RACE[S.race][S.sex==='f'?'f':'m'];
-  return{t:pick(A.teen),y:pick(rr||(nob?A.nob:A.com)),o:pick(nob?A.oldnob:A.old),k:pick(A.king)}}
-function avNow(){if(!S)return 0;if(S.av&&S.av.fix!=null)return S.av.fix;if(!avOK()||S.age<12)return 0;if(!S.av)S.av=avPick();
-  return S.house.title>=6?S.av.k:S.age>=55?S.av.o:S.age<18?S.av.t:S.av.y}
-{const p0=portrait;portrait=function(race,sex,alive=true){const n=S&&race===S.race&&sex===S.sex?avNow():0;if(!n)return p0(race,sex,alive);
-  return`<img src="assets/av/${n}.webp" alt="" style="width:100%;height:100%;display:block;object-fit:cover;${alive?'':'filter:grayscale(1) brightness(.6)'}">`}}
-function avView(){const cur=avNow();let b='<p class="note">Chọn một chân dung cho nhân vật này, hoặc để game tự chọn theo giới tính, tuổi và địa vị.</p>';
-  b+=gRow('data-x="av:0"','user','Để game tự chọn',S.av&&S.av.fix!=null?'Chân dung sẽ đổi theo tuổi và địa vị':'Đang dùng','',false);
-  b+='<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px">';
-  for(let i=1;i<=50;i++)b+=`<button data-x="av:${i}" aria-label="Chân dung ${i}" style="padding:0;border-radius:50%;overflow:hidden;aspect-ratio:1;border:2px solid ${i===cur?'var(--title)':'var(--edge-2)'};background:#0b0f1c"><img src="assets/av/${i}.webp" alt="" loading="lazy" style="width:100%;height:100%;display:block;object-fit:cover"></button>`;
-  return['Chân dung',b+'</div>',null]}
-{const d0=drawExt3;drawExt3=function(v){return v==='av'?avView():d0(v)}}
-{const x0=extAct3;extAct3=function(x){if(!x.startsWith('av:'))return x0(x);const n=+x.slice(3);S.av=S.av||avPick();if(n)S.av.fix=n;else delete S.av.fix;save();render();return afterSheetAction()}}
-document.querySelector('.por').addEventListener('click',()=>{if(S)openSheet('av')});
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
