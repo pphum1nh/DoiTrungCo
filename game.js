@@ -2760,6 +2760,7 @@ function drawExt(v){
       if(r.st==='ally')b+=gRow(`data-x="kd:breakally:${n}"`,'heart-break','Hủy liên minh','Uy tín ngoại giao giảm','',d2);
       if(r.st==='neutral')b+=gRow(`data-x="kd:tribute:${n}"`,'crown','Đòi cống nạp',S.done.k_tribute?'Đã đòi năm nay':'Cần quân mạnh hơn hẳn · thất bại làm quan hệ xấu đi','',d2||!!S.done.k_tribute||(K.war&&K.war.t===n));
       b+=gRow(`data-x="kd:wedrealm:${n}"`,'rings','Kết thông gia',kk.length?`Gả ${kk[0].first} hoặc con khác`:'Cần người con chưa kết hôn từ 14 tuổi','',d2||!kk.length||!!S.done.k_wedrealm);
+      if(typeof lumRow==='function')b+=lumRow(n,r,d2);
     }
   }
   if(v==='kd:court'){
@@ -14148,6 +14149,14 @@ const SMEV=[
 for(const e of SMEV){EV.push(e);EVB[e.id]=e}
 /* di cư thì không còn ở căn nhà cũ */
 {const x0=extAct3;extAct3=function(x){const rl=S&&S.realm;const r=x0(x);if(x.startsWith('mig:')&&S&&S.realm!==rl){const H=propHome();if(H){H.home=false;log(`Căn ${pNm(H.k).toLowerCase()} ở quê cũ giờ để trống. Bạn có thể cho thuê nó.`,'')}}return r}}
+/* ===== Vua sai sứ thần sang Thánh quốc mua Thần Dược ===== */
+const LUM_ENV=2600;
+function lumRow(n,r,d2){if(n!==LUM||r.st!=='neutral'&&r.st!=='ally')return'';const K=S.kd,have=K.treas+Math.max(0,S.money);
+  const why=S.done.k_than?'Đã sai sứ năm nay':isRed(S)?'Thánh quốc không bán cho tín đồ Hồng Nguyệt':K.war&&K.war.t===n?'Đang có chiến tranh với Thánh quốc':r.rel<-20?'Cần quan hệ từ -20':have<LUM_ENV?`Cần ${LUM_ENV} xu (ngân khố và tiền riêng)`:S.bag.length>=BAGMAX&&stoFree()<=0?'Túi đồ đã đầy':'';
+  return gRow(`data-x="kd:than:${n}"`,'scroll','Sai sứ thần đi mua Thần Dược',why||`${LUM_ENV} xu, trả từ ngân khố trước · khả năng được bán khoảng ${Math.round(Math.max(.3,Math.min(.95,.55+r.rel/200))*100)}%`,'',d2||!!why)}
+kdA.than=n=>{const K=S.kd,r=K.realms[n];const pay=c=>{const a=Math.min(K.treas,c);K.treas-=a;S.money-=c-a};
+  if(ch(Math.max(.3,Math.min(.95,.55+r.rel/200)))){pay(LUM_ENV);gainItem('p_than');r.rel=Math.min(100,r.rel+2);return`Sứ đoàn trở về sau ba tháng, mang theo một lọ Thần Dược niêm phong bằng sáp trắng của ${r.ruler}.`}
+  const g=Math.round(LUM_ENV*.1);pay(g);return`${r.ruler} nhận quà ra mắt trị giá ${g} xu nhưng từ chối bán: "Thần Dược không phải món hàng cho vua chúa mặc cả." Quan hệ tốt hơn thì may ra.`};
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
