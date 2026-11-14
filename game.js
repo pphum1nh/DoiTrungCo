@@ -14318,6 +14318,63 @@ for(const e of SECEV){EV.push(e);EVB[e.id]=e}
   const foes=(S.rel||[]).filter(r=>r.alive&&(r.kind==='enemy'||r.kind==='rival'));if(!ch(.05+.03*Math.min(3,foes.length)+.02*M.length))return;
   const k=pick(M),r=foes.length&&ch(.6)?pick(foes):null;S.tmpSec={k,id:r?r.id:null,n:r?r.name:`Một kẻ lạ mặt tên ${pick(MN)}`,g:Math.max(10,Math.round(Math.max(0,S.money)*.15)+R(10,30))};S.pend.push('sec_bm')}}
 
+/* ===== Chân dung phẳng cho nhân vật người chơi: 7 tộc, 4 giai đoạn tuổi, vẽ bằng SVG ===== */
+// Bộ vẽ chân dung phẳng: avSvg(race, sex, stage) -> chuỗi SVG. stage: 0 trẻ con, 1 thanh niên, 2 trung niên, 3 về già
+const AVR={
+ human:{skin:'#f0c8a4',hair:['#7a4a2b','#b0522d'],cloth:['#b9a077','#8d6e4f'],bg:['#a9b98d','#e3b96b','#c98a6b','#a79a8c']},
+ elf:{skin:'#f5dcc2',hair:['#e8d28a','#ecd9a0'],cloth:['#6f9467','#5f8a78'],bg:['#b8cfa4','#8fb5a0','#9fb0c8','#b5b2c9'],ear:'elf',nobeard:1},
+ dwarf:{skin:'#eebd97',hair:['#b4552b','#c0622f'],cloth:['#8a5a3c','#7b4b38'],bg:['#d7a777','#c98f5e','#b7785a','#a8998a'],wide:1},
+ orc:{skin:'#9fb47c',hair:['#2f2a28','#2f2a28'],cloth:['#7a5a44','#6d4f45'],bg:['#c9b58a','#d9a066','#b98a63','#a8a08f'],ear:'elf',tusk:1},
+ beast:{skin:'#eec39b',hair:['#8a6e55','#b98a5a'],cloth:['#7d6a52','#8a5f48'],bg:['#b9c79a','#e0b872','#c79a70','#aab2b8'],ear:'beast'},
+ fiend:{skin:'#c88d93',hair:['#2b2430','#2b2430'],cloth:['#4b4257','#5a4458'],bg:['#b7a6c6','#d99aa0','#a892b6','#9a96a8'],ear:'elf',horn:1}};
+const shade=(h,k)=>{const n=parseInt(h.slice(1),16);const f=v=>Math.max(0,Math.min(255,Math.round(v*k)));return'#'+[n>>16,n>>8&255,n&255].map(f).map(v=>v.toString(16).padStart(2,'0')).join('')};
+function avSvg(race,sex,st){
+ if(race==='skeleton')return avSkull(sex);
+ const R=AVR[race]||AVR.human,f=sex==='f',kid=st===0,old=st===3,mid=st===2;
+ const skin=R.skin,sk2=shade(skin,.88),hair=old?'#e9e6e0':mid?shade(R.hair[f?1:0],.92):R.hair[f?1:0],hr2=shade(hair,.86),cloth=R.cloth[f?1:0],bg=R.bg[st];
+ const cy=kid?52:47,rx=(kid?17.5:16.5)+(R.wide?1.5:0),ry=kid?17:19,ey=cy+2,sw=kid?27:33+(R.wide?3:0);
+ let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><clipPath id="c"><circle cx="50" cy="50" r="50"/></clipPath></defs><g clip-path="url(#c)"><rect width="100" height="100" fill="${bg}"/>`;
+ // tóc phía sau
+ if(f){if(kid)s+=`<ellipse cx="29" cy="${cy+16}" rx="5" ry="11" fill="${hair}"/><ellipse cx="71" cy="${cy+16}" rx="5" ry="11" fill="${hair}"/>`;
+   else if(st===1)s+=`<path d="M${50-rx-3} ${cy-4} Q${50-rx-7} ${cy+34} ${50-rx+4} ${cy+44} L${50+rx-4} ${cy+44} Q${50+rx+7} ${cy+34} ${50+rx+3} ${cy-4}Z" fill="${hair}"/>`;
+   else s+=`<circle cx="50" cy="${cy-ry-3}" r="8" fill="${hair}"/><path d="M${50-rx-2} ${cy} Q${50-rx-3} ${cy+16} ${50-rx+3} ${cy+18} L${50+rx-3} ${cy+18} Q${50+rx+3} ${cy+16} ${50+rx+2} ${cy}Z" fill="${hair}"/>`}
+ if(R.ear==='beast')s+=`<path d="M${50-rx+1} ${cy-ry+6} L${50-rx-1} ${cy-ry-13} L${50-rx+13} ${cy-ry+1}Z" fill="${hair}"/><path d="M${50+rx-1} ${cy-ry+6} L${50+rx+1} ${cy-ry-13} L${50+rx-13} ${cy-ry+1}Z" fill="${hair}"/><path d="M${50-rx+3} ${cy-ry+3} L${50-rx+2} ${cy-ry-7} L${50-rx+9} ${cy-ry+1}Z" fill="#f0c9b6"/><path d="M${50+rx-3} ${cy-ry+3} L${50+rx-2} ${cy-ry-7} L${50+rx-9} ${cy-ry+1}Z" fill="#f0c9b6"/>`;
+ if(R.horn){const h=kid?5:old?13:mid?11:9;s+=`<path d="M${50-9} ${cy-ry+4} Q${50-17} ${cy-ry-h+2} ${50-11} ${cy-ry-h} Q${50-9} ${cy-ry-2} ${50-4} ${cy-ry+2}Z" fill="#4a3b45"/><path d="M${50+9} ${cy-ry+4} Q${50+17} ${cy-ry-h+2} ${50+11} ${cy-ry-h} Q${50+9} ${cy-ry-2} ${50+4} ${cy-ry+2}Z" fill="#4a3b45"/>`}
+ // thân
+ s+=`<ellipse cx="50" cy="${kid?103:101}" rx="${sw}" ry="${kid?22:25}" fill="${cloth}"/><rect x="44.5" y="${cy+ry-5}" width="11" height="12" rx="4" fill="${sk2}"/>`;
+ s+=f?`<path d="M${50-9} ${cy+ry+5} Q50 ${cy+ry+13} ${50+9} ${cy+ry+5} L${50+11} ${cy+ry+9} Q50 ${cy+ry+19} ${50-11} ${cy+ry+9}Z" fill="${shade(cloth,1.25)}"/>`:`<path d="M${50-8} ${cy+ry+5} L50 ${cy+ry+14} L${50+8} ${cy+ry+5}" fill="none" stroke="${shade(cloth,.75)}" stroke-width="2.2" stroke-linecap="round"/>`;
+ if(old)s+=`<path d="M${50-sw} ${kid?103:99} Q50 ${cy+ry+2} ${50+sw} 99 L${50+sw} 110 L${50-sw} 110Z" fill="${shade(cloth,.8)}" opacity=".55"/>`;
+ // tai
+ if(R.ear==='elf')s+=`<path d="M${50-rx+2} ${ey-2} L${50-rx-7} ${ey-7} L${50-rx+1} ${ey+6}Z" fill="${skin}"/><path d="M${50+rx-2} ${ey-2} L${50+rx+7} ${ey-7} L${50+rx-1} ${ey+6}Z" fill="${skin}"/>`;
+ else if(R.ear!=='beast')s+=`<circle cx="${50-rx}" cy="${ey+1}" r="3.4" fill="${skin}"/><circle cx="${50+rx}" cy="${ey+1}" r="3.4" fill="${skin}"/>`;
+ // đầu
+ s+=`<ellipse cx="50" cy="${cy}" rx="${rx}" ry="${ry}" fill="${skin}"/>`;
+ // râu
+ if(!f&&!kid&&!R.nobeard){const big=R.wide;if(st===1&&!big){}
+   else{const d=big?(old?26:mid?22:14):(old?13:7);s+=`<path d="M${50-rx+1} ${cy+3} Q${50-rx} ${cy+ry+d-6} 50 ${cy+ry+d} Q${50+rx} ${cy+ry+d-6} ${50+rx-1} ${cy+3} Q50 ${cy+13} ${50-rx+1} ${cy+3}Z" fill="${hair}"/>`;if(big&&st>=2)s+=`<rect x="47.5" y="${cy+ry+d-9}" width="5" height="3" rx="1" fill="#d9b25a"/>`}}
+ // tóc phía trước
+ if(f){s+=`<path d="M${50-rx-1} ${cy+2} Q${50-rx-2} ${cy-ry-4} 50 ${cy-ry-3} Q${50+rx+2} ${cy-ry-4} ${50+rx+1} ${cy+2} Q${50+rx-3} ${cy-9} 50 ${cy-11} Q${50-rx+3} ${cy-9} ${50-rx-1} ${cy+2}Z" fill="${hair}"/>`;if(kid)s+=`<circle cx="29" cy="${cy+6}" r="2.2" fill="#c96a5a"/><circle cx="71" cy="${cy+6}" r="2.2" fill="#c96a5a"/>`}
+ else if(old&&!R.tusk)s+=`<path d="M${50-rx-1} ${cy+1} Q${50-rx-1} ${cy-11} ${50-rx+5} ${cy-12} Q${50-rx+3} ${cy-5} ${50-rx-1} ${cy+1}Z" fill="${hair}"/><path d="M${50+rx+1} ${cy+1} Q${50+rx+1} ${cy-11} ${50+rx-5} ${cy-12} Q${50+rx-3} ${cy-5} ${50+rx+1} ${cy+1}Z" fill="${hair}"/><path d="M${50-8} ${cy-ry+1} Q50 ${cy-ry-3} ${50+8} ${cy-ry+1} Q50 ${cy-ry+3} ${50-8} ${cy-ry+1}Z" fill="${hair}"/>`;
+ else if(R.tusk)s+=`<path d="M${50-6} ${cy-ry+4} Q50 ${cy-ry-16} ${50+6} ${cy-ry+4} Q50 ${cy-ry+1} ${50-6} ${cy-ry+4}Z" fill="${hair}"/><circle cx="50" cy="${cy-ry-10}" r="4.5" fill="${hair}"/>`;
+ else s+=`<path d="M${50-rx-1} ${cy-1} Q${50-rx-3} ${cy-ry-5} 50 ${cy-ry-4} Q${50+rx+3} ${cy-ry-5} ${50+rx+1} ${cy-1} Q${50+rx-2} ${cy-10} ${50+4} ${cy-12} Q${50-6} ${cy-8} ${50-rx-1} ${cy-1}Z" fill="${hair}"/>`;
+ // mặt
+ s+=`<circle cx="43.5" cy="${ey}" r="1.7" fill="#3a2a24"/><circle cx="56.5" cy="${ey}" r="1.7" fill="#3a2a24"/><circle cx="39.5" cy="${ey+5}" r="3" fill="#e58f7c" opacity=".35"/><circle cx="60.5" cy="${ey+5}" r="3" fill="#e58f7c" opacity=".35"/>`;
+ if(!(!f&&!kid&&!R.nobeard&&(st>=2||R.wide)))s+=`<path d="M46.5 ${ey+8} Q50 ${ey+10.5} 53.5 ${ey+8}" fill="none" stroke="#8a4a3c" stroke-width="1.3" stroke-linecap="round"/>`;
+ if(R.tusk)s+=`<path d="M45 ${ey+10} l1.2 -4 l1.6 4Z" fill="#f4eedd"/><path d="M53.2 ${ey+10} l1.2 -4 l1.6 4Z" fill="#f4eedd"/>`;
+ if(old||mid)s+=`<path d="M39 ${ey-5} q3 -1.5 6 0M55 ${ey-5} q3 -1.5 6 0" fill="none" stroke="${old?'#cfcac2':hr2}" stroke-width="1.4" stroke-linecap="round"/>`;
+ if(old)s+=`<path d="M38.5 ${ey+2.5} q2 1.2 4 0M57.5 ${ey+2.5} q2 1.2 4 0" fill="none" stroke="${shade(skin,.78)}" stroke-width=".9" stroke-linecap="round"/>`;
+ return s+'</g></svg>'}
+function avSkull(sex){const f=sex==='f',hood=f?'#6b5a78':'#4f5563';
+ return`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><clipPath id="c"><circle cx="50" cy="50" r="50"/></clipPath></defs><g clip-path="url(#c)"><rect width="100" height="100" fill="${f?'#b9aec7':'#a9b3b8'}"/>
+<path d="M22 110 Q20 30 50 22 Q80 30 78 110Z" fill="${hood}"/><path d="M30 104 Q28 40 50 31 Q72 40 70 104Z" fill="${shade(hood,.7)}"/>
+<ellipse cx="50" cy="101" rx="30" ry="22" fill="${hood}"/><rect x="46" y="66" width="8" height="12" rx="3" fill="#d9d2c0"/>
+<path d="M33 48 Q33 30 50 30 Q67 30 67 48 Q67 58 61 61 L61 68 Q50 72 39 68 L39 61 Q33 58 33 48Z" fill="#f1ecdd"/>
+<ellipse cx="43" cy="49" rx="4.6" ry="5.4" fill="#3a3340"/><ellipse cx="57" cy="49" rx="4.6" ry="5.4" fill="#3a3340"/><path d="M50 55 l-2.2 4.5 h4.4Z" fill="#3a3340"/>
+<path d="M42 64 v5M46 65 v5M50 65 v5M54 65 v5M58 64 v5" stroke="#b9b1a0" stroke-width="1.2" stroke-linecap="round"/>${f?'<circle cx="64" cy="36" r="3.2" fill="#d98aa0"/><circle cx="64" cy="36" r="1.2" fill="#f3d78a"/>':''}
+<circle cx="43.6" cy="48.4" r="1.2" fill="#8fd0c8"/><circle cx="57.6" cy="48.4" r="1.2" fill="#8fd0c8"/></g></svg>`}
+const avStage=()=>{const e=S.age/((RACES[S.race]&&RACES[S.race].life)||1);return e<14?0:e<40?1:e<60?2:3};
+{const p0=portrait;portrait=function(race,sex,alive=true){if(!S||race!==S.race||sex!==S.sex||(!AVR[race]&&race!=='skeleton'))return p0(race,sex,alive);
+  return avSvg(race,sex,avStage()).replace('<svg ',`<svg style="width:100%;height:100%;display:block;${alive?'':'filter:grayscale(1) brightness(.65)'}" `)}}
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
 try{if(S&&S.job&&S.job.id==='hunter'&&!S.hn){HN().merit=[0,150,500][Math.min(2,S.job.rank)];S.hn.q=S.job.rank*6}
