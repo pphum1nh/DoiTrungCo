@@ -7001,14 +7001,14 @@ const mvArcF=id=>MV[id]&&MV[id].src[0]==='m'?.35+((S.hid&&S.hid.arcane)||0)/100:
 function mvXP(id,win){const P=S.mv[id];if(!P||P.lv>=5)return'';P.xp+=Math.max(1,Math.round((win?R(5,9):R(2,4))*mvArcF(id)));if(P.xp>=MVXP[P.lv]){P.lv++;const t=` ${MV[id].n} lên cấp ${P.lv}.`;log(`Chiêu ${MV[id].n} lên cấp ${P.lv}.`,'good');return t}return''}
 function mvWhy(id,book){const M=MV[id];if(!M)return'Không có';if(S.mv&&S.mv[id])return'Đã học';if(S.age<10)return'Từ 10 tuổi';
   if(M.src[0]==='h')return'Chiêu độc nhất của nghề ẩn';
-  if(M.src[0]==='m'){if(!mnOn())return'Chưa thức tỉnh mệnh';if(M.src.slice(2)!==S.hid.menh)return`Chỉ người mang ${MENH[M.src.slice(2)].n} mệnh mới học được`;if(S.st.magic<(M.mg||0))return`Cần ma lực ${M.mg}`}
+  if(M.src[0]==='m'){if(!mnOn())return'Chưa thức tỉnh mệnh';if(M.src.slice(2)!==S.hid.menh&&M.src.slice(2)!==S.hid.menh2)return`Chỉ người mang ${MENH[M.src.slice(2)].n} mệnh mới học được`;if(S.st.magic<(M.mg||0))return`Cần ma lực ${M.mg}`}
   if(M.src==='kiem'&&(S.blade||0)<(M.sw||0))return`Cần kiếm thuật ${M.sw}`;
   if(M.pre){const P=S.mv[M.pre[0]];if(!P||P.lv<M.pre[1])return`Cần ${MV[M.pre[0]].n} cấp ${M.pre[1]}`}
   if(!book){if(M.u)return'Chiêu độc nhất: chỉ học được qua nhiệm vụ';if(M.q&&M.bk)return'Học qua nhiệm vụ hoặc bí kíp';if(M.bk)return'Cần bí kíp (thư viện, hầm ngục)'}
   return''}
 const vhLeft=()=>Math.max(0,2-(S.done.vh||0));
 function cbBook(p,lead){if(!ch(p))return'';const id=mvBookPick();if(!id)return'';mnEnsure();S.bk.push(id);if(S.bk.length>8)S.bk.shift();return`${lead||''} Đó là bí kíp "${MV[id].n}".`.trim()}
-function mvBookPick(){mnEnsure();const own=Object.keys(MV).filter(id=>MV[id].bk&&!S.mv[id]&&!S.bk.includes(id)&&(MV[id].src==='m:'+S.hid.menh||MV[id].src==='kiem'));const all=Object.keys(MV).filter(id=>MV[id].bk&&!S.bk.includes(id));
+function mvBookPick(){mnEnsure();const own=Object.keys(MV).filter(id=>MV[id].bk&&!S.mv[id]&&!S.bk.includes(id)&&(MV[id].src==='m:'+S.hid.menh||MV[id].src==='m:'+S.hid.menh2||MV[id].src==='kiem'));const all=Object.keys(MV).filter(id=>MV[id].bk&&!S.bk.includes(id));
   if(own.length&&ch(.55))return pick(own);return all.length?pick(all):null}
 
 /* chiến đấu: chọn chiêu, ra kết quả */
@@ -7094,7 +7094,7 @@ function vhAct(a,id){mnEnsure();if(!S.alive)return;let t='',tone='';
   else if(a==='bk'){const i=+id,b=S.bk[i];if(!b||!MV[b])return;const M=MV[b],w=mvWhy(b,true);
     if(!w){S.bk.splice(i,1);mvLearn(b);t=`Bạn đọc bí kíp "${M.n}" từ đầu đến cuối, rồi luyện theo. Bạn học được ${M.n}.`;tone='good'}
     else if(S.done['bk'+i])return;
-    else{S.done['bk'+i]=1;if(M.src[0]==='m'&&M.src.slice(2)!==S.hid.menh){mod({smarts:1});t=`Bạn đọc bí kíp "${M.n}" mà không hiểu gì cả. Đây là võ học của ${MENH[M.src.slice(2)].n} mệnh, không hợp với bạn.`}else t=`Bạn đọc bí kíp "${M.n}" nhưng chưa luyện được: ${w.toLowerCase()}.`}}
+    else{S.done['bk'+i]=1;if(M.src[0]==='m'&&M.src.slice(2)!==S.hid.menh&&M.src.slice(2)!==S.hid.menh2){mod({smarts:1});t=`Bạn đọc bí kíp "${M.n}" mà không hiểu gì cả. Đây là võ học của ${MENH[M.src.slice(2)].n} mệnh, không hợp với bạn.`}else t=`Bạn đọc bí kíp "${M.n}" nhưng chưa luyện được: ${w.toLowerCase()}.`}}
   else if(a==='sell'){const i=+id,b=S.bk[i];if(!b)return;S.bk.splice(i,1);const g=R(15,35);S.money+=g;t=`Bạn bán bí kíp "${MV[b].n}" cho một thương nhân sách cũ được ${g} xu.`}
   else if(a==='eq'){const i=S.mvL.indexOf(id);if(i>=0)S.mvL.splice(i,1);else if(S.mv[id]){if(S.mvL.length>=4){note={t:'Chỉ mang được 4 chiêu vào trận. Hãy bỏ bớt một chiêu.',tone:'bad'};return drawSheet()}S.mvL.push(id)}save();return drawSheet()}
   else if(a==='spar'){if(S.done.spar||S.age<12)return;S.done.spar=1;S.cb={ctx:'spar',n:'Tỉ thí với võ sư',tags:['nguoi'],d:.06,dm:[2,6],ic:'sword',intro:'Một võ sư đi ngang qua làng nhận lời tỉ thí với bạn trên sân đình, trước mặt cả làng.'};S.pend.push('cb_fight');return afterSheetAction()}
@@ -7108,7 +7108,7 @@ function vhView(v){mnEnsure();const id=v.split(':')[1];if(id&&MV[id])return vhMo
   const rest=mvList().filter(x=>!S.mvL.includes(x));if(rest.length)b+='<p class="sec">Chiêu khác đã học</p>'+rest.map(x=>vhRow(x,`data-open="vh:${x}"`)).join('');
   b+=`<p class="sec">Học chiêu mới · còn ${vhLeft()}/2 buổi luyện năm nay</p>`;
   const can=Object.keys(MV).filter(x=>!mvWhy(x));b+=can.length?can.map(x=>{const M=MV[x];return gRow(`data-x="vh:learn:${x}"`,'book',M.n,`${mvSrcN(M)}${M.src==='kiem'?' · 10 xu':''}`,'',dis||!vhLeft())}).join(''):'<p class="note">Chưa có chiêu mới để học.</p>';
-  const near=Object.keys(MV).filter(x=>{const w=mvWhy(x),M=MV[x];return w&&w!=='Đã học'&&(M.src==='kiem'||(mnOn()&&M.src==='m:'+S.hid.menh))&&!/Từ 10/.test(w)}).slice(0,6);
+  const near=Object.keys(MV).filter(x=>{const w=mvWhy(x),M=MV[x];return w&&w!=='Đã học'&&(M.src==='kiem'||(mnOn()&&(M.src==='m:'+S.hid.menh||M.src==='m:'+S.hid.menh2)))&&!/Từ 10/.test(w)}).slice(0,6);
   if(near.length)b+='<p class="sec">Chiêu sắp mở</p>'+near.map(x=>gRow('','lock',MV[x].n,mvWhy(x),'',false,true)).join('');
   if(S.bk.length)b+='<p class="sec">Bí kíp đang giữ</p>'+S.bk.map((x,i)=>{const w=mvWhy(x,true);return gRow(`data-x="vh:bk:${i}"`,'book',`Bí kíp: ${MV[x].n}`,w?(S.done['bk'+i]?'Đã đọc năm nay':`${mvSrcN(MV[x])} · ${w}`):'Đọc để học chiêu này','',dis||(!!w&&!!S.done['bk'+i]))+(w?gRow(`data-x="vh:sell:${i}"`,'coins',`Bán bí kíp ${MV[x].n}`,'Thương nhân sách cũ trả 15–35 xu','',dis):'')}).join('');
   b+='<p class="sec">Thư viện và tỉ thí</p>';
@@ -14317,6 +14317,232 @@ for(const e of SECEV){EV.push(e);EVB[e.id]=e}
 {const y0=extYear3;extYear3=function(){y0();if(!S||!S.alive||S.age<16||S.pend.includes('sec_bm'))return;const M=mySecs();if(!M.length||(S.flags.secCd&&S.year<S.flags.secCd))return;
   const foes=(S.rel||[]).filter(r=>r.alive&&(r.kind==='enemy'||r.kind==='rival'));if(!ch(.05+.03*Math.min(3,foes.length)+.02*M.length))return;
   const k=pick(M),r=foes.length&&ch(.6)?pick(foes):null;S.tmpSec={k,id:r?r.id:null,n:r?r.name:`Một kẻ lạ mặt tên ${pick(MN)}`,g:Math.max(10,Math.round(Math.max(0,S.money)*.15)+R(10,30))};S.pend.push('sec_bm')}}
+
+/* ===== Tộc ẩn Quỷ hút máu: bị cắn, cơn khát, nhân tính, huyết thuật, ba chuỗi nhiệm vụ, bảo vật riêng, thêm Mệnh Huyết ===== */
+RACES.vampire={n:'Quỷ hút máu',life:30,hidden:1,desc:'Tộc ẩn, sinh ra từ một vết cắn trong đêm.',st:{}};
+MENHR.vampire=['huyet'];
+const isVp=()=>!!S&&S.race==='vampire';
+const VPT=['Kẻ Mới Bị Cắn','Quỷ Hút Máu','Trưởng Lão Đêm','Bá Tước Máu','Chúa Tể Đêm'];
+const VPN=[40,100,180];
+const VPX=()=>{if(!S.vp)S.vp={bl:60,hum:70,rk:0,xp:0,th:0,y:S.year,sire:`${pick(MN)} xứ ${pick(VILL)}`,q1:0,q2:0,q3:0};return S.vp};
+const vpTitle=()=>VPT[VPX().rk];
+const vpBl=v=>{const V=VPX();V.bl=Math.max(0,Math.min(100,V.bl+v))};
+const vpHum=v=>{const V=VPX();V.hum=Math.max(0,Math.min(100,V.hum+v))};
+const vpSunSafe=()=>!!(S.vp&&S.vp.day)||hasItem('vp_cloak')||hasItem('vp_amber');
+function vpXp(v){const V=VPX();V.xp+=v;let t='';while(V.rk<3&&V.xp>=VPN[V.rk]){V.rk++;mod({magic:5,health:5});if(V.rk===1)mvLearn('vp2',true);if(V.rk===2)mvLearn('vp3',true);t+=` Máu trong bạn đặc lại. Từ nay bạn là ${vpTitle()}.`;log(`Bạn trở thành ${vpTitle()}.`,'magic')}return t}
+function vpBecome(){const old=S.race,V=(S.vp=null,VPX());S.race='vampire';S.flags.vpFrom=old;
+  S.st.health=Math.max(S.st.health,70);mod({looks:10,magic:10,piety:-15,happy:-8});
+  mnEnsure();if(S.hid.menh!=='huyet'){S.hid.menh2='huyet'}else mod({magic:10});S.flags.mnK=1;mvLearn('huyet1',true);mvLearn('vp1',true);
+  if(S.job&&['church','mission'].includes(S.job.id)){log(`Bạn không còn bước qua được ngưỡng cửa nhà thờ. Bạn mất việc ${jt().toLowerCase()}.`,'bad');S.job=null}
+  announce('Vết Cắn Trong Đêm',`${S.first} ${S.surname} chết lúc gần sáng, và mở mắt ra lúc chập tối. Tim không còn đập, nhưng cơn khát thì có.`,'night');
+  log(`Bạn đã thành Quỷ hút máu. Máu trong người bạn thức dậy: bạn mang thêm ${S.hid.menh==='huyet'?'một lớp':''} Mệnh Huyết.`,'magic');
+  gainItem('vp_soil');later('vp_first',1);later('vp_family',R(2,4))}
+function vpCure(){const old=S.flags.vpFrom||'human';S.race=RACES[old]&&old!=='vampire'?old:'human';S.vp=null;mod({looks:-8,happy:10,piety:5});announce('Trở Lại Làm Người',`Tim của ${S.first} ${S.surname} đập lại nhịp đầu tiên sau nhiều năm. Mặt trời không còn là kẻ thù.`,'sun')}
+{const p0=portrait;portrait=function(race,sex,alive=true){if(race!=='vampire')return p0(race,sex,alive);
+  return p0('human',sex,alive).replace('</svg>','<circle cx="28.2" cy="24.5" r="1.3" fill="#d23b3b"/><circle cx="35.8" cy="24.5" r="1.3" fill="#d23b3b"/><path d="M29.6 30.6l.9 2.6.9-2.6zM32.6 30.6l.9 2.6.9-2.6z" fill="#f4eedd"/></svg>')}}
+{const b0=baby;baby=function(){if(isVp()){S.done.baby=1;const t='Quỷ hút máu không sinh con được. Muốn có người nối dõi, bạn phải ban Cái Ôm cho một người thân, hoặc nhận con nuôi.';note={t,tone:'bad'};return drawSheet()}return b0()}}
+{const d0=deathRoll;deathRoll=function(){if(isVp()){if(S.st.health<=0||(S.st.health<10&&ch(.15)))die('thân xác tan thành tro bụi');return}return d0()}}
+{const d0=die;die=function(cause){if(S&&S.alive&&isVp()&&/dịch hạch|ho lao|bệnh lao|kiết lỵ|sốt|đậu mùa|tuổi già/.test(String(cause||''))){S.st.health=Math.max(S.st.health,25);log('Bệnh tật quật ngã bạn suốt một mùa, nhưng không giết nổi kẻ đã chết một lần.','magic');return}return d0.apply(this,arguments)}}
+{const r0=roleOf;roleOf=function(){if(S&&S.alive&&isVp()&&!S.job&&!(S.house.title>=2&&rules()))return vpTitle().toLowerCase();return r0()}}
+/* thêm Mệnh Huyết: người có menh2 học được chiêu của mệnh ấy; chiêu huyết tộc chỉ Quỷ hút máu học được */
+const mnHas=k=>!!(S&&S.hid&&(S.hid.menh===k||S.hid.menh2===k));
+{const w0=mvWhy;mvWhy=function(id,book){const M=MV[id];if(M&&M.vp&&!(S.mv&&S.mv[id]))return'Huyết thuật riêng của Quỷ hút máu';return w0(id,book)}}
+Object.assign(MV,{
+ vp1:mv('Nanh Đêm','m:huyet','atk',.14,{mp:5,vp:1,sv:['nguoi','thu'],wk:['xac','hon'],d:'Huyết thuật của Quỷ hút máu: lao tới cắn, hút sinh lực của đối thủ',x:'bạn biến mất khỏi tầm mắt rồi hiện ra ngay sau gáy đối thủ'}),
+ vp2:mv('Hóa Sương','m:huyet','def',.17,{mp:6,vp:1,sv:['giap','dong','nhanh'],d:'Huyết thuật của Quỷ hút máu: tan thành sương, đòn đánh xuyên qua như chém vào khói',x:'thân thể bạn tan thành một làn sương xám, lưỡi kiếm đối thủ chém vào khoảng không'}),
+ vp3:mv('Ánh Mắt Mê Hoặc','m:huyet','ctl',.19,{mp:8,vp:1,sv:['nguoi','nhanh'],wk:['xac','thu'],d:'Huyết thuật của Quỷ hút máu: kẻ nhìn vào mắt bạn quên mất mình định làm gì',x:'đối thủ nhìn vào mắt bạn, và tay họ buông thõng xuống'}),
+ vp4:mv('Huyết Nguyệt Giáng Thế','m:huyet','atk',.25,{mp:14,vp:1,sv:['nguoi','dong','giap','thu'],wk:['hon'],d:'Chiêu của Chúa Tể Đêm: trăng đỏ mọc giữa ban ngày, máu của mọi kẻ thù nghe lệnh bạn',x:'bầu trời tối sầm, một vầng trăng đỏ hiện ra, và đối thủ quỵ xuống ôm ngực'})});
+Object.assign(ITEMS,{
+ vp_soil:{n:'Túi Đất Quê Hương',r:2,ic:'gravestone',fx:{health:1},v:0,ev:1,sl:'acc',d:'Một nắm đất lấy từ nơi bạn chết lần đầu. Quỷ hút máu ngủ trên đất quê thì vết thương mau lành.'},
+ vp_fang:{n:'Nanh Quỷ Hút Máu',r:2,ic:'dagger',cb:3,fx:{honor:1},v:60,sl:'acc',d:'Chiếc nanh nhổ từ miệng một con quỷ hút máu bạn tự tay hạ. Đeo nó, chó trong làng không sủa bạn nữa.'},
+ vp_ring:{n:'Nhẫn Huyết Ấn',r:3,ic:'ring',cb:3,fx:{magic:2},v:0,ev:1,sl:'acc',d:'Chiếc nhẫn khắc ấn của dòng máu đã sinh ra bạn. Người đeo nó khát chậm hơn.'},
+ vp_cloak:{n:'Áo Choàng Hoàng Hôn',r:3,ic:'night',cb:4,fx:{looks:2},v:0,ev:1,sl:'armor',d:'Dệt từ bóng của một buổi chiều tà không bao giờ tắt. Khoác nó, nắng không chạm được vào da bạn.'},
+ vp_chalice:{n:'Chén Máu Không Cạn',r:3,ic:'chalice',cb:2,fx:{health:2},v:0,ev:1,sl:'acc',d:'Chiếc chén bạc của Hội Đồng Đêm. Mỗi lần trăng tròn, đáy chén lại ứa ra một ngụm máu ấm.'},
+ vp_amber:{n:'Hổ Phách Mặt Trời',r:3,ic:'sun',cb:4,fx:{health:2,happy:2},v:0,ev:1,sl:'acc',d:'Một giọt nắng đông lại trong hổ phách. Quỷ hút máu mang nó thì đi được dưới mặt trời.'},
+ vp_crown:{n:'Vương Miện Huyết Nguyệt',r:3,ic:'crown',cb:8,fx:{magic:3,honor:-1},v:0,ev:1,sl:'hat',d:'Vương miện của Chúa Tể Đêm, đúc từ bạc đen và một mảnh trăng đỏ. Mọi quỷ hút máu trong xứ cúi đầu trước nó.'}});
+IMBN.vampire='rỉ máu';
+
+/* ---------- vòng năm ---------- */
+function vpYear(){
+  for(const p of[...S.fam,...(S.rel||[])])if(p.alive&&p.vamp){if(p.va==null)p.va=p.age;else p.age=p.va}
+  if(!S.alive)return;
+  if(!isVp()){if(S.age>=16&&S.race!=='skeleton'&&!S.cap&&!S.pend.includes('vp_bite')&&!(S.flags.vpB&&S.year-S.flags.vpB<15)&&ch(.01)){S.flags.vpB=S.year;S.pend.push('vp_bite')}return}
+  const V=VPX();if(V.vl!==S.village){V.vl=S.village;V.vy=S.year;V.ag=0}
+  vpBl(-R(12,18)+(hasItem('vp_ring')?4:0)+(hasItem('vp_chalice')?8:0)+Math.min(16,V.th*4)+(V.patron?6:0));
+  if(V.th){const g=V.th*R(3,7);S.money+=g;if(ch(.06*V.th)){V.th--;S.flags.suspect=(S.flags.suspect||0)+1;log('Một nô bộc của bạn tỉnh khỏi cơn mê và bỏ trốn, kể lể khắp nơi về "ông chủ không bao giờ ăn".','bad')}}
+  if(V.bl<=0){V.bl=12;if(!S.pend.includes('vp_frenzy'))S.pend.push('vp_frenzy')}
+  else if(V.bl<25){mod({health:-5,happy:-3});log('Cơn khát cào trong cổ họng bạn. Bạn nghe được nhịp tim của từng người đi ngang qua.','bad')}
+  else if(V.bl>=60)mod({health:hasItem('vp_soil')?6:4});
+  if(V.bl>=40&&V.hum<70)vpHum(1);
+  if(V.hum<=0&&!S.pend.includes('vp_beast'))S.pend.push('vp_beast');
+  if(ch(.25))S.flags.suspect=(S.flags.suspect||0)+1;
+  if(!V.ag&&S.year-V.vy>=15&&!S.pend.includes('vp_ageless')){V.ag=1;S.pend.push('vp_ageless')}
+  if(!vpSunSafe()&&ch(.06)&&!S.pend.includes('vp_sun'))S.pend.push('vp_sun');
+  if(ch(.12)&&!S.pend.some(x=>x.startsWith('vp_'))){const L=[];if((S.flags.suspect||0)>=3)L.push('vp_hunter','vp_hunter');if(!V.sd&&V.rk>=1&&V.q1<4)L.push('vp_sire');if(V.rk>=2)L.push('vp_court');const m=spouse()||lover();if(m&&!m.vamp)L.push('vp_love');if(L.length)S.pend.push(pick(L))}}
+{const y0=extYear3;extYear3=function(){y0();if(S)vpYear()}}
+
+/* ---------- Hoạt động riêng của Huyết tộc ---------- */
+const vpLeft=()=>Math.max(0,2-(S.done.vp||0));
+const VPA=[
+ ['animal','Uống máu gia súc','Huyết +15 · giữ được nhân tính · máu loãng',()=>{vpBl(15);vpHum(2);mod({health:-2});return'Bạn lẻn vào chuồng bò lúc nửa đêm. Máu thú nhạt và tanh, nhưng không ai phải chết.'}],
+ ['night','Săn người lạ ngoài đường đêm','Huyết +35 · mất nhân tính · dễ bị nghi ngờ',()=>{vpBl(35);vpHum(-6);S.flags.suspect=(S.flags.suspect||0)+2;let t='Một lữ khách say rượu đi lạc vào hẻm tối. Sáng ra, ông ta tỉnh dậy xanh xao và không nhớ gì.';if(ch(.1)){vpHum(-10);mod({honor:-5});strAdd(12);t='Bạn không dừng lại kịp. Người ta tìm thấy cái xác bên giếng lúc rạng sáng, không còn giọt máu nào.'}t+=vpXp(8);return[t,'bad']}],
+ ['coins','Mua máu ở chợ đen (25 xu)','Huyết +25 · không ai bị hại',()=>{if(S.money<25)return null;S.money-=25;vpBl(25);return'Một thầy lang trích máu bán cho bạn mấy bình máu tươi, không hỏi một câu.'},'Cần 25 xu'],
+ ['heart','Uống máu người tự nguyện','Cần nô bộc hoặc người thương gắn bó từ 70 · Huyết +30',()=>{const V=VPX(),m=[spouse(),lover()].find(p=>p&&p.bond>=70);if(!V.th&&!m)return null;vpBl(30);if(!V.th&&m){m.bond=clamp(m.bond-3);return`${m.first} chìa cổ tay ra cho bạn. Bạn chỉ uống đủ để dịu cơn khát, rồi băng lại cho người ấy.`}return'Nô bộc của bạn xắn tay áo, mắt mơ màng. Bạn uống vừa đủ.'},'Cần một nô bộc, hoặc vợ chồng hay người yêu gắn bó từ 70']];
+function vpEmbL(){return[spouse(),lover(),soulmate(),...kids().filter(k=>k.age>=16)].filter((p,i,a)=>p&&p.alive&&!p.vamp&&a.indexOf(p)===i)}
+function vpView(){if(!isVp())return['Huyết tộc','<p class="note">Bạn vẫn là người sống.</p>','act'];
+  const V=VPX(),dis=!S.alive||!!S.cap;let b=statGrid([['Thân phận',vpTitle()],['Huyết',`${V.bl}/100`],['Nhân tính',`${V.hum}/100`],['Nô bộc',V.th],['Huyết thuật',V.rk<3?`${V.xp}/${VPN[V.rk]}`:'Viên mãn'],['Kẻ sinh thành',V.sd?'Đã chết':esc(V.sire)],['Mệnh',`${MENH[S.hid.menh].n}${S.hid.menh2?' và '+MENH[S.hid.menh2].n:''}`]]);
+  b+=`<p class="note">Quỷ hút máu không già và không chết vì tuổi tác, nhưng mỗi năm Huyết cạn dần. Huyết về 0 là cuồng huyết. Nhân tính về 0 là mất mình.${vpSunSafe()?' Bạn đã có cách đi dưới mặt trời.':' Ánh nắng vẫn là kẻ thù.'}</p>`;
+  b+=`<p class="sec">Cơn khát · còn ${vpLeft()}/2 việc năm nay</p>`;VPA.forEach((A,i)=>{b+=gRow(`data-x="vp:a:${i}"`,A[0],A[1],!vpLeft()?'Đã hết lượt':A[2],'',dis||!vpLeft())});
+  b+='<p class="sec">Huyết thuật</p>';
+  b+=gRow('data-x="vp:train"','wand','Luyện huyết thuật',S.done.vpt?'Đã luyện năm nay':V.bl<15?'Cần Huyết từ 15':V.rk>=3?'Huyết −10 · ma lực':'Huyết −10 · tiến tới bậc kế','',dis||!!S.done.vpt||V.bl<15);
+  b+=gRow('data-x="vp:thrall"','eye','Mê hoặc một nô bộc',V.rk<1?`Từ bậc ${VPT[1]}`:S.done.vpth?'Đã làm năm nay':V.th>=2+V.rk*2?'Đã đủ số nô bộc':'Nô bộc nuôi bạn bằng máu và tiền · dễ bị nghi ngờ','',dis||V.rk<1||!!S.done.vpth||V.th>=2+V.rk*2);
+  const E=vpEmbL(),cd=V.emb&&S.year-V.emb<10;
+  if(V.rk<2)b+=gRow('','heart-break','Ban Cái Ôm',`Từ bậc ${VPT[2]}`,'',true);
+  else if(!E.length)b+=gRow('','heart-break','Ban Cái Ôm','Không có người thân nào để ban','',true);
+  else for(const p of E)b+=gRow(`data-x="vp:emb:${p.id}"`,'heart-break',`Ban Cái Ôm cho ${p.first}`,cd?`Phải chờ tới năm ${V.emb+10}`:'Người ấy thành Quỷ hút máu, không già đi nữa · có thể chết','',dis||cd);
+  b+='<p class="sec">Hành trình dài</p>';const dq=S.done.vpq?'Đã đi một chặng năm nay':'';
+  b+=gRow('data-x="vp:q:1"','binoculars','Dòng máu của kẻ sinh thành',V.q1>=5?'Đã khép lại':dq||`Chặng ${V.q1+1}/4 · lần theo kẻ đã cắn bạn`,'',dis||V.q1>=5||!!dq);
+  b+=gRow('data-x="vp:q:2"','sun','Phương thuốc cho mặt trời',V.q2>=5?'Đã khép lại':V.rk<1?`Từ bậc ${VPT[1]}`:dq||`Chặng ${V.q2+1}/4 · tìm cách chữa, hoặc cách đi dưới nắng`,'',dis||V.q2>=5||V.rk<1||!!dq);
+  b+=gRow('data-x="vp:q:3"','crown','Ngai vàng của đêm',V.q3>=4?'Đã khép lại':V.rk<3?`Từ bậc ${VPT[3]}`:V.q1<5?'Phải khép lại chuyện với kẻ sinh thành trước':dq||`Chặng ${V.q3+1}/3 · tranh ngôi Chúa Tể Đêm`,'',dis||V.q3>=4||V.rk<3||V.q1<5||!!dq);
+  return[vpTitle(),b,'act']}
+function vpAct(a,v){if(!isVp()||!S.alive||S.cap)return;const V=VPX();let t='',tone='';
+  if(a==='a'){if(!vpLeft())return;const A=VPA[+v],r=A[3]();if(r===null){note={t:A[4],tone:'bad'};return drawSheet()}S.done.vp=(S.done.vp||0)+1;[t,tone]=arr(r)}
+  else if(a==='train'){if(S.done.vpt||V.bl<15)return;S.done.vpt=1;vpBl(-10);mod({magic:2});t='Bạn ngồi trong bóng tối, tập điều khiển từng giọt máu trong người mình.'+vpXp(R(12,20));tone='magic'}
+  else if(a==='thrall'){if(V.rk<1||S.done.vpth||V.th>=2+V.rk*2)return;S.done.vpth=1;if(ch(.55+S.st.looks/400+V.rk*.08)){V.th++;vpHum(-3);S.flags.suspect=(S.flags.suspect||0)+1;t='Bạn nhìn sâu vào mắt một người hầu quán trọ. Từ nay người ấy mang máu và bạc tới cho bạn, và không nhớ vì sao.'+vpXp(6);tone='magic'}else{S.flags.suspect=(S.flags.suspect||0)+2;t='Người ấy giật mình, làm dấu thánh rồi bỏ chạy. Sáng mai cả phố sẽ biết.';tone='bad'}}
+  else if(a==='emb'){const p=vpEmbL().find(x=>x.id===v);if(V.rk<2||!p||(V.emb&&S.year-V.emb<10))return;V.emb=S.year;
+    if(ch(.7+V.rk*.05)){p.vamp=1;p.va=p.age;if(p.rel)p.race='vampire';p.bond=clamp(p.bond+10);vpHum(-4);t=`Bạn cho ${p.first} uống máu mình, rồi ngồi canh suốt ba đêm. Đêm thứ ba, ${p.first} mở mắt. Hai người sẽ không phải lìa nhau vì tuổi già nữa.`+vpXp(10);tone='magic'}
+    else{p.alive=false;vpHum(-15);mod({happy:-20});strAdd(25);t=`${p.first} không tỉnh lại. Có những người máu không chịu đổi. Bạn tự tay chôn người ấy trước bình minh.`;tone='bad'}}
+  else if(a==='q'){if(S.done.vpq)return;const n=+v,st=V['q'+n],id=`vpq${n}_${st+1}`;if(!EVB[id]||(n===2&&V.rk<1)||(n===3&&(V.rk<3||V.q1<5)))return;S.done.vpq=1;S.pend.push(id);note=null;return afterSheetAction()}
+  log(t,tone);note={t,tone};afterSheetAction()}
+{const d0=drawExt3;drawExt3=function(v){return v==='vp'?vpView():d0(v)}}
+{const x0=extAct3;extAct3=function(x){if(!x.startsWith('vp:'))return x0(x);const p=x.split(':');return vpAct(p[1],p.slice(2).join(':'))}}
+{const a0=actExtra3;actExtra3=function(){const b=a0();if(!isVp())return b;const V=VPX();return b+'<p class="sec">Huyết tộc</p>'+gRow('data-open="vp"','night',vpTitle(),`Huyết ${V.bl}/100 · Nhân tính ${V.hum}/100`,'',false)}}
+
+/* ---------- sự kiện ---------- */
+const vpQ=(n,ok,t,tone)=>{const V=VPX();if(ok)V['q'+n]++;return[t,tone||(ok?'good':'bad')]};
+const vpWin=b=>ch(Math.max(.1,Math.min(.9,.3+(S.blade||0)/200+cbB()/250+VPX().rk*.07+(b||0))));
+const VPEV=[
+ /* bị cắn */
+ {id:'vp_bite',queued:true,big:true,art:'night',c:s=>s.alive&&!isVp()&&s.race!=='skeleton',title:'Vị Khách Lúc Nửa Đêm',
+  text:s=>`Đêm không trăng. Một người lạ ăn vận sang trọng gõ cửa xin trú mưa, dù trời không mưa. Da hắn trắng như sáp, và khi hắn cười, bạn thấy hai chiếc răng quá dài. "Ta đã đi rất xa," hắn nói, mắt không rời cổ bạn. "Và ta đang rất khát."`,
+  ch:[{t:'Rút vũ khí chống trả',f:s=>{if(ch(.2+(s.blade||0)/180+cbB()/250)){mod({honor:6});gainItem('vp_fang');return['Lưỡi thép của bạn xuyên qua tim hắn. Hắn tan thành tro trước khi chạm đất, chỉ để lại một chiếc nanh.','good']}return vpBitten(s)}},
+      {t:'Giơ thánh giá lên',req:s=>s.st.piety>=50,f:s=>{mod({piety:3});return['Hắn rít lên, lùi lại, đưa tay che mắt. "Còn nhiều đêm khác," hắn nói, rồi tan vào bóng tối.','good']}},
+      {t:'Bỏ chạy ra đường',f:s=>{if(ch(.3+s.st.health/300))return['Bạn chạy tới khi phổi bỏng rát, và tới được ánh đèn quán trọ. Phía sau có tiếng cười khẽ, rồi im.',''];return vpBitten(s)}},
+      {t:'Đứng yên, để mặc hắn',f:s=>vpBitten(s)}]},
+ {id:'vp_first',queued:true,big:true,art:'night',c:s=>s.alive&&isVp(),title:'Cơn Khát Đầu Tiên',
+  text:'Đêm thứ ba sau khi chết, bạn tỉnh dậy với cổ họng cháy khô. Nước không giúp gì. Rượu cũng không. Dưới nhà, bạn nghe thấy tiếng tim đập của từng sinh vật: con mèo, con bò trong chuồng, và người hàng xóm đang ngủ.',
+  ch:[{t:'Xuống chuồng bò',f:s=>{vpBl(20);vpHum(8);return['Máu bò nhạt như nước lã, nhưng bạn sống qua được đêm ấy mà không hại ai.','good']}},
+      {t:'Sang nhà hàng xóm',f:s=>{vpBl(45);vpHum(-12);s.flags.suspect=(s.flags.suspect||0)+2;return[`Bạn uống tới khi cơn khát dịu đi. Người hàng xóm ốm liệt giường cả tháng, và cả làng thì thầm về "bệnh thiếu máu".${vpXp(10)}`,'bad']}},
+      {t:'Tự trói mình vào cột nhà, nhịn tới sáng',f:s=>{vpBl(-15);vpHum(12);mod({health:-10});return['Bạn gào suốt đêm. Sáng ra, sợi thừng hằn sâu vào tay, nhưng bạn biết mình vẫn còn là mình.','']}}]},
+ {id:'vp_family',queued:true,big:true,art:'heart-break',c:s=>s.alive&&isVp()&&!!spouse()&&!spouse().vamp,title:'Người Bạn Đời Nhận Ra',
+  text:s=>`${spouse().first} đứng trước gương chải tóc, và trong gương chỉ có một mình người ấy, dù bạn đang đứng ngay sau lưng. Chiếc lược rơi xuống sàn.`,
+  ch:[{t:'Nói thật tất cả',f:s=>{const p=spouse();if(ch(.35+p.bond/200)){p.bond=clamp(p.bond+8);vpHum(6);return[`${p.first} run rẩy rất lâu, rồi nắm lấy bàn tay lạnh của bạn. "Dù thế nào, mình vẫn là vợ chồng."`,'good']}p.bond=clamp(p.bond-35);s.flags.suspect=(s.flags.suspect||0)+2;return[`${p.first} bỏ về nhà cha mẹ ngay trong đêm, và từ đó ngủ với một xâu tỏi quanh cổ.`,'bad']}},
+      {t:'Bảo rằng gương bị hỏng',f:s=>{const p=spouse();p.bond=clamp(p.bond-12);return`${p.first} gật đầu, nhưng từ hôm ấy không bao giờ quay lưng về phía bạn.`}},
+      {t:'Mê hoặc cho người ấy quên đi',req:s=>VPX().rk>=1,f:s=>{vpHum(-8);return['Bạn nhìn vào mắt người mình thương và xóa đi một ký ức. Đó là lần đầu tiên. Bạn sợ rằng sẽ không phải lần cuối.','bad']}}]},
+ {id:'vp_frenzy',queued:true,big:true,art:'heart-break',c:s=>s.alive&&isVp(),title:'Cuồng Huyết',
+  text:'Bạn không nhớ gì về đêm qua. Bạn tỉnh dậy ngoài bìa rừng, quần áo rách tươm, miệng đầy vị sắt. Cơn khát đã lui. Câu hỏi là nó lui nhờ ai.',
+  ch:[{t:'Quay lại xem mình đã làm gì',f:s=>{vpBl(40);const L=[...(s.rel||[]).filter(r=>r.alive&&r.kind==='friend'&&!r.vamp),...s.fam.filter(p=>p.alive&&!p.vamp&&p.age>=10&&!/^(Vợ|Chồng)/.test(p.rel))];
+        if(L.length&&ch(.35)){const p=pick(L);p.alive=false;vpHum(-25);mod({happy:-20,honor:-8});strAdd(30);s.flags.suspect=(s.flags.suspect||0)+3;return[`Dấu máu dẫn về nhà ${p.name}. Bạn đứng ở cửa rất lâu trước khi dám nhìn vào trong.`,'bad']}
+        vpHum(-12);s.flags.suspect=(s.flags.suspect||0)+2;return['Một người chăn cừu lạ mặt nằm dưới gốc sồi. Còn thở, nhưng yếu lắm. Bạn cõng ông ta tới cửa nhà thầy lang rồi bỏ đi trước khi trời sáng.','bad']}},
+      {t:'Không quay lại. Không muốn biết',f:s=>{vpBl(40);vpHum(-18);s.flags.suspect=(s.flags.suspect||0)+1;return['Bạn rửa mặt ở suối và đi thẳng về nhà. Đêm ấy bạn ngủ rất ngon, và chính điều đó làm bạn sợ.','bad']}}]},
+ {id:'vp_beast',queued:true,big:true,art:'skull',c:s=>s.alive&&isVp()&&VPX().hum<=0,title:'Không Còn Là Mình',
+  text:'Bạn nhìn bàn tay mình và không nhớ nổi nó từng nắm tay ai. Tên của mẹ bạn, mùi bánh mì buổi sáng, lý do bạn từng khóc: tất cả nhạt đi như chữ viết trên cát. Chỉ còn cơn khát.',
+  ch:[{t:'Bám lấy một ký ức cuối cùng',f:s=>{vpHum(15);mod({health:-25,happy:-10});return['Bạn cắn vào tay mình tới khi nhớ ra tên mình. Con thú lùi lại, lần này thôi.','']}},
+      {t:'Buông tay',f:s=>{die('mất hết nhân tính, hóa thành thú hoang trong đêm');return['Thứ từng là bạn bỏ vào rừng và không bao giờ trở lại. Người ta kể về một con thú mắt đỏ săn mồi quanh những ngôi làng hẻo lánh.','bad']}}]},
+ {id:'vp_hunter',queued:true,big:true,art:'sword',img:'inquisition',c:s=>s.alive&&isVp(),title:'Thợ Săn Quỷ',
+  text:'Ba người lạ tới làng, mang theo cọc gỗ sồi, nước thánh và một con chó đánh hơi được thứ không còn sống. Họ đang hỏi thăm về những người "ít ra ngoài ban ngày".',
+  ch:[{t:'Phục kích họ trong đêm',f:s=>{if(vpWin()){s.flags.suspect=Math.max(0,(s.flags.suspect||0)-3);vpHum(-6);return[`Sáng ra chỉ còn con chó tru bên ba cái xác.${vpXp(18)}`,'magic']}mod({health:-R(20,35)});if(s.alive&&ch(.2)){die('dưới cọc gỗ của thợ săn quỷ');return['Mũi cọc sồi tìm được tim bạn.','bad']}return['Nước thánh bỏng rát nửa mặt bạn. Bạn thoát được qua mái nhà.','bad']}},
+      {t:'Rời làng trước khi họ tìm ra',f:s=>{s.money=Math.floor(Math.max(0,s.money)*.8);s.village=pick(VILL);s.flags.suspect=0;for(const r of rels('friend'))r.bond=clamp(r.bond-10);return`Bạn bỏ lại một phần gia sản, chuyển tới làng ${s.village} ngay trong đêm.`}},
+      {t:'Đút lót cho họ nhìn đi chỗ khác (60 xu)',req:s=>s.money>=60,f:s=>{s.money-=60;s.flags.suspect=Math.max(0,(s.flags.suspect||0)-2);return'Thợ săn cũng phải ăn. Họ cầm tiền và báo lên Giáo hội rằng làng này sạch.'}},
+      {t:'Nằm im trong quan tài chờ họ đi',f:s=>{vpBl(-20);if(ch(.6)){s.flags.suspect=Math.max(0,(s.flags.suspect||0)-1);return'Bạn nằm dưới hầm suốt một tháng, nghe tiếng chân họ đi lại trên đầu. Rồi họ bỏ đi.'}mod({health:-R(15,25)});return['Con chó tìm ra cửa hầm. Bạn phải đánh tháo ra giữa ban ngày.','bad']}}]},
+ {id:'vp_sire',queued:true,big:true,art:'night',c:s=>s.alive&&isVp()&&!VPX().sd,title:'Kẻ Đã Cắn Bạn',
+  text:s=>`${VPX().sire} xuất hiện trong phòng bạn mà không cần mở cửa. "Ta đã cho ngươi sự bất tử. Giờ là lúc trả ơn. Có một kẻ ta muốn biến mất, và ngươi sẽ lo việc đó."`,
+  ch:[{t:'Vâng lời',f:s=>{vpHum(-10);mod({honor:-4});s.money+=R(30,70);VPX().patron=1;return[`Bạn làm việc ấy gọn gàng. Kẻ sinh thành gật đầu hài lòng và để lại một túi bạc.${vpXp(15)}`,'bad']}},
+      {t:'Từ chối',f:s=>{vpHum(5);VPX().patron=0;mod({health:-R(10,20)});return['Hắn nhấc bạn lên bằng một tay rồi ném vào tường. "Ngươi còn trẻ. Rồi ngươi sẽ hiểu." Bạn biết hắn sẽ quay lại.','']}},
+      {t:'Giả vờ nhận lời, rồi báo cho con mồi trốn',f:s=>{vpHum(8);if(ch(.5+s.st.smarts/300)){mod({honor:4});return['Con mồi biến mất trước khi bạn "kịp tới". Kẻ sinh thành nghi ngờ, nhưng không có bằng chứng.','good']}mod({health:-R(20,30)});return['Hắn biết. Hình phạt là ba đêm bị xích ngoài hiên chờ mặt trời, và được thả ra đúng lúc da bạn bắt đầu bốc khói.','bad']}}]},
+ {id:'vp_court',queued:true,big:true,art:'crown',c:s=>s.alive&&isVp()&&VPX().rk>=2,title:'Dạ Tiệc Huyết Tộc',
+  text:'Một tấm thiệp viết bằng mực đỏ mời bạn tới dạ tiệc của Hội Đồng Đêm. Trong lâu đài cổ, những kẻ đã sống năm trăm năm nhấp máu trong ly pha lê và nhìn bạn như nhìn một món đồ mới.',
+  ch:[{t:'Kết thân với các trưởng lão',f:s=>{if(ch(.4+s.st.looks/300+s.st.smarts/400)){if(ch(.3)&&!hasItem('vp_chalice'))gainItem('vp_chalice');return[`Bạn nói đúng những điều họ muốn nghe. Một trưởng lão nhận bảo trợ cho bạn.${vpXp(20)}`,'magic']}return'Bạn cười không đúng lúc. Cả phòng im lặng, rồi quay đi.'}},
+      {t:'Thách đấu một bá tước trẻ',f:s=>{if(vpWin()){mod({honor:3});return[`Bạn ghim đối thủ xuống sàn đá cẩm thạch. Tiếng vỗ tay lạnh lẽo vang khắp sảnh.${vpXp(25)}`,'magic']}mod({health:-R(15,30)});return['Hắn nhanh hơn bạn hai trăm năm. Bạn rời tiệc với một cánh tay gãy.','bad']}},
+      {t:'Đứng trong góc quan sát',f:s=>{mod({smarts:2});return`Bạn nhớ mặt từng người, từng liên minh, từng mối thù.${vpXp(8)}`}}]},
+ {id:'vp_love',queued:true,big:true,art:'heart',c:s=>{const m=spouse()||lover();return s.alive&&isVp()&&!!m&&!m.vamp},title:'Người Thương Sẽ Già Đi',
+  text:s=>{const m=spouse()||lover();return`${m.first} tìm thấy sợi tóc bạc đầu tiên, và cười. Rồi người ấy nhìn bạn, người không già đi lấy một ngày, và thôi cười. "Rồi sẽ đến lúc người ta tưởng hai đứa mình cách nhau cả một thế hệ," ${m.first} nói khẽ. "Hay là... cho mình đi cùng?"`},
+  ch:[{t:'Hứa sẽ ban Cái Ôm khi đủ sức',f:s=>{const m=spouse()||lover();m.bond=clamp(m.bond+8);return`${m.first} tựa đầu vào vai bạn. Bạn cần đạt bậc ${VPT[2]} để giữ lời.`}},
+      {t:'Khuyên người ấy sống trọn một đời người',f:s=>{const m=spouse()||lover();vpHum(8);m.bond=clamp(m.bond+3);return'Người ấy khóc, rồi gật đầu. Hai người sẽ có bao nhiêu năm thì quý bấy nhiêu năm.'}},
+      {t:'Lảng sang chuyện khác',f:s=>{const m=spouse()||lover();m.bond=clamp(m.bond-10);return['Câu hỏi vẫn treo ở đó, mỗi năm một nặng hơn.','bad']}}]},
+ {id:'vp_ageless',queued:true,big:true,art:'eye',c:s=>s.alive&&isVp(),title:'Mười Lăm Năm Không Một Nếp Nhăn',
+  text:s=>`Ở ${s.village}, lũ trẻ ngày bạn đến giờ đã có con. Còn bạn vẫn y như ngày ấy. Bà bán hàng xén nheo mắt nhìn bạn rất lâu: "Lạ thật. Ngài dùng thứ thuốc gì thế?"`,
+  ch:[{t:'Giả chết, rồi quay lại làm "người cháu" của chính mình',f:s=>{s.flags.suspect=Math.max(0,(s.flags.suspect||0)-2);VPX().vy=s.year;VPX().ag=0;mod({happy:-3});return'Làng làm đám tang cho bạn. Một năm sau, "người cháu họ xa" về nhận nhà, giống bạn như đúc.'}},
+      {t:'Chuyển tới một làng khác',f:s=>{s.village=pick(VILL);s.flags.suspect=Math.max(0,(s.flags.suspect||0)-3);for(const r of rels('friend'))r.bond=clamp(r.bond-15);return`Bạn gói ghém đồ đạc đi trong đêm, tới làng ${s.village}, nơi chưa ai biết mặt bạn.`}},
+      {t:'Ở lại, mặc cho họ bàn tán',f:s=>{s.flags.suspect=(s.flags.suspect||0)+3;VPX().vy=s.year;VPX().ag=0;return['Lời bàn tán lan ra, và rồi sẽ tới tai những kẻ chuyên đi tìm người không già.','bad']}}]},
+ {id:'vp_sun',queued:true,art:'sun',c:s=>s.alive&&isVp()&&!vpSunSafe(),title:'Bình Minh Đến Sớm',
+  text:'Bạn mải đi săn, và khi ngẩng lên thì chân trời đã hồng. Nhà còn cách ba dặm.',
+  ch:[{t:'Chạy hết sức về nhà',f:s=>{if(ch(.5+s.st.health/300))return'Bạn lao qua cửa hầm đúng lúc tia nắng đầu tiên chạm ngưỡng cửa.';mod({health:-R(15,28),looks:-3});return['Nắng bắt kịp bạn ở cổng. Da bạn bốc khói như giấy gặp lửa.','bad']}},
+      {t:'Đào đất chui xuống ngay tại chỗ',f:s=>{mod({health:-5,happy:-3});return'Bạn nằm dưới ba tấc đất suốt một ngày, nghe giun bò qua tai. Tối đến, bạn chui lên, bẩn thỉu nhưng nguyên vẹn.'}}]},
+ /* Chuỗi 1: Dòng máu của kẻ sinh thành */
+ {id:'vpq1_1',queued:true,big:true,art:'binoculars',c:s=>isVp(),title:'Dấu Răng Trên Cổ Áo',text:s=>`Bạn chỉ biết một cái tên: ${VPX().sire}. Dọc đường cái quan, các chủ quán trọ đều nhớ một vị khách trả tiền bằng vàng cũ và không bao giờ ăn.`,
+  ch:[{t:'Trả tiền cho họ nhớ kỹ hơn (10 xu)',req:s=>s.money>=10,f:s=>{s.money-=10;return vpQ(1,1,'Một chủ quán chỉ về phía bắc: "Hắn đi về hướng lâu đài cũ trên đèo. Chỗ ấy bỏ hoang cả trăm năm rồi."')}},
+      {t:'Dùng ánh mắt khiến họ nói',f:s=>ch(.4+s.st.looks/300+VPX().rk*.1)?(vpHum(-2),vpQ(1,1,'Chủ quán nói như người mộng du: lâu đài cũ trên đèo, phía bắc.')):vpQ(1,0,'Ông ta dụi mắt và gọi người làm đuổi bạn ra.')},
+      {t:'Hỏi han tử tế, từng quán một',f:s=>ch(.35+s.st.smarts/300)?vpQ(1,1,'Mất cả mùa đông, nhưng cuối cùng một bà góa chỉ cho bạn lâu đài cũ trên đèo phía bắc.'):vpQ(1,0,'Không ai chịu nói. Cái tên ấy làm người ta sợ.')}]},
+ {id:'vpq1_2',queued:true,big:true,art:'castle',c:s=>isVp(),title:'Lâu Đài Trên Đèo',text:'Lâu đài không có lấy một tấm gương. Trong thư phòng, bụi phủ dày trên một cuốn nhật ký, và dưới hầm có tiếng nước nhỏ giọt đều đặn, hoặc thứ gì đó giống nước.',
+  ch:[{t:'Đọc cuốn nhật ký',f:s=>{if(!ch(.4+s.st.smarts/250))return vpQ(1,0,'Chữ viết bằng thứ tiếng đã chết ba trăm năm. Bạn chưa đọc nổi.');gainItem('vp_ring');return vpQ(1,1,'Kẻ sinh thành của bạn từng là một lãnh chúa mất cả gia đình trong dịch hạch. Hắn cắn người vì không chịu nổi cô độc, rồi bỏ rơi từng đứa con vì không chịu nổi việc nhìn thấy chính mình. Kẹp giữa hai trang là chiếc Nhẫn Huyết Ấn.')}},
+      {t:'Xuống hầm',f:s=>{if(!ch(.45+s.st.health/300)){mod({health:-R(10,20)});return vpQ(1,0,'Sàn hầm sụp dưới chân bạn. Dưới đó là cọc nhọn, bẫy dành cho thợ săn, và giờ là cho bạn.')}gainItem('vp_ring');return vpQ(1,1,'Dưới hầm là mười hai cỗ quan tài trống. Mười hai đứa con hắn đã tạo ra và bỏ rơi. Trên nắp cỗ thứ mười ba có khắc tên bạn, và một chiếc nhẫn.')}}]},
+ {id:'vpq1_3',queued:true,big:true,art:'crossed',c:s=>isVp(),prep:s=>{s.tmp={n:`${pick(s.sex==='f'?MN:FN)} ${pick(['Tro Lạnh','Mắt Xám','Không Bóng'])}`}},title:'Đứa Con Khác Của Kẻ Ấy',
+  text:s=>`Trên cây cầu dẫn tới chỗ ẩn náu của kẻ sinh thành có người đứng chặn: ${s.tmp.n}, một quỷ hút máu khác cũng do hắn tạo ra. "Ngươi không phải đứa đầu tiên đi tìm cha," kẻ ấy nói. "Ta ở đây để ngươi là đứa cuối cùng."`,
+  ch:[{t:'Đấu tay đôi',f:s=>{if(vpWin())return vpQ(1,1,`Bạn hạ ${s.tmp.n} và bước qua cầu.${vpXp(15)}`,'magic');mod({health:-R(15,28)});return vpQ(1,0,'Kẻ ấy ném bạn xuống sông. Nước chảy là thứ quỷ hút máu ghét nhất sau mặt trời.')}},
+      {t:'"Hắn cũng bỏ rơi ngươi, đúng không?"',f:s=>{if(VPX().hum>=40&&ch(.6)){const r=addFriend({first:s.tmp.n.split(' ')[0]});if(r){r.vamp=1;r.va=r.age}vpHum(5);return vpQ(1,1,`${s.tmp.n} im lặng rất lâu, rồi tránh sang một bên. "Đi đi. Và nếu ngươi giết hắn, hãy kể cho ta nghe." Bạn có thêm một người bạn trong đêm.`)}return vpQ(1,0,'Kẻ ấy cười khẩy. Bạn chưa đủ thành thật, hoặc chưa đủ nhân tính, để lời ấy có sức nặng.')}},
+      {t:'Lừa kẻ ấy ra chỗ sắp có nắng',f:s=>ch(.35+s.st.smarts/250)?(vpHum(-6),vpQ(1,1,'Bạn kéo dài câu chuyện tới rạng đông. Kẻ ấy nhận ra quá muộn.','magic')):vpQ(1,0,'Kẻ ấy đã sống đủ lâu để biết trò này.')}]},
+ {id:'vpq1_4',queued:true,big:true,art:'night',c:s=>isVp(),title:'Đối Mặt Kẻ Sinh Thành',
+  text:s=>`${VPX().sire} ngồi một mình trong nhà nguyện đổ nát, trước mười hai ngọn nến. "Ta biết ngươi sẽ tới," hắn nói mà không quay lại. "Đứa nào rồi cũng tới. Ngươi muốn gì ở ta? Một lời xin lỗi? Hay cái chết của ta?"`,
+  ch:[{t:'Kết liễu hắn',f:s=>{const V=VPX();if(vpWin(-.05)){V.sd=1;V.q1=5;V.patron=0;vpHum(-5);gainItem('vp_cloak');return[`Hắn không chống cự nhiều như bạn tưởng. Khi tro tàn lắng xuống, tấm Áo Choàng Hoàng Hôn nằm lại trên bậc đá. Dòng máu ấy giờ là của bạn.${vpXp(60)}`,'magic']}mod({health:-R(25,40)});if(s.alive&&ch(.15)){die(`dưới tay ${V.sire}, kẻ đã sinh ra mình trong đêm`);return['Hắn già hơn bạn năm trăm năm. Bạn không có cơ hội.','bad']}return['Hắn bẻ gãy tay bạn rồi thả bạn đi. "Chưa phải lúc. Về mà luyện thêm."','bad']}},
+      {t:'Quỳ xuống nhận hắn làm cha',f:s=>{const V=VPX();V.q1=5;V.patron=1;vpHum(-8);return[`Hắn đặt tay lên đầu bạn. Từ nay bạn có một kẻ bảo trợ, và một sợi xích.${vpXp(25)}`,'']}},
+      {t:'Tha thứ, rồi quay lưng đi',f:s=>{const V=VPX();V.q1=5;V.patron=0;vpHum(18);mod({happy:10});strAdd(-20);return['"Ta không cần gì ở ngươi cả," bạn nói. Lần đầu tiên sau năm trăm năm, có người quay lưng với hắn mà không sợ. Bạn nghe tiếng mười hai ngọn nến tắt sau lưng mình.','good']}}]},
+ /* Chuỗi 2: Phương thuốc cho mặt trời */
+ {id:'vpq2_1',queued:true,big:true,art:'tower',c:s=>isVp(),title:'Lời Đồn Về Một Phương Thuốc',text:'Người ta kể có một nhà giả kim già sống trong tháp đổ ngoài đầm lầy. Vợ ông ta bị cắn năm mươi năm trước, và ông đã dành cả đời để tìm cách đưa bà trở lại.',
+  ch:[{t:'Trả tiền cho ông ta (30 xu)',req:s=>s.money>=30,f:s=>{s.money-=30;return vpQ(2,1,'Ông già đếm tiền rồi mở cuốn sổ dày: "Có công thức. Chưa ai có đủ nguyên liệu. Ba thứ: nước thánh, máu của kẻ cắn ngươi, và một thứ thứ ba khó hơn cả."')}},
+      {t:'Kể cho ông nghe chuyện của mình',f:s=>VPX().hum>=45?vpQ(2,1,'Ông già nghe hết, rồi gật đầu: "Ngươi vẫn còn biết đau. Thế thì còn chữa được." Ông đưa bạn công thức: nước thánh, máu của kẻ đã cắn bạn, và một thứ thứ ba.'):vpQ(2,0,'Ông già nhìn vào mắt bạn rồi đóng sập cửa: "Ngươi không muốn chữa. Ngươi chỉ muốn thêm một thứ quyền năng."')}]},
+ {id:'vpq2_2',queued:true,big:true,art:'chalice',c:s=>isVp(),title:'Nguyên Liệu Thứ Ba',text:'Nước thánh thì mua được, dù bỏng tay. Máu của kẻ sinh thành, bạn đã có cách. Còn thứ thứ ba, công thức chỉ ghi: "một thứ mà sự sống tự nguyện trao cho cái chết".',
+  ch:[{t:'Dùng một lọ Thần Dược',hide:true,req:s=>hasItem('p_than'),f:s=>{const i=s.bag.findIndex(x=>x.k==='p_than');if(i>=0)s.bag.splice(i,1);return vpQ(2,1,'Thần Dược sôi lên khi chạm vào máu quỷ, rồi lắng xuống thành một màu vàng nhạt như nắng sớm.')}},
+      {t:'Xin một giọt nước mắt của người thương',req:s=>[spouse(),lover(),soulmate()].some(p=>p&&p.bond>=75&&!p.vamp),f:s=>{const p=[spouse(),lover(),soulmate()].find(x=>x&&x.bond>=75&&!x.vamp);vpHum(5);return vpQ(2,1,`${p.first} không hỏi vì sao. Người ấy chỉ nhìn bạn, và giọt nước mắt tự rơi vào lọ.`)}},
+      {t:'Mua thứ thay thế ở chợ đen (150 xu)',req:s=>s.money>=150,f:s=>{s.money-=150;return ch(.6)?vpQ(2,1,'Gã buôn thề đây là "hơi thở cuối của một vị thánh". Lạ thay, nó có tác dụng.'):vpQ(2,0,'Thứ trong lọ chỉ là nước mưa. Gã buôn đã cao chạy xa bay.')}}]},
+ {id:'vpq2_3',queued:true,big:true,art:'flame',c:s=>isVp(),title:'Đêm Chưng Cất',text:'Phải chưng suốt một đêm, và phải tắt lửa đúng khoảnh khắc trước bình minh. Sớm một nhịp thì thuốc vô dụng. Muộn một nhịp thì nắng lọt qua cửa sổ.',
+  ch:[{t:'Tự tay canh lửa',f:s=>ch(.4+s.st.smarts/300+s.st.magic/400)?vpQ(2,1,'Bạn tắt lửa khi tia sáng đầu tiên còn cách bậu cửa một gang tay. Trong bình là một chén thuốc màu hổ phách.'):(mod({health:-R(12,22)}),vpQ(2,0,'Bạn chậm một nhịp. Nắng liếm vào tay bạn, bình thuốc vỡ tan.'))},
+      {t:'Nhờ nhà giả kim canh giúp, mình nấp trong hầm',f:s=>ch(.55)?vpQ(2,1,'Ông già run tay nhưng không lỡ nhịp. Sáng ra, chén thuốc màu hổ phách chờ bạn dưới hầm.'):vpQ(2,0,'Ông già ngủ gật. Thuốc cháy khét.')}]},
+ {id:'vpq2_4',queued:true,big:true,art:'sun',c:s=>isVp(),title:'Chén Thuốc',text:'Chén thuốc ấm trong tay bạn. Nhà giả kim nói: "Uống cạn thì tim ngươi đập lại, và ngươi sẽ già, sẽ chết như mọi người. Uống một nửa thì ngươi vẫn là quỷ, nhưng nắng không giết được ngươi nữa. Ta chưa thấy ai chọn dễ dàng."',
+  ch:[{t:'Uống cạn, trở lại làm người',f:s=>{VPX().q2=5;vpCure();return['Cơn đau như bị xé làm đôi. Rồi bạn nghe thấy nó: một nhịp tim, rồi một nhịp nữa. Sáng hôm sau bạn đứng giữa sân, khóc dưới nắng. Máu trong bạn vẫn nhớ những gì nó đã học, và Mệnh Huyết ở lại.','good']}},
+      {t:'Uống một nửa, đi dưới mặt trời',f:s=>{const V=VPX();V.q2=5;V.day=1;gainItem('vp_amber');mod({happy:8});return[`Nửa chén còn lại đông thành một viên hổ phách. Bạn bước ra giữa trưa, và nắng chỉ ấm.${vpXp(30)}`,'magic']}},
+      {t:'Đưa chén thuốc cho vợ của nhà giả kim',f:s=>{const V=VPX();V.q2=5;vpHum(25);mod({honor:8,happy:6});return['Bà lão uống, và sau năm mươi năm, ông già lại được nắm một bàn tay ấm. Bạn rời tháp khi trời còn tối. Có những thứ đáng giá hơn mặt trời.','good']}}]},
+ /* Chuỗi 3: Ngai vàng của đêm */
+ {id:'vpq3_1',queued:true,big:true,art:'crown',c:s=>isVp(),title:'Hội Đồng Trưởng Lão',text:'Ngai Chúa Tể Đêm bỏ trống đã bảy mươi năm. Bảy trưởng lão bỏ phiếu, và bạn cần bốn phiếu.',
+  ch:[{t:'Mua phiếu bằng vàng (200 xu)',req:s=>s.money>=200,f:s=>{s.money-=200;return vpQ(3,1,'Quỷ hút máu sống lâu, và sống lâu thì tốn kém. Bốn trưởng lão nhận vàng của bạn.')}},
+      {t:'Cho họ thấy đám nô bộc của mình',req:s=>VPX().th>=4,f:s=>vpQ(3,1,'Bạn bước vào sảnh với cả một đoàn tùy tùng mắt mơ màng. Các trưởng lão hiểu: kẻ này biết cai trị.')},
+      {t:'Thách đấu trưởng lão mạnh nhất',f:s=>{if(vpWin(-.05))return vpQ(3,1,`Bạn ghim trưởng lão xuống bàn hội đồng. Sáu người còn lại giơ tay rất nhanh.${vpXp(20)}`,'magic');mod({health:-R(20,35)});return vpQ(3,0,'Bạn bị khiêng ra khỏi sảnh. Năm sau thử lại.')}}]},
+ {id:'vpq3_2',queued:true,big:true,art:'dagger',c:s=>isVp(),title:'Đêm Dao Găm',text:'Có kẻ không muốn bạn ngồi lên ngai. Đêm trước lễ đăng quang, quan tài của bạn bị đóng đinh bạc từ bên ngoài, và ai đó đang kéo nó ra phía cửa sổ hướng đông.',
+  ch:[{t:'Phá nắp quan tài',f:s=>ch(.4+s.st.health/300+VPX().rk*.06)?vpQ(3,1,'Gỗ sồi vỡ tung. Kẻ chủ mưu, một bá tước già, quỳ xuống xin tha.'):(mod({health:-R(20,30)}),vpQ(3,0,'Đinh bạc đốt tay bạn. Bạn thoát ra khi nắng đã liếm tới chân, và phải dưỡng thương cả năm.'))},
+      {t:'Hóa sương luồn qua khe gỗ',req:s=>!!(s.mv&&s.mv.vp2),f:s=>vpQ(3,1,'Bạn tan thành sương, lọt qua khe nắp, rồi hiện hình ngay sau lưng kẻ đang kéo quan tài.','magic')},
+      {t:'Gọi nô bộc tới cứu',req:s=>VPX().th>=1,f:s=>{VPX().th--;return vpQ(3,1,'Một nô bộc lao vào gỡ đinh và trả giá bằng mạng mình. Bạn sống. Bạn nợ người ấy một cái tên trên bia mộ.')}}]},
+ {id:'vpq3_3',queued:true,big:true,art:'crown',c:s=>isVp(),title:'Lễ Đăng Quang Dưới Trăng Máu',text:'Trăng đỏ lên giữa đỉnh trời. Vương Miện Huyết Nguyệt nằm trên gối nhung đen. Bảy trưởng lão quỳ. Cả một dân tộc sống trong bóng tối chờ xem bạn sẽ là loại chúa tể nào.',
+  ch:[{t:'Đội vương miện',f:s=>{const V=VPX();V.q3=4;V.rk=4;gainItem('vp_crown');mvLearn('vp4',true);mod({magic:10});s.house.prestige+=100;announce('Chúa Tể Đêm',`${s.first} ${s.surname} đội Vương Miện Huyết Nguyệt. Từ nay mọi quỷ hút máu trong xứ gọi người ấy là chúa.`,'crown');return['Vương miện lạnh như băng, rồi ấm dần theo máu bạn. Bạn là Chúa Tể Đêm.','magic']}},
+      {t:'Ra luật: không quỷ nào được giết người để uống máu',f:s=>{const V=VPX();V.q3=4;V.rk=4;gainItem('vp_crown');mvLearn('vp4',true);vpHum(25);mod({honor:10,magic:6});s.flags.suspect=0;fac(4,0);announce('Chúa Tể Đêm',`${s.first} ${s.surname} lên ngôi Chúa Tể Đêm và ban Luật Máu Lành.`,'crown');return['Ba trưởng lão bỏ đi trong giận dữ. Bốn người ở lại. Lần đầu tiên sau nghìn năm, đêm có một vị chúa mà ban ngày không cần sợ.','good']}},
+      {t:'Đập vỡ vương miện, giải tán Hội Đồng',f:s=>{const V=VPX();V.q3=4;vpHum(15);mod({honor:5});return[`"Không ai nên làm chúa của đêm," bạn nói. Các trưởng lão tan vào bóng tối, mỗi kẻ một ngả.${vpXp(30)}`,'']}}]},
+ /* sự kiện nhỏ */
+ {id:'vps_mirror',w:s=>isVp()?3:0,c:s=>isVp(),title:'Tấm Gương Ngoài Chợ',text:'Một người bán gương dựng sạp ngay lối bạn hay đi. Hàng chục tấm gương, và không tấm nào có bạn.',
+  ch:[{t:'Đi vòng qua lối khác',f:s=>'Bạn kéo mũ trùm thấp xuống và rẽ vào hẻm.'},{t:'Mua hết số gương rồi đập đi (15 xu)',req:s=>s.money>=15,f:s=>{s.money-=15;return'Người bán gương mừng rỡ. Bạn thì yên tâm được một mùa.'}},{t:'Cứ đi thẳng qua',f:s=>{if(ch(.4)){s.flags.suspect=(s.flags.suspect||0)+2;return['Một đứa trẻ chỉ tay: "Mẹ ơi, chú kia không có trong gương!"','bad']}return'Không ai để ý. Lần này.'}}]},
+ {id:'vps_garlic',w:s=>isVp()?3:0,c:s=>isVp(),title:'Bữa Tiệc Tỏi',text:'Hàng xóm mời bạn dự tiệc mừng mùa tỏi. Cả cái sân treo đầy tỏi tươi, và món nào cũng nồng nặc.',
+  ch:[{t:'Cáo ốm',f:s=>{s.flags.suspect=(s.flags.suspect||0)+(ch(.3)?1:0);return'Bạn gửi lời xin lỗi và một bình rượu. Năm nào cũng ốm đúng mùa tỏi thì cũng có người để ý.'}},{t:'Đến dự, cắn răng chịu đựng',f:s=>{mod({health:-6});s.flags.suspect=Math.max(0,(s.flags.suspect||0)-1);return'Bạn ngồi cuối bàn, mắt cay xè, cười gượng suốt buổi. Không ai nghi ngờ một người chịu ăn tỏi.'}}]},
+ {id:'vps_cut',w:s=>isVp()?3:0,c:s=>isVp(),title:'Ngón Tay Đứt',text:'Một đứa trẻ hàng xóm đứt tay khi gọt táo, chạy sang nhờ bạn băng giúp. Máu nhỏ từng giọt xuống sàn nhà bạn.',
+  ch:[{t:'Băng cho nó, nín thở',f:s=>{vpHum(4);vpBl(-4);return['Bạn băng xong, tiễn nó ra cửa, rồi ngồi sụp xuống thở dốc. Bạn đã thắng, hôm nay.','good']}},{t:'Bảo nó sang nhà khác',f:s=>'Bạn đóng cửa lại và tựa lưng vào đó rất lâu.'},{t:'Liếm giọt máu trên sàn khi nó đã về',f:s=>{vpBl(3);vpHum(-3);return'Chỉ một giọt. Bạn tự nhủ thế.'}}]},
+ {id:'vps_invite',w:s=>isVp()?2:0,c:s=>isVp(),title:'Ngưỡng Cửa',text:'Bạn tới thăm nhà một người quen mới, và đứng sững ở ngưỡng cửa. Chủ nhà đang bận trong bếp, chưa nói câu "mời vào".',
+  ch:[{t:'Đứng ngoài hiên chờ được mời',f:s=>'Mười phút sau chủ nhà chạy ra: "Sao ngài không vào?" Bạn cười: "Tôi được dạy phải chờ mời."'},{t:'Gọi vọng vào: "Tôi vào được chứ?"',f:s=>'"Vào đi, vào đi!" Sợi dây vô hình ở ngưỡng cửa đứt ra.'}]},
+ {id:'vps_moon',w:s=>isVp()?2:0,c:s=>isVp(),title:'Đêm Trăng Máu',text:'Trăng lên đỏ như một vết thương. Máu trong người bạn hát.',
+  ch:[{t:'Ra đồng tắm trăng',f:s=>{vpBl(12);mod({magic:3});return['Bạn đứng giữa cánh đồng tới sáng. Cơn khát dịu đi như được ai vỗ về.','magic']}},{t:'Đi săn dưới trăng',f:s=>{vpBl(30);vpHum(-5);return[`Đêm ấy không con mồi nào thoát được bạn.${vpXp(10)}`,'bad']}},{t:'Khóa cửa ở trong nhà',f:s=>{vpHum(4);return'Bạn sợ thứ mình sẽ thành dưới ánh trăng ấy.'}}]},
+ {id:'vps_dog',w:s=>isVp()&&!hasItem('vp_fang')?2:0,c:s=>isVp(),title:'Con Chó Của Hàng Xóm',text:'Con chó nhà bên trước giờ vẫn quý bạn. Từ hôm bạn đổi khác, cứ thấy bạn là nó sủa điên cuồng, lông dựng ngược.',
+  ch:[{t:'Kiên nhẫn làm quen lại',f:s=>ch(.5)?(vpHum(3),['Mất ba tháng và rất nhiều xương bò. Cuối cùng nó chịu ngửi tay bạn, dè dặt.','good']):'Nó không bao giờ tin bạn nữa. Chó biết những điều người không biết.'},{t:'Trừng mắt cho nó im',f:s=>{s.flags.suspect=(s.flags.suspect||0)+1;return'Con chó rên ư ử rồi chui xuống gầm giường. Chủ nó nhìn bạn rất lạ.'}}]}];
+function vpBitten(s){if(s.race==='fiend'){mod({health:-10});return['Hắn cắm nanh vào cổ bạn, rồi sặc sụa nhổ ra. "Máu quỷ! Đắng như tro!" Hắn lau miệng, lảo đảo biến vào đêm. Dòng máu Bán quỷ không nuôi được loài hút máu.','']}
+  vpBecome();return['Hai chiếc nanh lạnh buốt cắm vào cổ bạn. Thế giới tối dần. Điều cuối cùng bạn nghe được là giọng hắn: "Đừng sợ. Ngươi sẽ không bao giờ phải sợ cái chết nữa."','bad']}
+for(const e of VPEV){EV.push(e);EVB[e.id]=e}
+/* người thừa kế là Quỷ hút máu: giữ Mệnh Huyết */
+{const i0=inherit;inherit=function(){const r=i0.apply(this,arguments);if(S&&S.race==='vampire'){VPX();mnEnsure();if(S.hid.menh!=='huyet')S.hid.menh2='huyet'}return r}}
 
 const RAW0=(()=>{try{return localStorage.getItem(KEY)}catch(e){return null}})();try{S=migrate(load())}catch(e){console.error(e);S=null}
 if(!S&&RAW0){vdbTx(['meta','data'],'readwrite',(M,D)=>{const m={id:'r'+Date.now().toString(36),t:Date.now(),lid:'rescue',kind:'rescue',why:'bản lưu không đọc được lúc mở game',name:'Bản lưu cũ',first:'Bản lưu cũ',gen:1,age:0,year:0,house:'Cứu hộ',alive:true};M.put(m);D.put(RAW0,m.id)})}
